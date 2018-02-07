@@ -1,0 +1,18 @@
+/*
+Enforces compiling with the specified compiler if environment variable JAVA#_HOME is set.
+For example, projects that build with Java 7 should have environment variable JAVA7_HOME set.
+*/
+apply from: scriptFile('env.gradle')
+configureJavaCompilers(8)
+
+ext {
+    spigot = '1.12.2-R0.1-SNAPSHOT'
+}
+
+repositories {
+    maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+}
+
+dependencies {
+    shadow group: 'org.spigotmc', name: 'spigot-api', version: spigot
+}

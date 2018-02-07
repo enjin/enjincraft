@@ -1,0 +1,7 @@
+name: Enjin_Coin_Spigot_Plugin
+description: Spigot plugin for the Enjin Coin Minecraft Framework, a platform for game assets on the Ethereum block-chain.
+version: 0.0.1-SNAPSHOT-spigot
+authors: [Evan "Favorlock" Lindsay, Damien Gallagher, Tobias Drewry, Enjin Coin Team]
+website: https://enjincoin.io
+main: com.enjin.enj_spigot_framework.PluginBootstrap
+softdepend: [Vault]
