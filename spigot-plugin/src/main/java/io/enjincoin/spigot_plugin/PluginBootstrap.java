@@ -1,5 +1,6 @@
-package com.enjin.enj_spigot_framework;
+package io.enjincoin.spigot_plugin;
 
+import io.enjincoin.spigot_framework.Bootstrap;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class PluginBootstrap extends JavaPlugin implements Bootstrap {

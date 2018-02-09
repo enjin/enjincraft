@@ -3,5 +3,5 @@ description: Spigot plugin for the Enjin Coin Minecraft Framework, a platform fo
 version: @version@-spigot
 authors: [Evan "Favorlock" Lindsay, Damien Gallagher, Tobias Drewry, Enjin Coin Team]
 website: https://enjincoin.io
-main: com.enjin.enj_spigot_framework.PluginBootstrap
+main: io.enjincoin.spigot_plugin.PluginBootstrap
 softdepend: [Vault]
