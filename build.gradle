@@ -19,7 +19,7 @@ subprojects {
     apply plugin: 'maven'
     apply plugin: 'com.github.johnrengelman.shadow'
 
-    group 'com.enjin'
+    group 'io.enjincoin'
     version '0.0.1-SNAPSHOT'
 
     idea {
@@ -47,11 +47,5 @@ subprojects {
 
     shadowJar {
         archiveName = "${project.name}.jar"
-    }
-
-    install {
-        repositories.mavenInstaller {
-            pom.artifactId = "enj-${project.name}"
-        }
     }
 }
