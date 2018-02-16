@@ -11,9 +11,11 @@ import java.util.Arrays;
 public class RootCommand implements CommandExecutor {
 
     private final BasePlugin main;
+    private final LinkCommand link;
 
     public RootCommand(BasePlugin main) {
         this.main = main;
+        this.link = new LinkCommand(main);
     }
 
     @Override
@@ -23,7 +25,7 @@ public class RootCommand implements CommandExecutor {
             String[] subArgs = args.length == 1 ? new String[0] : Arrays.copyOfRange(args, 1, args.length);
             switch (sub.toLowerCase()) {
                 case "link":
-                    LinkCommand.execute(this.main, sender, subArgs);
+                    this.link.execute(sender, subArgs);
                     break;
                 default:
                     sender.sendMessage(String.format("No sub-command with alias %s exists.", sub));

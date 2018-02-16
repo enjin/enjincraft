@@ -5,7 +5,13 @@ import org.bukkit.command.CommandSender;
 
 public class LinkCommand {
 
-    public static void execute(BasePlugin main, CommandSender sender, String[] args) {
+    private BasePlugin main;
+
+    public LinkCommand(BasePlugin main) {
+        this.main = main;
+    }
+
+    public void execute(CommandSender sender, String[] args) {
         // TODO
     }
 
