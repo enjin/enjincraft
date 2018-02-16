@@ -19,6 +19,8 @@ subprojects {
     apply plugin: 'maven'
     apply plugin: 'com.github.johnrengelman.shadow'
 
+    apply from: scriptFile('deps.gradle')
+
     group 'io.enjincoin'
     version '0.0.1-SNAPSHOT'
 

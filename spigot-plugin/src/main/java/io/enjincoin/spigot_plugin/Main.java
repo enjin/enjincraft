@@ -1,12 +1,27 @@
 package io.enjincoin.spigot_plugin;
 
+import io.enjincoin.sdk.client.config.Config;
 import io.enjincoin.spigot_framework.BasePlugin;
-import io.enjincoin.spigot_framework.SpigotBootstrap;
-import org.bukkit.plugin.java.JavaPlugin;
+
+import java.io.File;
 
 /**
  * A standalone Enjin Coin Spigot plugin.
  */
 public class Main extends BasePlugin {
+
+    @Override
+    public Config getSdkConfig() {
+        Config config = null;
+        File sdkConfigFile = new File(getDataFolder(), "sdk.json");
+
+        try {
+            config = Config.load(sdkConfigFile);
+        } catch (Exception e) {
+            getLogger().warning(String.format("Unable to create or load configuration file at %s.", sdkConfigFile.getPath()));
+        }
+
+        return config;
+    }
 
 }

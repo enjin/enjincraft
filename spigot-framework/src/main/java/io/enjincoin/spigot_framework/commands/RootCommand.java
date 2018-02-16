@@ -23,7 +23,7 @@ public class RootCommand implements CommandExecutor {
             String[] subArgs = args.length == 1 ? new String[0] : Arrays.copyOfRange(args, 1, args.length);
             switch (sub.toLowerCase()) {
                 case "link":
-                    LinkCommand.execute(sender, subArgs);
+                    LinkCommand.execute(this.main, sender, subArgs);
                     break;
                 default:
                     sender.sendMessage(String.format("No sub-command with alias %s exists.", sub));

@@ -1,6 +1,6 @@
 package io.enjincoin.spigot_framework;
 
-public class PluginBootstrap implements Bootstrap {
+public abstract class PluginBootstrap implements Bootstrap {
 
     @Override
     public void setUp() {

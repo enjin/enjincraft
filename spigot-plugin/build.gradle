@@ -7,16 +7,12 @@ For example, projects that build with Java 7 should have environment variable JA
 apply from: scriptFile('env.gradle')
 configureJavaCompilers(8)
 
-ext {
-    spigot = '1.12.2-R0.1-SNAPSHOT'
-}
-
 repositories {
     maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
 }
 
 dependencies {
-    shadow group: 'org.spigotmc', name: 'spigot-api', version: spigot
+    shadow deps.spigot
 
     compile project(':spigot-framework')
 }
