@@ -24,7 +24,7 @@ public class SdkClientController {
     }
 
     public void tearDown() {
-        // TODO: client.close();
+         this.client.close();
     }
 
     public Client getClient() {

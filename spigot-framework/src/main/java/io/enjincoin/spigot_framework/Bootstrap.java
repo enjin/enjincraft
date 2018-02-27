@@ -11,6 +11,6 @@ public interface Bootstrap {
 
     void tearDown();
 
-    SdkClientController getSdkClientController();
+    SdkClientController getSdkController();
 
 }

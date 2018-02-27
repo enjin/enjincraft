@@ -28,7 +28,7 @@ public class SpigotBootstrap extends PluginBootstrap {
     }
 
     @Override
-    public SdkClientController getSdkClientController() {
+    public SdkClientController getSdkController() {
         return this.sdkClientController;
     }
 
