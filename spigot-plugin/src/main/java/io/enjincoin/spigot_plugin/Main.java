@@ -13,12 +13,12 @@ public class Main extends BasePlugin {
     @Override
     public Config getSdkConfig() {
         Config config = null;
-        File sdkConfigFile = new File(getDataFolder(), "sdk.json");
+        File file = new File(getDataFolder(), "sdk.json");
 
         try {
-            config = Config.load(sdkConfigFile);
+            config = Config.load(file);
         } catch (Exception e) {
-            getLogger().warning(String.format("Unable to create or load configuration file at %s.", sdkConfigFile.getPath()));
+            getLogger().warning(String.format("Unable to create or load configuration file at %s.", file.getPath()));
         }
 
         return config;
