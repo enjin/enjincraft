@@ -8,6 +8,10 @@ import io.enjincoin.sdk.client.vo.identity.ImmutableGetIdentityRequestVO;
 import io.enjincoin.spigot_framework.BasePlugin;
 import io.enjincoin.spigot_framework.Bootstrap;
 import io.enjincoin.spigot_framework.controllers.SdkClientController;
+import io.enjincoin.spigot_framework.util.MessageUtil;
+import net.kyori.text.TextComponent;
+import net.kyori.text.format.TextColor;
+import net.kyori.text.serializer.ComponentSerializers;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -39,7 +43,9 @@ public class LinkCommand {
                     sender.sendMessage(ChatColor.RED + e.getMessage());
                 }
             } else {
-                sender.sendMessage(ChatColor.RED + "UUID argument missing.");
+                final TextComponent text = TextComponent.of("UUID argument required.")
+                        .color(TextColor.RED);
+                MessageUtil.sendMessage(sender, text);
             }
         }
 
@@ -82,13 +88,16 @@ public class LinkCommand {
     }
 
     private void errorRequestingIdentities(CommandSender sender, Throwable e) {
+        final TextComponent text = TextComponent.of("An error occurred while requesting a player identity.")
+                .color(TextColor.RED);
         this.main.getLogger().log(Level.WARNING, e.getMessage(), e);
-        sender.sendMessage(ChatColor.RED + "Error occurred while requesting identities. Please try again later.");
+        MessageUtil.sendMessage(sender, text);
     }
 
     private void errorCreatingIdentity(CommandSender sender, Throwable e) {
+        final TextComponent text = TextComponent.of("An error occurred while creating a player identity.");
         this.main.getLogger().log(Level.WARNING, e.getMessage(), e);
-        sender.sendMessage(ChatColor.RED + "Error occurred while creating an identity. Please try again later.");
+        MessageUtil.sendMessage(sender, text);
     }
 
     private void handleCreateIdentityResponse(CommandSender sender, CreateIdentityResponseVO response) {
@@ -97,9 +106,17 @@ public class LinkCommand {
 
         Optional<String> optional = response.getIdentityCode();
         if (optional.isPresent()) {
-            sender.sendMessage(ChatColor.GREEN + "Identity Code: " + ChatColor.GOLD + optional.get());
+            final TextComponent text = TextComponent.of("Identity Code: ")
+                    .color(TextColor.GREEN)
+                    .append(TextComponent.of(optional.get())
+                            .color(TextColor.GOLD));
+            MessageUtil.sendMessage(sender, text);
         } else {
-            sender.sendMessage(ChatColor.RED + "Failed to request identity code: " + ChatColor.GOLD + "code not present.");
+            final TextComponent text = TextComponent.of("Could not acquire a player identity code: ")
+                    .color(TextColor.GREEN)
+                    .append(TextComponent.of("code not present.")
+                            .color(TextColor.GOLD));
+            MessageUtil.sendMessage(sender, text);
         }
     }
 

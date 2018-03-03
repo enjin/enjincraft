@@ -13,4 +13,5 @@ dependencies {
     shadow deps.spigot
 
     compile deps.enjinCoinSdk
+    compile deps.kyoriText
 }

@@ -3,7 +3,11 @@ ext.deps = [
         javaCommons: 'com.enjin:java_commons:0.0.1-SNAPSHOT',
         minecraftCommons: 'com.enjin:minecraft_commons:0.0.1-SNAPSHOT',
         enjinCoinSdk: 'io.enjincoin:java-sdk-client:0.0.1-SNAPSHOT',
+        kyoriText: 'net.kyori:text:1.12-1.3.0',
+
+        // Shadow dependencies
         spigot: 'org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT',
+
 
         // testCompile Dependencies
         junit: 'junit:junit:4.12',
