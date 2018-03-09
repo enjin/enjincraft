@@ -5,6 +5,9 @@ import io.enjincoin.sdk.client.Clients;
 import io.enjincoin.sdk.client.config.Config;
 import io.enjincoin.spigot_framework.BasePlugin;
 
+import java.io.IOException;
+import java.util.logging.Level;
+
 public class SdkClientController {
 
     private final BasePlugin main;
@@ -15,16 +18,15 @@ public class SdkClientController {
     }
 
     public void setUp() {
-        Config sdkConfig = this.main.getSdkConfig();
-        if (sdkConfig == null) {
-            this.main.getLogger().severe("Failed to set up sdk client because no config was loaded.");
-        } else {
-            this.client = Clients.create(sdkConfig);
-        }
+        this.client = Clients.createClient(this.main.getBaseUrl());
     }
 
     public void tearDown() {
-         this.client.close();
+         try {
+             this.client.close();
+         } catch (IOException e) {
+             this.main.getLogger().log(Level.WARNING, "An error occurred while shutting down the Enjin Coin client.", e);
+         }
     }
 
     public Client getClient() {

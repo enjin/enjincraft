@@ -1,6 +1,5 @@
 package io.enjincoin.spigot_framework;
 
-import io.enjincoin.sdk.client.config.Config;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public abstract class BasePlugin extends JavaPlugin {
@@ -23,5 +22,5 @@ public abstract class BasePlugin extends JavaPlugin {
         return this.bootstrap;
     }
 
-    public abstract Config getSdkConfig();
+    public abstract String getBaseUrl();
 }

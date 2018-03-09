@@ -11,17 +11,8 @@ import java.io.File;
 public class Main extends BasePlugin {
 
     @Override
-    public Config getSdkConfig() {
-        Config config = null;
-        File file = new File(getDataFolder(), "sdk.json");
-
-        try {
-            config = Config.load(file);
-        } catch (Exception e) {
-            getLogger().warning(String.format("Unable to create or load configuration file at %s.", file.getPath()));
-        }
-
-        return config;
+    public String getBaseUrl() {
+        return "https://enjin.v16studios.co.uk/";
     }
 
 }
