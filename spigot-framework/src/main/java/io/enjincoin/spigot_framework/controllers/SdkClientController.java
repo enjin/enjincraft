@@ -1,5 +1,6 @@
 package io.enjincoin.spigot_framework.controllers;
 
+import com.google.gson.JsonObject;
 import io.enjincoin.sdk.client.Client;
 import io.enjincoin.sdk.client.Clients;
 import io.enjincoin.sdk.client.config.Config;
@@ -10,15 +11,21 @@ import java.util.logging.Level;
 
 public class SdkClientController {
 
+    public static final String PLATFORM_BASE_URL = "platformBaseUrl";
+
     private final BasePlugin main;
+    private final JsonObject config;
     private Client client;
 
-    public SdkClientController(BasePlugin main) {
+    public SdkClientController(BasePlugin main, JsonObject config) {
         this.main = main;
+        this.config = config;
     }
 
     public void setUp() {
-        this.client = Clients.createClient(this.main.getBaseUrl());
+        if (!config.has(PLATFORM_BASE_URL))
+            throw new IllegalStateException(String.format("The \"%s\" key does not exists in the config.", PLATFORM_BASE_URL));
+        this.client = Clients.createClient(this.config.get(PLATFORM_BASE_URL).getAsString());
     }
 
     public void tearDown() {

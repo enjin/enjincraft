@@ -22,10 +22,12 @@ public class SpigotBootstrap extends PluginBootstrap {
     @Override
     public void setUp() {
         // Load the config to ensure that it is created or already exists.
-        getConfig();
+        JsonObject config = getConfig();
 
-        this.sdkClientController = new SdkClientController(this.main);
-        this.sdkClientController.setUp();
+        if (config != null) {
+            this.sdkClientController = new SdkClientController(this.main, config);
+            this.sdkClientController.setUp();
+        }
 
         // Register Commands
         this.main.getCommand("enj").setExecutor(new RootCommand(this.main));

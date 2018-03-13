@@ -2,7 +2,7 @@ package io.enjincoin.spigot_framework;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
-public abstract class BasePlugin extends JavaPlugin {
+public class BasePlugin extends JavaPlugin {
 
     private SpigotBootstrap bootstrap;
 
@@ -22,5 +22,4 @@ public abstract class BasePlugin extends JavaPlugin {
         return this.bootstrap;
     }
 
-    public abstract String getBaseUrl();
 }
