@@ -1,5 +1,6 @@
 package io.enjincoin.spigot_framework;
 
+import com.google.gson.JsonObject;
 import io.enjincoin.spigot_framework.controllers.SdkClientController;
 
 /**
@@ -12,5 +13,7 @@ public interface Bootstrap {
     void tearDown();
 
     SdkClientController getSdkController();
+
+    JsonObject getConfig();
 
 }
