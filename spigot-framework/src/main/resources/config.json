@@ -1,4 +1,5 @@
 {
   "platformBaseUrl": "https://enjin.v16studios.co.uk/",
-  "appId": 2
+  "appId": 2,
+  "debug": false
 }

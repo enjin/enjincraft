@@ -12,6 +12,7 @@ import java.util.logging.Level;
 public class SdkClientController {
 
     public static final String PLATFORM_BASE_URL = "platformBaseUrl";
+    public static final String APP_ID = "appId";
 
     private final BasePlugin main;
     private final JsonObject config;
@@ -25,7 +26,10 @@ public class SdkClientController {
     public void setUp() {
         if (!config.has(PLATFORM_BASE_URL))
             throw new IllegalStateException(String.format("The \"%s\" key does not exists in the config.", PLATFORM_BASE_URL));
-        this.client = Clients.createClient(this.config.get(PLATFORM_BASE_URL).getAsString());
+        if (!config.has(APP_ID))
+            throw new IllegalStateException(String.format("The \"%s\" key does not exists in the config.", APP_ID));
+        this.client = Clients.createClient(this.config.get(PLATFORM_BASE_URL).getAsString(),
+                this.config.get(APP_ID).getAsInt(), this.main.getBootstrap().isDebugEnabled());
     }
 
     public void tearDown() {

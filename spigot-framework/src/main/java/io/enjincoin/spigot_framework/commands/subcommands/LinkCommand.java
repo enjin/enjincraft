@@ -151,7 +151,7 @@ public class LinkCommand {
                 if (identities.length == 0) {
                     // TODO: App ID needs to be configurable or acquired by some means.
                     getService().createIdentityAsync(
-                            new CreateIdentityRequestBody(2, new IdentityField[]{
+                            new CreateIdentityRequestBody(main.getBootstrap().getConfig().get("appId").getAsInt(), new IdentityField[]{
                                     new IdentityField("uuid", getUuid().toString())
                             }),
                             new CreateIdentityCallback(getSender(), getUuid()));
