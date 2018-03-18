@@ -2,6 +2,7 @@ package io.enjincoin.spigot_framework;
 
 import com.google.gson.JsonObject;
 import io.enjincoin.sdk.client.service.identities.vo.Identity;
+import io.enjincoin.sdk.client.service.tokens.vo.Token;
 import io.enjincoin.spigot_framework.controllers.SdkClientController;
 
 import java.util.Map;
@@ -19,6 +20,8 @@ public interface Bootstrap {
     SdkClientController getSdkController();
 
     Map<UUID, Identity> getIdentities();
+
+    Map<Integer, Token> getTokens();
 
     JsonObject getConfig();
 

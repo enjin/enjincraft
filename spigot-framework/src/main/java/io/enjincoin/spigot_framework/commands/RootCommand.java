@@ -2,6 +2,7 @@ package io.enjincoin.spigot_framework.commands;
 
 import io.enjincoin.spigot_framework.BasePlugin;
 import io.enjincoin.spigot_framework.commands.subcommands.LinkCommand;
+import io.enjincoin.spigot_framework.commands.subcommands.WalletCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -12,10 +13,12 @@ public class RootCommand implements CommandExecutor {
 
     private final BasePlugin main;
     private final LinkCommand link;
+    private final WalletCommand wallet;
 
     public RootCommand(BasePlugin main) {
         this.main = main;
         this.link = new LinkCommand(main);
+        this.wallet = new WalletCommand(main);
     }
 
     @Override
@@ -26,6 +29,9 @@ public class RootCommand implements CommandExecutor {
             switch (sub.toLowerCase()) {
                 case "link":
                     this.link.execute(sender, subArgs);
+                    break;
+                case "wallet":
+                    this.wallet.execute(sender, subArgs);
                     break;
                 default:
                     sender.sendMessage(String.format("No sub-command with alias %s exists.", sub));

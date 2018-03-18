@@ -5,11 +5,16 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.enjincoin.sdk.client.service.identities.vo.Identity;
 import io.enjincoin.sdk.client.service.notifications.NotificationsService;
+import io.enjincoin.sdk.client.service.tokens.TokensService;
+import io.enjincoin.sdk.client.service.tokens.vo.Token;
 import io.enjincoin.spigot_framework.commands.RootCommand;
 import io.enjincoin.spigot_framework.controllers.SdkClientController;
 import io.enjincoin.spigot_framework.listeners.ConnectionListener;
 import io.enjincoin.spigot_framework.listeners.notifications.GenericNotificationListener;
 import org.bukkit.Bukkit;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import java.io.File;
 import java.io.FileReader;
@@ -25,6 +30,7 @@ public class SpigotBootstrap extends PluginBootstrap {
     private boolean debug;
     private SdkClientController sdkClientController;
     private Map<UUID, Identity> identities;
+    private Map<Integer, Token> tokens;
 
     public SpigotBootstrap(BasePlugin main) {
         this.main = main;
@@ -33,11 +39,12 @@ public class SpigotBootstrap extends PluginBootstrap {
     @Override
     public void setUp() {
         this.identities = new ConcurrentHashMap<>();
+        this.tokens = new ConcurrentHashMap<>();
 
         // Load the config to ensure that it is created or already exists.
         final JsonObject config = getConfig();
 
-        if (config != null) {
+        if (config != null && config.has("platformBaseUrl") && config.has("appId")) {
             if (config.has("debug"))
                 this.debug = config.get("debug").getAsBoolean();
 
@@ -55,6 +62,28 @@ public class SpigotBootstrap extends PluginBootstrap {
                 }
             });
             notificationsService.startAsync(future);
+
+            final TokensService tokensService = this.sdkClientController.getClient().getTokensService();
+            tokensService.getTokensAsync(new Callback<Token[]>() {
+                @Override
+                public void onResponse(Call<Token[]> call, Response<Token[]> response) {
+                    if (response.isSuccessful()) {
+                        Token[] tokens = response.body();
+                        for (Token token : tokens) {
+                            if (token.getAppId() != config.get("appId").getAsInt())
+                                continue;
+
+                            main.getLogger().info("Token Discovered: " + token.getTokenId());
+                            SpigotBootstrap.this.tokens.put(token.getTokenId(), token);
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Token[]> call, Throwable t) {
+                    main.getLogger().warning("An error occurred while fetching tokens.");
+                }
+            });
         }
 
         // Register Listeners
@@ -78,6 +107,11 @@ public class SpigotBootstrap extends PluginBootstrap {
     @Override
     public Map<UUID, Identity> getIdentities() {
         return this.identities;
+    }
+
+    @Override
+    public Map<Integer, Token> getTokens() {
+        return this.tokens;
     }
 
     @Override
