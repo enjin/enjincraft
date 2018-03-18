@@ -73,7 +73,6 @@ public class SpigotBootstrap extends PluginBootstrap {
                             if (token.getAppId() != config.get("appId").getAsInt())
                                 continue;
 
-                            main.getLogger().info("Token Discovered: " + token.getTokenId());
                             SpigotBootstrap.this.tokens.put(token.getTokenId(), token);
                         }
                     }
