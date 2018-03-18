@@ -28,6 +28,9 @@ public class WalletInventory {
         Inventory inventory = Bukkit.createInventory(holder, 6 * 9, ChatColor.DARK_PURPLE + "Enjin Wallet");
         int index = 0;
         for (TokenEntry entry : identity.getTokens()) {
+            if (index >= 6 * 9)
+                break;
+
             if (entry.getValue() > 0) {
                 Token token = main.getBootstrap().getTokens().get(entry.getTokenId());
                 if (token == null)
