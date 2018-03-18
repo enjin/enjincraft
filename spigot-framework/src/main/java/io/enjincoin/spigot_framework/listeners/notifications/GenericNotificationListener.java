@@ -36,29 +36,57 @@ public class GenericNotificationListener implements NotificationListener {
                 JsonObject config = this.main.getBootstrap().getConfig();
                 if (config.get("appId").getAsInt() == appId) {
                     this.main.getBootstrap().debug(String.format("Updating balance of player linked to %s", ethereumAddress));
-                    Identity identity = this.main.getBootstrap().getIdentities().values().stream()
-                            .filter(i -> i != null && i.getEthereumAddress().equalsIgnoreCase(ethereumAddress))
-                            .findFirst()
-                            .orElse(null);
+                    Identity identity = getIdentity(ethereumAddress);
 
-                    if (identity != null) {
-                        this.main.getBootstrap().debug(String.format("Locating entry for token %s", tokenId));
-                        for (TokenEntry entry : identity.getTokens()) {
-                            if (entry.getTokenId() == tokenId) {
-                                this.main.getBootstrap().debug(String.format("Setting amount of entry for token %s to %s", tokenId, entry.getValue() - amount));
-                                entry.setValue(entry.getValue() - amount);
-                            }
-                        }
-                    } else {
-                        this.main.getBootstrap().debug(String.format("Could not locate identity linked to %s that is online.", ethereumAddress));
-                    }
-                } else {
-                    this.main.getBootstrap().debug(String.format("Config is missing appId field or the value does not equal %s", appId));
+                    if (identity != null)
+                        addTokenValue(identity, tokenId, -amount);
                 }
-            } else {
-                this.main.getBootstrap().debug(String.format("Event: %s" + data.get("event").getAsString()));
+            } else if (data.get("event").getAsString().equalsIgnoreCase("transfer")) {
+                String fromEthereumAddress = data.get("param1").getAsString();
+                String toEthereumAddress = data.get("param2").getAsString();
+                double amount = Double.valueOf(data.get("param3").getAsString());
+                int tokenId = data.get("token").getAsJsonObject().get("token_id").getAsInt();
+                int appId = data.get("token").getAsJsonObject().get("app_id").getAsInt();
+
+                this.main.getBootstrap().debug(String.format("%s received %s of %s tokens from %s", toEthereumAddress, amount, tokenId, fromEthereumAddress));
+
+                JsonObject config = this.main.getBootstrap().getConfig();
+                if (config.get("appId").getAsInt() == appId) {
+                    this.main.getBootstrap().debug(String.format("Updating balance of player linked to %s", toEthereumAddress));
+                    Identity toIdentity = getIdentity(toEthereumAddress);
+                    Identity fromIdentity = getIdentity(fromEthereumAddress);
+
+                    if (toIdentity != null)
+                        addTokenValue(toIdentity, tokenId, amount);
+                    if (fromEthereumAddress != null)
+                        addTokenValue(fromIdentity, tokenId, -amount);
+                }
             }
         }
+    }
+
+    public Identity getIdentity(String address) {
+        return this.main.getBootstrap().getIdentities().values().stream()
+                .filter(i -> i != null && i.getEthereumAddress().equalsIgnoreCase(address))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public TokenEntry getTokenEntry(Identity identity, int tokenId) {
+        TokenEntry entry = null;
+        for (TokenEntry e : identity.getTokens()) {
+            if (e.getTokenId() == tokenId) {
+                entry = e;
+                break;
+            }
+        }
+        return entry;
+    }
+
+    public void addTokenValue(Identity identity, int tokenId, double amount) {
+        TokenEntry entry = getTokenEntry(identity, tokenId);
+        if (entry != null)
+            entry.setValue(entry.getValue() + amount);
     }
 
 }
