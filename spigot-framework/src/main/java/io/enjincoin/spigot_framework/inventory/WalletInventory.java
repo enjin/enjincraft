@@ -1,5 +1,8 @@
 package io.enjincoin.spigot_framework.inventory;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import io.enjincoin.sdk.client.service.identities.vo.Identity;
 import io.enjincoin.sdk.client.service.identity.vo.TokenEntry;
 import io.enjincoin.sdk.client.service.tokens.vo.Token;
@@ -21,6 +24,7 @@ public class WalletInventory {
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.##");
 
     public static Inventory create(BasePlugin main, InventoryHolder holder, Identity identity) {
+        JsonObject tokensDisplayConfig = main.getBootstrap().getConfig().get("tokens").getAsJsonObject();
         Inventory inventory = Bukkit.createInventory(holder, 6 * 9, ChatColor.DARK_PURPLE + "Enjin Wallet");
         int index = 0;
         for (TokenEntry entry : identity.getTokens()) {
@@ -29,13 +33,27 @@ public class WalletInventory {
                 if (token == null)
                     continue;
 
-                ItemStack stack = new ItemStack(Material.APPLE);
+                JsonObject tokenDisplay = tokensDisplayConfig.has(String.valueOf(token.getTokenId()))
+                        ? tokensDisplayConfig.get(String.valueOf(token.getTokenId())).getAsJsonObject()
+                        : null;
+
+                Material material = null;
+                if (tokenDisplay != null && tokenDisplay.has("material"))
+                    material = Material.getMaterial(tokenDisplay.get("material").getAsString());
+                if (material == null)
+                    material = Material.APPLE;
+
+                ItemStack stack = new ItemStack(material);
                 ItemMeta meta = stack.getItemMeta();
 
-                if (token.getName() != null)
-                    meta.setDisplayName(ChatColor.DARK_PURPLE + token.getName());
-                else
-                    meta.setDisplayName(ChatColor.DARK_PURPLE + "Token #" + token.getTokenId());
+                if (tokenDisplay != null && tokenDisplay.has("displayName")) {
+                    meta.setDisplayName(ChatColor.DARK_PURPLE + tokenDisplay.get("displayName").getAsString());
+                } else {
+                    if (token.getName() != null)
+                        meta.setDisplayName(ChatColor.DARK_PURPLE + token.getName());
+                    else
+                        meta.setDisplayName(ChatColor.DARK_PURPLE + "Token #" + token.getTokenId());
+                }
 
                 List<String> lore = new ArrayList<>();
                 if (token.getDecimals() == 0) {
@@ -44,6 +62,18 @@ public class WalletInventory {
                 } else {
                     double balance = entry.getValue();
                     lore.add(ChatColor.GRAY + "Balance: " + ChatColor.GOLD + DECIMAL_FORMAT.format(balance));
+                }
+
+                if (tokenDisplay != null && tokenDisplay.has("lore")) {
+                    JsonElement element = tokenDisplay.get("lore");
+                    if (element.isJsonArray()) {
+                        JsonArray array = element.getAsJsonArray();
+                        for (JsonElement line : array) {
+                            lore.add(ChatColor.DARK_GRAY + line.getAsString());
+                        }
+                    } else {
+                        lore.add(ChatColor.DARK_GRAY + element.getAsString());
+                    }
                 }
 
                 meta.setLore(lore);

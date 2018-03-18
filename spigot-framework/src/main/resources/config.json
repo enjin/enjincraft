@@ -1,5 +1,15 @@
 {
   "platformBaseUrl": "https://enjin.v16studios.co.uk/",
   "appId": 2,
+  "tokens": {
+    "1": {
+      "displayName": "Apple",
+      "material": "APPLE",
+      "lore": [
+        "A juicy apple ripe for",
+        "the picking!"
+      ]
+    }
+  },
   "debug": false
 }
