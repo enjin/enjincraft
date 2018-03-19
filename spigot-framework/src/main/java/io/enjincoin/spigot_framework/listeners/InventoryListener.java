@@ -4,6 +4,7 @@ import io.enjincoin.spigot_framework.BasePlugin;
 import io.enjincoin.spigot_framework.util.MessageUtil;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -12,8 +13,10 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -92,14 +95,36 @@ public class InventoryListener implements Listener {
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
-        Player player = event.getPlayer();
-        List<ItemStack> tokens = checkedOutTokens.remove(player.getUniqueId());
-        if (tokens != null) {
-            PlayerInventory inventory = player.getInventory();
-            for (ItemStack token : tokens) {
-                inventory.removeItem(token);
+        clear(event.getPlayer());
+    }
+
+    @EventHandler
+    public void onServerCommand(ServerCommandEvent event) {
+        if (event.getCommand().toLowerCase().startsWith("stop")) {
+            clearAll();
+        }
+    }
+
+    @EventHandler
+    public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
+        if (event.getMessage().startsWith("/stop")) {
+            clearAll();
+        }
+    }
+
+    private void clear(Player player) {
+        List<ItemStack> stacks = checkedOutTokens.remove(player.getUniqueId());
+        PlayerInventory inventory = player.getInventory();
+
+        if (stacks != null) {
+            for (ItemStack stack : stacks) {
+                inventory.removeItem(stack);
             }
         }
+    }
+
+    private void clearAll() {
+        Bukkit.getOnlinePlayers().forEach(this::clear);
     }
 
     private boolean isWalletInventory(Inventory inventory) {
