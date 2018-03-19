@@ -10,6 +10,7 @@ import io.enjincoin.sdk.client.service.tokens.vo.Token;
 import io.enjincoin.spigot_framework.commands.RootCommand;
 import io.enjincoin.spigot_framework.controllers.SdkClientController;
 import io.enjincoin.spigot_framework.listeners.ConnectionListener;
+import io.enjincoin.spigot_framework.listeners.InventoryListener;
 import io.enjincoin.spigot_framework.listeners.notifications.GenericNotificationListener;
 import org.bukkit.Bukkit;
 import retrofit2.Call;
@@ -87,6 +88,7 @@ public class SpigotBootstrap extends PluginBootstrap {
 
         // Register Listeners
         Bukkit.getPluginManager().registerEvents(new ConnectionListener(this.main), this.main);
+        Bukkit.getPluginManager().registerEvents(new InventoryListener(this.main), this.main);
 
         // Register Commands
         this.main.getCommand("enj").setExecutor(new RootCommand(this.main));
