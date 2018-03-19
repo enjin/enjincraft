@@ -5,14 +5,18 @@ import io.enjincoin.spigot_framework.util.MessageUtil;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.*;
@@ -73,6 +77,27 @@ public class InventoryListener implements Listener {
             } else {
                 TextComponent text = TextComponent.of("You have already checked out this item.").color(TextColor.RED);
                 MessageUtil.sendMessage(player, text);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerDropItem(PlayerDropItemEvent event) {
+        Player player = event.getPlayer();
+        Item item = event.getItemDrop();
+        if (isCheckedOut(player.getUniqueId(), item.getItemStack())) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        Player player = event.getPlayer();
+        List<ItemStack> tokens = checkedOutTokens.remove(player.getUniqueId());
+        if (tokens != null) {
+            PlayerInventory inventory = player.getInventory();
+            for (ItemStack token : tokens) {
+                inventory.removeItem(token);
             }
         }
     }
