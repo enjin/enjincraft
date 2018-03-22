@@ -46,6 +46,9 @@ public class InventoryListener implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInventoryClick(InventoryClickEvent event) {
         if (isWalletInventory(event.getClickedInventory())) {
+            if (event.getClickedInventory() == null)
+                return;
+
             Player player = (Player) event.getClickedInventory().getHolder();
             ItemStack stack = event.getClickedInventory().getItem(event.getSlot());
             event.setCancelled(true);
@@ -55,31 +58,33 @@ public class InventoryListener implements Listener {
             See https://github.com/tr7zw/Item-NBT-API
              */
 
-            if (!isCheckedOut(player.getUniqueId(), stack)) {
-                List<ItemStack> tokens = checkedOutTokens.get(player.getUniqueId());
-                if (tokens == null) {
-                    tokens = new ArrayList<>();
-                    checkedOutTokens.put(player.getUniqueId(), tokens);
-                }
+            if (stack != null) {
+                if (!isCheckedOut(player.getUniqueId(), stack)) {
+                    List<ItemStack> tokens = checkedOutTokens.get(player.getUniqueId());
+                    if (tokens == null) {
+                        tokens = new ArrayList<>();
+                        checkedOutTokens.put(player.getUniqueId(), tokens);
+                    }
 
-                ItemStack clone = stack.clone();
-                ItemMeta meta = clone.getItemMeta();
-                List<String> lore = meta.getLore();
-                lore.remove(0);
-                meta.setLore(lore);
-                clone.setItemMeta(meta);
+                    ItemStack clone = stack.clone();
+                    ItemMeta meta = clone.getItemMeta();
+                    List<String> lore = meta.getLore();
+                    lore.remove(0);
+                    meta.setLore(lore);
+                    clone.setItemMeta(meta);
 
-                Map<Integer, ItemStack> result = player.getInventory().addItem(clone);
-                if (result.isEmpty()) {
-                    tokens.add(clone);
+                    Map<Integer, ItemStack> result = player.getInventory().addItem(clone);
+                    if (result.isEmpty()) {
+                        tokens.add(clone);
+                    } else {
+                        TextComponent text = TextComponent.of("You do not have sufficient space in your inventory.")
+                                .color(TextColor.RED);
+                        MessageUtil.sendMessage(player, text);
+                    }
                 } else {
-                    TextComponent text = TextComponent.of("You do not have sufficient space in your inventory.")
-                            .color(TextColor.RED);
+                    TextComponent text = TextComponent.of("You have already checked out this item.").color(TextColor.RED);
                     MessageUtil.sendMessage(player, text);
                 }
-            } else {
-                TextComponent text = TextComponent.of("You have already checked out this item.").color(TextColor.RED);
-                MessageUtil.sendMessage(player, text);
             }
         }
     }
