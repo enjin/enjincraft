@@ -12,8 +12,8 @@ public class UuidUtil {
         if (s != null & !s.isEmpty()) {
             String stripped = s.replaceAll("-", "");
             if (stripped.length() == 32) {
-                BigInteger least = new BigInteger(s.substring(0, 16), 16);
-                BigInteger most = new BigInteger(s.substring(16, 32), 16);
+                BigInteger least = new BigInteger(stripped.substring(0, 16), 16);
+                BigInteger most = new BigInteger(stripped.substring(16, 32), 16);
                 return new UUID(least.longValue(), most.longValue());
             }
         }

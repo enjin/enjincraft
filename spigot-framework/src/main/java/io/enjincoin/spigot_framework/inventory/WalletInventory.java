@@ -21,7 +21,7 @@ import java.util.List;
 
 public class WalletInventory {
 
-    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.##");
+    public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.##");
 
     public static Inventory create(BasePlugin main, InventoryHolder holder, Identity identity) {
         JsonObject tokensDisplayConfig = main.getBootstrap().getConfig().get("tokens").getAsJsonObject();
