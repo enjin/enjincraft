@@ -1,5 +1,6 @@
 package io.enjincoin.spigot_framework.listeners;
 
+import com.enjin.minecraft_commons.spigot.nbt.NBTItem;
 import io.enjincoin.spigot_framework.BasePlugin;
 import io.enjincoin.spigot_framework.util.MessageUtil;
 import net.kyori.text.TextComponent;
@@ -53,11 +54,6 @@ public class InventoryListener implements Listener {
             ItemStack stack = event.getClickedInventory().getItem(event.getSlot());
             event.setCancelled(true);
 
-            /*
-            TODO: Use NBT to store custom item metadata for better efficiency.
-            See https://github.com/tr7zw/Item-NBT-API
-             */
-
             if (stack != null) {
                 if (!isCheckedOut(player.getUniqueId(), stack)) {
                     List<ItemStack> tokens = checkedOutTokens.get(player.getUniqueId());
@@ -72,6 +68,10 @@ public class InventoryListener implements Listener {
                     lore.remove(0);
                     meta.setLore(lore);
                     clone.setItemMeta(meta);
+
+                    NBTItem nbt = new NBTItem(clone);
+                    nbt.setBoolean("ENJ-Token", true);
+                    clone = nbt.getItemStack();
 
                     Map<Integer, ItemStack> result = player.getInventory().addItem(clone);
                     if (result.isEmpty()) {

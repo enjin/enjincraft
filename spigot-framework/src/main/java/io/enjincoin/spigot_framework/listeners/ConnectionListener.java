@@ -19,7 +19,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class ConnectionListener implements Listener {
 
@@ -106,9 +108,13 @@ public class ConnectionListener implements Listener {
     }
 
     private void linkCommandNotification(Player player) {
-        TextComponent text = TextComponent.of("To get an Enjin Coin linking code use the command /enj link")
-                .color(TextColor.GREEN);
-        MessageUtil.sendMessage(player, text);
+        List<TextComponent> components = new ArrayList<TextComponent>(){{
+            add(TextComponent.of("You have not linked an Enjin Coin wallet.").color(TextColor.GRAY));
+            add(TextComponent.of("To link, type '").color(TextColor.GRAY)
+                    .append(TextComponent.of("/enj link").color(TextColor.LIGHT_PURPLE))
+                    .append(TextComponent.of("'.").color(TextColor.GRAY)));
+        }};
+        MessageUtil.sendMessages(player, components);
     }
 
 }
