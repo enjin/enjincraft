@@ -13,12 +13,11 @@ import io.enjincoin.sdk.client.service.tokens.vo.Token;
 import io.enjincoin.sdk.client.vo.notifications.NotificationEvent;
 import io.enjincoin.spigot_framework.BasePlugin;
 import io.enjincoin.spigot_framework.inventory.WalletInventory;
-import io.enjincoin.spigot_framework.util.UuidUtil;
+import io.enjincoin.spigot_framework.util.UuidUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -28,10 +27,21 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * <p>A listener for handling Enjin Coin SDK events.</p>
+ */
 public class GenericNotificationListener implements NotificationListener {
 
+    /**
+     * <p>The spigot plugin.</p>
+     */
     private BasePlugin main;
 
+    /**
+     * <p>Listener constructor.</p>
+     *
+     * @param main the Spigot plugin
+     */
     public GenericNotificationListener(BasePlugin main) {
         this.main = main;
     }
@@ -45,6 +55,7 @@ public class GenericNotificationListener implements NotificationListener {
             JsonObject data = parser.parse(event.getSourceData()).getAsJsonObject()
                     .get("data").getAsJsonObject();
             if (data.get("event").getAsString().equalsIgnoreCase("melt")) {
+                // Handle melt event.
                 String ethereumAddress = data.get("param1").getAsString();
                 double amount = Double.valueOf(data.get("param2").getAsString());
                 int tokenId = data.get("token").getAsJsonObject().get("token_id").getAsInt();
@@ -61,6 +72,7 @@ public class GenericNotificationListener implements NotificationListener {
                         addTokenValue(identity, tokenId, -amount);
                 }
             } else if (data.get("event").getAsString().equalsIgnoreCase("transfer")) {
+                // Handle transfer event.
                 String fromEthereumAddress = data.get("param1").getAsString();
                 String toEthereumAddress = data.get("param2").getAsString();
                 double amount = Double.valueOf(data.get("param3").getAsString());
@@ -84,6 +96,16 @@ public class GenericNotificationListener implements NotificationListener {
         }
     }
 
+    /**
+     * <p>Returns an {@link Identity} of an online player associated with the
+     * provided Ethereum address.</p>
+     *
+     * @param address the Ethereum address
+     *
+     * @return the identity associated with address or null if no matching identity is found
+     *
+     * @since 1.0
+     */
     public Identity getIdentity(String address) {
         return this.main.getBootstrap().getIdentities().values().stream()
                 .filter(i -> i != null && i.getEthereumAddress().equalsIgnoreCase(address))
@@ -91,6 +113,17 @@ public class GenericNotificationListener implements NotificationListener {
                 .orElse(null);
     }
 
+    /**
+     * <p>Returns an {@link TokenEntry} associated with an {@link Identity}
+     * of an online player that matches the provided token ID.</p>
+     *
+     * @param identity the identity
+     * @param tokenId the token ID
+     *
+     * @return a {@link TokenEntry} if present or null if not present
+     *
+     * @since 1.0
+     */
     public TokenEntry getTokenEntry(Identity identity, int tokenId) {
         TokenEntry entry = null;
         for (TokenEntry e : identity.getTokens()) {
@@ -102,6 +135,16 @@ public class GenericNotificationListener implements NotificationListener {
         return entry;
     }
 
+    /**
+     * <p>Add a value to a {@link TokenEntry} for the provided token ID
+     * and identity.</p>
+     *
+     * @param identity the identity
+     * @param tokenId the token ID
+     * @param amount the amount
+     *
+     * @since 1.0
+     */
     public void addTokenValue(Identity identity, int tokenId, double amount) {
         TokenEntry entry = getTokenEntry(identity, tokenId);
         if (entry != null)
@@ -115,6 +158,15 @@ public class GenericNotificationListener implements NotificationListener {
         updateInventory(identity, tokenId, amount);
     }
 
+    /**
+     * <p>Updates the inventory associated with an identity where a
+     * menu item represents a token with the provided ID to the
+     * specified amount.</p>
+     *
+     * @param identity the identity
+     * @param tokenId the token ID
+     * @param amount the amount
+     */
     public void updateInventory(Identity identity, int tokenId, double amount) {
         JsonObject config = main.getBootstrap().getConfig();
 
@@ -142,7 +194,7 @@ public class GenericNotificationListener implements NotificationListener {
             UUID uuid = null;
             for (IdentityField field : identity.getFields()) {
                 if (field.getKey().equalsIgnoreCase("uuid")) {
-                    uuid = UuidUtil.stringToUuid(field.getFieldValue());
+                    uuid = UuidUtils.stringToUuid(field.getFieldValue());
                     break;
                 }
             }

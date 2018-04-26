@@ -6,7 +6,7 @@ import io.enjincoin.sdk.client.service.identities.IdentitiesService;
 import io.enjincoin.sdk.client.service.identities.vo.Identity;
 import io.enjincoin.sdk.client.service.identities.vo.IdentityField;
 import io.enjincoin.spigot_framework.BasePlugin;
-import io.enjincoin.spigot_framework.util.MessageUtil;
+import io.enjincoin.spigot_framework.util.MessageUtils;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
 import org.bukkit.Bukkit;
@@ -23,14 +23,36 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * <p>A listener for handling events in which a connection to
+ * the server is created or terminated.</p>
+ *
+ * @since 1.0
+ */
 public class ConnectionListener implements Listener {
 
+    /**
+     * <p>The spigot plugin.</p>
+     */
     private BasePlugin main;
 
+    /**
+     * <p>Listener constructor.</p>
+     *
+     * @param main the Spigot plugin
+     */
     public ConnectionListener(BasePlugin main) {
         this.main = main;
     }
 
+    /**
+     * <p>Subscription to {@link PlayerJoinEvent} with the
+     * normal priority.</p>
+     *
+     * @param event the event
+     *
+     * @since 1.0
+     */
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         if (main.getBootstrap().getSdkController() == null)
@@ -93,11 +115,19 @@ public class ConnectionListener implements Listener {
                         .append(TextComponent.of(":\n"))
                         .append(TextComponent.of(ExceptionUtils.throwableToString(t))
                                 .color(TextColor.RED));
-                MessageUtil.sendMessage(Bukkit.getConsoleSender(), text);
+                MessageUtils.sendMessage(Bukkit.getConsoleSender(), text);
             }
         });
     }
 
+    /**
+     * <p>Subscription to {@link PlayerQuitEvent} with the
+     * normal priority.</p>
+     *
+     * @param event the event
+     *
+     * @since 1.0
+     */
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         if (main.getBootstrap().getSdkController() == null)
@@ -107,6 +137,15 @@ public class ConnectionListener implements Listener {
         this.main.getBootstrap().getIdentities().remove(player.getUniqueId());
     }
 
+    /**
+     * <p>Send a player a notification that they have yet to link their
+     * identity to an Enjin wallet along with instructions how to start
+     * the process.</p>
+     *
+     * @param player the player
+     *
+     * @since 1.0
+     */
     private void linkCommandNotification(Player player) {
         List<TextComponent> components = new ArrayList<TextComponent>(){{
             add(TextComponent.of("You have not linked an Enjin Coin wallet.").color(TextColor.GRAY));
@@ -114,7 +153,7 @@ public class ConnectionListener implements Listener {
                     .append(TextComponent.of("/enj link").color(TextColor.LIGHT_PURPLE))
                     .append(TextComponent.of("'.").color(TextColor.GRAY)));
         }};
-        MessageUtil.sendMessages(player, components);
+        MessageUtils.sendMessages(player, components);
     }
 
 }

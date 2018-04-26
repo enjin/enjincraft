@@ -9,12 +9,33 @@ import org.bukkit.command.CommandSender;
 
 import java.util.Arrays;
 
+/**
+ * <p>Root command handler.</p>
+ *
+ * @since 1.0
+ */
 public class RootCommand implements CommandExecutor {
 
+    /**
+     * <p>The spigot plugin.</p>
+     */
     private final BasePlugin main;
+
+    /**
+     * <p>Link command handler instance.</p>
+     */
     private final LinkCommand link;
+
+    /**
+     * <p>Wallet command handler instance.</p>
+     */
     private final WalletCommand wallet;
 
+    /**
+     * <p>Root command handler constructor.</p>
+     *
+     * @param main the Spigot plugin
+     */
     public RootCommand(BasePlugin main) {
         this.main = main;
         this.link = new LinkCommand(main);
