@@ -1,17 +1,17 @@
-package io.enjincoin.spigot_framework;
+package com.enjin.enjincoin.spigot_framework;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import io.enjincoin.sdk.client.service.identities.vo.Identity;
-import io.enjincoin.sdk.client.service.notifications.NotificationsService;
-import io.enjincoin.sdk.client.service.tokens.TokensService;
-import io.enjincoin.sdk.client.service.tokens.vo.Token;
-import io.enjincoin.spigot_framework.commands.RootCommand;
-import io.enjincoin.spigot_framework.controllers.SdkClientController;
-import io.enjincoin.spigot_framework.listeners.ConnectionListener;
-import io.enjincoin.spigot_framework.listeners.InventoryListener;
-import io.enjincoin.spigot_framework.listeners.notifications.GenericNotificationListener;
+import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
+import com.enjin.enjincoin.sdk.client.service.notifications.NotificationsService;
+import com.enjin.enjincoin.sdk.client.service.tokens.TokensService;
+import com.enjin.enjincoin.sdk.client.service.tokens.vo.Token;
+import com.enjin.enjincoin.spigot_framework.commands.RootCommand;
+import com.enjin.enjincoin.spigot_framework.controllers.SdkClientController;
+import com.enjin.enjincoin.spigot_framework.listeners.ConnectionListener;
+import com.enjin.enjincoin.spigot_framework.listeners.InventoryListener;
+import com.enjin.enjincoin.spigot_framework.listeners.notifications.GenericNotificationListener;
 import org.bukkit.Bukkit;
 import retrofit2.Call;
 import retrofit2.Callback;

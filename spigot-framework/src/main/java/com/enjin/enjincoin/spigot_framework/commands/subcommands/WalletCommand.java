@@ -1,9 +1,9 @@
-package io.enjincoin.spigot_framework.commands.subcommands;
+package com.enjin.enjincoin.spigot_framework.commands.subcommands;
 
-import io.enjincoin.sdk.client.service.identities.vo.Identity;
-import io.enjincoin.spigot_framework.BasePlugin;
-import io.enjincoin.spigot_framework.inventory.WalletInventory;
-import io.enjincoin.spigot_framework.util.MessageUtils;
+import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
+import com.enjin.enjincoin.spigot_framework.BasePlugin;
+import com.enjin.enjincoin.spigot_framework.inventory.WalletInventory;
+import com.enjin.enjincoin.spigot_framework.util.MessageUtils;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
 import org.bukkit.command.CommandSender;

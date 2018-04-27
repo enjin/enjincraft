@@ -1,4 +1,4 @@
-package io.enjincoin.spigot_framework;
+package com.enjin.enjincoin.spigot_framework;
 
 import org.bukkit.plugin.java.JavaPlugin;
 

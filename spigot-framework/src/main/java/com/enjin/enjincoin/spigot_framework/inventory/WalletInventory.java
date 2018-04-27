@@ -1,12 +1,12 @@
-package io.enjincoin.spigot_framework.inventory;
+package com.enjin.enjincoin.spigot_framework.inventory;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import io.enjincoin.sdk.client.service.identities.vo.Identity;
-import io.enjincoin.sdk.client.service.identity.vo.TokenEntry;
-import io.enjincoin.sdk.client.service.tokens.vo.Token;
-import io.enjincoin.spigot_framework.BasePlugin;
+import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
+import com.enjin.enjincoin.sdk.client.service.identity.vo.TokenEntry;
+import com.enjin.enjincoin.sdk.client.service.tokens.vo.Token;
+import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;

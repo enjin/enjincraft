@@ -1,8 +1,8 @@
-package io.enjincoin.spigot_framework.commands;
+package com.enjin.enjincoin.spigot_framework.commands;
 
-import io.enjincoin.spigot_framework.BasePlugin;
-import io.enjincoin.spigot_framework.commands.subcommands.LinkCommand;
-import io.enjincoin.spigot_framework.commands.subcommands.WalletCommand;
+import com.enjin.enjincoin.spigot_framework.BasePlugin;
+import com.enjin.enjincoin.spigot_framework.commands.subcommands.LinkCommand;
+import com.enjin.enjincoin.spigot_framework.commands.subcommands.WalletCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

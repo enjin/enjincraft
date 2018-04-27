@@ -1,10 +1,9 @@
-package io.enjincoin.spigot_framework.controllers;
+package com.enjin.enjincoin.spigot_framework.controllers;
 
 import com.google.gson.JsonObject;
-import io.enjincoin.sdk.client.Client;
-import io.enjincoin.sdk.client.Clients;
-import io.enjincoin.sdk.client.config.Config;
-import io.enjincoin.spigot_framework.BasePlugin;
+import com.enjin.enjincoin.sdk.client.Client;
+import com.enjin.enjincoin.sdk.client.Clients;
+import com.enjin.enjincoin.spigot_framework.BasePlugin;
 
 import java.io.IOException;
 import java.util.logging.Level;

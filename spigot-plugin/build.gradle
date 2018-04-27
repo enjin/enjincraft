@@ -18,14 +18,14 @@ dependencies {
 }
 
 shadowJar {
-//    relocate 'com.enjin', 'io.enjincoin.spigot_plugin.shaded.enjin'
-//    relocate 'com.google', 'io.enjincoin.spigot_plugin.shaded.google'
-//    relocate 'com.pusher', 'io.enjincoin.spigot_plugin.shaded.pusher'
-//    relocate 'javax', 'io.enjincoin.spigot_plugin.shaded.javax'
-//    relocate 'net.kyori', 'io.enjincoin.spigot_plugin.shaded.kyori'
-//    relocate 'net.minidev', 'io.enjincoin.spigot_plugin.shaded.minidev.json'
-//    relocate 'okhttp3', 'io.enjincoin.spigot_plugin.shaded.okhttp3'
-//    relocate 'okio', 'io.enjincoin.spigot_plugin.shaded.okio'
+//    relocate 'com.enjin', 'com.enjin.enjincoin.spigot_plugin.shaded.enjin'
+//    relocate 'com.google', 'com.enjin.enjincoin.spigot_plugin.shaded.google'
+//    relocate 'com.pusher', 'com.enjin.enjincoin.spigot_plugin.shaded.pusher'
+//    relocate 'javax', 'com.enjin.enjincoin.spigot_plugin.shaded.javax'
+//    relocate 'net.kyori', 'com.enjin.enjincoin.spigot_plugin.shaded.kyori'
+//    relocate 'net.minidev', 'com.enjin.enjincoin.spigot_plugin.shaded.minidev.json'
+//    relocate 'okhttp3', 'com.enjin.enjincoin.spigot_plugin.shaded.okhttp3'
+//    relocate 'okio', 'com.enjin.enjincoin.spigot_plugin.shaded.okio'
 }
 
 processResources {

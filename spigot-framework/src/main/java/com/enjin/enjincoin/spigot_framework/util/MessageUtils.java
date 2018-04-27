@@ -1,4 +1,4 @@
-package io.enjincoin.spigot_framework.util;
+package com.enjin.enjincoin.spigot_framework.util;
 
 import net.kyori.text.TextComponent;
 import net.kyori.text.serializer.ComponentSerializers;

@@ -1,12 +1,12 @@
-package io.enjincoin.spigot_framework.listeners;
+package com.enjin.enjincoin.spigot_framework.listeners;
 
 import com.enjin.java_commons.ExceptionUtils;
-import io.enjincoin.sdk.client.Client;
-import io.enjincoin.sdk.client.service.identities.IdentitiesService;
-import io.enjincoin.sdk.client.service.identities.vo.Identity;
-import io.enjincoin.sdk.client.service.identities.vo.IdentityField;
-import io.enjincoin.spigot_framework.BasePlugin;
-import io.enjincoin.spigot_framework.util.MessageUtils;
+import com.enjin.enjincoin.sdk.client.Client;
+import com.enjin.enjincoin.sdk.client.service.identities.IdentitiesService;
+import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
+import com.enjin.enjincoin.sdk.client.service.identities.vo.IdentityField;
+import com.enjin.enjincoin.spigot_framework.BasePlugin;
+import com.enjin.enjincoin.spigot_framework.util.MessageUtils;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
 import org.bukkit.Bukkit;

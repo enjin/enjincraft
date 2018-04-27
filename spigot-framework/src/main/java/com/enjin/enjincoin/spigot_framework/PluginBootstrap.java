@@ -1,4 +1,4 @@
-package io.enjincoin.spigot_framework;
+package com.enjin.enjincoin.spigot_framework;
 
 /**
  * Abstract bootstrap to allow for optional set up and tear down.
