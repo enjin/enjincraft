@@ -2,9 +2,8 @@ package com.enjin.enjincoin.spigot_framework.commands.subcommands;
 
 import com.enjin.enjincoin.sdk.client.Client;
 import com.enjin.enjincoin.sdk.client.service.identities.IdentitiesService;
-import com.enjin.enjincoin.sdk.client.service.identities.vo.CreateIdentityRequestBody;
-import com.enjin.enjincoin.sdk.client.service.identities.vo.CreateIdentityResponseBody;
 import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
+import com.enjin.enjincoin.sdk.client.service.users.vo.data.UsersData;
 import com.enjin.enjincoin.sdk.client.service.identities.vo.IdentityField;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.Bootstrap;
@@ -93,9 +92,16 @@ public class LinkCommand {
         Client client = controller.getClient();
         IdentitiesService service = client.getIdentitiesService();
 
-        service.getIdentitiesAsync(new HashMap<String, Object>() {{
-            put("uuid", uuid);
-        }}, new FetchIdentityCallback(sender, uuid));
+//        client.auth("");
+        // TODO resolve this after identifying the start point for a user auth experience
+        Callback callback = new FetchIdentityCallback(sender, uuid);
+
+
+
+        service.getIdentitiesAsync(null, "", callback);
+//        service.getIdentitiesAsync(new HashMap<String, Object>() {{
+//            put("uuid", uuid);
+//        }}, new FetchIdentityCallback(sender, uuid));
     }
 
     /**
@@ -245,6 +251,23 @@ public class LinkCommand {
          */
         public UUID getUuid() {
             return uuid;
+        }
+    }
+
+    public class FetchUsersDataCallback extends CallbackBase<UsersData> {
+
+        public FetchUsersDataCallback(CommandSender sender, UUID uuid) {
+            super(sender, uuid);
+        }
+
+        @Override
+        public void onResponse(Call<UsersData> call, Response<UsersData> response) {
+
+        }
+
+        @Override
+        public void onFailure(Call<UsersData> call, Throwable t) {
+
         }
     }
 

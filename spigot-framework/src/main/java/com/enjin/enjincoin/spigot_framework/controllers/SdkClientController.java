@@ -4,8 +4,11 @@ import com.google.gson.JsonObject;
 import com.enjin.enjincoin.sdk.client.Client;
 import com.enjin.enjincoin.sdk.client.Clients;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
+import org.apache.commons.lang.NullArgumentException;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Level;
 
 /**
@@ -26,6 +29,11 @@ public class SdkClientController {
     public static final String APP_ID = "appId";
 
     /**
+     * Config key for the UUID in an individual users session entry.
+     */
+    public static final String UUID = "uuid";
+
+    /**
      * <p>The spigot plugin.</p>
      */
     private final BasePlugin main;
@@ -39,6 +47,11 @@ public class SdkClientController {
      * <p>The Enjin Coin SDK client.</p>
      */
     private Client client;
+
+    /**
+     * <p>A UUID session/client map for user connections</p>
+     */
+    private Map<UUID, Client> sessionMap;
 
     /**
      * <p>Controller constructor.</p>
@@ -62,6 +75,21 @@ public class SdkClientController {
         if (!config.has(APP_ID))
             throw new IllegalStateException(String.format("The \"%s\" key does not exists in the config.", APP_ID));
         this.client = Clients.createClient(this.config.get(PLATFORM_BASE_URL).getAsString(),
+                this.config.get(APP_ID).getAsInt(), this.main.getBootstrap().isDebugEnabled());
+    }
+
+    /**
+     * <p>Initialize and add a user's session to the sessions map</p>
+     */
+    public void addSession(UUID uuid) {
+        if (uuid == null)
+            throw new NullArgumentException(String.format("\"$s\" is null.", UUID));
+        if (!config.has(PLATFORM_BASE_URL))
+            throw new IllegalStateException(String.format("The \"%s\" key does not exists in the config.", PLATFORM_BASE_URL));
+        if (!config.has(APP_ID))
+            throw new IllegalStateException(String.format("The \"%s\" key does not exists in the config.", APP_ID));
+
+        Client session = Clients.createClient(this.config.get(PLATFORM_BASE_URL).getAsString(),
                 this.config.get(APP_ID).getAsInt(), this.main.getBootstrap().isDebugEnabled());
     }
 
