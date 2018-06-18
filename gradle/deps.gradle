@@ -2,7 +2,7 @@ ext.deps = [
         // compile Dependencies
         javaCommons: 'com.enjin:java_commons:0.2.0-SNAPSHOT',
         minecraftCommonsSpigot: 'com.enjin.minecraft_commons:spigot:0.1.0-SNAPSHOT',
-        enjinCoinSdk: 'com.enjin.enjincoin:java-sdk-client:0.2.0-SNAPSHOT',
+        enjinCoinSdk: 'com.enjin.enjincoin:java-sdk-client:0.3.1-SNAPSHOT',
         kyoriText: 'net.kyori:text:1.12-1.3.0',
         gson: 'com.google.code.gson:gson:2.8.2',
 

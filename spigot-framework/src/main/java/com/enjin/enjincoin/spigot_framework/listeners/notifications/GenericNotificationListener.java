@@ -1,5 +1,6 @@
 package com.enjin.enjincoin.spigot_framework.listeners.notifications;
 
+import com.enjin.enjincoin.sdk.client.service.notifications.vo.NotificationEvent;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -10,7 +11,6 @@ import com.enjin.enjincoin.sdk.client.service.identities.vo.IdentityField;
 import com.enjin.enjincoin.sdk.client.service.identity.vo.TokenEntry;
 import com.enjin.enjincoin.sdk.client.service.notifications.NotificationListener;
 import com.enjin.enjincoin.sdk.client.service.tokens.vo.Token;
-import com.enjin.enjincoin.sdk.client.vo.notifications.NotificationEvent;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.inventory.WalletInventory;
 import com.enjin.enjincoin.spigot_framework.util.UuidUtils;

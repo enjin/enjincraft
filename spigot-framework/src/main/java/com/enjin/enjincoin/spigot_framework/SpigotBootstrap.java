@@ -1,12 +1,14 @@
 package com.enjin.enjincoin.spigot_framework;
 
+import com.enjin.enjincoin.sdk.client.model.body.GraphQLResponse;
+import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
+import com.enjin.enjincoin.sdk.client.service.tokens.vo.Token;
+import com.enjin.enjincoin.sdk.client.service.tokens.vo.data.TokensData;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
 import com.enjin.enjincoin.sdk.client.service.notifications.NotificationsService;
 import com.enjin.enjincoin.sdk.client.service.tokens.TokensService;
-import com.enjin.enjincoin.sdk.client.service.tokens.vo.Token;
 import com.enjin.enjincoin.spigot_framework.commands.RootCommand;
 import com.enjin.enjincoin.spigot_framework.controllers.SdkClientController;
 import com.enjin.enjincoin.spigot_framework.listeners.ConnectionListener;
@@ -100,22 +102,23 @@ public class SpigotBootstrap extends PluginBootstrap {
 
             // Fetch a list of all tokens registered to the configured app ID.
             final TokensService tokensService = this.sdkClientController.getClient().getTokensService();
-            tokensService.getTokensAsync(new Callback<Token[]>() {
+            tokensService.getAllTokensAsync(new Callback<GraphQLResponse<TokensData>>() {
                 @Override
-                public void onResponse(Call<Token[]> call, Response<Token[]> response) {
+                public void onResponse(Call<GraphQLResponse<TokensData>> call, Response<GraphQLResponse<TokensData>> response) {
                     if (response.isSuccessful()) {
-                        Token[] tokens = response.body();
-                        for (Token token : tokens) {
-                            if (token.getAppId() != config.get("appId").getAsInt())
-                                continue;
-
-                            SpigotBootstrap.this.tokens.put(token.getTokenId(), token);
+                        TokensData data = response.body().getData();
+                        if (data != null && data.getTokens() != null) {
+                            data.getTokens().forEach(token -> {
+                                if (config.get("appId").getAsInt() == token.getAppId()) {
+                                    SpigotBootstrap.this.tokens.put(token.getTokenId(), token);
+                                }
+                            });
                         }
                     }
                 }
 
                 @Override
-                public void onFailure(Call<Token[]> call, Throwable t) {
+                public void onFailure(Call<GraphQLResponse<TokensData>> call, Throwable t) {
                     main.getLogger().warning("An error occurred while fetching tokens.");
                 }
             });
