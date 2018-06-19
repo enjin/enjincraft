@@ -1,5 +1,6 @@
 package com.enjin.enjincoin.spigot_framework;
 
+import com.enjin.enjincoin.spigot_framework.entity.EnjinCoinPlayer;
 import com.google.gson.JsonObject;
 import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
 import com.enjin.enjincoin.sdk.client.service.tokens.vo.Token;
@@ -38,6 +39,16 @@ public interface Bootstrap {
      * @since 1.0
      */
     SdkClientController getSdkController();
+
+    /**
+     * <p>Returns a mapping of Enjin Coin players associated
+     * with the UUIds of online players.</p>
+     *
+     * @return a map of UUIDs and associated Enjin Coin player wrappers
+     *
+     * @since 1.0
+     */
+    Map<UUID, EnjinCoinPlayer> getPlayers();
 
     /**
      * <p>Returns a mapping of trusted platform identities associated

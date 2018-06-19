@@ -4,6 +4,7 @@ import com.enjin.enjincoin.sdk.client.model.body.GraphQLResponse;
 import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
 import com.enjin.enjincoin.sdk.client.service.tokens.vo.Token;
 import com.enjin.enjincoin.sdk.client.service.tokens.vo.data.TokensData;
+import com.enjin.enjincoin.spigot_framework.entity.EnjinCoinPlayer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -48,6 +49,12 @@ public class SpigotBootstrap extends PluginBootstrap {
      * <p>The Enjin Coin SDK controller.</p>
      */
     private SdkClientController sdkClientController;
+
+    /**
+     * <p>The mapping of UUIDs and wrapper objects for online players
+     * associated with a trusted platform identity.</p>
+     */
+    private Map<UUID, EnjinCoinPlayer> players;
 
     /**
      * <p>The mapping of UUIDs and associated trusted platform
@@ -141,6 +148,11 @@ public class SpigotBootstrap extends PluginBootstrap {
     @Override
     public SdkClientController getSdkController() {
         return this.sdkClientController;
+    }
+
+    @Override
+    public Map<UUID, EnjinCoinPlayer> getPlayers() {
+        return this.players;
     }
 
     @Override
