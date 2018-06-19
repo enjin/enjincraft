@@ -288,7 +288,18 @@ public class LinkCommand {
 
         @Override
         public void onResponse(Call<GraphQLResponse<CreateUserData>> call, Response<GraphQLResponse<CreateUserData>> response) {
+            if (response.isSuccessful()) {
+                if (getSender() instanceof Player && !((Player) getSender()).isOnline())
+                    return;
 
+//                Integer userId = response.body().getData().getUser().getId();
+            } else {
+                try {
+                    main.getLogger().warning(response.errorBody().string());
+                } catch (IOException e) {
+                    main.getLogger().warning("Unable to convert response error body to a string.");
+                }
+            }
         }
 
         @Override
@@ -311,12 +322,23 @@ public class LinkCommand {
 
         @Override
         public void onResponse(Call<GraphQLResponse<UsersData>> call, Response<GraphQLResponse<UsersData>> response) {
+            if (response.isSuccessful()) {
+                if (getSender() instanceof Player && !((Player) getSender()).isOnline())
+                    return;
 
+//                String name = response.body().getData().getUsers().get(0).getName();
+            } else {
+                try {
+                    main.getLogger().warning(response.errorBody().string());
+                } catch (IOException e) {
+                    main.getLogger().warning("Unable to convert response error body to a string.");
+                }
+            }
         }
 
         @Override
         public void onFailure(Call<GraphQLResponse<UsersData>> call, Throwable t) {
-
+            errorCreatingIdentity(getSender(), t);
         }
     }
 
