@@ -274,7 +274,7 @@ public class LinkCommand {
         }
     }
 
-    public class EnjinUserCallBack extends CallbackBase<GraphQLResponse<CreateUserData>> {
+    public class CreateEnjinUserCallBack extends CallbackBase<GraphQLResponse<CreateUserData>> {
 
         /**
          * <p>Callback constructor.</p>
