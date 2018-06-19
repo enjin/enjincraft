@@ -282,7 +282,7 @@ public class LinkCommand {
          * @param sender the command sender
          * @param uuid   the target player's UUID
          */
-        public EnjinUserCallBack(CommandSender sender, UUID uuid) {
+        public CreateEnjinUserCallBack(CommandSender sender, UUID uuid) {
             super(sender, uuid);
         }
 
@@ -293,6 +293,29 @@ public class LinkCommand {
 
         @Override
         public void onFailure(Call<GraphQLResponse<CreateUserData>> call, Throwable t) {
+
+        }
+    }
+
+    public class FetchEnjinUserCallback extends CallbackBase<GraphQLResponse<UsersData>> {
+
+        /**
+         * <p>Callback constructor.</p>
+         *
+         * @param sender the command sender
+         * @param uuid   the target player's UUID
+         */
+        public FetchEnjinUserCallback(CommandSender sender, UUID uuid) {
+            super(sender, uuid);
+        }
+
+        @Override
+        public void onResponse(Call<GraphQLResponse<UsersData>> call, Response<GraphQLResponse<UsersData>> response) {
+
+        }
+
+        @Override
+        public void onFailure(Call<GraphQLResponse<UsersData>> call, Throwable t) {
 
         }
     }
