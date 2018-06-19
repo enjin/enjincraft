@@ -1,8 +1,10 @@
 package com.enjin.enjincoin.spigot_framework.commands.subcommands;
 
 import com.enjin.enjincoin.sdk.client.Client;
+import com.enjin.enjincoin.sdk.client.model.body.GraphQLResponse;
 import com.enjin.enjincoin.sdk.client.service.identities.IdentitiesService;
 import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
+import com.enjin.enjincoin.sdk.client.service.identities.vo.data.CreateIdentityData;
 import com.enjin.enjincoin.sdk.client.service.users.vo.data.UsersData;
 import com.enjin.enjincoin.sdk.client.service.identities.vo.IdentityField;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
@@ -302,9 +304,8 @@ public class LinkCommand {
                     List<IdentityField> fields = new ArrayList<>();
                     fields.add( new IdentityField("uuid", getUuid().toString()) );
 
-                    Callback callback = new CreateIdentityCallback(getSender(), getUuid());
                     // final Integer id, final String ethereumAddress, final List<IdentityField> fields, final Callback<GraphQLResponse<CreateIdentityData>> callback
-                    getService().createIdentityAsync(id, ethereumAddress, fields, callback);
+                    getService().createIdentityAsync(id, ethereumAddress, fields, new CreateIdentityCallback(getSender(), getUuid()));
 //                            new CreateIdentityRequestBody(main.getBootstrap().getConfig().get("appId").getAsInt(), new IdentityField[]{
 //                                    new IdentityField("uuid", getUuid().toString())
 //                            }),
@@ -338,7 +339,7 @@ public class LinkCommand {
      *
      * @since 1.0
      */
-    public class CreateIdentityCallback extends CallbackBase<CreateIdentityResponseBody> {
+    public class CreateIdentityCallback extends CallbackBase<GraphQLResponse<CreateIdentityData>> {
 
         /**
          * <p>Callback constructor.</p>
@@ -351,12 +352,12 @@ public class LinkCommand {
         }
 
         @Override
-        public void onResponse(Call<CreateIdentityResponseBody> call, Response<CreateIdentityResponseBody> response) {
+        public void onResponse(Call<GraphQLResponse<CreateIdentityData>> call, Response<GraphQLResponse<CreateIdentityData>> response) {
             if (response.isSuccessful()) {
                 if (getSender() instanceof Player && !((Player) getSender()).isOnline())
                     return;
 
-                String code = response.body().getLinkingCode();
+                String code = response.body().getData().getIdentity().getLinkingCode();
                 handleCode(getSender(), code);
             } else {
                 try {
@@ -368,7 +369,7 @@ public class LinkCommand {
         }
 
         @Override
-        public void onFailure(Call<CreateIdentityResponseBody> call, Throwable t) {
+        public void onFailure(Call<GraphQLResponse<CreateIdentityData>> call, Throwable t) {
             errorCreatingIdentity(getSender(), t);
         }
     }
