@@ -5,6 +5,7 @@ import com.enjin.enjincoin.sdk.client.model.body.GraphQLResponse;
 import com.enjin.enjincoin.sdk.client.service.identities.IdentitiesService;
 import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
 import com.enjin.enjincoin.sdk.client.service.identities.vo.data.CreateIdentityData;
+import com.enjin.enjincoin.sdk.client.service.users.vo.data.CreateUserData;
 import com.enjin.enjincoin.sdk.client.service.users.vo.data.UsersData;
 import com.enjin.enjincoin.sdk.client.service.identities.vo.IdentityField;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
@@ -269,6 +270,29 @@ public class LinkCommand {
 
         @Override
         public void onFailure(Call<UsersData> call, Throwable t) {
+
+        }
+    }
+
+    public class EnjinUserCallBack extends CallbackBase<GraphQLResponse<CreateUserData>> {
+
+        /**
+         * <p>Callback constructor.</p>
+         *
+         * @param sender the command sender
+         * @param uuid   the target player's UUID
+         */
+        public EnjinUserCallBack(CommandSender sender, UUID uuid) {
+            super(sender, uuid);
+        }
+
+        @Override
+        public void onResponse(Call<GraphQLResponse<CreateUserData>> call, Response<GraphQLResponse<CreateUserData>> response) {
+
+        }
+
+        @Override
+        public void onFailure(Call<GraphQLResponse<CreateUserData>> call, Throwable t) {
 
         }
     }
