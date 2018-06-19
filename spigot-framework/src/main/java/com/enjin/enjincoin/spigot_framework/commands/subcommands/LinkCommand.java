@@ -19,7 +19,9 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -95,8 +97,6 @@ public class LinkCommand {
 //        client.auth("");
         // TODO resolve this after identifying the start point for a user auth experience
         Callback callback = new FetchIdentityCallback(sender, uuid);
-
-
 
         service.getIdentitiesAsync(null, "", callback);
 //        service.getIdentitiesAsync(new HashMap<String, Object>() {{
@@ -296,11 +296,19 @@ public class LinkCommand {
                 Identity[] identities = response.body();
                 if (identities.length == 0) {
                     // TODO: App ID needs to be configurable or acquired by some means.
-                    getService().createIdentityAsync(
-                            new CreateIdentityRequestBody(main.getBootstrap().getConfig().get("appId").getAsInt(), new IdentityField[]{
-                                    new IdentityField("uuid", getUuid().toString())
-                            }),
-                            new CreateIdentityCallback(getSender(), getUuid()));
+
+                    Integer id = 0;
+                    String ethereumAddress = "";
+                    List<IdentityField> fields = new ArrayList<>();
+                    fields.add( new IdentityField("uuid", getUuid().toString()) );
+
+                    Callback callback = new CreateIdentityCallback(getSender(), getUuid());
+                    // final Integer id, final String ethereumAddress, final List<IdentityField> fields, final Callback<GraphQLResponse<CreateIdentityData>> callback
+                    getService().createIdentityAsync(id, ethereumAddress, fields, callback);
+//                            new CreateIdentityRequestBody(main.getBootstrap().getConfig().get("appId").getAsInt(), new IdentityField[]{
+//                                    new IdentityField("uuid", getUuid().toString())
+//                            }),
+//                            new CreateIdentityCallback(getSender(), getUuid()));
                 } else {
                     Identity identity = identities[0];
                     String code = identity.getLinkingCode();

@@ -80,6 +80,8 @@ public class SdkClientController {
 
     /**
      * <p>Initialize and add a user's session to the sessions map</p>
+     *
+     * @since #.#
      */
     public void addSession(UUID uuid) {
         if (uuid == null)
