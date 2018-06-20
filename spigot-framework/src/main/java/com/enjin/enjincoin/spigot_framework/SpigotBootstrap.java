@@ -78,8 +78,9 @@ public class SpigotBootstrap extends PluginBootstrap {
 
     @Override
     public void setUp() {
-        this.identities = new ConcurrentHashMap<>();
         this.tokens = new ConcurrentHashMap<>();
+        this.players = new ConcurrentHashMap<>();
+        this.identities = new ConcurrentHashMap<>();
 
         // Load the config to ensure that it is created or already exists.
         final JsonObject config = getConfig();

@@ -5,6 +5,7 @@ import com.enjin.enjincoin.sdk.client.model.body.GraphQLResponse;
 import com.enjin.enjincoin.sdk.client.service.identities.IdentitiesService;
 import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
 import com.enjin.enjincoin.sdk.client.service.identities.vo.data.CreateIdentityData;
+import com.enjin.enjincoin.sdk.client.service.users.UsersService;
 import com.enjin.enjincoin.sdk.client.service.users.vo.data.CreateUserData;
 import com.enjin.enjincoin.sdk.client.service.users.vo.data.UsersData;
 import com.enjin.enjincoin.sdk.client.service.identities.vo.IdentityField;
@@ -76,10 +77,25 @@ public class LinkCommand {
         }
 
         if (uuid != null) {
+            fetchEnjinUser(sender, uuid);
             linkIdentity(sender, uuid);
         } else {
             errorInvalidUuid(sender);
         }
+    }
+
+    private void fetchEnjinUser(CommandSender sender, UUID uuid) {
+        Bootstrap bootstarp = this.main.getBootstrap();
+        SdkClientController controller = bootstarp.getSdkController();
+        Client client = controller.getClient();
+
+        UsersService usersService = client.getUsersService();
+        IdentitiesService identitiesService = client.getIdentitiesService();
+
+        Callback callback = new FetchEnjinUserCallback(sender, uuid);
+        usersService.getUsersAsync(null, null, null, callback);
+        // How does this callback help to register the user in a way that we can access it? and stash to our
+        // EnjinCoinUsers map?
     }
 
     /**
