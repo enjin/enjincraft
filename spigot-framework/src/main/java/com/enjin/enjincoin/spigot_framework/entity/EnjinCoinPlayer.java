@@ -21,6 +21,13 @@ public class EnjinCoinPlayer {
         this.identity.getTokens().forEach(token -> tokenBalances.put(token.getTokenId(), token.getBalance()));
     }
 
+    public EnjinCoinPlayer(String uuid, Identity identity) {
+        this.identity = identity;
+
+        UUID uid = UUID.fromString(uuid);
+        this.uuid = uid;
+    }
+
     public UUID getUuid() {
         return this.uuid;
     }

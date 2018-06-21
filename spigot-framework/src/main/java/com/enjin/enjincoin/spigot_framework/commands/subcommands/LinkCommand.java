@@ -6,12 +6,14 @@ import com.enjin.enjincoin.sdk.client.service.identities.IdentitiesService;
 import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
 import com.enjin.enjincoin.sdk.client.service.identities.vo.data.CreateIdentityData;
 import com.enjin.enjincoin.sdk.client.service.users.UsersService;
+import com.enjin.enjincoin.sdk.client.service.users.vo.User;
 import com.enjin.enjincoin.sdk.client.service.users.vo.data.CreateUserData;
 import com.enjin.enjincoin.sdk.client.service.users.vo.data.UsersData;
 import com.enjin.enjincoin.sdk.client.service.identities.vo.IdentityField;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.Bootstrap;
 import com.enjin.enjincoin.spigot_framework.controllers.SdkClientController;
+import com.enjin.enjincoin.spigot_framework.entity.EnjinCoinPlayer;
 import com.enjin.enjincoin.spigot_framework.util.MessageUtils;
 import com.enjin.enjincoin.spigot_framework.util.UuidUtils;
 import net.kyori.text.TextComponent;
@@ -23,10 +25,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 
 /**
@@ -85,8 +85,8 @@ public class LinkCommand {
     }
 
     private void fetchEnjinUser(CommandSender sender, UUID uuid) {
-        Bootstrap bootstarp = this.main.getBootstrap();
-        SdkClientController controller = bootstarp.getSdkController();
+        Bootstrap bootstrap = this.main.getBootstrap();
+        SdkClientController controller = bootstrap.getSdkController();
         Client client = controller.getClient();
 
         UsersService usersService = client.getUsersService();
@@ -94,8 +94,6 @@ public class LinkCommand {
 
         Callback callback = new FetchEnjinUserCallback(sender, uuid);
         usersService.getUsersAsync(null, null, null, callback);
-        // How does this callback help to register the user in a way that we can access it? and stash to our
-        // EnjinCoinUsers map?
     }
 
     /**
@@ -218,6 +216,11 @@ public class LinkCommand {
         private IdentitiesService service;
 
         /**
+         * <p>The users service.</p>
+         */
+        private UsersService usersService;
+
+        /**
          * <p>The command sender.</p>
          */
         private CommandSender sender;
@@ -235,6 +238,7 @@ public class LinkCommand {
          */
         public CallbackBase(CommandSender sender, UUID uuid) {
             this.service = LinkCommand.this.main.getBootstrap().getSdkController().getClient().getIdentitiesService();
+            this.usersService = LinkCommand.this.main.getBootstrap().getSdkController().getClient().getUsersService();
             this.sender = sender;
             this.uuid = uuid;
         }
@@ -249,6 +253,18 @@ public class LinkCommand {
         public IdentitiesService getService() {
             return service;
         }
+
+        /**
+         * <p>Returns the users service.</p>
+         *
+         * @return the users service
+         *
+         * @since 1.0
+         */
+        public UsersService getUsersService() {
+            return usersService;
+        }
+
 
         /**
          * <p>Returns the command sender.</p>
@@ -342,7 +358,19 @@ public class LinkCommand {
                 if (getSender() instanceof Player && !((Player) getSender()).isOnline())
                     return;
 
-//                String name = response.body().getData().getUsers().get(0).getName();
+                UsersData userData = response.body().getData();
+                List<User> users = userData.getUsers();
+                users.forEach( u -> {
+                    String name = u.getName();
+                    List<Identity> identities = u.getIdentities();
+                    identities.forEach( i -> {
+                        if (i.getAppId() == main.getBootstrap().getConfig().get("AppId").getAsInt()) {
+                            EnjinCoinPlayer player = new EnjinCoinPlayer(name, i);
+                            main.getBootstrap().getPlayers().put(player.getUuid(), player);
+                        }
+                    });
+                });
+
             } else {
                 try {
                     main.getLogger().warning(response.errorBody().string());
