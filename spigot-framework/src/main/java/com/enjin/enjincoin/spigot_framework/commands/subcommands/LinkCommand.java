@@ -5,7 +5,7 @@ import com.enjin.enjincoin.sdk.client.model.body.GraphQLResponse;
 import com.enjin.enjincoin.sdk.client.service.identities.IdentitiesService;
 import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
 import com.enjin.enjincoin.sdk.client.service.identities.vo.data.CreateIdentityData;
-import com.enjin.enjincoin.sdk.client.service.users.UsersService;
+import com.enjin.enjincoin.sdk.client.service.identities.vo.data.IdentitiesData;
 import com.enjin.enjincoin.sdk.client.service.users.vo.User;
 import com.enjin.enjincoin.sdk.client.service.users.vo.data.CreateUserData;
 import com.enjin.enjincoin.sdk.client.service.users.vo.data.UsersData;
@@ -26,7 +26,6 @@ import retrofit2.Response;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 
 /**
@@ -52,7 +51,7 @@ public class LinkCommand {
      * <p>Executes and performs operations defined for the command.</p>
      *
      * @param sender the command sender
-     * @param args the command arguments
+     * @param args   the command arguments
      *
      * @since 1.0
      */
@@ -77,23 +76,18 @@ public class LinkCommand {
         }
 
         if (uuid != null) {
-            fetchEnjinUser(sender, uuid);
+            fetchUser(sender, uuid);
             linkIdentity(sender, uuid);
         } else {
             errorInvalidUuid(sender);
         }
     }
 
-    private void fetchEnjinUser(CommandSender sender, UUID uuid) {
-        Bootstrap bootstrap = this.main.getBootstrap();
-        SdkClientController controller = bootstrap.getSdkController();
-        Client client = controller.getClient();
-
-        UsersService usersService = client.getUsersService();
-        IdentitiesService identitiesService = client.getIdentitiesService();
-
-        Callback callback = new FetchEnjinUserCallback(sender, uuid);
-        usersService.getUsersAsync(null, null, null, callback);
+    private void fetchUser(CommandSender sender, UUID uuid) {
+        if (!this.main.getBootstrap().getPlayers().containsKey(uuid)) {
+            Client client = this.main.getBootstrap().getSdkController().getClient();
+            client.getUsersService().getUsersAsync(null, uuid.toString(), null, new FetchUserCallback(sender, uuid));
+        }
     }
 
     /**
@@ -101,21 +95,18 @@ public class LinkCommand {
      * already linked.</p>
      *
      * @param sender the command sender
-     * @param uuid the target player's UUID
+     * @param uuid   the target player's UUID
      *
      * @since 1.0
      */
     private void linkIdentity(CommandSender sender, UUID uuid) {
-        Bootstrap bootstrap = this.main.getBootstrap();
-        SdkClientController controller = bootstrap.getSdkController();
-        Client client = controller.getClient();
-        IdentitiesService service = client.getIdentitiesService();
+        Client client = this.main.getBootstrap().getSdkController().getClient();
 
 //        client.auth("");
         // TODO resolve this after identifying the start point for a user auth experience
         Callback callback = new FetchIdentityCallback(sender, uuid);
 
-        service.getIdentitiesAsync(null, "", callback);
+        client.getIdentitiesService().getIdentitiesAsync(null, "", new FetchIdentityCallback(sender, uuid));
 //        service.getIdentitiesAsync(new HashMap<String, Object>() {{
 //            put("uuid", uuid);
 //        }}, new FetchIdentityCallback(sender, uuid));
@@ -181,7 +172,7 @@ public class LinkCommand {
      * acquired or not and if so sends the link code to the sender.</p>
      *
      * @param sender the command sender
-     * @param code the link code
+     * @param code   the link code
      *
      * @since 1.0
      */
@@ -210,15 +201,7 @@ public class LinkCommand {
      */
     public abstract class CallbackBase<T> implements Callback<T> {
 
-        /**
-         * <p>The identities service.</p>
-         */
-        private IdentitiesService service;
-
-        /**
-         * <p>The users service.</p>
-         */
-        private UsersService usersService;
+        private Client enjinCoinClient;
 
         /**
          * <p>The command sender.</p>
@@ -234,37 +217,24 @@ public class LinkCommand {
          * <p>Callback constructor.</p>
          *
          * @param sender the command sender
-         * @param uuid the target player's UUID
+         * @param uuid   the target player's UUID
          */
         public CallbackBase(CommandSender sender, UUID uuid) {
-            this.service = LinkCommand.this.main.getBootstrap().getSdkController().getClient().getIdentitiesService();
-            this.usersService = LinkCommand.this.main.getBootstrap().getSdkController().getClient().getUsersService();
+            this.enjinCoinClient = LinkCommand.this.main.getBootstrap().getSdkController().getClient();
             this.sender = sender;
             this.uuid = uuid;
         }
 
         /**
-         * <p>Returns the identities service.</p>
+         * Returns the Enjin Coin client.
          *
-         * @return the identities service
-         *
-         * @since 1.0
-         */
-        public IdentitiesService getService() {
-            return service;
-        }
-
-        /**
-         * <p>Returns the users service.</p>
-         *
-         * @return the users service
+         * @return the Enjin Coin client
          *
          * @since 1.0
          */
-        public UsersService getUsersService() {
-            return usersService;
+        public Client getEnjinCoinClient() {
+            return enjinCoinClient;
         }
-
 
         /**
          * <p>Returns the command sender.</p>
@@ -306,7 +276,7 @@ public class LinkCommand {
         }
     }
 
-    public class CreateEnjinUserCallBack extends CallbackBase<GraphQLResponse<CreateUserData>> {
+    public class CreateUserCallback extends CallbackBase<GraphQLResponse<CreateUserData>> {
 
         /**
          * <p>Callback constructor.</p>
@@ -314,7 +284,7 @@ public class LinkCommand {
          * @param sender the command sender
          * @param uuid   the target player's UUID
          */
-        public CreateEnjinUserCallBack(CommandSender sender, UUID uuid) {
+        public CreateUserCallback(CommandSender sender, UUID uuid) {
             super(sender, uuid);
         }
 
@@ -340,7 +310,7 @@ public class LinkCommand {
         }
     }
 
-    public class FetchEnjinUserCallback extends CallbackBase<GraphQLResponse<UsersData>> {
+    public class FetchUserCallback extends CallbackBase<GraphQLResponse<UsersData>> {
 
         /**
          * <p>Callback constructor.</p>
@@ -348,7 +318,7 @@ public class LinkCommand {
          * @param sender the command sender
          * @param uuid   the target player's UUID
          */
-        public FetchEnjinUserCallback(CommandSender sender, UUID uuid) {
+        public FetchUserCallback(CommandSender sender, UUID uuid) {
             super(sender, uuid);
         }
 
@@ -360,14 +330,13 @@ public class LinkCommand {
 
                 UsersData userData = response.body().getData();
                 List<User> users = userData.getUsers();
-                users.forEach( u -> {
-                    String name = u.getName();
-                    List<Identity> identities = u.getIdentities();
-                    identities.forEach( i -> {
-                        if (i.getAppId() == main.getBootstrap().getConfig().get("AppId").getAsInt()) {
-                            EnjinCoinPlayer player = new EnjinCoinPlayer(name, i);
-                            main.getBootstrap().getPlayers().put(player.getUuid(), player);
-                        }
+                users.forEach(user -> {
+                    Optional<Identity> optionalIdentity = user.getIdentities().stream()
+                            .filter(identity -> identity.getAppId() == main.getBootstrap().getConfig().get("AppId").getAsLong())
+                            .findFirst();
+                    optionalIdentity.ifPresent(identity -> {
+                        EnjinCoinPlayer player = new EnjinCoinPlayer(user.getName(), identity);
+                        main.getBootstrap().getPlayers().put(player.getUuid(), player);
                     });
                 });
 
@@ -393,38 +362,42 @@ public class LinkCommand {
      *
      * @since 1.0
      */
-    public class FetchIdentityCallback extends CallbackBase<Identity[]> {
+    public class FetchIdentityCallback extends CallbackBase<GraphQLResponse<IdentitiesData>> {
 
         /**
          * <p>Callback constructor.</p>
          *
          * @param sender the command sender
-         * @param uuid the target player's UUID
+         * @param uuid   the target player's UUID
          */
         public FetchIdentityCallback(CommandSender sender, UUID uuid) {
             super(sender, uuid);
         }
 
         @Override
-        public void onResponse(Call<Identity[]> call, Response<Identity[]> response) {
+        public void onResponse(Call<GraphQLResponse<IdentitiesData>> call, Response<GraphQLResponse<IdentitiesData>> response) {
             if (response.isSuccessful()) {
-                Identity[] identities = response.body();
-                if (identities.length == 0) {
-                    // TODO: App ID needs to be configurable or acquired by some means.
+                if (getSender() instanceof Player && !((Player) getSender()).isOnline())
+                    return;
 
+                IdentitiesData data = response.body().getData();
+                List<Identity> identities = data.getIdentities();
+                if (identities.size() == 0) {
+                    // TODO: Update pipeline such that we have a user id to reference
                     Integer id = 0;
                     String ethereumAddress = "";
                     List<IdentityField> fields = new ArrayList<>();
-                    fields.add( new IdentityField("uuid", getUuid().toString()) );
+                    fields.add(new IdentityField("uuid", getUuid().toString()));
 
                     // final Integer id, final String ethereumAddress, final List<IdentityField> fields, final Callback<GraphQLResponse<CreateIdentityData>> callback
-                    getService().createIdentityAsync(id, ethereumAddress, fields, new CreateIdentityCallback(getSender(), getUuid()));
+                    getEnjinCoinClient().getIdentitiesService()
+                            .createIdentityAsync(id, ethereumAddress, fields, new CreateIdentityCallback(getSender(), getUuid()));
 //                            new CreateIdentityRequestBody(main.getBootstrap().getConfig().get("appId").getAsInt(), new IdentityField[]{
 //                                    new IdentityField("uuid", getUuid().toString())
 //                            }),
 //                            new CreateIdentityCallback(getSender(), getUuid()));
                 } else {
-                    Identity identity = identities[0];
+                    Identity identity = identities.get(0);
                     String code = identity.getLinkingCode();
                     if (code == null || code.isEmpty())
                         errorLinkAlreadyExists(getSender(), getUuid());
@@ -441,7 +414,7 @@ public class LinkCommand {
         }
 
         @Override
-        public void onFailure(Call<Identity[]> call, Throwable t) {
+        public void onFailure(Call<GraphQLResponse<IdentitiesData>> call, Throwable t) {
             errorRequestingIdentities(getSender(), t);
         }
     }
@@ -458,7 +431,7 @@ public class LinkCommand {
          * <p>Callback constructor.</p>
          *
          * @param sender the command sender
-         * @param uuid the target player's UUID
+         * @param uuid   the target player's UUID
          */
         public CreateIdentityCallback(CommandSender sender, UUID uuid) {
             super(sender, uuid);
