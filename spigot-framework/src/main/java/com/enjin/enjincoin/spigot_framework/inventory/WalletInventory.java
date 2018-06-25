@@ -4,7 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
-import com.enjin.enjincoin.sdk.client.service.identity.vo.TokenEntry;
+import com.enjin.enjincoin.sdk.client.service.identities.vo.data.IdentitiesData;
 import com.enjin.enjincoin.sdk.client.service.tokens.vo.Token;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import org.bukkit.Bukkit;
@@ -50,13 +50,13 @@ public class WalletInventory {
         // Generate a 6 by 9 chest inventory.
         Inventory inventory = Bukkit.createInventory(holder, 6 * 9, ChatColor.DARK_PURPLE + "Enjin Wallet");
         int index = 0;
-        for (TokenEntry entry : identity.getTokens()) {
+        for (Token entry : identity.getTokens()) {
             // Check if the inventory is full.
             if (index >= 6 * 9)
                 break;
 
             // Check if the token entry has value.
-            if (entry.getValue() > 0) {
+            if (entry.getBalance() > 0) {
                 Token token = main.getBootstrap().getTokens().get(entry.getTokenId());
                 // Verify that the token data exists.
                 if (token == null)
@@ -94,11 +94,11 @@ public class WalletInventory {
                 // Add balance to lore.
                 if (token.getDecimals() == 0) {
                     // Display balance as an integer.
-                    int balance = Double.valueOf(entry.getValue()).intValue();
+                    double balance = Double.valueOf(entry.getBalance().intValue());
                     lore.add(ChatColor.GRAY + "Balance: " + ChatColor.GOLD + balance);
                 } else {
                     // Display balance using the price format.
-                    double balance = entry.getValue();
+                    double balance = entry.getBalance();
                     lore.add(ChatColor.GRAY + "Balance: " + ChatColor.GOLD + DECIMAL_FORMAT.format(balance));
                 }
 

@@ -328,8 +328,7 @@ public class LinkCommand {
                 if (getSender() instanceof Player && !((Player) getSender()).isOnline())
                     return;
 
-                UsersData userData = response.body().getData();
-                List<User> users = userData.getUsers();
+                List<User> users = response.body().getData().getUsers();
                 users.forEach(user -> {
                     Optional<Identity> optionalIdentity = user.getIdentities().stream()
                             .filter(identity -> identity.getAppId() == main.getBootstrap().getConfig().get("AppId").getAsLong())
@@ -380,18 +379,21 @@ public class LinkCommand {
                 if (getSender() instanceof Player && !((Player) getSender()).isOnline())
                     return;
 
-                IdentitiesData data = response.body().getData();
-                List<Identity> identities = data.getIdentities();
+                List<Identity> identities = response.body().getData().getIdentities();
                 if (identities.size() == 0) {
                     // TODO: Update pipeline such that we have a user id to reference
-                    Integer id = 0;
-                    String ethereumAddress = "";
+                    Integer id = null;
+                    String ethereumAddress = null;
                     List<IdentityField> fields = new ArrayList<>();
                     fields.add(new IdentityField("uuid", getUuid().toString()));
 
                     // final Integer id, final String ethereumAddress, final List<IdentityField> fields, final Callback<GraphQLResponse<CreateIdentityData>> callback
-                    getEnjinCoinClient().getIdentitiesService()
-                            .createIdentityAsync(id, ethereumAddress, fields, new CreateIdentityCallback(getSender(), getUuid()));
+                    getEnjinCoinClient().getIdentitiesService().createIdentityAsync(
+                            id,
+                            ethereumAddress,
+                            fields,
+                            new CreateIdentityCallback(getSender(), getUuid())
+                    );
 //                            new CreateIdentityRequestBody(main.getBootstrap().getConfig().get("appId").getAsInt(), new IdentityField[]{
 //                                    new IdentityField("uuid", getUuid().toString())
 //                            }),

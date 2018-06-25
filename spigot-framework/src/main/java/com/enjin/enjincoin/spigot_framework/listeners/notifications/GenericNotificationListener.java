@@ -8,7 +8,7 @@ import com.google.gson.JsonParser;
 import com.enjin.enjincoin.sdk.client.enums.NotificationType;
 import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
 import com.enjin.enjincoin.sdk.client.service.identities.vo.IdentityField;
-import com.enjin.enjincoin.sdk.client.service.identity.vo.TokenEntry;
+import com.enjin.enjincoin.sdk.client.service.identities.vo.data.IdentitiesData;
 import com.enjin.enjincoin.sdk.client.service.notifications.NotificationListener;
 import com.enjin.enjincoin.sdk.client.service.tokens.vo.Token;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
@@ -114,19 +114,19 @@ public class GenericNotificationListener implements NotificationListener {
     }
 
     /**
-     * <p>Returns an {@link TokenEntry} associated with an {@link Identity}
+     * <p>Returns an {@link Token} associated with an {@link Identity}
      * of an online player that matches the provided token ID.</p>
      *
      * @param identity the identity
      * @param tokenId the token ID
      *
-     * @return a {@link TokenEntry} if present or null if not present
+     * @return a {@link Token} if present or null if not present
      *
      * @since 1.0
      */
-    public TokenEntry getTokenEntry(Identity identity, int tokenId) {
-        TokenEntry entry = null;
-        for (TokenEntry e : identity.getTokens()) {
+    public Token getTokenEntry(Identity identity, int tokenId) {
+        Token entry = null;
+        for (Token e : identity.getTokens()) {
             if (e.getTokenId() == tokenId) {
                 entry = e;
                 break;
@@ -136,7 +136,7 @@ public class GenericNotificationListener implements NotificationListener {
     }
 
     /**
-     * <p>Add a value to a {@link TokenEntry} for the provided token ID
+     * <p>Add a value to a {@link Token} for the provided token ID
      * and identity.</p>
      *
      * @param identity the identity
@@ -146,13 +146,16 @@ public class GenericNotificationListener implements NotificationListener {
      * @since 1.0
      */
     public void addTokenValue(Identity identity, int tokenId, double amount) {
-        TokenEntry entry = getTokenEntry(identity, tokenId);
+        Token entry = getTokenEntry(identity, tokenId);
         if (entry != null)
-            entry.setValue(entry.getValue() + amount);
+            entry.setBalance(entry.getBalance() + amount);
         else {
-            List<TokenEntry> entries = new ArrayList<>(Arrays.asList(identity.getTokens()));
-            entries.add(new TokenEntry(tokenId, amount));
-            identity.setTokens(entries.toArray(new TokenEntry[]{}));
+            List<Token> entries = new ArrayList<Token>(identity.getTokens());
+            Token token = new Token();
+            token.setTokenId(tokenId);
+            token.setBalance(amount);
+            entries.add(token);
+            identity.setTokens(entries);
         }
 
         updateInventory(identity, tokenId, amount);

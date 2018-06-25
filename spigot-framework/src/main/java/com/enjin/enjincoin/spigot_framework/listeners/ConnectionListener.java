@@ -1,5 +1,8 @@
 package com.enjin.enjincoin.spigot_framework.listeners;
 
+import com.enjin.enjincoin.sdk.client.model.body.GraphQLResponse;
+import com.enjin.enjincoin.sdk.client.service.users.vo.User;
+import com.enjin.enjincoin.sdk.client.service.users.vo.data.UsersData;
 import com.enjin.java_commons.ExceptionUtils;
 import com.enjin.enjincoin.sdk.client.Client;
 import com.enjin.enjincoin.sdk.client.service.identities.IdentitiesService;
@@ -62,35 +65,38 @@ public class ConnectionListener implements Listener {
         final Client client = this.main.getBootstrap().getSdkController().getClient();
         final IdentitiesService service = client.getIdentitiesService();
 
-        service.getIdentitiesAsync(new HashMap<String, Object>() {{
-            put("uuid", player.getUniqueId().toString());
-        }}, new Callback<Identity[]>() {
+        Callback<GraphQLResponse<UsersData>> callback = new Callback<GraphQLResponse<UsersData>>() {
             @Override
-            public void onResponse(Call<Identity[]> call, Response<Identity[]> response) {
+            public void onResponse(Call<GraphQLResponse<UsersData>> call, Response<GraphQLResponse<UsersData>> response) {
                 if (response.isSuccessful()) {
-                    Identity[] identities = response.body();
-                    if (identities.length == 0) {
+                    GraphQLResponse<UsersData> usersData = response.body();
+                    List<Identity> identities = new ArrayList<>();
+                    // get all identities from query matched user data
+                    for (User user : usersData.getData().getUsers()) {
+                        identities.addAll(usersData.getData().getUsers().get(0).getIdentities());
+                    }
+
+                    if (identities.size() == 0) {
                         linkCommandNotification(player);
                     } else {
                         for (Identity identity : identities) {
                             String rawUuid = null;
 
-                            // Search for uuid field.
                             for (IdentityField field : identity.getFields()) {
                                 if (field.getKey().equalsIgnoreCase("uuid")) {
-                                    // Set raw uuid to discovered field's value.
+                                    // Set raw uuid to discovered field's value
                                     rawUuid = field.getFieldValue();
                                     break;
                                 }
                             }
 
-                            // Check if identity has matching uuid.
-                            if (rawUuid != null && !player.getUniqueId().toString().equalsIgnoreCase(rawUuid))
+                            // check if identity has mathcing uuid.
+                            if (rawUuid != null && player.getUniqueId().toString().equalsIgnoreCase(rawUuid))
                                 continue;
 
                             // Check if the app associated with this identity matches the configured app.
                             String appId = main.getBootstrap().getConfig().get("appId").getAsString();
-                            if (identity.getApp() != null && !identity.getApp().getId().equals(appId))
+                            if (identity.getAppId() != null && !identity.getAppId().toString().equals(appId))
                                 continue;
 
                             if (identity.getLinkingCode() != null && !identity.getLinkingCode().isEmpty()) {
@@ -109,7 +115,7 @@ public class ConnectionListener implements Listener {
             }
 
             @Override
-            public void onFailure(Call<Identity[]> call, Throwable t) {
+            public void onFailure(Call<GraphQLResponse<UsersData>> call, Throwable t) {
                 TextComponent text = TextComponent.of("An error occurred while getting an identity for ")
                         .append(TextComponent.of(player.getName()))
                         .append(TextComponent.of(":\n"))
@@ -117,7 +123,9 @@ public class ConnectionListener implements Listener {
                                 .color(TextColor.RED));
                 MessageUtils.sendMessage(Bukkit.getConsoleSender(), text);
             }
-        });
+        };
+
+        service.getIdentitiesByNameAsync(player.getUniqueId().toString(), null, callback);
     }
 
     /**
