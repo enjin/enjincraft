@@ -82,14 +82,20 @@ public class SpigotBootstrap extends PluginBootstrap {
         // Load the config to ensure that it is created or already exists.
         final JsonObject config = getConfig();
 
-        // Validate that the config has required fields.
-        if (config != null && config.has("platformBaseUrl") && config.has("appId")) {
-            this.appId = config.get("appId").getAsInt();
+        // Validate that the config exists and has required fields.
+        if (config == null || !config.has("platformBaseUrl")
+                || !config.has("appId")
+                || !config.has("secret")) {
+            return;
+        }
 
-            // If the config has debug mode set the debug flag equal to the config value.
-            if (config.has("debug"))
-                this.debug = config.get("debug").getAsBoolean();
+        this.appId = config.get("appId").getAsInt();
 
+        // If the config has debug mode set the debug flag equal to the config value.
+        if (config.has("debug"))
+            this.debug = config.get("debug").getAsBoolean();
+
+        try {
             // Initialize the Enjin Coin SDK controller with the provided Spigot plugin and the config.
             this.sdkClientController = new SdkClientController(this.main, config);
             this.sdkClientController.setUp();
@@ -129,6 +135,8 @@ public class SpigotBootstrap extends PluginBootstrap {
                     main.getLogger().warning("An error occurred while fetching tokens.");
                 }
             });
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         // Register Listeners

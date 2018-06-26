@@ -29,6 +29,11 @@ public class SdkClientController {
     public static final String APP_ID = "appId";
 
     /**
+     * Config key for the secret to use with the trusted platform.
+     */
+    public static final String SECRET = "secret";
+
+    /**
      * Config key for the UUID in an individual users session entry.
      */
     public static final String UUID = "uuid";
@@ -69,13 +74,16 @@ public class SdkClientController {
      *
      * @since 1.0
      */
-    public void setUp() {
+    public void setUp() throws IOException {
         if (!config.has(PLATFORM_BASE_URL))
             throw new IllegalStateException(String.format("The \"%s\" key does not exists in the config.", PLATFORM_BASE_URL));
         if (!config.has(APP_ID))
             throw new IllegalStateException(String.format("The \"%s\" key does not exists in the config.", APP_ID));
+        if (!config.has(SECRET))
+            throw new IllegalStateException(String.format("The \"%s\" key does not exists in the config.", APP_ID));
         this.client = Clients.createClient(this.config.get(PLATFORM_BASE_URL).getAsString(),
                 this.main.getBootstrap().getAppId(), this.main.getBootstrap().isDebugEnabled());
+        this.client.auth(this.config.get(SECRET).getAsString());
     }
 
     /**
