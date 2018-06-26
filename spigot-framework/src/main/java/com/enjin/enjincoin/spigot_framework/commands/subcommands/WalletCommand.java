@@ -38,22 +38,23 @@ public class WalletCommand {
      * @since 1.0
      */
     public void execute(CommandSender sender, String[] args) {
-        if (sender instanceof Player) {
-            Player player = (Player) sender;
-            Identity identity = this.main.getBootstrap().getIdentities().get(player.getUniqueId());
-            if (identity != null) {
-                Inventory inventory = WalletInventory.create(main, player, identity);
-                player.openInventory(inventory);
-            } else {
-                TextComponent text = TextComponent.of("You have not linked a wallet to your account.")
-                        .color(TextColor.RED);
-                MessageUtils.sendMessage(sender, text);
-            }
-        } else {
-            TextComponent text = TextComponent.of("Only players can use this command.")
-                    .color(TextColor.RED);
-            MessageUtils.sendMessage(sender, text);
-        }
+        // TODO: Redesign around MinecraftPlayer
+//        if (sender instanceof Player) {
+//            Player player = (Player) sender;
+//            Identity identity = this.main.getBootstrap().getIdentities().get(player.getUniqueId());
+//            if (identity != null) {
+//                Inventory inventory = WalletInventory.create(main, player, identity);
+//                player.openInventory(inventory);
+//            } else {
+//                TextComponent text = TextComponent.of("You have not linked a wallet to your account.")
+//                        .color(TextColor.RED);
+//                MessageUtils.sendMessage(sender, text);
+//            }
+//        } else {
+//            TextComponent text = TextComponent.of("Only players can use this command.")
+//                    .color(TextColor.RED);
+//            MessageUtils.sendMessage(sender, text);
+//        }
     }
 
 }

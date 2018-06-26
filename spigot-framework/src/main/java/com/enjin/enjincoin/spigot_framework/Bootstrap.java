@@ -1,6 +1,6 @@
 package com.enjin.enjincoin.spigot_framework;
 
-import com.enjin.enjincoin.spigot_framework.entity.EnjinCoinPlayer;
+import com.enjin.enjincoin.spigot_framework.player.PlayerManager;
 import com.google.gson.JsonObject;
 import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
 import com.enjin.enjincoin.sdk.client.service.tokens.vo.Token;
@@ -41,24 +41,14 @@ public interface Bootstrap {
     SdkClientController getSdkController();
 
     /**
-     * <p>Returns a mapping of Enjin Coin players associated
-     * with the UUIds of online players.</p>
+     * <p>Returns the Player Manager that handles the fetching
+     * and User and Identity data and initialization of MinecraftPlayers.</p>
      *
-     * @return a map of UUIDs and associated Enjin Coin player wrappers
-     *
-     * @since 1.0
-     */
-    Map<UUID, EnjinCoinPlayer> getPlayers();
-
-    /**
-     * <p>Returns a mapping of trusted platform identities associated
-     * with the UUIDs of online players.</p>
-     *
-     * @return a map of UUIDs and associated identities of online players
+     * @return PlayerManager instance
      *
      * @since 1.0
      */
-    Map<UUID, Identity> getIdentities();
+    PlayerManager getPlayerManager();
 
     /**
      * <p>Returns a mapping of token IDs and the associated token data.</p>
@@ -77,6 +67,15 @@ public interface Bootstrap {
      * @since 1.0
      */
     JsonObject getConfig();
+
+    /**
+     * <p>Returns the configured App ID to use.</p>
+     *
+     * @return configured App ID as Integer
+     *
+     * @since 1.0
+     */
+    Integer getAppId();
 
     /**
      * <p>Returns whether debug mode is enabled or not.</p>

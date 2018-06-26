@@ -65,6 +65,10 @@ public class ConnectionListener implements Listener {
         final Client client = this.main.getBootstrap().getSdkController().getClient();
         final IdentitiesService service = client.getIdentitiesService();
 
+        // TODO: Integrate post integration logic into new MinecraftPlayer system
+        // E.g. send linking notification to a player after loading their Identity
+        // This class is ultimately being replaced by the classes in the player package
+
         Callback<GraphQLResponse<UsersData>> callback = new Callback<GraphQLResponse<UsersData>>() {
             @Override
             public void onResponse(Call<GraphQLResponse<UsersData>> call, Response<GraphQLResponse<UsersData>> response) {
@@ -103,7 +107,7 @@ public class ConnectionListener implements Listener {
                                 linkCommandNotification(player);
                             } else {
                                 // Add valid identity to identities cache.
-                                main.getBootstrap().getIdentities().put(player.getUniqueId(), identity);
+//                                main.getBootstrap().getIdentities().put(player.getUniqueId(), identity);
                             }
 
                             break;
@@ -124,25 +128,6 @@ public class ConnectionListener implements Listener {
                 MessageUtils.sendMessage(Bukkit.getConsoleSender(), text);
             }
         };
-
-        service.getIdentitiesByNameAsync(player.getUniqueId().toString(), null, callback);
-    }
-
-    /**
-     * <p>Subscription to {@link PlayerQuitEvent} with the
-     * normal priority.</p>
-     *
-     * @param event the event
-     *
-     * @since 1.0
-     */
-    @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent event) {
-        if (main.getBootstrap().getSdkController() == null)
-            return;
-
-        final Player player = event.getPlayer();
-        this.main.getBootstrap().getIdentities().remove(player.getUniqueId());
     }
 
     /**

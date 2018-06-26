@@ -30,6 +30,7 @@ import java.util.UUID;
 /**
  * <p>A listener for handling Enjin Coin SDK events.</p>
  */
+// TODO: Refactor around MinecraftPlayer
 public class GenericNotificationListener implements NotificationListener {
 
     /**
@@ -107,10 +108,11 @@ public class GenericNotificationListener implements NotificationListener {
      * @since 1.0
      */
     public Identity getIdentity(String address) {
-        return this.main.getBootstrap().getIdentities().values().stream()
-                .filter(i -> i != null && i.getEthereumAddress().equalsIgnoreCase(address))
-                .findFirst()
-                .orElse(null);
+//        return this.main.getBootstrap().getIdentities().values().stream()
+//                .filter(i -> i != null && i.getEthereumAddress().equalsIgnoreCase(address))
+//                .findFirst()
+//                .orElse(null);
+        return null;
     }
 
     /**
@@ -146,19 +148,19 @@ public class GenericNotificationListener implements NotificationListener {
      * @since 1.0
      */
     public void addTokenValue(Identity identity, int tokenId, double amount) {
-        Token entry = getTokenEntry(identity, tokenId);
-        if (entry != null)
-            entry.setBalance(entry.getBalance() + amount);
-        else {
-            List<Token> entries = new ArrayList<Token>(identity.getTokens());
-            Token token = new Token();
-            token.setTokenId(tokenId);
-            token.setBalance(amount);
-            entries.add(token);
-            identity.setTokens(entries);
-        }
-
-        updateInventory(identity, tokenId, amount);
+//        Token entry = getTokenEntry(identity, tokenId);
+//        if (entry != null)
+//            entry.setBalance(entry.getBalance() + amount);
+//        else {
+//            List<Token> entries = new ArrayList<Token>(identity.getTokens());
+//            Token token = new Token();
+//            token.setTokenId(tokenId);
+//            token.setBalance(amount);
+//            entries.add(token);
+//            identity.setTokens(entries);
+//        }
+//
+//        updateInventory(identity, tokenId, amount);
     }
 
     /**

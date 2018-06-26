@@ -4,7 +4,7 @@ import com.enjin.enjincoin.sdk.client.model.body.GraphQLResponse;
 import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
 import com.enjin.enjincoin.sdk.client.service.tokens.vo.Token;
 import com.enjin.enjincoin.sdk.client.service.tokens.vo.data.TokensData;
-import com.enjin.enjincoin.spigot_framework.entity.EnjinCoinPlayer;
+import com.enjin.enjincoin.spigot_framework.player.PlayerManager;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -41,6 +41,11 @@ public class SpigotBootstrap extends PluginBootstrap {
     private final BasePlugin main;
 
     /**
+     * <p>App ID.</p>
+     */
+    private Integer appId;
+
+    /**
      * <p>Debug mode flag.</p>
      */
     private boolean debug;
@@ -51,16 +56,9 @@ public class SpigotBootstrap extends PluginBootstrap {
     private SdkClientController sdkClientController;
 
     /**
-     * <p>The mapping of UUIDs and wrapper objects for online players
-     * associated with a trusted platform identity.</p>
+     * <p>The Enjin Coin Player controller.</p>
      */
-    private Map<UUID, EnjinCoinPlayer> players;
-
-    /**
-     * <p>The mapping of UUIDs and associated trusted platform
-     * identities of online players.</p>
-     */
-    private Map<UUID, Identity> identities;
+    private PlayerManager playerManager;
 
     /**
      * <p>The mapping of token IDs and associated data.</p>
@@ -78,15 +76,16 @@ public class SpigotBootstrap extends PluginBootstrap {
 
     @Override
     public void setUp() {
+        this.playerManager = new PlayerManager(this.main);
         this.tokens = new ConcurrentHashMap<>();
-        this.players = new ConcurrentHashMap<>();
-        this.identities = new ConcurrentHashMap<>();
 
         // Load the config to ensure that it is created or already exists.
         final JsonObject config = getConfig();
 
         // Validate that the config has required fields.
         if (config != null && config.has("platformBaseUrl") && config.has("appId")) {
+            this.appId = config.get("appId").getAsInt();
+
             // If the config has debug mode set the debug flag equal to the config value.
             if (config.has("debug"))
                 this.debug = config.get("debug").getAsBoolean();
@@ -133,8 +132,10 @@ public class SpigotBootstrap extends PluginBootstrap {
         }
 
         // Register Listeners
-        Bukkit.getPluginManager().registerEvents(new ConnectionListener(this.main), this.main);
-        Bukkit.getPluginManager().registerEvents(new InventoryListener(this.main), this.main);
+        Bukkit.getPluginManager().registerEvents(this.playerManager, this.main);
+        // TODO: Refactor/migrate features from ConnectionListener/InventoryListener
+//        Bukkit.getPluginManager().registerEvents(new ConnectionListener(this.main), this.main);
+//        Bukkit.getPluginManager().registerEvents(new InventoryListener(this.main), this.main);
 
         // Register Commands
         this.main.getCommand("enj").setExecutor(new RootCommand(this.main));
@@ -152,13 +153,8 @@ public class SpigotBootstrap extends PluginBootstrap {
     }
 
     @Override
-    public Map<UUID, EnjinCoinPlayer> getPlayers() {
-        return this.players;
-    }
-
-    @Override
-    public Map<UUID, Identity> getIdentities() {
-        return this.identities;
+    public PlayerManager getPlayerManager() {
+        return this.playerManager;
     }
 
     @Override
@@ -191,6 +187,11 @@ public class SpigotBootstrap extends PluginBootstrap {
         }
 
         return element.getAsJsonObject();
+    }
+
+    @Override
+    public Integer getAppId() {
+        return this.appId;
     }
 
     @Override

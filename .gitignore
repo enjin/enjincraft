@@ -1,4 +1,4 @@
-# Created by .ignore support main (hsz.mobi)
+# Created by .ignore support plugin (hsz.mobi)
 ### Gradle template
 .gradle
 **/build/
@@ -59,13 +59,13 @@ local.properties
 # PDT-specific (PHP Development Tools)
 .buildpath
 
-# sbteclipse main
+# sbteclipse plugin
 .target
 
-# Tern main
+# Tern plugin
 .tern-project
 
-# TeXlipse main
+# TeXlipse plugin
 .texlipse
 
 # STS (Spring Tool Suite)
@@ -75,7 +75,7 @@ local.properties
 .recommenders/
 
 # Scala IDE specific (Scala & Java development for Eclipse)
-.cache-main
+.cache-plugin
 .scala_dependencies
 .worksheet
 ### JetBrains template
@@ -89,7 +89,7 @@ local.properties
 # CMake
 cmake-build-debug/
 
-# Mongo Explorer main:
+# Mongo Explorer plugin:
 .idea/**/mongoSettings.xml
 
 ## File-based project format:
@@ -100,16 +100,16 @@ cmake-build-debug/
 # IntelliJ
 out/
 
-# mpeltonen/sbt-idea main
+# mpeltonen/sbt-idea plugin
 .idea_modules/
 
-# JIRA main
-atlassian-ide-main.xml
+# JIRA plugin
+atlassian-ide-plugin.xml
 
-# Cursive Clojure main
+# Cursive Clojure plugin
 .idea/replstate.xml
 
-# Crashlytics main (for Android Studio and IntelliJ)
+# Crashlytics plugin (for Android Studio and IntelliJ)
 com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties

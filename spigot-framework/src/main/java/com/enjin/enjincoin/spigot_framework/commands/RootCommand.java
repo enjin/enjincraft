@@ -51,9 +51,9 @@ public class RootCommand implements CommandExecutor {
                 case "link":
                     this.link.execute(sender, subArgs);
                     break;
-                case "wallet":
-                    this.wallet.execute(sender, subArgs);
-                    break;
+//                case "wallet": // TODO: Refactor wallet command around MinecraftPlayer
+//                    this.wallet.execute(sender, subArgs);
+//                    break;
                 default:
                     sender.sendMessage(String.format("No sub-command with alias %s exists.", sub));
                     break;
