@@ -75,7 +75,7 @@ public class SdkClientController {
         if (!config.has(APP_ID))
             throw new IllegalStateException(String.format("The \"%s\" key does not exists in the config.", APP_ID));
         this.client = Clients.createClient(this.config.get(PLATFORM_BASE_URL).getAsString(),
-                this.config.get(APP_ID).getAsInt(), this.main.getBootstrap().isDebugEnabled());
+                this.main.getBootstrap().getAppId(), this.main.getBootstrap().isDebugEnabled());
     }
 
     /**
