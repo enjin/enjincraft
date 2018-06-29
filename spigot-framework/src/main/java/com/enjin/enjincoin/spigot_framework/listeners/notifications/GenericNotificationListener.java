@@ -59,7 +59,7 @@ public class GenericNotificationListener implements NotificationListener {
                 // Handle melt event.
                 String ethereumAddress = data.get("param1").getAsString();
                 double amount = Double.valueOf(data.get("param2").getAsString());
-                int tokenId = data.get("token").getAsJsonObject().get("token_id").getAsInt();
+                String tokenId = data.get("token").getAsJsonObject().get("token_id").getAsString();
                 int appId = data.get("token").getAsJsonObject().get("app_id").getAsInt();
 
                 this.main.getBootstrap().debug(String.format("%s of token %s was melted by %s", amount, tokenId, ethereumAddress));
@@ -77,7 +77,7 @@ public class GenericNotificationListener implements NotificationListener {
                 String fromEthereumAddress = data.get("param1").getAsString();
                 String toEthereumAddress = data.get("param2").getAsString();
                 double amount = Double.valueOf(data.get("param3").getAsString());
-                int tokenId = data.get("token").getAsJsonObject().get("token_id").getAsInt();
+                String tokenId = data.get("token").getAsJsonObject().get("token_id").getAsString();
                 int appId = data.get("token").getAsJsonObject().get("app_id").getAsInt();
 
                 this.main.getBootstrap().debug(String.format("%s received %s of %s tokens from %s", toEthereumAddress, amount, tokenId, fromEthereumAddress));
@@ -126,10 +126,10 @@ public class GenericNotificationListener implements NotificationListener {
      *
      * @since 1.0
      */
-    public Token getTokenEntry(Identity identity, int tokenId) {
+    public Token getTokenEntry(Identity identity, String tokenId) {
         Token entry = null;
         for (Token e : identity.getTokens()) {
-            if (e.getTokenId() == tokenId) {
+            if (e.getTokenId().equals(tokenId)) {
                 entry = e;
                 break;
             }
@@ -147,7 +147,7 @@ public class GenericNotificationListener implements NotificationListener {
      *
      * @since 1.0
      */
-    public void addTokenValue(Identity identity, int tokenId, double amount) {
+    public void addTokenValue(Identity identity, String tokenId, double amount) {
 //        Token entry = getTokenEntry(identity, tokenId);
 //        if (entry != null)
 //            entry.setBalance(entry.getBalance() + amount);
@@ -172,14 +172,14 @@ public class GenericNotificationListener implements NotificationListener {
      * @param tokenId the token ID
      * @param amount the amount
      */
-    public void updateInventory(Identity identity, int tokenId, double amount) {
+    public void updateInventory(Identity identity, String tokenId, double amount) {
         JsonObject config = main.getBootstrap().getConfig();
 
         String displayName = null;
         if (config.has("tokens")) {
             JsonObject tokens = config.getAsJsonObject("tokens");
-            if (tokens.has(String.valueOf(tokenId))) {
-                JsonObject token = tokens.getAsJsonObject(String.valueOf(tokenId));
+            if (tokens.has(tokenId)) {
+                JsonObject token = tokens.getAsJsonObject(tokenId);
                 if (token.has("displayName")) {
                     displayName = token.get("displayName").getAsString();
                 } else {
@@ -229,8 +229,8 @@ public class GenericNotificationListener implements NotificationListener {
                     if (stack == null) {
                         if (config.has("tokens")) {
                             JsonObject tokens = config.getAsJsonObject("tokens");
-                            if (tokens.has(String.valueOf(tokenId))) {
-                                JsonObject tokenDisplay = config.getAsJsonObject(String.valueOf(tokenId));
+                            if (tokens.has(tokenId)) {
+                                JsonObject tokenDisplay = config.getAsJsonObject(tokenId);
                                 Token token = main.getBootstrap().getTokens().get(tokenId);
                                 if (token != null) {
                                     Material material = null;
