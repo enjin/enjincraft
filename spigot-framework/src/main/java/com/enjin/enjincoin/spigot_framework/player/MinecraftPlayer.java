@@ -13,13 +13,9 @@ public class MinecraftPlayer {
     private BasePlugin plugin;
     private Player bukkitPlayer;
 
-    // Enjin Coin User Data
-    private Integer userId;
-
-    // Enjin Coin Identity Data
-    private Integer identityId;
-    private String linkingCode;
-    private String ethereumAddress;
+    // Trusted Platform Data
+    private UserData userData;
+    private IdentityData identityData;
 
     // State Fields
     private boolean userLoaded;
@@ -34,20 +30,12 @@ public class MinecraftPlayer {
         return this.bukkitPlayer;
     }
 
-    public String getEthereumAddress() {
-        return ethereumAddress;
+    public UserData getUserData() {
+        return this.userData;
     }
 
-    public Integer getUserId() {
-        return userId;
-    }
-
-    public Integer getIdentityId() {
-        return identityId;
-    }
-
-    public String getLinkingCode() {
-        return linkingCode;
+    public IdentityData getIdentityData() {
+        return this.identityData;
     }
 
     public boolean isUserLoaded() {
@@ -59,7 +47,7 @@ public class MinecraftPlayer {
             return;
         }
 
-        this.userId = user.getId();
+        this.userData = new UserData(user);
         this.userLoaded = true;
 
         Integer appId = this.plugin.getBootstrap().getAppId();
@@ -78,9 +66,7 @@ public class MinecraftPlayer {
             return;
         }
 
-        this.ethereumAddress = identity.getEthereumAddress();
-        this.identityId = identity.getId();
-        this.linkingCode = identity.getLinkingCode();
+        this.identityData = new IdentityData(identity);
         this.identityLoaded = true;
     }
 

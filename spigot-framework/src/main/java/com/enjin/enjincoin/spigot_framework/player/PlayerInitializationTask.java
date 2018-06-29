@@ -125,7 +125,7 @@ public class PlayerInitializationTask extends BukkitRunnable {
         Client client = this.plugin.getBootstrap().getSdkController().getClient();
         // Create the Identity for the App ID and Player in question
         Response<GraphQLResponse<CreateIdentityData>> networkResponse = client.getIdentitiesService()
-                .createIdentitySync(this.minecraftPlayer.getUserId(), null, null);
+                .createIdentitySync(this.minecraftPlayer.getUserData().getId(), null, null);
 
         Identity identity = null;
 
