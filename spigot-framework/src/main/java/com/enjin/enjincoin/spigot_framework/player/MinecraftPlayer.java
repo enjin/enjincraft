@@ -19,6 +19,7 @@ public class MinecraftPlayer {
     // Enjin Coin Identity Data
     private Integer identityId;
     private String linkingCode;
+    private String ethereumAddress;
 
     // State Fields
     private boolean userLoaded;
@@ -31,6 +32,10 @@ public class MinecraftPlayer {
 
     public Player getBukkitPlayer() {
         return this.bukkitPlayer;
+    }
+
+    public String getEthereumAddress() {
+        return ethereumAddress;
     }
 
     public Integer getUserId() {
@@ -73,6 +78,7 @@ public class MinecraftPlayer {
             return;
         }
 
+        this.ethereumAddress = identity.getEthereumAddress();
         this.identityId = identity.getId();
         this.linkingCode = identity.getLinkingCode();
         this.identityLoaded = true;

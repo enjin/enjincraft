@@ -45,6 +45,11 @@ public class PlayerManager implements Listener {
         return this.players.get(playerUuid);
     }
 
+    public MinecraftPlayer getPlayer(String ethereumAddress) {
+        // TODO stream a return....
+        return null;
+    }
+
     public void addPlayer(MinecraftPlayer minecraftPlayer) {
         if (!minecraftPlayer.getBukkitPlayer().isOnline()) {
             return;
