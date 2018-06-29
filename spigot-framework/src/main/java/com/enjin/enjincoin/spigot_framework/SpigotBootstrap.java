@@ -1,7 +1,6 @@
 package com.enjin.enjincoin.spigot_framework;
 
 import com.enjin.enjincoin.sdk.client.model.body.GraphQLResponse;
-import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
 import com.enjin.enjincoin.sdk.client.service.tokens.vo.Token;
 import com.enjin.enjincoin.sdk.client.service.tokens.vo.data.TokensData;
 import com.enjin.enjincoin.spigot_framework.player.PlayerManager;
@@ -12,8 +11,6 @@ import com.enjin.enjincoin.sdk.client.service.notifications.NotificationsService
 import com.enjin.enjincoin.sdk.client.service.tokens.TokensService;
 import com.enjin.enjincoin.spigot_framework.commands.RootCommand;
 import com.enjin.enjincoin.spigot_framework.controllers.SdkClientController;
-import com.enjin.enjincoin.spigot_framework.listeners.ConnectionListener;
-import com.enjin.enjincoin.spigot_framework.listeners.InventoryListener;
 import com.enjin.enjincoin.spigot_framework.listeners.notifications.GenericNotificationListener;
 import org.bukkit.Bukkit;
 import retrofit2.Call;
@@ -24,7 +21,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -63,7 +59,7 @@ public class SpigotBootstrap extends PluginBootstrap {
     /**
      * <p>The mapping of token IDs and associated data.</p>
      */
-    private Map<Integer, Token> tokens;
+    private Map<String, Token> tokens;
 
     /**
      * <p>Bootstrap constructor that accepts a Spigot plugin instance.</p>
@@ -166,7 +162,7 @@ public class SpigotBootstrap extends PluginBootstrap {
     }
 
     @Override
-    public Map<Integer, Token> getTokens() {
+    public Map<String, Token> getTokens() {
         return this.tokens;
     }
 

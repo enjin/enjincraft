@@ -2,12 +2,10 @@ package com.enjin.enjincoin.spigot_framework;
 
 import com.enjin.enjincoin.spigot_framework.player.PlayerManager;
 import com.google.gson.JsonObject;
-import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
 import com.enjin.enjincoin.sdk.client.service.tokens.vo.Token;
 import com.enjin.enjincoin.spigot_framework.controllers.SdkClientController;
 
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * <p>An entry-point for the Enjin Coin Minecraft framework. Serves
@@ -57,7 +55,7 @@ public interface Bootstrap {
      *
      * @since 1.0
      */
-    Map<Integer, Token> getTokens();
+    Map<String, Token> getTokens();
 
     /**
      * <p>Returns the config for this bootstrap.</p>

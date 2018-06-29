@@ -63,7 +63,7 @@ public class LinkCommand {
             MinecraftPlayer minecraftPlayer = this.plugin.getBootstrap().getPlayerManager().getPlayer(uuid);
             if (minecraftPlayer != null) {
                 if (minecraftPlayer.isLoaded()) {
-                    handleCode(sender, minecraftPlayer.getLinkingCode());
+                    handleCode(sender, minecraftPlayer.getIdentityData().getLinkingCode());
                 } else {
                     // TODO: Warn sender that the online player has not fully loaded
                 }
