@@ -11,10 +11,6 @@ public class Wallet {
 
     private Map<String, TokenData> tokenBalances = new ConcurrentHashMap<>();
 
-    public Wallet(List<Token> tokens) {
-        tokens.forEach(this::addToken);
-    }
-
     public Map<String, TokenData> getTokenBalances() {
         return new HashMap<>(this.tokenBalances);
     }
@@ -33,5 +29,16 @@ public class Wallet {
 
     public TokenData getToken(String id) {
         return this.tokenBalances.get(id);
+    }
+
+    public boolean isEmpty() {
+        return this.tokenBalances.isEmpty();
+    }
+
+    protected void populate(List<Token> tokens) {
+        this.tokenBalances.clear();
+        if (tokens != null) {
+            tokens.forEach(this::addToken);
+        }
     }
 }
