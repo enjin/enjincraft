@@ -144,6 +144,7 @@ public class PlayerInitializationTask extends BukkitRunnable {
         cleanUp(minecraftPlayer.getBukkitPlayer().getUniqueId());
 
         PlayerInitializationTask task = new PlayerInitializationTask(plugin, minecraftPlayer);
+        // Note: TASK_PERIOD is measured in server ticks 20 ticks / second.
         task.runTaskTimerAsynchronously(plugin, TASK_DELAY, TASK_PERIOD);
     }
 

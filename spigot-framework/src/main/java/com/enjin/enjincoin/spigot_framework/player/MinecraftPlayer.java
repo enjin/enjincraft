@@ -15,6 +15,7 @@ public class MinecraftPlayer {
 
     // Trusted Platform Data
     private UserData userData;
+    private Identity identity;
     private IdentityData identityData;
     private Wallet wallet;
 
@@ -43,6 +44,8 @@ public class MinecraftPlayer {
         return wallet;
     }
 
+    public Identity getIdentity() { return this.identity; }
+
     public boolean isUserLoaded() {
         return this.userLoaded;
     }
@@ -70,6 +73,8 @@ public class MinecraftPlayer {
         if (identity == null) {
             return;
         }
+
+        this.identity = identity;
 
         this.identityData = new IdentityData(identity);
         this.wallet = new Wallet();

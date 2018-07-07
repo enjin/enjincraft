@@ -3,12 +3,15 @@ package com.enjin.enjincoin.spigot_framework.commands.subcommands;
 import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.inventory.WalletInventory;
+import com.enjin.enjincoin.spigot_framework.player.TokenData;
 import com.enjin.enjincoin.spigot_framework.util.MessageUtils;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+
+import java.util.Map;
 
 /**
  * <p>Wallet command handler.</p>
@@ -39,22 +42,31 @@ public class WalletCommand {
      */
     public void execute(CommandSender sender, String[] args) {
         // TODO: Redesign around MinecraftPlayer
-//        if (sender instanceof Player) {
-//            Player player = (Player) sender;
-//            Identity identity = this.main.getBootstrap().getIdentities().get(player.getUniqueId());
-//            if (identity != null) {
+        if (sender instanceof Player) {
+            Player player = (Player) sender;
+            Map<String, TokenData> balances = this.main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId()).getWallet().getTokenBalances();
+
+            Identity identity = this.main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId()).getIdentity();
+            sendMsg(sender, "found " + identity.getTokens().size() + " tokens in identity " + identity.getId());
+            if (identity != null) {
 //                Inventory inventory = WalletInventory.create(main, player, identity);
 //                player.openInventory(inventory);
-//            } else {
-//                TextComponent text = TextComponent.of("You have not linked a wallet to your account.")
-//                        .color(TextColor.RED);
-//                MessageUtils.sendMessage(sender, text);
-//            }
-//        } else {
-//            TextComponent text = TextComponent.of("Only players can use this command.")
-//                    .color(TextColor.RED);
-//            MessageUtils.sendMessage(sender, text);
-//        }
+            } else {
+                TextComponent text = TextComponent.of("You have not linked a wallet to your account.")
+                        .color(TextColor.RED);
+                MessageUtils.sendMessage(sender, text);
+            }
+        } else {
+            TextComponent text = TextComponent.of("Only players can use this command.")
+                .color(TextColor.RED);
+            MessageUtils.sendMessage(sender, text);
+        }
+    }
+
+    private void sendMsg(CommandSender sender, String msg) {
+        TextComponent text = TextComponent.of(msg)
+                .color(TextColor.RED);
+        MessageUtils.sendMessage(sender, text);
     }
 
 }
