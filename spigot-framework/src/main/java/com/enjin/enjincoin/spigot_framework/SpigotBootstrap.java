@@ -3,6 +3,8 @@ package com.enjin.enjincoin.spigot_framework;
 import com.enjin.enjincoin.sdk.client.model.body.GraphQLResponse;
 import com.enjin.enjincoin.sdk.client.service.tokens.vo.Token;
 import com.enjin.enjincoin.sdk.client.service.tokens.vo.data.TokensData;
+import com.enjin.enjincoin.spigot_framework.listeners.ConnectionListener;
+import com.enjin.enjincoin.spigot_framework.listeners.InventoryListener;
 import com.enjin.enjincoin.spigot_framework.player.PlayerManager;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -138,8 +140,8 @@ public class SpigotBootstrap extends PluginBootstrap {
         // Register Listeners
         Bukkit.getPluginManager().registerEvents(this.playerManager, this.main);
         // TODO: Refactor/migrate features from ConnectionListener/InventoryListener
-//        Bukkit.getPluginManager().registerEvents(new ConnectionListener(this.main), this.main);
-//        Bukkit.getPluginManager().registerEvents(new InventoryListener(this.main), this.main);
+        Bukkit.getPluginManager().registerEvents(new ConnectionListener(this.main), this.main);
+        Bukkit.getPluginManager().registerEvents(new InventoryListener(this.main), this.main);
 
         // Register Commands
         this.main.getCommand("enj").setExecutor(new RootCommand(this.main));

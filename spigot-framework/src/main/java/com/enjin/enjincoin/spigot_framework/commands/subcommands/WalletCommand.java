@@ -1,6 +1,7 @@
 package com.enjin.enjincoin.spigot_framework.commands.subcommands;
 
 import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
+import com.enjin.enjincoin.sdk.client.service.tokens.vo.Token;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.inventory.WalletInventory;
 import com.enjin.enjincoin.spigot_framework.player.TokenData;
@@ -11,6 +12,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -47,10 +49,15 @@ public class WalletCommand {
             Map<String, TokenData> balances = this.main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId()).getWallet().getTokenBalances();
 
             Identity identity = this.main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId()).getIdentity();
-            sendMsg(sender, "found " + identity.getTokens().size() + " tokens in identity " + identity.getId());
+            List<TokenData> tokens = this.main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId()).getWallet().getTokens();
+//            sendMsg(sender, "found " + identity.getTokens().size() + " tokens in identity " + identity.getId());
             if (identity != null) {
+//                for(int i = 0; i < identity.getTokens().size(); i++) {
+//                    sendMsg(sender, (i+1) + ". " + identity.getTokens().get(i).getTokenId() + " (qty. " + identity.getTokens().get(i).getBalance() + ")");
+//                }
+                Inventory inventory = WalletInventory.create(main, player, tokens);
 //                Inventory inventory = WalletInventory.create(main, player, identity);
-//                player.openInventory(inventory);
+                player.openInventory(inventory);
             } else {
                 TextComponent text = TextComponent.of("You have not linked a wallet to your account.")
                         .color(TextColor.RED);

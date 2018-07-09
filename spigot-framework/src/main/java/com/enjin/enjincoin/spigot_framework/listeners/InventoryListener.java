@@ -14,6 +14,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -97,7 +98,7 @@ public class InventoryListener implements Listener {
             event.setCancelled(true);
 
             if (stack != null) {
-                if (!isCheckedOut(player.getUniqueId(), stack)) {
+                if (stack.getAmount() >= 1 || !isCheckedOut(player.getUniqueId(), stack)) {
                     List<ItemStack> tokens = checkedOutTokens.get(player.getUniqueId());
                     if (tokens == null) {
                         tokens = new ArrayList<>();
@@ -105,9 +106,17 @@ public class InventoryListener implements Listener {
                     }
 
                     ItemStack clone = stack.clone();
+                    // only check out 1 item from the wallet at a time (for now!)
+                    int balance = 1;
+                    if (clone.getAmount() >= 1) {
+                        balance = clone.getAmount() - 1;
+                        clone.setAmount(1);
+                        stack.setAmount(balance);
+                        stack.getItemMeta().getLore().set(0, ChatColor.GRAY + "Balance: " + ChatColor.GOLD + balance);
+                    }
                     ItemMeta meta = clone.getItemMeta();
                     List<String> lore = meta.getLore();
-                    lore.remove(0);
+                    lore.set(0, ChatColor.GRAY + "Balance: " + ChatColor.GOLD + 1);
                     meta.setLore(lore);
                     clone.setItemMeta(meta);
 
@@ -144,6 +153,7 @@ public class InventoryListener implements Listener {
         // If a player drops a token cancel the event.
         Player player = event.getPlayer();
         Item item = event.getItemDrop();
+
         if (isCheckedOut(player.getUniqueId(), item.getItemStack())) {
             event.setCancelled(true);
         }
@@ -199,6 +209,33 @@ public class InventoryListener implements Listener {
         if (event.getMessage().startsWith("/stop")) {
             clearAll();
         }
+    }
+
+    @EventHandler
+    public void onInventoryMoveItem(InventoryMoveItemEvent event) {
+        if (event.getDestination().getName().equalsIgnoreCase("enjin wallet")) {
+            returnItemStack((Player)event.getSource().getHolder(), event.getItem());
+        }
+        event.getItem().setAmount(0);
+    }
+
+    /**
+     * <p>Return a (@link ItemStack) to the players wallet inventory.</p>
+     *
+     * @param player the player
+     * @param stack the ItemStack to return
+     *
+     * @since 1.0
+     */
+    private void returnItemStack(Player player, ItemStack stack) {
+        List<ItemStack> stacks = checkedOutTokens.get(player.getUniqueId());
+        if (stacks.contains(stack))
+            checkedOutTokens.get(player.getUniqueId()).remove(stack);
+
+        int idx = main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId()).getWallet().getInventory().first(stack);
+        int balance = main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId()).getWallet().getInventory().getItem(idx).getAmount() + stack.getAmount();
+        main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId()).getWallet().getInventory().getItem(idx).setAmount(balance);
+        main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId()).getWallet().getInventory().getItem(idx).getItemMeta().getLore().set(0, ChatColor.GRAY + "Balance: " + ChatColor.GOLD + balance);
     }
 
     /**
