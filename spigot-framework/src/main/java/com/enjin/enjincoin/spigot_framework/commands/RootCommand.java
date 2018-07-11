@@ -1,6 +1,7 @@
 package com.enjin.enjincoin.spigot_framework.commands;
 
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
+import com.enjin.enjincoin.spigot_framework.commands.subcommands.BalanceCommand;
 import com.enjin.enjincoin.spigot_framework.commands.subcommands.LinkCommand;
 import com.enjin.enjincoin.spigot_framework.commands.subcommands.WalletCommand;
 import org.bukkit.command.Command;
@@ -32,6 +33,12 @@ public class RootCommand implements CommandExecutor {
     private final WalletCommand wallet;
 
     /**
+     * <p>Balance command handler instance.</p>
+     */
+    private final BalanceCommand balance;
+
+
+    /**
      * <p>Root command handler constructor.</p>
      *
      * @param main the Spigot plugin
@@ -40,6 +47,7 @@ public class RootCommand implements CommandExecutor {
         this.main = main;
         this.link = new LinkCommand(main);
         this.wallet = new WalletCommand(main);
+        this.balance = new BalanceCommand(main);
     }
 
     @Override
@@ -53,6 +61,9 @@ public class RootCommand implements CommandExecutor {
                     break;
                 case "wallet": // TODO: Refactor wallet command around MinecraftPlayer
                     this.wallet.execute(sender, subArgs);
+                    break;
+                case "balance":
+                    this.balance.execute(sender, subArgs);
                     break;
                 default:
                     sender.sendMessage(String.format("No sub-command with alias %s exists.", sub));
