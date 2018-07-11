@@ -23,6 +23,9 @@ public class MinecraftPlayer {
     private boolean userLoaded;
     private boolean identityLoaded;
 
+    // Helper Objects
+    private User user;
+
     public MinecraftPlayer(BasePlugin plugin, Player player) {
         this.plugin = plugin;
         this.bukkitPlayer = player;
@@ -55,6 +58,7 @@ public class MinecraftPlayer {
             return;
         }
 
+        this.user = user;
         this.userData = new UserData(user);
         this.userLoaded = true;
 
@@ -63,6 +67,10 @@ public class MinecraftPlayer {
                 .filter(identity -> identity.getAppId() == appId)
                 .findFirst();
         optionalIdentity.ifPresent(this::loadIdentity);
+    }
+
+    public void reloadUser() {
+        loadUser(this.user);
     }
 
     public boolean isIdentityLoaded() {

@@ -112,11 +112,14 @@ public class InventoryListener implements Listener {
                         balance = clone.getAmount() - 1;
                         clone.setAmount(1);
                         stack.setAmount(balance);
-                        stack.getItemMeta().getLore().set(0, ChatColor.GRAY + "Balance: " + ChatColor.GOLD + balance);
+                        ItemMeta meta = stack.getItemMeta();
+                        List<String> lore = meta.getLore();
+//                        lore.set(1, ChatColor.GRAY + "Available: " + ChatColor.GOLD + balance);
                     }
                     ItemMeta meta = clone.getItemMeta();
                     List<String> lore = meta.getLore();
-                    lore.set(0, ChatColor.GRAY + "Balance: " + ChatColor.GOLD + 1);
+                    lore.set(0,  ChatColor.GRAY + "Item checked out from ENJ Wallet."); // remove Owned line
+                    lore.remove(1); // remove Available line
                     meta.setLore(lore);
                     clone.setItemMeta(meta);
 

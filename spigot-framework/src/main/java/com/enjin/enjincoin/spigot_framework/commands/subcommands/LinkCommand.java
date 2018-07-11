@@ -23,6 +23,11 @@ public class LinkCommand {
     private BasePlugin plugin;
 
     /**
+     * <p>Empty line helper for MessageUtils.sendMessage</p>
+     */
+    private final TextComponent newline = TextComponent.of("");
+
+    /**
      * <p>Link command handler constructor.</p>
      *
      * @param plugin the Spigot plugin
@@ -63,7 +68,10 @@ public class LinkCommand {
             MinecraftPlayer minecraftPlayer = this.plugin.getBootstrap().getPlayerManager().getPlayer(uuid);
             if (minecraftPlayer != null) {
                 if (minecraftPlayer.isLoaded()) {
-                    handleCode(sender, minecraftPlayer.getIdentityData().getLinkingCode());
+                    if (minecraftPlayer.getIdentity().getEthereumAddress().isEmpty())
+                        handleCode(sender, minecraftPlayer.getIdentityData().getLinkingCode());
+                    else
+                        handleAddress(sender, minecraftPlayer.getIdentityData().getEthereumAddress());
                 } else {
                     // TODO: Warn sender that the online player has not fully loaded
                 }
@@ -79,7 +87,30 @@ public class LinkCommand {
     private void errorInvalidUuid(CommandSender sender) {
         final TextComponent text = TextComponent.of("The UUID provided is invalid.")
                 .color(TextColor.RED);
+
+        MessageUtils.sendMessage(sender, newline);
         MessageUtils.sendMessage(sender, text);
+    }
+
+    private void handleAddress(CommandSender sender, String address) {
+        if (address == null || address.isEmpty()) {
+
+            final TextComponent text = TextComponent.of("Could not acquire ")
+                    .color(TextColor.GREEN)
+                    .append(TextComponent.of("Ethereum Address.")
+                            .color(TextColor.GOLD));
+
+            MessageUtils.sendMessage(sender, newline);
+            MessageUtils.sendMessage(sender, text);
+        } else {
+            final TextComponent text = TextComponent.of("Player account already linked to address: ")
+                    .color(TextColor.GREEN)
+                    .append(TextComponent.of(address)
+                            .color(TextColor.GOLD));
+
+            MessageUtils.sendMessage(sender, newline);
+            MessageUtils.sendMessage(sender, text);
+        }
     }
 
     private void handleCode(CommandSender sender, String code) {
@@ -88,12 +119,21 @@ public class LinkCommand {
                     .color(TextColor.GREEN)
                     .append(TextComponent.of("code not present.")
                             .color(TextColor.GOLD));
+
+            MessageUtils.sendMessage(sender, newline);
             MessageUtils.sendMessage(sender, text);
         } else {
+            final TextComponent notice = TextComponent.of("Please link your account by downloading the Enjin Wallet for Android or iOS and browsing to Link Game. Enter the Identity Code shown below:")
+                    .color(TextColor.GOLD);
+
             final TextComponent text = TextComponent.of("Identity Code: ")
                     .color(TextColor.GREEN)
                     .append(TextComponent.of(code)
                             .color(TextColor.GOLD));
+
+            MessageUtils.sendMessage(sender, newline);
+            MessageUtils.sendMessage(sender, notice);
+            MessageUtils.sendMessage(sender, newline);
             MessageUtils.sendMessage(sender, text);
         }
     }

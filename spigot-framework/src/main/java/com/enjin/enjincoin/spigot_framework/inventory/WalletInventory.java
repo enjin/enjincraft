@@ -44,6 +44,8 @@ public class WalletInventory {
     public static MinecraftPlayer owner;
     public static Map<String, ItemStack> items;
 
+    private static final int maxStackSize = 999; // low value for testing.
+
     /**
      * <p>Returns an {@link Inventory} representing an Enjin wallet
      * for the provided {@link InventoryHolder} and {@link Identity}.</p>
@@ -65,6 +67,7 @@ public class WalletInventory {
         JsonObject tokensDisplayConfig = main.getBootstrap().getConfig().get("tokens").getAsJsonObject();
         // Generate a 6 by 9 chest inventory.
         Inventory inventory = Bukkit.createInventory(holder, 6 * 9, ChatColor.DARK_PURPLE + "Enjin Wallet");
+        inventory.setMaxStackSize(maxStackSize);
 
         // TODO this may not be necessary .. will ask Tim or Evan
         owner = main.getBootstrap().getPlayerManager().getPlayer(holder.getUniqueId());
@@ -78,6 +81,7 @@ public class WalletInventory {
 
             // Check if the token entry has value.
             if (entry.getBalance() > 0) {
+                //TODO if the balance is greater than maxStackSize, split the item into multiple stacks in the Wallet Inventory
                 Token token = main.getBootstrap().getTokens().get(entry.getId());
                 // Verify that the token data exists.
                 if (token == null)
@@ -121,12 +125,14 @@ public class WalletInventory {
                 if (token.getDecimals() != null && token.getDecimals() == 0) {
                     // Display balance as an integer.
                     double balance = stack.getAmount();
-                    lore.add(ChatColor.GRAY + "Balance: " + ChatColor.GOLD + balance);
+                    lore.add(ChatColor.GRAY + "Owned: " + ChatColor.GOLD + entry.getBalance().intValue());
+//                    lore.add(ChatColor.GRAY + "Available: " + ChatColor.GOLD + balance);
 //                    lore.add(ChatColor.GRAY + "ENJ Melt Value: " + ChatColor.GOLD + entry.getMeltValue() );
                 } else {
 //                    // Display balance using the price format.
                     double balance = entry.getBalance();
-                    lore.add(ChatColor.GRAY + "Balance: " + ChatColor.GOLD + DECIMAL_FORMAT.format(balance));
+                    lore.add(ChatColor.GRAY + "Owned: " + ChatColor.GOLD + DECIMAL_FORMAT.format(entry.getBalance().intValue()));
+//                    lore.add(ChatColor.GRAY + "Available: " + ChatColor.GOLD + DECIMAL_FORMAT.format(balance));
                 }
 
 //              // Fetch and use lore description if found.
@@ -142,6 +148,15 @@ public class WalletInventory {
                         // Add string as a line of lore.
                         lore.add(ChatColor.DARK_GRAY + element.getAsString());
                     }
+                }
+
+                boolean stacks = false;
+                if (tokenDisplay != null && tokenDisplay.has("stacks")) {
+                    stacks = tokenDisplay.get("stacks").getAsBoolean();
+                    if (stacks) {
+                        System.out.println(meta.getDisplayName() + " is stacks");
+                    }
+
                 }
 
                 // Replace the meta's lore.
@@ -175,6 +190,7 @@ public class WalletInventory {
         JsonObject tokensDisplayConfig = main.getBootstrap().getConfig().get("tokens").getAsJsonObject();
         // Generate a 6 by 9 chest inventory.
         Inventory inventory = Bukkit.createInventory(holder, 6 * 9, ChatColor.DARK_PURPLE + "Enjin Wallet");
+        inventory.setMaxStackSize(maxStackSize);
 
         int index = 0;
         for (Token entry : identity.getTokens()) {
@@ -184,6 +200,7 @@ public class WalletInventory {
 
             // Check if the token entry has value.
             if (entry.getBalance() > 0) {
+                //TODO if the balance is greater than maxStackSize, split the item into multiple stacks in the Wallet Inventory
                 Token token = main.getBootstrap().getTokens().get(entry.getTokenId());
                 // Verify that the token data exists.
                 if (token == null)

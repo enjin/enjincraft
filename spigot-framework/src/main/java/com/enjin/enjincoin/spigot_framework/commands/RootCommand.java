@@ -2,13 +2,14 @@ package com.enjin.enjincoin.spigot_framework.commands;
 
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.commands.subcommands.BalanceCommand;
+import com.enjin.enjincoin.spigot_framework.commands.subcommands.HelpCommand;
 import com.enjin.enjincoin.spigot_framework.commands.subcommands.LinkCommand;
 import com.enjin.enjincoin.spigot_framework.commands.subcommands.WalletCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
-import java.util.Arrays;
+import java.util.*;
 
 /**
  * <p>Root command handler.</p>
@@ -37,6 +38,17 @@ public class RootCommand implements CommandExecutor {
      */
     private final BalanceCommand balance;
 
+    /**
+     * <p>Help command handler instance.</p>
+     */
+    private final HelpCommand help;
+
+    /**
+     * <p>commands list and details</p>
+     * key is command name
+     * value is command help body
+     */
+    private static Map<String, String> commands;
 
     /**
      * <p>Root command handler constructor.</p>
@@ -44,11 +56,17 @@ public class RootCommand implements CommandExecutor {
      * @param main the Spigot plugin
      */
     public RootCommand(BasePlugin main) {
+        this.commands = new HashMap<>();
         this.main = main;
+
         this.link = new LinkCommand(main);
         this.wallet = new WalletCommand(main);
         this.balance = new BalanceCommand(main);
+        this.help = new HelpCommand(main);
     }
+
+    public Map<String, String> getCommandsMap() { return commands; }
+
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -64,6 +82,9 @@ public class RootCommand implements CommandExecutor {
                     break;
                 case "balance":
                     this.balance.execute(sender, subArgs);
+                    break;
+                case "help":
+                    this.help.execute(sender, subArgs);
                     break;
                 default:
                     sender.sendMessage(String.format("No sub-command with alias %s exists.", sub));
