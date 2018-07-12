@@ -44,7 +44,7 @@ public class WalletInventory {
     public static MinecraftPlayer owner;
     public static Map<String, ItemStack> items;
 
-    private static final int maxStackSize = 999; // low value for testing.
+    private static final int maxStackSize = 99; // low value for testing.
 
     /**
      * <p>Returns an {@link Inventory} representing an Enjin wallet
@@ -104,6 +104,7 @@ public class WalletInventory {
 
                 // Create an ItemStack with the selected material.
                 ItemStack stack = new ItemStack(material);
+//                stack.setAmount(maxStackSize);
                 stack.setAmount(entry.getBalance().intValue());
 
                 ItemMeta meta = stack.getItemMeta();
@@ -224,6 +225,7 @@ public class WalletInventory {
                 // Create an ItemStack with the selected material.
                 ItemStack stack = new ItemStack(material);
                 stack.setAmount(entry.getBalance().intValue());
+//                stack.setAmount(maxStackSize);
 
                 ItemMeta meta = stack.getItemMeta();
 
