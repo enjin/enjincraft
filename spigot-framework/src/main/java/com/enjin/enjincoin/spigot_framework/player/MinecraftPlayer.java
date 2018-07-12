@@ -3,7 +3,13 @@ package com.enjin.enjincoin.spigot_framework.player;
 import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
 import com.enjin.enjincoin.sdk.client.service.users.vo.User;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Score;
+import org.bukkit.scoreboard.Scoreboard;
 
 import java.util.Optional;
 
@@ -26,9 +32,13 @@ public class MinecraftPlayer {
     // Helper Objects
     private User user;
 
+    // Scoreboard for the given player
+    private Scoreboard board;
+
     public MinecraftPlayer(BasePlugin plugin, Player player) {
         this.plugin = plugin;
         this.bukkitPlayer = player;
+        this.board = Bukkit.getScoreboardManager().getNewScoreboard();
     }
 
     public Player getBukkitPlayer() {
@@ -97,5 +107,24 @@ public class MinecraftPlayer {
 
     protected void cleanUp() {
         this.bukkitPlayer = null;
+    }
+
+    public void setScoreBoard() {
+        Objective obj = board.registerNewObjective("ENJ", "Wallet");
+        obj.setDisplaySlot(DisplaySlot.SIDEBAR);
+        obj.setDisplayName("ENJ Wallet ");
+
+        Score score11x = obj.getScore("§2");
+        score11x.setScore(1);
+        Score score = obj.getScore(ChatColor.WHITE + "ENJ: " + ChatColor.LIGHT_PURPLE + identity.getEnjBalance());
+        score.setScore(1);
+    }
+
+    public void refresh() {
+//        Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+//            public void run() {
+//                setScoreBoard();
+//            }
+//        });
     }
 }

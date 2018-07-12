@@ -68,10 +68,10 @@ public class LinkCommand {
             MinecraftPlayer minecraftPlayer = this.plugin.getBootstrap().getPlayerManager().getPlayer(uuid);
             if (minecraftPlayer != null) {
                 if (minecraftPlayer.isLoaded()) {
-                    if (minecraftPlayer.getIdentity().getEthereumAddress().isEmpty())
-                        handleCode(sender, minecraftPlayer.getIdentityData().getLinkingCode());
+                    if (minecraftPlayer.getIdentityData().getLinkingCode() == null || minecraftPlayer.getIdentityData().getLinkingCode().isEmpty())
+                        handleAddress(sender, minecraftPlayer.getIdentity().getEthereumAddress());
                     else
-                        handleAddress(sender, minecraftPlayer.getIdentityData().getEthereumAddress());
+                        handleCode(sender, minecraftPlayer.getIdentityData().getLinkingCode());
                 } else {
                     // TODO: Warn sender that the online player has not fully loaded
                 }
@@ -117,7 +117,7 @@ public class LinkCommand {
         if (code == null || code.isEmpty()) {
             final TextComponent text = TextComponent.of("Could not acquire a player identity code: ")
                     .color(TextColor.GREEN)
-                    .append(TextComponent.of("code not present.")
+                    .append(TextComponent.of("code not present or already linked.")
                             .color(TextColor.GOLD));
 
             MessageUtils.sendMessage(sender, newline);

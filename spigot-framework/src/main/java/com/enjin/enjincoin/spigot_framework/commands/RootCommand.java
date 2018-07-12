@@ -5,6 +5,7 @@ import com.enjin.enjincoin.spigot_framework.commands.subcommands.BalanceCommand;
 import com.enjin.enjincoin.spigot_framework.commands.subcommands.HelpCommand;
 import com.enjin.enjincoin.spigot_framework.commands.subcommands.LinkCommand;
 import com.enjin.enjincoin.spigot_framework.commands.subcommands.WalletCommand;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -88,8 +89,21 @@ public class RootCommand implements CommandExecutor {
                     break;
                 default:
                     sender.sendMessage(String.format("No sub-command with alias %s exists.", sub));
+                    sender.sendMessage("Usage:");
+                    sender.sendMessage("/enj [command]");
+                    sender.sendMessage("");
+                    sender.sendMessage(ChatColor.GOLD + "/enj balance: " + ChatColor.WHITE + "Display wallet Address, Ethereum and Enjin Coin balances, as well as a list of owned CrytoItems.");
+                    sender.sendMessage(ChatColor.GOLD + "/enj link: " + ChatColor.WHITE + "Display linking code or linked address if available.");
+                    sender.sendMessage(ChatColor.GOLD + "/enj wallet: " + ChatColor.WHITE + "Opens a wallet inventory panel which allows for checkout of owned CrytoItems.");
                     break;
             }
+        } else {
+            sender.sendMessage("Usage:");
+            sender.sendMessage("/enj [command]");
+            sender.sendMessage("");
+            sender.sendMessage(ChatColor.GOLD + "/enj balance: " + ChatColor.WHITE + "Display wallet Address, Ethereum and Enjin Coin balances, as well as a list of owned CrytoItems.");
+            sender.sendMessage(ChatColor.GOLD + "/enj link: " + ChatColor.WHITE + "Display linking code or linked address if available.");
+            sender.sendMessage(ChatColor.GOLD + "/enj wallet: " + ChatColor.WHITE + "Opens a wallet inventory panel which allows for checkout of owned CrytoItems.");
         }
         return true;
     }
