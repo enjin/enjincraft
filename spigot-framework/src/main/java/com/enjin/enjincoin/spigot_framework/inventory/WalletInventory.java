@@ -44,7 +44,7 @@ public class WalletInventory {
     public static MinecraftPlayer owner;
     public static Map<String, ItemStack> items;
 
-    private static final int maxStackSize = 99; // low value for testing.
+    private static final int maxStackSize = 64;
 
     /**
      * <p>Returns an {@link Inventory} representing an Enjin wallet
@@ -133,7 +133,6 @@ public class WalletInventory {
 //                    // Display balance using the price format.
                     double balance = entry.getBalance();
                     lore.add(ChatColor.GRAY + "Owned: " + ChatColor.GOLD + DECIMAL_FORMAT.format(entry.getBalance().intValue()));
-//                    lore.add(ChatColor.GRAY + "Available: " + ChatColor.GOLD + DECIMAL_FORMAT.format(balance));
                 }
 
 //              // Fetch and use lore description if found.
@@ -159,6 +158,9 @@ public class WalletInventory {
                     }
 
                 }
+
+                lore.add(convertToInvisibleString(owner.getIdentity().getEthereumAddress()));
+                //lore.add(ChatColor.COLOR_CHAR + entry.getId());
 
                 // Replace the meta's lore.
                 meta.setLore(lore);
@@ -225,7 +227,6 @@ public class WalletInventory {
                 // Create an ItemStack with the selected material.
                 ItemStack stack = new ItemStack(material);
                 stack.setAmount(entry.getBalance().intValue());
-//                stack.setAmount(maxStackSize);
 
                 ItemMeta meta = stack.getItemMeta();
 
@@ -249,12 +250,12 @@ public class WalletInventory {
                     lore.add(ChatColor.GRAY + "Balance: " + ChatColor.GOLD + balance);
                     lore.add(ChatColor.GRAY + "ENJ Melt Value: " + ChatColor.GOLD + entry.getMeltValue() );
                 } else {
-//                    // Display balance using the price format.
+                    // Display balance using the price format.
                     double balance = entry.getBalance();
                     lore.add(ChatColor.GRAY + "Balance: " + ChatColor.GOLD + DECIMAL_FORMAT.format(balance));
                 }
-//
-//                // Fetch and use lore description if found.
+
+                // Fetch and use lore description if found.
                 if (tokenDisplay != null && tokenDisplay.has("lore")) {
                     JsonElement element = tokenDisplay.get("lore");
                     if (element.isJsonArray()) {
@@ -278,5 +279,11 @@ public class WalletInventory {
             }
         }
         return inventory;
+    }
+
+    public static String convertToInvisibleString(String s) {
+        String hidden = "";
+        for (char c : s.toCharArray()) hidden += ChatColor.COLOR_CHAR+""+c;
+        return hidden;
     }
 }

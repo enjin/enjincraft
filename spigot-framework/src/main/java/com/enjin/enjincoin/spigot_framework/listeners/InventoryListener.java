@@ -105,21 +105,20 @@ public class InventoryListener implements Listener {
                         checkedOutTokens.put(player.getUniqueId(), tokens);
                     }
 
+                    String line = stack.getItemMeta().getLore().get(0).replace("Owned: ", "");
+                    line = ChatColor.stripColor(line);
+                    int stock = Integer.parseInt(line);
                     ItemStack clone = stack.clone();
                     // only check out 1 item from the wallet at a time (for now!)
                     int balance = 1;
-                    if (clone.getAmount() >= 1) {
+                    if (clone.getAmount() >= 1 && stock < 64) {
                         balance = clone.getAmount() - 1;
                         clone.setAmount(1);
                         stack.setAmount(balance);
-                        ItemMeta meta = stack.getItemMeta();
-                        List<String> lore = meta.getLore();
-//                        lore.set(1, ChatColor.GRAY + "Available: " + ChatColor.GOLD + balance);
                     }
                     ItemMeta meta = clone.getItemMeta();
                     List<String> lore = meta.getLore();
                     lore.set(0,  ChatColor.GRAY + "Item checked out from ENJ Wallet."); // remove Owned line
-                    lore.remove(1); // remove Available line
                     meta.setLore(lore);
                     clone.setItemMeta(meta);
 
