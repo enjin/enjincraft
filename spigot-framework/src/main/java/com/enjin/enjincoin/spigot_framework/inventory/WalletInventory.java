@@ -106,6 +106,8 @@ public class WalletInventory {
                 ItemStack stack = new ItemStack(material);
 //                stack.setAmount(maxStackSize);
                 stack.setAmount(entry.getBalance().intValue());
+                // TODO re-evaluate the unbreakable status for ENJ backed items.
+                stack.getItemMeta().setUnbreakable(true);
 
                 ItemMeta meta = stack.getItemMeta();
 
@@ -127,15 +129,13 @@ public class WalletInventory {
                     // Display balance as an integer.
                     double balance = stack.getAmount();
                     lore.add(ChatColor.GRAY + "Owned: " + ChatColor.GOLD + entry.getBalance().intValue());
-//                    lore.add(ChatColor.GRAY + "Available: " + ChatColor.GOLD + balance);
-//                    lore.add(ChatColor.GRAY + "ENJ Melt Value: " + ChatColor.GOLD + entry.getMeltValue() );
                 } else {
-//                    // Display balance using the price format.
+                    // Display balance using the price format.
                     double balance = entry.getBalance();
                     lore.add(ChatColor.GRAY + "Owned: " + ChatColor.GOLD + DECIMAL_FORMAT.format(entry.getBalance().intValue()));
                 }
 
-//              // Fetch and use lore description if found.
+                // Fetch and use lore description if found.
                 if (tokenDisplay != null && tokenDisplay.has("lore")) {
                     JsonElement element = tokenDisplay.get("lore");
                     if (element.isJsonArray()) {
@@ -160,7 +160,7 @@ public class WalletInventory {
                 }
 
                 lore.add(convertToInvisibleString(owner.getIdentity().getEthereumAddress()));
-                //lore.add(ChatColor.COLOR_CHAR + entry.getId());
+                lore.add(convertToInvisibleString(token.getTokenId()));
 
                 // Replace the meta's lore.
                 meta.setLore(lore);

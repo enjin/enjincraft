@@ -1,5 +1,6 @@
 package com.enjin.enjincoin.spigot_framework.listeners;
 
+import com.enjin.enjincoin.spigot_framework.player.MinecraftPlayer;
 import com.enjin.minecraft_commons.spigot.nbt.NBTItem;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.util.MessageUtils;
@@ -94,8 +95,16 @@ public class InventoryListener implements Listener {
                 return;
 
             Player player = (Player) event.getClickedInventory().getHolder();
+            MinecraftPlayer mcplayer = this.main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId());
+
             ItemStack stack = event.getClickedInventory().getItem(event.getSlot());
             event.setCancelled(true);
+
+            ItemMeta stackMeta = stack.getItemMeta();
+            List<String> stackLore = stackMeta.getLore();
+            String ethAddr = ChatColor.stripColor(stackLore.get(stackLore.size() -2));
+            String tokenId = ChatColor.stripColor(stackLore.get(stackLore.size() -1));
+
 
             if (stack != null) {
                 if (stack.getAmount() >= 1 || !isCheckedOut(player.getUniqueId(), stack)) {
@@ -172,7 +181,7 @@ public class InventoryListener implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         // If a player quits clear their inventory of all tokens.
-        clear(event.getPlayer());
+        // clear(event.getPlayer());
     }
 
     /**

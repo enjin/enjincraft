@@ -46,11 +46,12 @@ public class WalletCommand {
         // TODO: Redesign around MinecraftPlayer
         if (sender instanceof Player) {
             Player player = (Player) sender;
+            this.main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId()).reloadUser();
+
             Map<String, TokenData> balances = this.main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId()).getWallet().getTokenBalances();
 
             Identity identity = this.main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId()).getIdentity();
             List<TokenData> tokens = this.main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId()).getWallet().getTokens();
-//            sendMsg(sender, "found " + identity.getTokens().size() + " tokens in identity " + identity.getId());
             if (identity != null) {
 //                for(int i = 0; i < identity.getTokens().size(); i++) {
 //                    sendMsg(sender, (i+1) + ". " + identity.getTokens().get(i).getTokenId() + " (qty. " + identity.getTokens().get(i).getBalance() + ")");

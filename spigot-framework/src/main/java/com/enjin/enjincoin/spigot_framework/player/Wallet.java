@@ -1,12 +1,11 @@
 package com.enjin.enjincoin.spigot_framework.player;
 
 import com.enjin.enjincoin.sdk.client.service.tokens.vo.Token;
+import com.enjin.enjincoin.spigot_framework.inventory.WalletCheckoutManager;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Wallet {
@@ -14,6 +13,12 @@ public class Wallet {
     private Map<String, TokenData> tokenBalances = new ConcurrentHashMap<>();
 
     private Inventory inventory = null;
+
+    private WalletCheckoutManager manager;
+
+    public Wallet(UUID uuid) {
+        initializeCheckoutManager(uuid);
+    }
 
     public Map<String, TokenData> getTokenBalances() {
         return new HashMap<>(this.tokenBalances);
@@ -24,6 +29,10 @@ public class Wallet {
     }
 
     public TokenData addToken(String id, TokenData data) {
+        // sync with checkout manager
+        if (accessCheckoutManager().containsKey(id)) {
+            data.setCheckedOut(accessCheckoutManager().get(id).getAmount());
+        }
         return this.tokenBalances.put(id, data);
     }
 
@@ -52,5 +61,16 @@ public class Wallet {
         if (tokens != null) {
             tokens.forEach(this::addToken);
         }
+    }
+
+    protected void initializeCheckoutManager(UUID playerId) {
+        this.manager = new WalletCheckoutManager(playerId);
+    }
+
+    public Map<String, ItemStack> accessCheckoutManager() {
+        if (manager != null)
+            return manager.accessCheckout();
+
+        return null;
     }
 }

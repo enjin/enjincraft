@@ -1,17 +1,26 @@
 package com.enjin.enjincoin.spigot_framework.player;
 
+import com.enjin.enjincoin.sdk.client.Client;
+import com.enjin.enjincoin.sdk.client.model.body.GraphQLResponse;
 import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
 import com.enjin.enjincoin.sdk.client.service.users.vo.User;
+import com.enjin.enjincoin.sdk.client.service.users.vo.data.UsersData;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
+import retrofit2.Response;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 public class MinecraftPlayer {
 
@@ -79,8 +88,31 @@ public class MinecraftPlayer {
         optionalIdentity.ifPresent(this::loadIdentity);
     }
 
+    public User getUser() { return this.user; }
+
     public void reloadUser() {
-        loadUser(this.user);
+        Client client = this.plugin.getBootstrap().getSdkController().getClient();
+        // Fetch the User for the Player in question
+        try {
+            Response<GraphQLResponse<UsersData>> networkResponse = client.getUsersService()
+                    .getUsersSync(null, bukkitPlayer.getUniqueId().toString(), null);
+
+            User user = null;
+
+            if (networkResponse.isSuccessful()) {
+                GraphQLResponse<UsersData> response = networkResponse.body();
+                if (!response.isEmpty()) {
+                    UsersData data = response.getData();
+                    if (!data.isEmpty()) {
+                        user = data.getUsers().get(0);
+                    }
+                }
+            }
+
+            loadUser(user);
+        } catch (Exception e) {
+            System.out.println("Failed to reload user");
+        }
     }
 
     public boolean isIdentityLoaded() {
@@ -95,7 +127,7 @@ public class MinecraftPlayer {
         this.identity = identity;
 
         this.identityData = new IdentityData(identity);
-        this.wallet = new Wallet();
+        this.wallet = new Wallet(bukkitPlayer.getUniqueId());
         this.identityLoaded = true;
 
         this.wallet.populate(identity.getTokens());
