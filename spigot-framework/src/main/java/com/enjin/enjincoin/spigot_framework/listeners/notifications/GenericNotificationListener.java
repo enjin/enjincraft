@@ -1,6 +1,7 @@
 package com.enjin.enjincoin.spigot_framework.listeners.notifications;
 
 import com.enjin.enjincoin.sdk.client.service.notifications.vo.NotificationEvent;
+import com.enjin.enjincoin.spigot_framework.player.MinecraftPlayer;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -14,6 +15,9 @@ import com.enjin.enjincoin.sdk.client.service.tokens.vo.Token;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.inventory.WalletInventory;
 import com.enjin.enjincoin.spigot_framework.util.UuidUtils;
+import com.enjin.enjincoin.spigot_framework.util.MessageUtils;
+import net.kyori.text.TextComponent;
+import net.kyori.text.format.TextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -22,10 +26,7 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * <p>A listener for handling Enjin Coin SDK events.</p>
@@ -53,47 +54,90 @@ public class GenericNotificationListener implements NotificationListener {
         if (event.getNotificationType() == NotificationType.TX_EXECUTED) {
             this.main.getBootstrap().debug(String.format("Parsing data for %s event", event.getNotificationType().getEventType()));
             JsonParser parser = new JsonParser();
-            JsonObject data = parser.parse(event.getSourceData()).getAsJsonObject()
-                    .get("data").getAsJsonObject();
-            if (data.get("event").getAsString().equalsIgnoreCase("melt")) {
-                // Handle melt event.
-                String ethereumAddress = data.get("param1").getAsString();
-                double amount = Double.valueOf(data.get("param2").getAsString());
-                String tokenId = data.get("token").getAsJsonObject().get("token_id").getAsString();
-                int appId = data.get("token").getAsJsonObject().get("app_id").getAsInt();
+            String eventType = event.getNotificationType().getEventType();
+            JsonObject data = parser.parse(event.getSourceData()).getAsJsonObject().get("data").getAsJsonObject();
 
-                this.main.getBootstrap().debug(String.format("%s of token %s was melted by %s", amount, tokenId, ethereumAddress));
+            // txr_ => transaction request
+            // tx_ => transaction
+            if (eventType.equalsIgnoreCase("txr_pending")) {
+                this.main.getBootstrap().debug("Transaction is pending");
+            } else if (eventType.equalsIgnoreCase("tx_executed")) {
+                this.main.getBootstrap().debug("Transaction is executed");
+                if (data.get("event") != null && data.get("event").getAsString().equalsIgnoreCase("Transfer")) {
+                    // handle transfer event.
+                    String fromEthereumAddress = data.get("param1").getAsString();
+                    String toEthereumAddress = data.get("param2").getAsString();
+                    String tokenId = data.get("token").getAsJsonObject().get("token_id").getAsString();
+                    String amount = data.get("param3").getAsString();
 
-                JsonObject config = this.main.getBootstrap().getConfig();
-                if (config.get("appId").getAsInt() == appId) {
-                    this.main.getBootstrap().debug(String.format("Updating balance of player linked to %s", ethereumAddress));
-                    Identity identity = getIdentity(ethereumAddress);
+                    MinecraftPlayer fromPlayer = null;
+                    MinecraftPlayer toPlayer = null;
+                    int found = 0;
+                    for(Map.Entry<UUID, MinecraftPlayer> entry : this.main.getBootstrap().getPlayerManager().getPlayers().entrySet()) {
+                        if (entry.getValue().getIdentity().getEthereumAddress().equals(fromEthereumAddress) && found < 2) {
+                            entry.getValue().reloadUser();
+                            TextComponent text = TextComponent.of("You have successfully sent ").color(TextColor.GOLD)
+                                    .append(TextComponent.of(amount).color(TextColor.GREEN))
+                                    .append(TextComponent.of(" " + data.get("token").getAsJsonObject().get("name").getAsString()).color(TextColor.DARK_PURPLE));
+                            MessageUtils.sendMessage(entry.getValue().getBukkitPlayer(), text);
+                            found++;
+                        }
 
-                    if (identity != null)
-                        addTokenValue(identity, tokenId, -amount);
+                        if (entry.getValue().getIdentity().getEthereumAddress().equals(toEthereumAddress) && found < 2) {
+                            entry.getValue().reloadUser();
+                            TextComponent text = TextComponent.of("You have received ").color(TextColor.GOLD)
+                                    .append(TextComponent.of(amount).color(TextColor.GREEN))
+                                    .append(TextComponent.of(" " + data.get("token").getAsJsonObject().get("name").getAsString()).color(TextColor.DARK_PURPLE));
+                            MessageUtils.sendMessage(entry.getValue().getBukkitPlayer(), text);
+                            found++;
+                        }
+                    }
                 }
-            } else if (data.get("event").getAsString().equalsIgnoreCase("transfer")) {
-                // Handle transfer event.
-                String fromEthereumAddress = data.get("param1").getAsString();
-                String toEthereumAddress = data.get("param2").getAsString();
-                double amount = Double.valueOf(data.get("param3").getAsString());
-                String tokenId = data.get("token").getAsJsonObject().get("token_id").getAsString();
-                int appId = data.get("token").getAsJsonObject().get("app_id").getAsInt();
 
-                this.main.getBootstrap().debug(String.format("%s received %s of %s tokens from %s", toEthereumAddress, amount, tokenId, fromEthereumAddress));
+            } else if (eventType.equalsIgnoreCase("txr_canceled_user")) {
+                this.main.getBootstrap().debug("Transaction was canceled");
 
-                JsonObject config = this.main.getBootstrap().getConfig();
-                if (config.get("appId").getAsInt() == appId) {
-                    this.main.getBootstrap().debug(String.format("Updating balance of player linked to %s", toEthereumAddress));
-                    Identity toIdentity = getIdentity(toEthereumAddress);
-                    Identity fromIdentity = getIdentity(fromEthereumAddress);
-
-                    if (toIdentity != null)
-                        addTokenValue(toIdentity, tokenId, amount);
-                    if (fromIdentity != null)
-                        addTokenValue(fromIdentity, tokenId, -amount);
-                }
+            } else {
+                this.main.getBootstrap().debug("Transaction was last in state: " + eventType);
             }
+                // Handle melt event.
+//                String ethereumAddress = data.get("param1").getAsString();
+//                double amount = Double.valueOf(data.get("param2").getAsString());
+//                String tokenId = data.get("token").getAsJsonObject().get("token_id").getAsString();
+//                int appId = data.get("token").getAsJsonObject().get("app_id").getAsInt();
+//
+//                this.main.getBootstrap().debug(String.format("%s of token %s was melted by %s", amount, tokenId, ethereumAddress));
+//
+//                JsonObject config = this.main.getBootstrap().getConfig();
+//                if (config.get("appId").getAsInt() == appId) {
+//                    this.main.getBootstrap().debug(String.format("Updating balance of player linked to %s", ethereumAddress));
+//                    Identity identity = getIdentity(ethereumAddress);
+//
+//                    if (identity != null)
+//                        addTokenValue(identity, tokenId, -amount);
+//                }
+//            } else if (data.get("event").getAsString().equalsIgnoreCase("transfer")) {
+//                // Handle transfer event.
+//                String fromEthereumAddress = data.get("param1").getAsString();
+//                String toEthereumAddress = data.get("param2").getAsString();
+//                double amount = Double.valueOf(data.get("param3").getAsString());
+//                String tokenId = data.get("token").getAsJsonObject().get("token_id").getAsString();
+//                int appId = data.get("token").getAsJsonObject().get("app_id").getAsInt();
+//
+//                this.main.getBootstrap().debug(String.format("%s received %s of %s tokens from %s", toEthereumAddress, amount, tokenId, fromEthereumAddress));
+//
+//                JsonObject config = this.main.getBootstrap().getConfig();
+//                if (config.get("appId").getAsInt() == appId) {
+//                    this.main.getBootstrap().debug(String.format("Updating balance of player linked to %s", toEthereumAddress));
+//                    Identity toIdentity = getIdentity(toEthereumAddress);
+//                    Identity fromIdentity = getIdentity(fromEthereumAddress);
+//
+//                    if (toIdentity != null)
+//                        addTokenValue(toIdentity, tokenId, amount);
+//                    if (fromIdentity != null)
+//                        addTokenValue(fromIdentity, tokenId, -amount);
+//                }
+//            }
         }
     }
 

@@ -98,6 +98,7 @@ public class MinecraftPlayer {
                     .getUsersSync(null, bukkitPlayer.getUniqueId().toString(), null);
 
             User user = null;
+            this.wallet = null;
 
             if (networkResponse.isSuccessful()) {
                 GraphQLResponse<UsersData> response = networkResponse.body();

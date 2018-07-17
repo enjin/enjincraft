@@ -14,6 +14,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -56,31 +57,66 @@ public class BalanceCommand {
 
             boolean showAll = false;
             Identity identity = mcPlayer.getIdentity();
+
+            if (identity.getLinkingCode() != null) {
+                TextComponent text = TextComponent.of("You have not linked a wallet to your account.").color(TextColor.RED);
+                MessageUtils.sendMessage(sender, text);
+                text = TextComponent.of("Please type '/enj link' to link your account to your Enjin Wallet.").color(TextColor.RED);
+                MessageUtils.sendMessage(sender, text);
+                return;
+            }
+
             List<TokenData> tokens = mcPlayer.getWallet().getTokens();
             if (identity != null) {
                 Double ethBalance = (mcPlayer.getIdentityData().getEthBalance() == null) ? 0 : mcPlayer.getIdentityData().getEthBalance();
                 Double enjBalance = (mcPlayer.getIdentityData().getEnjBalance() == null) ? 0 : mcPlayer.getIdentityData().getEnjBalance();
 
                 sendMsg(sender, "EthAdr: " + ChatColor.LIGHT_PURPLE + identity.getEthereumAddress());
-                sendMsg(sender, "ID: " + identity.getId() + " -> " + ChatColor.GREEN + "[ " + enjBalance  + " ENJ ] [ " + ethBalance + " ETH ]");
-                sendMsg(sender, "");
-                sendMsg(sender,  ChatColor.BOLD + "" + ChatColor.GOLD + "Found " + identity.getTokens().size() + " items in Wallet: ");
+                sendMsg(sender, "ID: " + identity.getId() + "   ");
+
+                if (enjBalance > 0)
+                    sendMsg(sender, ChatColor.GREEN + "[ " + enjBalance  + " ENJ ] " );
+                if (ethBalance > 0)
+                    sendMsg(sender, ChatColor.GREEN + "[ " + ethBalance + " ETH ]");
 
                 JsonObject tokensDisplayConfig = main.getBootstrap().getConfig().get("tokens").getAsJsonObject();
+                int itemCount = 0;
+                List<TextComponent> listing = new ArrayList<>();
                 for(int i = 0; i < identity.getTokens().size(); i++) {
                     JsonObject tokenDisplay = tokensDisplayConfig.has(String.valueOf(identity.getTokens().get(i).getTokenId()))
                             ? tokensDisplayConfig.get(String.valueOf(identity.getTokens().get(i).getTokenId())).getAsJsonObject()
                             : null;
-                    String name = "";
+                    Double balance = identity.getTokens().get(i).getBalance();
                     if (tokenDisplay != null) {
-                        if (tokenDisplay != null && tokenDisplay.has("displayName")) {
-                            sendMsg(sender, ChatColor.GOLD + String.valueOf(i + 1) + ". " + ChatColor.DARK_PURPLE + tokenDisplay.get("displayName").getAsString() + ChatColor.GREEN + " (qty. " + identity.getTokens().get(i).getBalance() + ")");
+                        if (balance > 0)
+                        {
+                            itemCount++;
+                            if (tokenDisplay != null && tokenDisplay.has("displayName")) {
+                                listing.add(TextComponent.of(String.valueOf(itemCount) + ". ").color(TextColor.GOLD)
+                                        .append(TextComponent.of(tokenDisplay.get("displayName").getAsString()).color(TextColor.DARK_PURPLE))
+                                        .append(TextComponent.of(" (qty. " + balance + ")").color(TextColor.GREEN)));
+                            }
+                        }
+                    } else if (showAll) {
+                        if (balance > 0) {
+                            itemCount++;
+
+                            listing.add(TextComponent.of(String.valueOf(itemCount) + ". ").color(TextColor.GOLD)
+                                    .append(TextComponent.of(identity.getTokens().get(i).getName()).color(TextColor.DARK_PURPLE))
+                                    .append(TextComponent.of(" (qty. " + balance + ")").color(TextColor.GREEN)));
                         }
                     }
-                    if (showAll) {
-                        sendMsg(sender, ChatColor.GRAY + String.valueOf(i + 1) + ". " + identity.getTokens().get(i).getName() + " (qty. " + identity.getTokens().get(i).getBalance() + ")");
-                    }
                 }
+
+                sendMsg(sender, "");
+                if (itemCount == 0)
+                    sendMsg(sender, ChatColor.BOLD + "" + ChatColor.GOLD + "No CryptoItems found in your Enjin Wallet.");
+                else
+                    sendMsg(sender,  ChatColor.BOLD + "" + ChatColor.GOLD + "Found " + itemCount + " CryptoItems in Wallet: ");
+
+                listing.forEach( l -> MessageUtils.sendMessage(sender, l) );
+
+
             } else {
                 TextComponent text = TextComponent.of("You have not linked a wallet to your account.")
                         .color(TextColor.RED);

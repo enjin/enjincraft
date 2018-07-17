@@ -1,10 +1,7 @@
 package com.enjin.enjincoin.spigot_framework.commands;
 
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
-import com.enjin.enjincoin.spigot_framework.commands.subcommands.BalanceCommand;
-import com.enjin.enjincoin.spigot_framework.commands.subcommands.HelpCommand;
-import com.enjin.enjincoin.spigot_framework.commands.subcommands.LinkCommand;
-import com.enjin.enjincoin.spigot_framework.commands.subcommands.WalletCommand;
+import com.enjin.enjincoin.spigot_framework.commands.subcommands.*;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -28,6 +25,11 @@ public class RootCommand implements CommandExecutor {
      * <p>Link command handler instance.</p>
      */
     private final LinkCommand link;
+
+    /**
+     * <p>Unlink command handler instance.</p>
+     */
+    private final UnlinkCommand unlink;
 
     /**
      * <p>Wallet command handler instance.</p>
@@ -61,6 +63,7 @@ public class RootCommand implements CommandExecutor {
         this.main = main;
 
         this.link = new LinkCommand(main);
+        this.unlink = new UnlinkCommand(main);
         this.wallet = new WalletCommand(main);
         this.balance = new BalanceCommand(main);
         this.help = new HelpCommand(main);
@@ -85,25 +88,18 @@ public class RootCommand implements CommandExecutor {
                     this.balance.execute(sender, subArgs);
                     break;
                 case "help":
-                    this.help.execute(sender, subArgs);
+                    this.help.execute(sender);
+                    break;
+                case "unlink":
+                    this.unlink.execute(sender, subArgs);
                     break;
                 default:
                     sender.sendMessage(String.format("No sub-command with alias %s exists.", sub));
-                    sender.sendMessage("Usage:");
-                    sender.sendMessage("/enj [command]");
-                    sender.sendMessage("");
-                    sender.sendMessage(ChatColor.GOLD + "/enj balance: " + ChatColor.WHITE + "Display wallet Address, Ethereum and Enjin Coin balances, as well as a list of owned CryptoItems.");
-                    sender.sendMessage(ChatColor.GOLD + "/enj link: " + ChatColor.WHITE + "Display linking code or linked address if available.");
-                    sender.sendMessage(ChatColor.GOLD + "/enj wallet: " + ChatColor.WHITE + "Opens a wallet inventory panel which allows for checkout of owned CryptoItems.");
+                    this.help.execute(sender);
                     break;
             }
         } else {
-            sender.sendMessage("Usage:");
-            sender.sendMessage("/enj [command]");
-            sender.sendMessage("");
-            sender.sendMessage(ChatColor.GOLD + "/enj balance: " + ChatColor.WHITE + "Display wallet Address, Ethereum and Enjin Coin balances, as well as a list of owned CryptoItems.");
-            sender.sendMessage(ChatColor.GOLD + "/enj link: " + ChatColor.WHITE + "Display linking code or linked address if available.");
-            sender.sendMessage(ChatColor.GOLD + "/enj wallet: " + ChatColor.WHITE + "Opens a wallet inventory panel which allows for checkout of owned CryptoItems.");
+            this.help.execute(sender);
         }
         return true;
     }

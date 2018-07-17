@@ -48,16 +48,20 @@ public class WalletCommand {
             Player player = (Player) sender;
             this.main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId()).reloadUser();
 
-            Map<String, TokenData> balances = this.main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId()).getWallet().getTokenBalances();
-
             Identity identity = this.main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId()).getIdentity();
+
             List<TokenData> tokens = this.main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId()).getWallet().getTokens();
             if (identity != null) {
-//                for(int i = 0; i < identity.getTokens().size(); i++) {
-//                    sendMsg(sender, (i+1) + ". " + identity.getTokens().get(i).getTokenId() + " (qty. " + identity.getTokens().get(i).getBalance() + ")");
-//                }
+                // we have an identity, but the wallet has not been linked yet.
+                if (identity.getLinkingCode() != null) {
+                    TextComponent text = TextComponent.of("You have not linked a wallet to your account.").color(TextColor.RED);
+                    MessageUtils.sendMessage(sender, text);
+                    text = TextComponent.of("Please type '/enj link' to link your account to your Enjin Wallet.").color(TextColor.RED);
+                    MessageUtils.sendMessage(sender, text);
+                    return;
+                }
+
                 Inventory inventory = WalletInventory.create(main, player, tokens);
-//                Inventory inventory = WalletInventory.create(main, player, identity);
                 player.openInventory(inventory);
             } else {
                 TextComponent text = TextComponent.of("You have not linked a wallet to your account.")

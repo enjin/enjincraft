@@ -37,43 +37,17 @@ public class HelpCommand {
      * <p>Executes and performs operations defined for the command.</p>
      *
      * @param sender the command sender
-     * @param args the command arguments
      *
      * @since 1.0
      */
-    public void execute(CommandSender sender, String[] args) {
-        if (sender instanceof Player) {
-            Player player = (Player) sender;
-            Map<String, TokenData> balances = this.main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId()).getWallet().getTokenBalances();
-
-            Identity identity = this.main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId()).getIdentity();
-            List<TokenData> tokens = this.main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId()).getWallet().getTokens();
-            sendMsg(sender,  ChatColor.BOLD + "" + ChatColor.GOLD + "Found " + identity.getTokens().size() + " items in your ENJ Wallet.");
-            if (identity != null) {
-                JsonObject tokensDisplayConfig = main.getBootstrap().getConfig().get("tokens").getAsJsonObject();
-                for(int i = 0; i < identity.getTokens().size(); i++) {
-                    JsonObject tokenDisplay = tokensDisplayConfig.has(String.valueOf(identity.getTokens().get(i).getTokenId()))
-                            ? tokensDisplayConfig.get(String.valueOf(identity.getTokens().get(i).getTokenId())).getAsJsonObject()
-                            : null;
-                    String name = "";
-                    if (tokenDisplay != null) {
-                        if (tokenDisplay != null && tokenDisplay.has("displayName")) {
-                            sendMsg(sender, ChatColor.GOLD + String.valueOf(i + 1) + ". " + ChatColor.DARK_PURPLE + tokenDisplay.get("displayName").getAsString() + ChatColor.GREEN + " (qty. " + identity.getTokens().get(i).getBalance() + ")");
-                        }
-                    } else {
-                        sendMsg(sender, (i + 1) + ". " + identity.getTokens().get(i).getName() + " (qty. " + identity.getTokens().get(i).getBalance() + ")");
-                    }
-                }
-            } else {
-                TextComponent text = TextComponent.of("You have not linked a wallet to your account.")
-                        .color(TextColor.RED);
-                MessageUtils.sendMessage(sender, text);
-            }
-        } else {
-            TextComponent text = TextComponent.of("Only players can use this command.")
-                .color(TextColor.RED);
-            MessageUtils.sendMessage(sender, text);
-        }
+    public void execute(CommandSender sender) {
+        sender.sendMessage("Usage:");
+        sender.sendMessage("/enj [command]");
+        sender.sendMessage("");
+        sender.sendMessage(ChatColor.GOLD + "/enj balance: " + ChatColor.WHITE + "Display wallet Address, Ethereum and Enjin Coin balances, as well as a list of owned CryptoItems.");
+        sender.sendMessage(ChatColor.GOLD + "/enj link: " + ChatColor.WHITE + "Display linking code or linked address if available.");
+        sender.sendMessage( ChatColor.GOLD + "/enj unlink: " + ChatColor.WHITE + "Removes the link to an Ethereum Wallet.");
+        sender.sendMessage(ChatColor.GOLD + "/enj wallet: " + ChatColor.WHITE + "Opens a wallet inventory panel which allows for checkout of owned CryptoItems.");
     }
 
     private void sendMsg(CommandSender sender, String msg) {
