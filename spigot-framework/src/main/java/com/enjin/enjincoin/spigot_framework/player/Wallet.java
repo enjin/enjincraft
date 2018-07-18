@@ -1,6 +1,7 @@
 package com.enjin.enjincoin.spigot_framework.player;
 
 import com.enjin.enjincoin.sdk.client.service.tokens.vo.Token;
+import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.inventory.WalletCheckoutManager;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -14,7 +15,7 @@ public class Wallet {
 
     private Inventory inventory = null;
 
-    private WalletCheckoutManager manager;
+    private static WalletCheckoutManager manager;
 
     public Wallet(UUID uuid) {
         initializeCheckoutManager(uuid);
@@ -30,8 +31,8 @@ public class Wallet {
 
     public TokenData addToken(String id, TokenData data) {
         // sync with checkout manager
-        if (accessCheckoutManager().containsKey(id)) {
-            data.setCheckedOut(accessCheckoutManager().get(id).getAmount());
+        if (manager.accessCheckout().containsKey(id)) {
+            data.setCheckedOut(manager.accessCheckout().get(id).getAmount());
         }
         return this.tokenBalances.put(id, data);
     }
@@ -67,9 +68,11 @@ public class Wallet {
         this.manager = new WalletCheckoutManager(playerId);
     }
 
-    public Map<String, ItemStack> accessCheckoutManager() {
+
+
+    public WalletCheckoutManager accessCheckoutManager() {
         if (manager != null)
-            return manager.accessCheckout();
+            return manager;
 
         return null;
     }

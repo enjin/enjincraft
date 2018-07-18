@@ -98,7 +98,8 @@ public class MinecraftPlayer {
                     .getUsersSync(null, bukkitPlayer.getUniqueId().toString(), null);
 
             User user = null;
-            this.wallet = null;
+            // we likely need a legit reload function for the wallet to repopulate it.
+            this.wallet = new Wallet(bukkitPlayer.getUniqueId());
 
             if (networkResponse.isSuccessful()) {
                 GraphQLResponse<UsersData> response = networkResponse.body();

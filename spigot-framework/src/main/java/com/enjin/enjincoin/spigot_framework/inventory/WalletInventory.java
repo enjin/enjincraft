@@ -72,6 +72,9 @@ public class WalletInventory {
         // TODO this may not be necessary .. will ask Tim or Evan
         owner = main.getBootstrap().getPlayerManager().getPlayer(holder.getUniqueId());
         owner.getWallet().setInventory(inventory);
+        WalletCheckoutManager manager = owner.getWallet().accessCheckoutManager();
+        // Not graceful... debugging...
+//        manager.populate(main, holder, owner.getWallet());
 
         int index = 0;
         for (TokenData entry : tokens) {
@@ -105,7 +108,19 @@ public class WalletInventory {
                 // Create an ItemStack with the selected material.
                 ItemStack stack = new ItemStack(material);
 //                stack.setAmount(maxStackSize);
-                stack.setAmount(entry.getBalance().intValue());
+                // deduct checked out item counts from the amount available
+                int amount = entry.getBalance().intValue();
+                if (manager.accessCheckout() == null) {
+                    System.out.println("checkout list came back null??");
+                }
+                if (manager.accessCheckout().isEmpty()) {
+                    System.out.println("checkout list was empty...");
+                    manager.populate(main, owner.getBukkitPlayer(), owner.getWallet());
+                }
+                if (manager.accessCheckout().get(entry.getId()) != null)
+                    amount -= manager.accessCheckout().get(entry.getId()).getAmount();
+
+                stack.setAmount(amount);
                 // TODO re-evaluate the unbreakable status for ENJ backed items.
                 stack.getItemMeta().setUnbreakable(true);
 
@@ -159,8 +174,16 @@ public class WalletInventory {
 
                 }
 
-                lore.add(convertToInvisibleString(owner.getIdentity().getEthereumAddress()));
-                lore.add(convertToInvisibleString(token.getTokenId()));
+                // last two lines are reserved for cached data:
+                // owner's eth address
+                // token id
+//                System.out.println("ethaddr: " + owner.getIdentity().getEthereumAddress());
+//                System.out.println("tokenId: " + token.getTokenId());
+
+                lore.add(owner.getIdentity().getEthereumAddress());
+                lore.add(token.getTokenId());
+//                lore.add(convertToInvisibleString(owner.getIdentity().getEthereumAddress()));
+//                lore.add(convertToInvisibleString(token.getTokenId()));
 
                 // Replace the meta's lore.
                 meta.setLore(lore);
