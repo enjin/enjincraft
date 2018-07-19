@@ -72,6 +72,7 @@ public class InventoryListener implements Listener {
         Player player = (Player) event.getInventory().getHolder();
         MinecraftPlayer mcplayer = this.main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId());
 
+        System.out.println("onInventoryDrag");
         if (isWalletInventory(event.getInventory())) {
             ItemStack stack = event.getOldCursor();
 
@@ -103,18 +104,54 @@ public class InventoryListener implements Listener {
             Player player = (Player) event.getClickedInventory().getHolder();
             MinecraftPlayer mcplayer = this.main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId());
 
+            WalletCheckoutManager checkout = mcplayer.getWallet().accessCheckoutManager();
+
+            // handle returning an item to the inventory.
+            String tokenId = checkout.getTokenId(event.getCursor());
+
+            // check to see if the current cursor stack is a checked out item.
+            if (tokenId != null) {
+                // repair and unbreakable flag the item... just to be safe.
+                event.getCursor().setDurability((short)0);
+                event.getCursor().getItemMeta().setUnbreakable(true);
+
+                // handle checkout manager return.
+                returnItemStack(player, event.getCursor());
+
+                int found = 0;
+                // find any instances of the current object in the wallet.
+                for (ItemStack stacks : Arrays.asList(event.getClickedInventory().getContents())) {
+                    String stackId = checkout.getTokenId(stacks);
+                    if (stackId == null || stackId.isEmpty()) continue;
+
+                    if (stackId.equals(tokenId)) {
+                        found += stacks.getAmount();
+                        if (event.getCurrentItem() == null) { // handle empty slot
+                            if (checkout.getTokenId(event.getCurrentItem()).equals(tokenId))
+                                event.getClickedInventory().remove(event.getCurrentItem());
+                            else
+                                event.getClickedInventory().remove(stacks);
+                        } else {
+                            event.getClickedInventory().remove(stacks);
+                        }
+                    }
+                }
+
+                // we found some matching items in the clicked inventory!
+                if (found > 0) {
+                    event.getCursor().setAmount(event.getCursor().getAmount() + found);
+                } else { // no matches in the inventory were found
+                    // noop
+                }
+                return;
+            }
+
+            // handle check out from wallet.
             ItemStack stack = event.getClickedInventory().getItem(event.getSlot());
             event.setCancelled(true);
 
-//            String ethAddr = ChatColor.stripColor(stackLore.get(stackLore.size() -2));
-//            String tokenId = ChatColor.stripColor(stackLore.get(stackLore.size() -1));
-//            System.out.println("EthAddr " + ethAddr);
-//            System.out.println("TokenID " + tokenId);
-
             if (stack != null) {
-//                ItemMeta stackMeta = stack.getItemMeta();
                 if (stack.getAmount() >= 1 || !isCheckedOut(player.getUniqueId(), stack)) {
-                    WalletCheckoutManager checkout = mcplayer.getWallet().accessCheckoutManager();
 
                     String line = stack.getItemMeta().getLore().get(0).replace("Owned: ", "");
                     line = ChatColor.stripColor(line);
@@ -128,22 +165,13 @@ public class InventoryListener implements Listener {
                     ItemMeta meta = clone.getItemMeta();
                     meta.setUnbreakable(true);
 
-                    List<String> lore = meta.getLore();
-                    lore.set(0,  ChatColor.GRAY + "Item checked out from your Enjin Wallet."); // remove Owned line
-                    meta.setLore(lore);
-                    clone.setItemMeta(meta);
-
                     NBTItem nbt = new NBTItem(clone);
                     nbt.setBoolean("ENJ-Token", true);
                     clone = nbt.getItemStack();
 
                     Map<Integer, ItemStack> result = player.getInventory().addItem(clone);
                     if (result.isEmpty()) {
-                        boolean success = checkout.checkoutItem(clone);
-                        if (success)
-                            System.out.println("Item " + clone.getItemMeta().getDisplayName() + " was added to the checkout system");
-                        else
-                            System.out.println("Something went wrong adding the item to the checkout system.");
+                        checkout.checkoutItem(clone);
                     } else {
                         TextComponent text = TextComponent.of("You do not have sufficient space in your inventory.")
                                 .color(TextColor.RED);
@@ -230,7 +258,7 @@ public class InventoryListener implements Listener {
 
     @EventHandler
     public void onInventoryMoveItem(InventoryMoveItemEvent event) {
-        if (event.getDestination().getName().equalsIgnoreCase("enjin wallet")) {
+        if (isWalletInventory(event.getDestination())) {
             returnItemStack((Player)event.getSource().getHolder(), event.getItem());
         }
         event.getItem().setAmount(0);
@@ -248,17 +276,7 @@ public class InventoryListener implements Listener {
         MinecraftPlayer mcplayer = this.main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId());
         WalletCheckoutManager manager = mcplayer.getWallet().accessCheckoutManager();
 
-        if ( manager.accessCheckout().containsKey(manager.getTokenId(stack))) {
-            manager.returnItem(stack);
-        }
-//        List<ItemStack> stacks = checkedOutTokens.get(player.getUniqueId());
-//        if (stacks.contains(stack))
-//            checkedOutTokens.get(player.getUniqueId()).remove(stack);
-
-        //int idx = main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId()).getWallet().getInventory().first(stack);
-        //int balance = main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId()).getWallet().getInventory().getItem(idx).getAmount() + stack.getAmount();
-        //main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId()).getWallet().getInventory().getItem(idx).setAmount(balance);
-        //main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId()).getWallet().getInventory().getItem(idx).getItemMeta().getLore().set(0, ChatColor.GRAY + "Balance: " + ChatColor.GOLD + balance);
+        manager.returnItem(stack);
     }
 
     /**
@@ -323,13 +341,7 @@ public class InventoryListener implements Listener {
 
         if (manager.accessCheckout().containsKey(stackId))
             return true;
-//
-//
-//        List<ItemStack> tokens = checkedOutTokens.get(uuid);
-//        if (tokens != null && tokens.size() > 0) {
-//            return tokens.stream().anyMatch(token -> token.getItemMeta().getDisplayName()
-//                    .equalsIgnoreCase(stack.getItemMeta().getDisplayName()));
-//        }
+
         return false;
     }
 

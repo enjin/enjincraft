@@ -3,6 +3,7 @@ package com.enjin.enjincoin.spigot_framework.inventory;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.player.Wallet;
 import com.enjin.enjincoin.spigot_framework.util.MessageUtils;
+import com.enjin.minecraft_commons.spigot.nbt.NBTItem;
 import com.google.gson.JsonObject;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
@@ -40,11 +41,18 @@ public class WalletCheckoutManager {
 
     public String getTokenId(ItemStack itemStack) {
         if (itemStack == null) return null;
+
+        NBTItem nbti = new NBTItem(itemStack);
+
+        if (nbti.getString("tokenID") != null)
+            return nbti.getString("tokenID");
+
+        // lore based fallback.
         if (itemStack.getItemMeta() != null) {
             List<String> lore = itemStack.getItemMeta().getLore();
             if (lore != null) {
                 if (lore.size() > 0) {
-                    System.out.println("getTokenId: " + ChatColor.stripColor(lore.get(lore.size() - 1)));
+//                    System.out.println("getTokenId: " + ChatColor.stripColor(lore.get(lore.size() - 1)));
                     return ChatColor.stripColor(lore.get(lore.size() - 1));
                 } else
                     return null;
@@ -65,6 +73,10 @@ public class WalletCheckoutManager {
         List<ItemStack> allHeldItems = new ArrayList<>();
         if (playerInventory.getContents() != null)
             allHeldItems.addAll(Arrays.asList(playerInventory.getContents()));
+
+        /**
+         * these are individual calls which the getContents call encapsulates
+         *
         if (playerInventory.getArmorContents() != null)
             allHeldItems.addAll(Arrays.asList(playerInventory.getArmorContents()));
         if (playerInventory.getExtraContents() != null)
@@ -75,13 +87,14 @@ public class WalletCheckoutManager {
             allHeldItems.add(playerInventory.getItemInMainHand());
         if (playerInventory.getItemInOffHand() != null)
             allHeldItems.add(playerInventory.getItemInOffHand());
+         */
 
         // handle inventory contents
         for (int i = 0; i < allHeldItems.size(); i++) {
             String tokenId = getTokenId(allHeldItems.get(i));
 
             if (tokenId == null || tokenId.isEmpty()) continue; // skip this item as it did not contain a potential token id
-            System.out.println("found item: " + tokenId + " in inventory.");
+//            System.out.println("found item: " + tokenId + " in inventory.");
 
             ItemStack clone = allHeldItems.get(i).clone();
 
@@ -124,7 +137,7 @@ public class WalletCheckoutManager {
             String tokenId = getTokenId(itemStack);
 
             if (tokenId == null || tokenId.isEmpty()) continue; // this shouldn't happen but just in case...
-            System.out.println("found item: " + tokenId + " in wallet.");
+//            System.out.println("found item: " + tokenId + " in wallet.");
 
             ItemStack clone = itemStack.clone();
 

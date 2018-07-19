@@ -3,6 +3,7 @@ package com.enjin.enjincoin.spigot_framework.inventory;
 import com.enjin.enjincoin.spigot_framework.listeners.InventoryListener;
 import com.enjin.enjincoin.spigot_framework.player.MinecraftPlayer;
 import com.enjin.enjincoin.spigot_framework.player.TokenData;
+import com.enjin.minecraft_commons.spigot.nbt.NBTItem;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -73,8 +74,6 @@ public class WalletInventory {
         owner = main.getBootstrap().getPlayerManager().getPlayer(holder.getUniqueId());
         owner.getWallet().setInventory(inventory);
         WalletCheckoutManager manager = owner.getWallet().accessCheckoutManager();
-        // Not graceful... debugging...
-//        manager.populate(main, holder, owner.getWallet());
 
         int index = 0;
         for (TokenData entry : tokens) {
@@ -95,9 +94,6 @@ public class WalletInventory {
                         ? tokensDisplayConfig.get(String.valueOf(token.getTokenId())).getAsJsonObject()
                         : null;
 
-                if (tokenDisplay == null)
-                    System.out.println("tokenDisplay is null");
-
                 // Select a material to use for this menu entry.
                 Material material = null;
                 if (tokenDisplay != null && tokenDisplay.has("material"))
@@ -107,14 +103,9 @@ public class WalletInventory {
 
                 // Create an ItemStack with the selected material.
                 ItemStack stack = new ItemStack(material);
-//                stack.setAmount(maxStackSize);
                 // deduct checked out item counts from the amount available
                 int amount = entry.getBalance().intValue();
-                if (manager.accessCheckout() == null) {
-                    System.out.println("checkout list came back null??");
-                }
                 if (manager.accessCheckout().isEmpty()) {
-                    System.out.println("checkout list was empty...");
                     manager.populate(main, owner.getBukkitPlayer(), owner.getWallet());
                 }
                 if (manager.accessCheckout().get(entry.getId()) != null)
@@ -165,35 +156,26 @@ public class WalletInventory {
                     }
                 }
 
-                boolean stacks = false;
-                if (tokenDisplay != null && tokenDisplay.has("stacks")) {
-                    stacks = tokenDisplay.get("stacks").getAsBoolean();
-                    if (stacks) {
-                        System.out.println(meta.getDisplayName() + " is stacks");
-                    }
-
-                }
-
-                // last two lines are reserved for cached data:
-                // owner's eth address
-                // token id
-//                System.out.println("ethaddr: " + owner.getIdentity().getEthereumAddress());
-//                System.out.println("tokenId: " + token.getTokenId());
-
-                lore.add(owner.getIdentity().getEthereumAddress());
-                lore.add(token.getTokenId());
-//                lore.add(convertToInvisibleString(owner.getIdentity().getEthereumAddress()));
-//                lore.add(convertToInvisibleString(token.getTokenId()));
+                // TODO work with stackable property, like stash this in NBT
+//                boolean stacks = false;
+//                if (tokenDisplay != null && tokenDisplay.has("stacks")) {
+//                    stacks = tokenDisplay.get("stacks").getAsBoolean();
+//                }
 
                 // Replace the meta's lore.
                 meta.setLore(lore);
                 stack.setItemMeta(meta);
 
+                NBTItem nbti = new NBTItem(stack);
+                nbti.setString("tokenID", token.getTokenId());
+
                 // Add ItemStack to wallet inventory.
-                inventory.setItem(index++, stack);
+//                inventory.setItem(index++, stack);
+                inventory.setItem(index++, nbti.getItemStack());
 
                 // Add ItemStack to local map.
-                items.put(holder.getName(), stack);
+//                items.put(holder.getName(), stack);
+                items.put(holder.getName(), nbti.getItemStack());
             }
         }
         return inventory;
@@ -237,8 +219,8 @@ public class WalletInventory {
                         ? tokensDisplayConfig.get(String.valueOf(token.getTokenId())).getAsJsonObject()
                         : null;
 
-                if (tokenDisplay == null)
-                    System.out.println("tokenDisplay is null");
+//                if (tokenDisplay == null)
+//                    System.out.println("tokenDisplay is null");
 
                 // Select a material to use for this menu entry.
                 Material material = null;
