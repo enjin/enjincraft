@@ -14,16 +14,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.inventory.InventoryMoveItemEvent;
+import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.*;
@@ -40,6 +37,11 @@ public class InventoryListener implements Listener {
      * <p>The name of an inventory representing an Enjin wallet.</p>
      */
     private static final String WALLET_INVENTORY = "Enjin Wallet";
+
+    /**
+     * <p>The name of an inventory representing a player inventory.</p>
+     */
+    private static final String PLAYER_INVENTORY = "container.inventory";
 
     /**
      * <p>The spigot plugin.</p>
@@ -65,14 +67,19 @@ public class InventoryListener implements Listener {
      */
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInventoryDrag(InventoryDragEvent event) {
-        /*
-        Check if the inventory the player dragged in is an
-        instance of a wallet inventory.
-         */
+        if (event.getInventory() == null) {
+            event.setCancelled(true);
+            return;
+        }
+
         Player player = (Player) event.getInventory().getHolder();
         MinecraftPlayer mcplayer = this.main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId());
 
-        System.out.println("onInventoryDrag");
+        if (ChatColor.stripColor(event.getView().getTitle()).equalsIgnoreCase("container.crafting")) {
+            event.setCancelled(true);
+            return;
+        }
+
         if (isWalletInventory(event.getInventory())) {
             ItemStack stack = event.getOldCursor();
 
@@ -97,9 +104,24 @@ public class InventoryListener implements Listener {
      */
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInventoryClick(InventoryClickEvent event) {
+        if (event.getClickedInventory() == null) return;
+
+        if ( event.getAction() == InventoryAction.PLACE_ALL ||
+             event.getAction() == InventoryAction.PLACE_ONE ||
+             event.getAction() == InventoryAction.PLACE_SOME ) {
+            if ( !isWalletInventory(event.getClickedInventory()) ) {
+                if (!isPlayerInventory(event.getClickedInventory())) {
+                    event.setCancelled(true);
+                    return;
+                } // else act normally
+            }
+        }
+
         if (isWalletInventory(event.getClickedInventory())) {
-            if (event.getClickedInventory() == null)
+            if (event.getClickedInventory() == null) {
+                event.setCancelled(true);
                 return;
+            }
 
             Player player = (Player) event.getClickedInventory().getHolder();
             MinecraftPlayer mcplayer = this.main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId());
@@ -111,6 +133,7 @@ public class InventoryListener implements Listener {
 
             // check to see if the current cursor stack is a checked out item.
             if (tokenId != null) {
+
                 // repair and unbreakable flag the item... just to be safe.
                 event.getCursor().setDurability((short)0);
                 event.getCursor().getItemMeta().setUnbreakable(true);
@@ -321,6 +344,23 @@ public class InventoryListener implements Listener {
             return false;
         return ChatColor.stripColor(inventory.getName()).equalsIgnoreCase(WALLET_INVENTORY);
     }
+
+    /**
+     * <p>Check if an inventory represents a valid player inventory.</p>
+     *
+     * @param inventory the inventory
+     *
+     * @return true if the inventory represents a valid player inventory
+     *
+     * @since 1.0
+     */
+    private boolean isPlayerInventory(Inventory inventory) {
+        if (inventory == null)
+            return false;
+//        return ChatColor.stripColor(inventory.getName()).equalsIgnoreCase(PLAYER_INVENTORY);
+        return inventory.getType().equals(InventoryType.PLAYER);
+    }
+
 
     /**
      * <p>Check if a player has checked out the given {@link ItemStack}
