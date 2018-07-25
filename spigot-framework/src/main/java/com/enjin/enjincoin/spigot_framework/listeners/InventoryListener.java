@@ -106,10 +106,21 @@ public class InventoryListener implements Listener {
     public void onInventoryClick(InventoryClickEvent event) {
         if (event.getClickedInventory() == null) return;
 
-        if ( event.getAction() == InventoryAction.PLACE_ALL ||
-             event.getAction() == InventoryAction.PLACE_ONE ||
-             event.getAction() == InventoryAction.PLACE_SOME ) {
-            if ( !isWalletInventory(event.getClickedInventory()) ) {
+        if (event.getAction() == InventoryAction.PLACE_ALL ||
+                event.getAction() == InventoryAction.PLACE_ONE ||
+                event.getAction() == InventoryAction.PLACE_SOME) {
+            if (!isWalletInventory(event.getClickedInventory())) {
+                // lets validate that the item in question is tagged as a token.
+                if (event.getCursor() != null) {
+                    // check to see if it's a token-tagged nbt
+                    NBTItem item = new NBTItem(event.getCursor());
+                    System.out.println("TokenID " + item.getString("tokenID"));
+                    if (item.getString("tokenID") == null)
+                        // if it isn't, lets just return and act normally.
+                        return;
+                }
+
+                // then check to see if we're dropping into the players inventory
                 if (!isPlayerInventory(event.getClickedInventory())) {
                     event.setCancelled(true);
                     return;
