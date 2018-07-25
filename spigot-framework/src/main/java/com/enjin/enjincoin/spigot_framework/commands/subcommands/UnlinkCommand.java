@@ -2,8 +2,8 @@ package com.enjin.enjincoin.spigot_framework.commands.subcommands;
 
 import com.enjin.enjincoin.sdk.client.model.body.GraphQLResponse;
 import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
-import com.enjin.enjincoin.sdk.client.service.identities.vo.data.IdentitiesData;
-import com.enjin.enjincoin.sdk.client.service.identities.vo.data.IdentityData;
+//import com.enjin.enjincoin.sdk.client.service.identities.vo.data.IdentitiesData;
+//import com.enjin.enjincoin.sdk.client.service.identities.vo.data.IdentityData;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.player.MinecraftPlayer;
 import com.enjin.enjincoin.spigot_framework.util.MessageUtils;

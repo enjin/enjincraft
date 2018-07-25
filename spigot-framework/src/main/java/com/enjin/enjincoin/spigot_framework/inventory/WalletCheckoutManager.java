@@ -44,21 +44,11 @@ public class WalletCheckoutManager {
 
         NBTItem nbti = new NBTItem(itemStack);
 
-        if (nbti.getString("tokenID") != null)
+        if (nbti.getString("tokenID") != null) {
             return nbti.getString("tokenID");
-
-        // lore based fallback.
-        if (itemStack.getItemMeta() != null) {
-            List<String> lore = itemStack.getItemMeta().getLore();
-            if (lore != null) {
-                if (lore.size() > 0) {
-//                    System.out.println("getTokenId: " + ChatColor.stripColor(lore.get(lore.size() - 1)));
-                    return ChatColor.stripColor(lore.get(lore.size() - 1));
-                } else
-                    return null;
-            }
+        } else {
+            return null;
         }
-        return null;
     }
 
     public boolean populate(BasePlugin main, Player player, Wallet wallet) {

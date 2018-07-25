@@ -87,7 +87,7 @@ public class InventoryListener implements Listener {
 
             String tokenId = checkout.getTokenId(stack);
 
-            if (tokenId != null)
+            if (tokenId != null && !tokenId.isEmpty())
                 checkout.returnItem(stack);
             else
                 event.setCancelled(true);
@@ -133,7 +133,7 @@ public class InventoryListener implements Listener {
 
             // check to see if the current cursor stack is a checked out item.
             if (tokenId != null) {
-
+                // System.out.println(tokenId);
                 // repair and unbreakable flag the item... just to be safe.
                 event.getCursor().setDurability((short)0);
                 event.getCursor().getItemMeta().setUnbreakable(true);
