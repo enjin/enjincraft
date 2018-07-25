@@ -114,7 +114,6 @@ public class InventoryListener implements Listener {
                 if (event.getCursor() != null) {
                     // check to see if it's a token-tagged nbt
                     NBTItem item = new NBTItem(event.getCursor());
-                    System.out.println("TokenID " + item.getString("tokenID"));
                     if (item.getString("tokenID") == null)
                         // if it isn't, lets just return and act normally.
                         return;
