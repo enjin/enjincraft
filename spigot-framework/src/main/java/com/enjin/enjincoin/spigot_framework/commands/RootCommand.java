@@ -47,6 +47,11 @@ public class RootCommand implements CommandExecutor {
     private final HelpCommand help;
 
     /**
+     * <p>Trade command handler instance.</p>
+     */
+    private final TradeCommand trade;
+
+    /**
      * <p>commands list and details</p>
      * key is command name
      * value is command help body
@@ -67,6 +72,7 @@ public class RootCommand implements CommandExecutor {
         this.wallet = new WalletCommand(main);
         this.balance = new BalanceCommand(main);
         this.help = new HelpCommand(main);
+        this.trade = new TradeCommand(main);
     }
 
     public Map<String, String> getCommandsMap() { return commands; }
@@ -92,6 +98,9 @@ public class RootCommand implements CommandExecutor {
                     break;
                 case "unlink":
                     this.unlink.execute(sender, subArgs);
+                    break;
+                case "trade":
+                    this.trade.execute(sender, subArgs);
                     break;
                 default:
                     sender.sendMessage(String.format("No sub-command with alias %s exists.", sub));

@@ -9,6 +9,9 @@ import com.enjin.enjincoin.spigot_framework.util.UuidUtils;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.conversations.ConversationAbandonedEvent;
+import org.bukkit.conversations.ConversationAbandonedListener;
+import org.bukkit.conversations.ConversationFactory;
 import org.bukkit.entity.Player;
 import retrofit2.Response;
 
@@ -16,9 +19,9 @@ import java.io.IOException;
 import java.util.UUID;
 
 /**
- * <p>Link command handler.</p>
+ * <p>Trade command handler.</p>
  */
-public class UnlinkCommand {
+public class TradeCommand {
 
     /**
      * <p>The spigot plugin.</p>
@@ -35,7 +38,7 @@ public class UnlinkCommand {
      *
      * @param plugin the Spigot plugin
      */
-    public UnlinkCommand(BasePlugin plugin) {
+    public TradeCommand(BasePlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -145,5 +148,4 @@ public class UnlinkCommand {
         MessageUtils.sendMessage(sender, newline);
         MessageUtils.sendMessage(sender, notice);
     }
-
 }
