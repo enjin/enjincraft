@@ -2,14 +2,9 @@ package com.enjin.enjincoin.spigot_framework.commands;
 
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.commands.subcommands.*;
-import com.enjin.enjincoin.spigot_framework.conversations.TradePrompt;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.conversations.Conversation;
-import org.bukkit.conversations.ConversationContext;
-import org.bukkit.conversations.ConversationFactory;
-import org.bukkit.conversations.ConversationPrefix;
 import org.bukkit.entity.Player;
 
 import java.util.*;
@@ -50,11 +45,16 @@ public class RootCommand implements CommandExecutor {
      * <p>Help command handler instance.</p>
      */
     private final HelpCommand help;
-//
-//    /**
-//     * <p>Trade command handler instance.</p>
-//     */
-//    private final TradeCmd trade;
+
+    /**
+     * <p>Trade command handler instance.</p>
+     */
+    private final TradeCommand trade;
+
+    /**
+     * <p>Provides a click-text menu for accessing commands</p>
+     */
+    private final MenuCommand menu;
 
     /**
      * <p>commands list and details</p>
@@ -77,7 +77,8 @@ public class RootCommand implements CommandExecutor {
         this.wallet = new WalletCommand(main);
         this.balance = new BalanceCommand(main);
         this.help = new HelpCommand(main);
-//        this.trade = new TradeCmd(main);
+        this.trade = new TradeCommand(main);
+        this.menu = new MenuCommand(main);
     }
 
     public Map<String, String> getCommandsMap() { return commands; }
@@ -85,6 +86,12 @@ public class RootCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+
+        if (!(sender instanceof Player)) {
+            sender.sendMessage("You must be a player to use this command.");
+            return false;
+        }
+
         if (args.length > 0) {
             String sub = args[0];
             String[] subArgs = args.length == 1 ? new String[0] : Arrays.copyOfRange(args, 1, args.length);
@@ -105,26 +112,14 @@ public class RootCommand implements CommandExecutor {
                     this.unlink.execute(sender, subArgs);
                     break;
                 case "trade":
-                    ConversationFactory cf = this.main.getBootstrap().getConversationFactory();
-                    Conversation conv = cf
-                            .withTimeout(20)
-                            .withModality(true)
-                            .withEscapeSequence("/quit")
-                            .withLocalEcho(true)
-                            .withPrefix(new ConversationPrefix() {
-                                @Override
-                                public String getPrefix(ConversationContext conversationContext) {
-                                    return "[- ENJ -]";
-                                }
-                            })
-                            .withFirstPrompt(new TradePrompt.FirstPrompt("I'm fine. How are you?"))
-                        .withLocalEcho(true)
-                        .buildConversation((Player) sender);
-                    conv.begin();
+                    this.trade.execute(sender, subArgs);
                     break;
+                case "menu":
+                    this.menu.execute(sender, subArgs);
                 default:
                     sender.sendMessage(String.format("No sub-command with alias %s exists.", sub));
                     this.help.execute(sender);
+                    this.menu.execute(sender, subArgs);
                     break;
             }
         } else {

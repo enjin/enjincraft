@@ -65,6 +65,8 @@ public class ConnectionListener implements Listener {
         final Client client = this.main.getBootstrap().getSdkController().getClient();
         final IdentitiesService service = client.getIdentitiesService();
 
+
+
         // TODO: Integrate post integration logic into new MinecraftPlayer system
         // E.g. send linking notification to a player after loading their Identity
         // This class is ultimately being replaced by the classes in the player package

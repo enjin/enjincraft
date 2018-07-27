@@ -1,9 +1,7 @@
 package com.enjin.enjincoin.spigot_framework.listeners;
 
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
-import org.bukkit.conversations.ConversationAbandonedEvent;
-import org.bukkit.conversations.ConversationAbandonedListener;
-import org.bukkit.conversations.ConversationFactory;
+import com.enjin.enjincoin.spigot_framework.commands.subcommands.TradeCommand;
 import org.bukkit.event.Listener;
 
 public class ConversationListener implements Listener {
@@ -14,4 +12,5 @@ public class ConversationListener implements Listener {
     private BasePlugin main;
 
     public ConversationListener(BasePlugin main) { this.main = main; }
+
 }
