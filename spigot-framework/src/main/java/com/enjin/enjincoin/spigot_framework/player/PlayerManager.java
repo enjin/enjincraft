@@ -6,6 +6,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.scoreboard.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +26,10 @@ public class PlayerManager implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         MinecraftPlayer minecraftPlayer = new MinecraftPlayer(this.plugin, event.getPlayer());
+
+        ScoreboardManager sm = this.plugin.getBootstrap().getScoreboardManager();
+        Scoreboard sb = sm.getNewScoreboard();
+        minecraftPlayer.setScoreboard(sb);
 
         addPlayer(minecraftPlayer);
         // Fetch or create a User and Identity associated with the joining Player

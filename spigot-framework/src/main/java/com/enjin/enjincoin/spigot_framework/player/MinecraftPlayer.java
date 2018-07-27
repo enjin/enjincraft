@@ -9,18 +9,10 @@ import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.scoreboard.DisplaySlot;
-import org.bukkit.scoreboard.Objective;
-import org.bukkit.scoreboard.Score;
-import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.*;
 import retrofit2.Response;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 public class MinecraftPlayer {
 
@@ -40,6 +32,7 @@ public class MinecraftPlayer {
 
     // Helper Objects
     private User user;
+    private Scoreboard scoreboard;
 
     // Scoreboard for the given player
     private Scoreboard board;
@@ -58,9 +51,7 @@ public class MinecraftPlayer {
         return this.userData;
     }
 
-    public IdentityData getIdentityData() {
-        return this.identityData;
-    }
+    public IdentityData getIdentityData() { return this.identityData; }
 
     public Wallet getWallet() {
         return wallet;
@@ -143,15 +134,31 @@ public class MinecraftPlayer {
         this.bukkitPlayer = null;
     }
 
-    public void setScoreBoard() {
-        Objective obj = board.registerNewObjective("ENJ", "Wallet");
-        obj.setDisplaySlot(DisplaySlot.SIDEBAR);
-        obj.setDisplayName("ENJ Wallet ");
+    public Scoreboard getScoreboard() { return this.scoreboard; }
 
-        Score score11x = obj.getScore("§2");
-        score11x.setScore(1);
-        Score score = obj.getScore(ChatColor.WHITE + "ENJ: " + ChatColor.LIGHT_PURPLE + identity.getEnjBalance());
-        score.setScore(1);
+    public void setScoreboard(Scoreboard scoreboard) {
+        this.scoreboard = scoreboard;
+        bukkitPlayer.setScoreboard(this.scoreboard);
+    }
+
+    public void setScoreboard() {
+//        Team team = scoreboard.registerNewTeam(bukkitPlayer.getName());
+//        team.addEntry(bukkitPlayer.getName());
+//        Objective obj = scoreboard.registerNewObjective("ETH:", "0");
+//        obj.setDisplaySlot(DisplaySlot.SIDEBAR);
+//        obj.setDisplayName("BALANCE");
+//
+//        Score score = obj.getScore("GET SCORE");
+//        score.setScore(0);
+//
+//        Objective obj = board.registerNewObjective("ENJ", "Wallet");
+//        obj.setDisplaySlot(DisplaySlot.SIDEBAR);
+//        obj.setDisplayName("ENJ Wallet ");
+//
+//        Score score11x = obj.getScore("§2");
+//        score11x.setScore(1);
+//        Score score = obj.getScore(ChatColor.WHITE + "ENJ: " + ChatColor.LIGHT_PURPLE + identity.getEnjBalance());
+//        score.setScore(1);
     }
 
     public void refresh() {

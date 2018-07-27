@@ -59,19 +59,19 @@ public class PlayerInteractionListener implements Listener {
 //            System.out.println("Attempting to use " + name);
 
             MinecraftPlayer mcplayer = this.main.getBootstrap().getPlayerManager().getPlayer(event.getPlayer().getUniqueId());
-            WalletCheckoutManager checkout = mcplayer.getWallet().accessCheckoutManager();
+            try {
+                WalletCheckoutManager checkout = mcplayer.getWallet().accessCheckoutManager();
 
-            String tokenId = checkout.getTokenId(event.getItem());
-            if (tokenId != null) { // item is tagged as a cryptoItem
-                // do thing with item based on tagged type: CONSUMABLE, REUSABLE, etc.
-                int amount = event.getItem().getAmount();
+                String tokenId = checkout.getTokenId(event.getItem());
+                if (tokenId != null) { // item is tagged as a cryptoItem
+                    // do thing with item based on tagged type: CONSUMABLE, REUSABLE, etc.
+                    int amount = event.getItem().getAmount();
 
-                // get a copy of the item so we can replace it in the inventory after use.
-                // This is used for consumable items who's quantity is cannot be represented in a stack.
-                ItemStack clone = event.getItem().clone();
-
-//                System.out.println(name + " is a tagged as a CryptoItem.");
-            }
+                    // get a copy of the item so we can replace it in the inventory after use.
+                    // This is used for consumable items who's quantity is cannot be represented in a stack.
+                    ItemStack clone = event.getItem().clone();
+                }
+            } catch (Exception e) { }
         }
 
     }

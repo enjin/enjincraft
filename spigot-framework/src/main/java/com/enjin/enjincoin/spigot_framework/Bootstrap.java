@@ -1,5 +1,6 @@
 package com.enjin.enjincoin.spigot_framework;
 
+import com.enjin.enjincoin.spigot_framework.controllers.ConversationManager;
 import com.enjin.enjincoin.spigot_framework.player.PlayerManager;
 import com.google.gson.JsonObject;
 import com.enjin.enjincoin.sdk.client.service.tokens.vo.Token;
@@ -28,6 +29,15 @@ public interface Bootstrap {
      * @since 1.0
      */
     void tearDown();
+
+    /**
+     * <p>Returns the plugin's conversation manager</p>
+     *
+     * @return the plugins conversation manager
+     *
+     * @since 1.0
+     */
+    ConversationManager getConversationManager();
 
     /**
      * <p>Returns the Enjin Coin SDK client controller.</p>

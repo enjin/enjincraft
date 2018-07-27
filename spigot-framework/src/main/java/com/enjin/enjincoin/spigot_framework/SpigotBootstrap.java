@@ -5,7 +5,6 @@ import com.enjin.enjincoin.sdk.client.service.tokens.vo.Token;
 import com.enjin.enjincoin.sdk.client.service.tokens.vo.data.TokensData;
 import com.enjin.enjincoin.spigot_framework.controllers.ConversationManager;
 import com.enjin.enjincoin.spigot_framework.listeners.ConnectionListener;
-import com.enjin.enjincoin.spigot_framework.listeners.ConversationListener;
 import com.enjin.enjincoin.spigot_framework.listeners.InventoryListener;
 import com.enjin.enjincoin.spigot_framework.listeners.PlayerInteractionListener;
 import com.enjin.enjincoin.spigot_framework.player.PlayerManager;
@@ -18,6 +17,8 @@ import com.enjin.enjincoin.spigot_framework.commands.RootCommand;
 import com.enjin.enjincoin.spigot_framework.controllers.SdkClientController;
 import com.enjin.enjincoin.spigot_framework.listeners.notifications.GenericNotificationListener;
 import org.bukkit.Bukkit;
+import org.bukkit.conversations.ConversationFactory;
+import org.bukkit.scoreboard.ScoreboardManager;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -66,6 +67,10 @@ public class SpigotBootstrap extends PluginBootstrap {
      */
     private ConversationManager conversationManager;
 
+    private ConversationFactory conversationFactory;
+
+    private ScoreboardManager scoreboardManager;
+
     /**
      * <p>The mapping of token IDs and associated data.</p>
      */
@@ -83,7 +88,9 @@ public class SpigotBootstrap extends PluginBootstrap {
     @Override
     public void setUp() {
         this.playerManager = new PlayerManager(this.main);
-        this.conversationManager = new ConversationManager(this.main);
+//        this.conversationManager = new ConversationManager(this.main);
+        this.conversationFactory = new ConversationFactory(this.main);
+        this.scoreboardManager = Bukkit.getScoreboardManager();
         this.tokens = new ConcurrentHashMap<>();
 
         // Load the config to ensure that it is created or already exists.
@@ -152,7 +159,7 @@ public class SpigotBootstrap extends PluginBootstrap {
         Bukkit.getPluginManager().registerEvents(new ConnectionListener(this.main), this.main);
         Bukkit.getPluginManager().registerEvents(new InventoryListener(this.main), this.main);
         Bukkit.getPluginManager().registerEvents(new PlayerInteractionListener(this.main), this.main);
-        Bukkit.getPluginManager().registerEvents(new ConversationListener(this.main), this.main);
+//        Bukkit.getPluginManager().registerEvents(new ConversationListener(this.main), this.main);
 
         // Register Commands
         this.main.getCommand("enj").setExecutor(new RootCommand(this.main));
@@ -163,6 +170,13 @@ public class SpigotBootstrap extends PluginBootstrap {
         this.sdkClientController.tearDown();
         this.sdkClientController = null;
     }
+
+    public ScoreboardManager getScoreboardManager() { return this.scoreboardManager; }
+
+    public ConversationFactory getConversationFactory() { return this.conversationFactory; }
+
+    @Override
+    public ConversationManager getConversationManager() { return this.conversationManager; }
 
     @Override
     public SdkClientController getSdkController() {

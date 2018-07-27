@@ -2,10 +2,15 @@ package com.enjin.enjincoin.spigot_framework.commands;
 
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.commands.subcommands.*;
-import org.bukkit.ChatColor;
+import com.enjin.enjincoin.spigot_framework.conversations.TradePrompt;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.conversations.Conversation;
+import org.bukkit.conversations.ConversationContext;
+import org.bukkit.conversations.ConversationFactory;
+import org.bukkit.conversations.ConversationPrefix;
+import org.bukkit.entity.Player;
 
 import java.util.*;
 
@@ -45,11 +50,11 @@ public class RootCommand implements CommandExecutor {
      * <p>Help command handler instance.</p>
      */
     private final HelpCommand help;
-
-    /**
-     * <p>Trade command handler instance.</p>
-     */
-    private final TradeCommand trade;
+//
+//    /**
+//     * <p>Trade command handler instance.</p>
+//     */
+//    private final TradeCmd trade;
 
     /**
      * <p>commands list and details</p>
@@ -72,7 +77,7 @@ public class RootCommand implements CommandExecutor {
         this.wallet = new WalletCommand(main);
         this.balance = new BalanceCommand(main);
         this.help = new HelpCommand(main);
-        this.trade = new TradeCommand(main);
+//        this.trade = new TradeCmd(main);
     }
 
     public Map<String, String> getCommandsMap() { return commands; }
@@ -100,7 +105,22 @@ public class RootCommand implements CommandExecutor {
                     this.unlink.execute(sender, subArgs);
                     break;
                 case "trade":
-                    this.trade.execute(sender, subArgs);
+                    ConversationFactory cf = this.main.getBootstrap().getConversationFactory();
+                    Conversation conv = cf
+                            .withTimeout(20)
+                            .withModality(true)
+                            .withEscapeSequence("/quit")
+                            .withLocalEcho(true)
+                            .withPrefix(new ConversationPrefix() {
+                                @Override
+                                public String getPrefix(ConversationContext conversationContext) {
+                                    return "[- ENJ -]";
+                                }
+                            })
+                            .withFirstPrompt(new TradePrompt.FirstPrompt("I'm fine. How are you?"))
+                        .withLocalEcho(true)
+                        .buildConversation((Player) sender);
+                    conv.begin();
                     break;
                 default:
                     sender.sendMessage(String.format("No sub-command with alias %s exists.", sub));
