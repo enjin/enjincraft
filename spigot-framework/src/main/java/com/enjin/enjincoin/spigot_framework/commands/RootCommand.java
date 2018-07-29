@@ -52,6 +52,11 @@ public class RootCommand implements CommandExecutor {
     private final TradeCommand trade;
 
     /**
+     * <p>Trade ui command handler instance.</p>
+     */
+    private final TradeUICommand tradeui;
+
+    /**
      * <p>Provides a click-text menu for accessing commands</p>
      */
     private final MenuCommand menu;
@@ -78,6 +83,7 @@ public class RootCommand implements CommandExecutor {
         this.balance = new BalanceCommand(main);
         this.help = new HelpCommand(main);
         this.trade = new TradeCommand(main);
+        this.tradeui = new TradeUICommand(main);
         this.menu = new MenuCommand(main);
     }
 
@@ -92,6 +98,8 @@ public class RootCommand implements CommandExecutor {
             return false;
         }
 
+        Player player = (Player) sender;
+
         if (args.length > 0) {
             String sub = args[0];
             String[] subArgs = args.length == 1 ? new String[0] : Arrays.copyOfRange(args, 1, args.length);
@@ -100,26 +108,29 @@ public class RootCommand implements CommandExecutor {
                     this.link.execute(sender, subArgs);
                     break;
                 case "wallet": // TODO: Refactor wallet command around MinecraftPlayer
-                    this.wallet.execute(sender, subArgs);
+                    this.wallet.execute(player, subArgs);
                     break;
                 case "balance":
-                    this.balance.execute(sender, subArgs);
+                    this.balance.execute(player, subArgs);
                     break;
                 case "help":
-                    this.help.execute(sender);
+                    this.help.execute(player);
                     break;
                 case "unlink":
-                    this.unlink.execute(sender, subArgs);
+                    this.unlink.execute(player, subArgs);
                     break;
                 case "trade":
-                    this.trade.execute(sender, subArgs);
+                    this.trade.execute(player, subArgs);
+                    break;
+                case "tradeui":
+                    this.tradeui.execute(player, subArgs);
                     break;
                 case "menu":
-                    this.menu.execute(sender, subArgs);
+                    this.menu.execute(player, subArgs);
                 default:
-                    sender.sendMessage(String.format("No sub-command with alias %s exists.", sub));
-                    this.help.execute(sender);
-                    this.menu.execute(sender, subArgs);
+                    player.sendMessage(String.format("No sub-command with alias %s exists.", sub));
+                    this.help.execute(player);
+                    this.menu.execute(player, subArgs);
                     break;
             }
         } else {

@@ -2,6 +2,7 @@ package com.enjin.enjincoin.spigot_framework;
 
 import com.enjin.enjincoin.spigot_framework.controllers.ConversationManager;
 import com.enjin.enjincoin.spigot_framework.player.PlayerManager;
+import com.enjin.minecraft_commons.spigot.ui.MenuAPI;
 import com.google.gson.JsonObject;
 import com.enjin.enjincoin.sdk.client.service.tokens.vo.Token;
 import com.enjin.enjincoin.spigot_framework.controllers.SdkClientController;
@@ -31,13 +32,22 @@ public interface Bootstrap {
     void tearDown();
 
     /**
-     * <p>Returns the plugin's conversation manager</p>
+     * <p>Returns the ConversationManager instance.</p>
      *
-     * @return the plugins conversation manager
+     * @return the conversation manager
      *
      * @since 1.0
      */
     ConversationManager getConversationManager();
+
+    /**
+     * <p>Returns the MenuAPI instance.</p>
+     *
+     * @return the menu api
+     *
+     * @since 1.0
+     */
+    MenuAPI getMenuAPI();
 
     /**
      * <p>Returns the Enjin Coin SDK client controller.</p>

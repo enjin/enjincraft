@@ -8,6 +8,7 @@ import com.enjin.enjincoin.spigot_framework.listeners.ConnectionListener;
 import com.enjin.enjincoin.spigot_framework.listeners.InventoryListener;
 import com.enjin.enjincoin.spigot_framework.listeners.PlayerInteractionListener;
 import com.enjin.enjincoin.spigot_framework.player.PlayerManager;
+import com.enjin.minecraft_commons.spigot.ui.MenuAPI;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -69,6 +70,8 @@ public class SpigotBootstrap extends PluginBootstrap {
 
     private ConversationFactory conversationFactory;
 
+    private MenuAPI menuApi;
+
     private ScoreboardManager scoreboardManager;
 
     /**
@@ -90,6 +93,7 @@ public class SpigotBootstrap extends PluginBootstrap {
         this.playerManager = new PlayerManager(this.main);
 //        this.conversationManager = new ConversationManager(this.main);
         this.conversationFactory = new ConversationFactory(this.main);
+        this.menuApi = new MenuAPI(this.main);
         this.scoreboardManager = Bukkit.getScoreboardManager();
         this.tokens = new ConcurrentHashMap<>();
 
@@ -177,6 +181,11 @@ public class SpigotBootstrap extends PluginBootstrap {
 
     @Override
     public ConversationManager getConversationManager() { return this.conversationManager; }
+
+    @Override
+    public MenuAPI getMenuAPI() {
+        return this.menuApi;
+    }
 
     @Override
     public SdkClientController getSdkController() {

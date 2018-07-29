@@ -61,7 +61,7 @@ public class TradeCommand {
         // no tokens to trade
         if (identity == null || identity.getTokens().isEmpty()) return;
 
-        sender.sendMessage(ChatColor.GOLD + "Currently Online Players: " + "" + Bukkit.getServer().getOnlinePlayers().size() + "/120");
+        sender.sendMessage(ChatColor.GOLD + "Currently Online Players: " + "" + Bukkit.getServer().getOnlinePlayers().size() + "/" + Bukkit.getServer().getMaxPlayers());
         for(Player p : Bukkit.getOnlinePlayers()) {
             sender.sendMessage(ChatColor.GREEN + "" + p.getDisplayName() );
         }
