@@ -1,8 +1,7 @@
-package com.enjin.enjincoin.spigot_framework.inventory;
+package com.enjin.enjincoin.spigot_framework.ui.legacy;
 
-import com.enjin.enjincoin.spigot_framework.ui.SkullMenuItem;
-import com.enjin.minecraft_commons.spigot.ui.Menu;
-import com.enjin.minecraft_commons.spigot.ui.MenuItem;
+import com.enjin.minecraft_commons.spigot.ui.legacy.Menu;
+import com.enjin.minecraft_commons.spigot.ui.legacy.MenuItem;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;

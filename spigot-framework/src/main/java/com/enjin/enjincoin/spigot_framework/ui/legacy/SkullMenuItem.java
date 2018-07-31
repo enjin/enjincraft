@@ -1,6 +1,6 @@
-package com.enjin.enjincoin.spigot_framework.ui;
+package com.enjin.enjincoin.spigot_framework.ui.legacy;
 
-import com.enjin.minecraft_commons.spigot.ui.MenuItem;
+import com.enjin.minecraft_commons.spigot.ui.legacy.MenuItem;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.inventory.ItemStack;

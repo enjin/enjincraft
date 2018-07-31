@@ -1,17 +1,12 @@
 package com.enjin.enjincoin.spigot_framework.commands.subcommands;
 
-import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
-import com.enjin.enjincoin.spigot_framework.inventory.PlayerSelection;
+import com.enjin.enjincoin.spigot_framework.ui.legacy.PlayerSelection;
 import com.enjin.enjincoin.spigot_framework.player.MinecraftPlayer;
 import com.enjin.enjincoin.spigot_framework.player.PlayerManager;
 import com.enjin.enjincoin.spigot_framework.util.MessageUtils;
-import com.enjin.minecraft_commons.spigot.ui.MenuAPI;
 import net.kyori.text.TextComponent;
-import net.kyori.text.event.ClickEvent;
 import net.kyori.text.format.TextColor;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
