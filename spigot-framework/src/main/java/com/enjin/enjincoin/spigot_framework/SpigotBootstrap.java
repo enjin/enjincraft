@@ -8,7 +8,7 @@ import com.enjin.enjincoin.spigot_framework.listeners.ConnectionListener;
 import com.enjin.enjincoin.spigot_framework.listeners.InventoryListener;
 import com.enjin.enjincoin.spigot_framework.listeners.PlayerInteractionListener;
 import com.enjin.enjincoin.spigot_framework.player.PlayerManager;
-import com.enjin.minecraft_commons.spigot.ui.MenuAPI;
+import com.enjin.minecraft_commons.spigot.ui.legacy.MenuAPI;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;

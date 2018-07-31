@@ -2,7 +2,7 @@ package com.enjin.enjincoin.spigot_framework;
 
 import com.enjin.enjincoin.spigot_framework.controllers.ConversationManager;
 import com.enjin.enjincoin.spigot_framework.player.PlayerManager;
-import com.enjin.minecraft_commons.spigot.ui.MenuAPI;
+import com.enjin.minecraft_commons.spigot.ui.legacy.MenuAPI;
 import com.google.gson.JsonObject;
 import com.enjin.enjincoin.sdk.client.service.tokens.vo.Token;
 import com.enjin.enjincoin.spigot_framework.controllers.SdkClientController;
