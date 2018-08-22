@@ -3,12 +3,10 @@ package com.enjin.enjincoin.spigot_framework;
 import com.enjin.enjincoin.sdk.client.model.body.GraphQLResponse;
 import com.enjin.enjincoin.sdk.client.service.tokens.vo.Token;
 import com.enjin.enjincoin.sdk.client.service.tokens.vo.data.TokensData;
-import com.enjin.enjincoin.spigot_framework.controllers.ConversationManager;
 import com.enjin.enjincoin.spigot_framework.listeners.ConnectionListener;
 import com.enjin.enjincoin.spigot_framework.listeners.InventoryListener;
 import com.enjin.enjincoin.spigot_framework.listeners.PlayerInteractionListener;
 import com.enjin.enjincoin.spigot_framework.player.PlayerManager;
-import com.enjin.minecraft_commons.spigot.ui.legacy.MenuAPI;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -63,14 +61,7 @@ public class SpigotBootstrap extends PluginBootstrap {
      */
     private PlayerManager playerManager;
 
-    /**
-     * <p>Conversation controller.</p>
-     */
-    private ConversationManager conversationManager;
-
     private ConversationFactory conversationFactory;
-
-    private MenuAPI menuApi;
 
     private ScoreboardManager scoreboardManager;
 
@@ -91,9 +82,7 @@ public class SpigotBootstrap extends PluginBootstrap {
     @Override
     public void setUp() {
         this.playerManager = new PlayerManager(this.main);
-//        this.conversationManager = new ConversationManager(this.main);
         this.conversationFactory = new ConversationFactory(this.main);
-        this.menuApi = new MenuAPI(this.main);
         this.scoreboardManager = Bukkit.getScoreboardManager();
         this.tokens = new ConcurrentHashMap<>();
 
@@ -178,14 +167,6 @@ public class SpigotBootstrap extends PluginBootstrap {
     public ScoreboardManager getScoreboardManager() { return this.scoreboardManager; }
 
     public ConversationFactory getConversationFactory() { return this.conversationFactory; }
-
-    @Override
-    public ConversationManager getConversationManager() { return this.conversationManager; }
-
-    @Override
-    public MenuAPI getMenuAPI() {
-        return this.menuApi;
-    }
 
     @Override
     public SdkClientController getSdkController() {

@@ -1,7 +1,6 @@
 package com.enjin.enjincoin.spigot_framework.commands.subcommands;
 
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
-import com.enjin.enjincoin.spigot_framework.ui.legacy.PlayerSelection;
 import com.enjin.enjincoin.spigot_framework.player.MinecraftPlayer;
 import com.enjin.enjincoin.spigot_framework.player.PlayerManager;
 import com.enjin.enjincoin.spigot_framework.util.MessageUtils;
@@ -50,8 +49,7 @@ public class TradeUICommand {
             return;
         }
 
-        PlayerSelection playerSelectionMenu = new PlayerSelection(sender.getUniqueId());
-        playerSelectionMenu.openMenu(sender);
+        // TODO
     }
 
     private void errorInvalidUuid(CommandSender sender) {
