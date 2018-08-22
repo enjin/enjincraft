@@ -51,11 +51,20 @@ public class TradeManager implements Listener {
         player.getReceivedTradeInvites().forEach(other -> other.getSentTradeInvites().remove(player));
 
         TradeView tradeView = player.getActiveTradeView();
-        TradeView otherTradeView = tradeView.getOther().getActiveTradeView();
+        if (tradeView != null && tradeView.getOther() != null) {
+            player.setActiveTradeView(null);
+            tradeView.destroy();
 
-        player.setActiveTradeView(null);
-        if (otherTradeView != null) {
-            otherTradeView.destroy();
+            MinecraftPlayer other = tradeView.getOther();
+            if (other != null) {
+                TradeView otherTradeView = other.getActiveTradeView();
+                if (otherTradeView != null) {
+                    if (otherTradeView != null) {
+                        otherTradeView.removePlayer(other.getBukkitPlayer());
+                        otherTradeView.destroy();
+                    }
+                }
+            }
         }
     }
 
