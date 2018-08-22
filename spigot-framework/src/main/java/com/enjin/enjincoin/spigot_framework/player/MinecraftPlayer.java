@@ -6,6 +6,7 @@ import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
 import com.enjin.enjincoin.sdk.client.service.users.vo.User;
 import com.enjin.enjincoin.sdk.client.service.users.vo.data.UsersData;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
+import com.enjin.enjincoin.spigot_framework.trade.TradeView;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -40,6 +41,7 @@ public class MinecraftPlayer {
     // Trade Fields
     private List<MinecraftPlayer> sentTradeInvites = new ArrayList<>();
     private List<MinecraftPlayer> receivedTradeInvites = new ArrayList<>();
+    private TradeView activeTradeView;
 
     public MinecraftPlayer(BasePlugin plugin, Player player) {
         this.plugin = plugin;
@@ -181,5 +183,13 @@ public class MinecraftPlayer {
 //                setScoreBoard();
 //            }
 //        });
+    }
+
+    public TradeView getActiveTradeView() {
+        return activeTradeView;
+    }
+
+    public void setActiveTradeView(TradeView activeTradeView) {
+        this.activeTradeView = activeTradeView;
     }
 }

@@ -29,12 +29,34 @@ public class TradeManager implements Listener {
         return result;
     }
 
+    public boolean acceptInvite(MinecraftPlayer sender, MinecraftPlayer target) {
+        boolean result = inviteExists(sender, target);
+
+        if (result) {
+            sender.getSentTradeInvites().remove(target);
+            target.getReceivedTradeInvites().remove(target);
+
+            sender.setActiveTradeView(new TradeView(sender, target));
+            target.setActiveTradeView(new TradeView(target, sender));
+        }
+
+        return result;
+    }
+
     @EventHandler
     public void onMinecraftPlayerQuit(MinecraftPlayerQuitEvent event) {
         MinecraftPlayer player = event.getPlayer();
 
         player.getSentTradeInvites().forEach(other -> other.getReceivedTradeInvites().remove(player));
         player.getReceivedTradeInvites().forEach(other -> other.getSentTradeInvites().remove(player));
+
+        TradeView tradeView = player.getActiveTradeView();
+        TradeView otherTradeView = tradeView.getOther().getActiveTradeView();
+
+        player.setActiveTradeView(null);
+        if (otherTradeView != null) {
+            otherTradeView.destroy();
+        }
     }
 
 }

@@ -64,8 +64,6 @@ public class SpigotBootstrap extends PluginBootstrap {
 
     private TradeManager tradeManager;
 
-    private ConversationFactory conversationFactory;
-
     private ScoreboardManager scoreboardManager;
 
     /**
@@ -86,7 +84,6 @@ public class SpigotBootstrap extends PluginBootstrap {
     public void setUp() {
         this.playerManager = new PlayerManager(this.main);
         this.tradeManager = new TradeManager(this.main);
-        this.conversationFactory = new ConversationFactory(this.main);
         this.scoreboardManager = Bukkit.getScoreboardManager();
         this.tokens = new ConcurrentHashMap<>();
 
@@ -152,11 +149,11 @@ public class SpigotBootstrap extends PluginBootstrap {
 
         // Register Listeners
         Bukkit.getPluginManager().registerEvents(this.playerManager, this.main);
+        Bukkit.getPluginManager().registerEvents(this.tradeManager, this.main);
         // TODO: Refactor/migrate features from ConnectionListener/InventoryListener
         Bukkit.getPluginManager().registerEvents(new ConnectionListener(this.main), this.main);
         Bukkit.getPluginManager().registerEvents(new InventoryListener(this.main), this.main);
         Bukkit.getPluginManager().registerEvents(new PlayerInteractionListener(this.main), this.main);
-//        Bukkit.getPluginManager().registerEvents(new ConversationListener(this.main), this.main);
 
         // Register Commands
         this.main.getCommand("enj").setExecutor(new RootCommand(this.main));
@@ -169,8 +166,6 @@ public class SpigotBootstrap extends PluginBootstrap {
     }
 
     public ScoreboardManager getScoreboardManager() { return this.scoreboardManager; }
-
-    public ConversationFactory getConversationFactory() { return this.conversationFactory; }
 
     @Override
     public SdkClientController getSdkController() {

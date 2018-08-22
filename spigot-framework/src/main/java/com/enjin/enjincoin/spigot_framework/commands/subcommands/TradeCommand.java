@@ -61,6 +61,8 @@ public class TradeCommand {
                 legacy(sender, subArgs);
             } else if (sub.equalsIgnoreCase("invite")) {
                 invite(sender, subArgs);
+            } else if (sub.equalsIgnoreCase("accept")) {
+                inviteAccept(sender, subArgs);
             }
         }
     }
@@ -112,8 +114,18 @@ public class TradeCommand {
     private void inviteAccept(Player sender, String[] args) {
         if (args.length > 0) {
             Player target = Bukkit.getPlayer(args[0]);
+            if (target != null) {
+                PlayerManager playerManager = this.plugin.getBootstrap().getPlayerManager();
+                TradeManager tradeManager = this.plugin.getBootstrap().getTradeManager();
+                MinecraftPlayer senderMP = playerManager.getPlayer(target.getUniqueId());
+                MinecraftPlayer targetMP = playerManager.getPlayer(sender.getUniqueId());
 
-            // TODO: Accept player invite in trade manager.
+                boolean result = tradeManager.acceptInvite(senderMP, targetMP);
+
+                if (!result) {
+                    // TODO: No open invite or player is already in a trade
+                }
+            }
         } else {
             // TODO: Error: no player name was provided!
         }
