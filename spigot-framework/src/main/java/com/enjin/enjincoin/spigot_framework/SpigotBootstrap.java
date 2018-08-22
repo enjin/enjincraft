@@ -7,6 +7,7 @@ import com.enjin.enjincoin.spigot_framework.listeners.ConnectionListener;
 import com.enjin.enjincoin.spigot_framework.listeners.InventoryListener;
 import com.enjin.enjincoin.spigot_framework.listeners.PlayerInteractionListener;
 import com.enjin.enjincoin.spigot_framework.player.PlayerManager;
+import com.enjin.enjincoin.spigot_framework.trade.TradeManager;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -61,6 +62,8 @@ public class SpigotBootstrap extends PluginBootstrap {
      */
     private PlayerManager playerManager;
 
+    private TradeManager tradeManager;
+
     private ConversationFactory conversationFactory;
 
     private ScoreboardManager scoreboardManager;
@@ -82,6 +85,7 @@ public class SpigotBootstrap extends PluginBootstrap {
     @Override
     public void setUp() {
         this.playerManager = new PlayerManager(this.main);
+        this.tradeManager = new TradeManager(this.main);
         this.conversationFactory = new ConversationFactory(this.main);
         this.scoreboardManager = Bukkit.getScoreboardManager();
         this.tokens = new ConcurrentHashMap<>();
@@ -176,6 +180,11 @@ public class SpigotBootstrap extends PluginBootstrap {
     @Override
     public PlayerManager getPlayerManager() {
         return this.playerManager;
+    }
+
+    @Override
+    public TradeManager getTradeManager() {
+        return this.tradeManager;
     }
 
     @Override

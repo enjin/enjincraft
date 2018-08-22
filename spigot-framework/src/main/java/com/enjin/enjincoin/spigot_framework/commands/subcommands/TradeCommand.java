@@ -3,6 +3,8 @@ package com.enjin.enjincoin.spigot_framework.commands.subcommands;
 import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.player.MinecraftPlayer;
+import com.enjin.enjincoin.spigot_framework.player.PlayerManager;
+import com.enjin.enjincoin.spigot_framework.trade.TradeManager;
 import com.enjin.enjincoin.spigot_framework.util.MessageUtils;
 import net.kyori.text.TextComponent;
 import net.kyori.text.event.ClickEvent;
@@ -14,6 +16,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
+
+import java.util.Arrays;
 
 import static org.bukkit.Bukkit.getServer;
 
@@ -49,9 +53,84 @@ public class TradeCommand {
      *
      * @since 1.0
      */
-    public void execute(CommandSender sender, String[] args) {
-        Player player = (Player) sender;
-        MinecraftPlayer mcplayer = this.plugin.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId());
+    public void execute(Player sender, String[] args) {
+        if (args.length > 0) {
+            String sub = args[0];
+            String[] subArgs = args.length == 1 ? new String[0] : Arrays.copyOfRange(args, 1, args.length);
+            if (sub.equalsIgnoreCase("legacy")) {
+                legacy(sender, subArgs);
+            } else if (sub.equalsIgnoreCase("invite")) {
+                invite(sender, subArgs);
+            }
+        }
+    }
+
+    private void invite(Player sender, String[] args) {
+        if (args.length > 0) {
+            Player target = Bukkit.getPlayer(args[0]);
+            if (target != null) {
+                if (target != sender) {
+                    PlayerManager playerManager = this.plugin.getBootstrap().getPlayerManager();
+                    TradeManager tradeManager = this.plugin.getBootstrap().getTradeManager();
+                    MinecraftPlayer senderMP = playerManager.getPlayer(sender.getUniqueId());
+                    MinecraftPlayer targetMP = playerManager.getPlayer(target.getUniqueId());
+                    boolean result = tradeManager.addInvite(senderMP, targetMP);
+
+                    if (result) {
+                        final TextComponent.Builder inviteMessageBuilder = TextComponent.builder("")
+                                .color(TextColor.GRAY)
+                                .append(TextComponent.builder(String.format("%s", sender.getName()))
+                                        .color(TextColor.GOLD)
+                                        .build())
+                                .append(TextComponent.of(" has invited you to trade. "))
+                                .append(TextComponent.builder("Accept")
+                                        .color(TextColor.GREEN)
+                                        .clickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
+                                                String.format("/enj trade accept %s", sender.getName())))
+                                        .build())
+                                .append(TextComponent.of(" | "))
+                                .append(TextComponent.builder("Decline")
+                                        .color(TextColor.RED)
+                                        .clickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
+                                                String.format("/enj trade decline %s", sender.getName())))
+                                        .build());
+                        MessageUtils.sendMessage(target, inviteMessageBuilder.build());
+                    } else {
+                        // TODO: Info: a trade invite with that player is already open!
+                    }
+                } else {
+                    // TODO: Error: cannot invite yourself to trade!
+                }
+            } else {
+                // TODO: Error: could not find the player you specified!
+            }
+        } else {
+            // TODO: Display some form of player selection ui.
+        }
+    }
+
+    private void inviteAccept(Player sender, String[] args) {
+        if (args.length > 0) {
+            Player target = Bukkit.getPlayer(args[0]);
+
+            // TODO: Accept player invite in trade manager.
+        } else {
+            // TODO: Error: no player name was provided!
+        }
+    }
+
+    private void inviteDecline(Player sender, String[] args) {
+        if (args.length > 0) {
+            Player target = Bukkit.getPlayer(args[0]);
+
+            // TODO: Decline player invite in trade manager.
+        } else {
+            // TODO: Error: no player name was provided!
+        }
+    }
+
+    private void legacy(Player sender, String[] args) {
+        MinecraftPlayer mcplayer = this.plugin.getBootstrap().getPlayerManager().getPlayer(sender.getUniqueId());
 
         // not a minecraft player...
         if (mcplayer == null) return;
@@ -188,8 +267,6 @@ public class TradeCommand {
         }
 
         MessageUtils.sendMessage(sender, component.build());
-
-        return;
     }
 
     private void errorInvalidUuid(CommandSender sender) {

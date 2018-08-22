@@ -12,15 +12,18 @@ import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.*;
 import retrofit2.Response;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public class MinecraftPlayer {
 
-    // Bukkit Objects
+    // Bukkit Fields
     private BasePlugin plugin;
     private Player bukkitPlayer;
 
-    // Trusted Platform Data
+    // Trusted Platform Data Fields
     private UserData userData;
     private Identity identity;
     private IdentityData identityData;
@@ -30,17 +33,18 @@ public class MinecraftPlayer {
     private boolean userLoaded;
     private boolean identityLoaded;
 
-    // Helper Objects
+    // Helper Fields
     private User user;
     private Scoreboard scoreboard;
 
-    // Scoreboard for the given player
-    private Scoreboard board;
+    // Trade Fields
+    private List<MinecraftPlayer> sentTradeInvites = new ArrayList<>();
+    private List<MinecraftPlayer> receivedTradeInvites = new ArrayList<>();
 
     public MinecraftPlayer(BasePlugin plugin, Player player) {
         this.plugin = plugin;
         this.bukkitPlayer = player;
-        this.board = Bukkit.getScoreboardManager().getNewScoreboard();
+        this.scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
     }
 
     public Player getBukkitPlayer() {
@@ -131,6 +135,8 @@ public class MinecraftPlayer {
     }
 
     protected void cleanUp() {
+        PlayerInitializationTask.cleanUp(bukkitPlayer.getUniqueId());
+
         this.bukkitPlayer = null;
     }
 
@@ -139,6 +145,14 @@ public class MinecraftPlayer {
     public void setScoreboard(Scoreboard scoreboard) {
         this.scoreboard = scoreboard;
         bukkitPlayer.setScoreboard(this.scoreboard);
+    }
+
+    public List<MinecraftPlayer> getSentTradeInvites() {
+        return sentTradeInvites;
+    }
+
+    public List<MinecraftPlayer> getReceivedTradeInvites() {
+        return receivedTradeInvites;
     }
 
     public void setScoreboard() {

@@ -1,6 +1,8 @@
 package com.enjin.enjincoin.spigot_framework.player;
 
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
+import com.enjin.enjincoin.spigot_framework.event.MinecraftPlayerQuitEvent;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -38,7 +40,12 @@ public class PlayerManager implements Listener {
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
-        removePlayer(event.getPlayer());
+        MinecraftPlayer player = removePlayer(event.getPlayer());
+
+        if (player != null) {
+            Bukkit.getPluginManager().callEvent(new MinecraftPlayerQuitEvent(player));
+            player.cleanUp();
+        }
     }
 
     public Map<UUID, MinecraftPlayer> getPlayers() {
@@ -63,13 +70,8 @@ public class PlayerManager implements Listener {
         this.players.put(minecraftPlayer.getBukkitPlayer().getUniqueId(), minecraftPlayer);
     }
 
-    public void removePlayer(Player bukkitPlayer) {
-        MinecraftPlayer user = this.players.remove(bukkitPlayer.getUniqueId());
-        if (user != null) {
-            user.cleanUp();
-        }
-
-        PlayerInitializationTask.cleanUp(bukkitPlayer.getUniqueId());
+    public MinecraftPlayer removePlayer(Player bukkitPlayer) {
+        return this.players.remove(bukkitPlayer.getUniqueId());
     }
 
 }

@@ -1,6 +1,7 @@
 package com.enjin.enjincoin.spigot_framework;
 
 import com.enjin.enjincoin.spigot_framework.player.PlayerManager;
+import com.enjin.enjincoin.spigot_framework.trade.TradeManager;
 import com.google.gson.JsonObject;
 import com.enjin.enjincoin.sdk.client.service.tokens.vo.Token;
 import com.enjin.enjincoin.spigot_framework.controllers.SdkClientController;
@@ -47,6 +48,8 @@ public interface Bootstrap {
      * @since 1.0
      */
     PlayerManager getPlayerManager();
+
+    TradeManager getTradeManager();
 
     /**
      * <p>Returns a mapping of token IDs and the associated token data.</p>

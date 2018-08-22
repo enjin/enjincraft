@@ -52,11 +52,6 @@ public class RootCommand implements CommandExecutor {
     private final TradeCommand trade;
 
     /**
-     * <p>Trade ui command handler instance.</p>
-     */
-    private final TradeUICommand tradeui;
-
-    /**
      * <p>Provides a click-text menu for accessing commands</p>
      */
     private final MenuCommand menu;
@@ -83,7 +78,6 @@ public class RootCommand implements CommandExecutor {
         this.balance = new BalanceCommand(main);
         this.help = new HelpCommand(main);
         this.trade = new TradeCommand(main);
-        this.tradeui = new TradeUICommand(main);
         this.menu = new MenuCommand(main);
     }
 
@@ -121,9 +115,6 @@ public class RootCommand implements CommandExecutor {
                     break;
                 case "trade":
                     this.trade.execute(player, subArgs);
-                    break;
-                case "tradeui":
-                    this.tradeui.execute(player, subArgs);
                     break;
                 case "menu":
                     this.menu.execute(player, subArgs);
