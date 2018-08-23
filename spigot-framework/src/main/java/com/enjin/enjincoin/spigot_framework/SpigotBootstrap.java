@@ -152,7 +152,7 @@ public class SpigotBootstrap extends PluginBootstrap {
         Bukkit.getPluginManager().registerEvents(this.tradeManager, this.main);
         // TODO: Refactor/migrate features from ConnectionListener/InventoryListener
         Bukkit.getPluginManager().registerEvents(new ConnectionListener(this.main), this.main);
-        Bukkit.getPluginManager().registerEvents(new InventoryListener(this.main), this.main);
+//        Bukkit.getPluginManager().registerEvents(new InventoryListener(this.main), this.main);
         Bukkit.getPluginManager().registerEvents(new PlayerInteractionListener(this.main), this.main);
 
         // Register Commands

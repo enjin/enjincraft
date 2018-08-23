@@ -67,12 +67,13 @@ public class InventoryListener implements Listener {
      */
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInventoryDrag(InventoryDragEvent event) {
-        if (event.getInventory() == null) {
-            event.setCancelled(true);
+        if (event.getInventory() == null || !isWalletInventory(event.getInventory()))
             return;
-        }
 
         Player player = (Player) event.getInventory().getHolder();
+        if (player == null)
+            return;
+
         MinecraftPlayer mcplayer = this.main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId());
 
         if (ChatColor.stripColor(event.getView().getTitle()).equalsIgnoreCase("container.crafting")) {

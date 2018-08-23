@@ -30,17 +30,21 @@ public class TradeView extends ChestMenu {
     }
 
     private void init() {
-        this.viewerItemsComponent = new SimpleMenuComponent(new Dimension(4, 4));
-        this.viewerStatusComponent = new SimpleMenuComponent(new Dimension(4, 1));
+        allowPlayerInventoryInteractions(true);
 
+        this.viewerItemsComponent = new SimpleMenuComponent(new Dimension(4, 4));
+        this.viewerItemsComponent.setAllowPickup(true);
+        this.viewerItemsComponent.setAllowPlace(true);
+
+        this.viewerStatusComponent = new SimpleMenuComponent(new Dimension(4, 1));
         this.viewerStatusComponent.setItem(Position.of(0, 0), getPlayerHead(viewer.getBukkitPlayer(), true));
         this.viewerStatusComponent.setItem(Position.of(1, 0), new ItemStack(Material.HOPPER));
         this.viewerStatusComponent.setItem(Position.of(2, 0), new ItemStack(Material.BARRIER));
         this.viewerStatusComponent.setItem(Position.of(3, 0), new ItemStack(Material.RED_STAINED_GLASS_PANE));
 
         this.otherItemsComponent = new SimpleMenuComponent(new Dimension(4, 4));
-        this.otherStatusComponent = new SimpleMenuComponent(new Dimension(4, 1));
 
+        this.otherStatusComponent = new SimpleMenuComponent(new Dimension(4, 1));
         this.otherStatusComponent.setItem(Position.of(0, 0), getPlayerHead(other.getBukkitPlayer(), false));
         this.otherStatusComponent.setItem(Position.of(3, 0), new ItemStack(Material.RED_STAINED_GLASS_PANE));
 
