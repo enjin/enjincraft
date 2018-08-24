@@ -33,8 +33,9 @@ public class TradeView extends ChestMenu {
         allowPlayerInventoryInteractions(true);
 
         this.viewerItemsComponent = new SimpleMenuComponent(new Dimension(4, 4));
-        this.viewerItemsComponent.setAllowPickup(true);
         this.viewerItemsComponent.setAllowPlace(true);
+        this.viewerItemsComponent.setAllowDrag(true);
+        this.viewerItemsComponent.setAllowPickup(true);
 
         this.viewerStatusComponent = new SimpleMenuComponent(new Dimension(4, 1));
         this.viewerStatusComponent.setItem(Position.of(0, 0), getPlayerHead(viewer.getBukkitPlayer(), true));
