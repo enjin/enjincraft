@@ -8,6 +8,7 @@ import com.enjin.minecraft_commons.spigot.ui.menu.ChestMenu;
 import com.enjin.minecraft_commons.spigot.ui.menu.component.SimpleMenuComponent;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
@@ -31,6 +32,35 @@ public class TradeView extends ChestMenu {
 
     private void init() {
         allowPlayerInventoryInteractions(true);
+        setCloseConsumer((player, menu) -> {
+            if (player == this.viewer.getBukkitPlayer()) {
+                this.viewer.setActiveTradeView(null);
+
+                Position pos = getComponents().get(this.viewerItemsComponent);
+                Inventory playerInventory = player.getInventory();
+                Inventory inventory = getInventory(player, false);
+                if (inventory != null) {
+                    for (int y = 0; y < this.viewerItemsComponent.getDimension().getHeight(); y++) {
+                        for (int x = 0; x < this.viewerItemsComponent.getDimension().getWidth(); x++) {
+                            ItemStack item = inventory.getItem(x + (y * getDimension().getWidth()));
+                            if (item != null && item.getType() != Material.AIR) {
+                                playerInventory.addItem(item);
+                            }
+                        }
+                    }
+                }
+
+                TradeView otherTradeView = this.other.getActiveTradeView();
+                if (otherTradeView != null) {
+                    otherTradeView.removePlayer(this.other.getBukkitPlayer());
+                    otherTradeView.destroy();
+                } else {
+                    // TODO: <Other Player> has cancelled the trade.
+                }
+
+                destroy();
+            }
+        });
 
         this.viewerItemsComponent = new SimpleMenuComponent(new Dimension(4, 4));
         this.viewerItemsComponent.setAllowPlace(true);
@@ -71,23 +101,6 @@ public class TradeView extends ChestMenu {
         addComponent(Position.of(0, 4), horizontalBarrier);
 
         open(this.viewer.getBukkitPlayer());
-    }
-
-    @Override
-    protected void onClose(Player player) {
-        if (player == this.viewer.getBukkitPlayer()) {
-            this.viewer.setActiveTradeView(null);
-
-            TradeView otherTradeView = this.other.getActiveTradeView();
-            if (otherTradeView != null) {
-                otherTradeView.removePlayer(this.other.getBukkitPlayer());
-                otherTradeView.destroy();
-            } else {
-                // TODO: <Other Player> has cancelled the trade.
-            }
-
-            destroy();
-        }
     }
 
     public MinecraftPlayer getViewer() {
