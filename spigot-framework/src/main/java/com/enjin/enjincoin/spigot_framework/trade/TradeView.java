@@ -1,11 +1,14 @@
 package com.enjin.enjincoin.spigot_framework.trade;
 
 import com.enjin.enjincoin.spigot_framework.player.MinecraftPlayer;
+import com.enjin.enjincoin.spigot_framework.util.MessageUtils;
 import com.enjin.minecraft_commons.spigot.ui.Component;
 import com.enjin.minecraft_commons.spigot.ui.Dimension;
 import com.enjin.minecraft_commons.spigot.ui.Position;
 import com.enjin.minecraft_commons.spigot.ui.menu.ChestMenu;
 import com.enjin.minecraft_commons.spigot.ui.menu.component.SimpleMenuComponent;
+import net.kyori.text.TextComponent;
+import net.kyori.text.format.TextColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -41,7 +44,6 @@ public class TradeView extends ChestMenu {
             if (player == this.viewer.getBukkitPlayer()) {
                 this.viewer.setActiveTradeView(null);
 
-                Position pos = getComponents().get(this.viewerItemsComponent);
                 Inventory playerInventory = player.getInventory();
                 Inventory inventory = getInventory(player, false);
                 if (inventory != null) {
@@ -60,7 +62,14 @@ public class TradeView extends ChestMenu {
                     otherTradeView.removePlayer(this.other.getBukkitPlayer());
                     otherTradeView.destroy();
                 } else {
-                    // TODO: <Other Player> has cancelled the trade.
+                    MessageUtils.sendMessage(other.getBukkitPlayer(), TextComponent.builder("")
+                            .color(TextColor.GRAY)
+                            .append(TextComponent.builder(other.getBukkitPlayer().getName())
+                                    .color(TextColor.GOLD)
+                                    .build())
+                            .append(TextComponent.builder(" has cancelled the trade.")
+                                    .build())
+                            .build());
                 }
 
                 destroy();
@@ -80,6 +89,10 @@ public class TradeView extends ChestMenu {
             this.playerReady = true;
             setItem(p, this.viewerStatusComponent, Position.of(3, 0), readyPane);
             p.updateInventory();
+
+            TradeView otherView = this.other.getActiveTradeView();
+            otherView.setItem(other.getBukkitPlayer(), otherView.otherStatusComponent, Position.of(3, 0), readyPane);
+            other.getBukkitPlayer().updateInventory();
         }, ClickType.LEFT, ClickType.RIGHT);
         ItemStack unreadyItem = new ItemStack(Material.BARRIER);
         this.viewerStatusComponent.setItem(Position.of(2, 0), unreadyItem);
@@ -87,6 +100,10 @@ public class TradeView extends ChestMenu {
             this.playerReady = false;
             setItem(p, this.viewerStatusComponent, Position.of(3, 0), unreadyPane);
             p.updateInventory();
+
+            TradeView otherView = this.other.getActiveTradeView();
+            otherView.setItem(other.getBukkitPlayer(), otherView.otherStatusComponent, Position.of(3, 0), unreadyPane);
+            other.getBukkitPlayer().updateInventory();
         }, ClickType.LEFT, ClickType.RIGHT);
         this.viewerStatusComponent.setItem(Position.of(3, 0), unreadyPane);
 
@@ -143,6 +160,8 @@ public class TradeView extends ChestMenu {
     public SimpleMenuComponent getOtherStatusComponent() {
         return otherStatusComponent;
     }
+
+
 
     private ItemStack getPlayerHead(Player player, boolean self) {
         ItemStack stack = new ItemStack(Material.PLAYER_HEAD);
