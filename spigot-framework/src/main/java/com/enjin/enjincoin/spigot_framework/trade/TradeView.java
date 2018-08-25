@@ -8,6 +8,7 @@ import com.enjin.minecraft_commons.spigot.ui.menu.ChestMenu;
 import com.enjin.minecraft_commons.spigot.ui.menu.component.SimpleMenuComponent;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -22,6 +23,10 @@ public class TradeView extends ChestMenu {
 
     private SimpleMenuComponent otherItemsComponent;
     private SimpleMenuComponent otherStatusComponent;
+
+    private boolean playerReady = false;
+    private ItemStack readyPane = new ItemStack(Material.GREEN_STAINED_GLASS_PANE);
+    private ItemStack unreadyPane = new ItemStack(Material.RED_STAINED_GLASS_PANE);
 
     public TradeView(MinecraftPlayer viewer, MinecraftPlayer other) {
         super("Trade", 6);
@@ -69,15 +74,27 @@ public class TradeView extends ChestMenu {
 
         this.viewerStatusComponent = new SimpleMenuComponent(new Dimension(4, 1));
         this.viewerStatusComponent.setItem(Position.of(0, 0), getPlayerHead(viewer.getBukkitPlayer(), true));
-        this.viewerStatusComponent.setItem(Position.of(1, 0), new ItemStack(Material.HOPPER));
-        this.viewerStatusComponent.setItem(Position.of(2, 0), new ItemStack(Material.BARRIER));
-        this.viewerStatusComponent.setItem(Position.of(3, 0), new ItemStack(Material.RED_STAINED_GLASS_PANE));
+        ItemStack readyItem = new ItemStack(Material.HOPPER);
+        this.viewerStatusComponent.setItem(Position.of(1, 0), readyItem);
+        this.viewerStatusComponent.addAction(readyItem, (p) -> {
+            this.playerReady = true;
+            setItem(p, this.viewerStatusComponent, Position.of(3, 0), readyPane);
+            p.updateInventory();
+        }, ClickType.LEFT, ClickType.RIGHT);
+        ItemStack unreadyItem = new ItemStack(Material.BARRIER);
+        this.viewerStatusComponent.setItem(Position.of(2, 0), unreadyItem);
+        this.viewerStatusComponent.addAction(unreadyItem, (p) -> {
+            this.playerReady = false;
+            setItem(p, this.viewerStatusComponent, Position.of(3, 0), unreadyPane);
+            p.updateInventory();
+        }, ClickType.LEFT, ClickType.RIGHT);
+        this.viewerStatusComponent.setItem(Position.of(3, 0), unreadyPane);
 
         this.otherItemsComponent = new SimpleMenuComponent(new Dimension(4, 4));
 
         this.otherStatusComponent = new SimpleMenuComponent(new Dimension(4, 1));
         this.otherStatusComponent.setItem(Position.of(0, 0), getPlayerHead(other.getBukkitPlayer(), false));
-        this.otherStatusComponent.setItem(Position.of(3, 0), new ItemStack(Material.RED_STAINED_GLASS_PANE));
+        this.otherStatusComponent.setItem(Position.of(3, 0), unreadyPane);
 
         Component horizontalBarrier = new SimpleMenuComponent(new Dimension(9, 1));
         for (int i = 0; i < horizontalBarrier.getDimension().getWidth(); i++) {
