@@ -80,6 +80,11 @@ public class TradeView extends ChestMenu {
         this.viewerItemsComponent.setAllowPlace(true);
         this.viewerItemsComponent.setAllowDrag(true);
         this.viewerItemsComponent.setAllowPickup(true);
+        this.viewerItemsComponent.setSlotUpdateHandler((player, slot, oldItem, newItem) -> {
+            TradeView otherView = this.other.getActiveTradeView();
+            Position position = Position.toPosition(this, slot);
+            otherView.setItem(this.other.getBukkitPlayer(), otherView.getOtherItemsComponent(), position, newItem);
+        });
 
         this.viewerStatusComponent = new SimpleMenuComponent(new Dimension(4, 1));
         this.viewerStatusComponent.setItem(Position.of(0, 0), getPlayerHead(viewer.getBukkitPlayer(), true));
@@ -93,6 +98,10 @@ public class TradeView extends ChestMenu {
             TradeView otherView = this.other.getActiveTradeView();
             otherView.setItem(other.getBukkitPlayer(), otherView.otherStatusComponent, Position.of(3, 0), readyPane);
             other.getBukkitPlayer().updateInventory();
+
+            if (otherView.playerReady) {
+                // TODO:
+            }
         }, ClickType.LEFT, ClickType.RIGHT);
         ItemStack unreadyItem = new ItemStack(Material.BARRIER);
         this.viewerStatusComponent.setItem(Position.of(2, 0), unreadyItem);
@@ -160,8 +169,6 @@ public class TradeView extends ChestMenu {
     public SimpleMenuComponent getOtherStatusComponent() {
         return otherStatusComponent;
     }
-
-
 
     private ItemStack getPlayerHead(Player player, boolean self) {
         ItemStack stack = new ItemStack(Material.PLAYER_HEAD);
