@@ -62,7 +62,7 @@ public class TradeView extends ChestMenu {
                     otherTradeView.removePlayer(this.other.getBukkitPlayer());
                     otherTradeView.destroy();
                 } else {
-                    MessageUtils.sendMessage(other.getBukkitPlayer(), TextComponent.builder("")
+                    MessageUtils.sendMessage(viewer.getBukkitPlayer(), TextComponent.builder("")
                             .color(TextColor.GRAY)
                             .append(TextComponent.builder(other.getBukkitPlayer().getName())
                                     .color(TextColor.GOLD)
