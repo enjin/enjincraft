@@ -13,8 +13,13 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class TradeView extends ChestMenu {
 
@@ -28,6 +33,7 @@ public class TradeView extends ChestMenu {
     private SimpleMenuComponent otherStatusComponent;
 
     private boolean playerReady = false;
+    private boolean tradeApproved = false;
     private ItemStack readyPane = new ItemStack(Material.GREEN_STAINED_GLASS_PANE);
     private ItemStack unreadyPane = new ItemStack(Material.RED_STAINED_GLASS_PANE);
 
@@ -61,7 +67,7 @@ public class TradeView extends ChestMenu {
                 if (otherTradeView != null) {
                     otherTradeView.removePlayer(this.other.getBukkitPlayer());
                     otherTradeView.destroy();
-                } else {
+                } else if (!tradeApproved) {
                     MessageUtils.sendMessage(viewer.getBukkitPlayer(), TextComponent.builder("")
                             .color(TextColor.GRAY)
                             .append(TextComponent.builder(other.getBukkitPlayer().getName())
@@ -100,7 +106,20 @@ public class TradeView extends ChestMenu {
             other.getBukkitPlayer().updateInventory();
 
             if (otherView.playerReady) {
-                // TODO:
+                List<ItemStack> viewerOffer = getOfferedItems();
+                List<ItemStack> otherOffer = otherView.getOfferedItems();
+                if (viewerOffer.size() > 0 || otherOffer.size() > 0) {
+                    tradeApproved = true;
+                    otherView.tradeApproved = true;
+
+                    UUID viewerUuid = viewer.getBukkitPlayer().getUniqueId();
+                    UUID otherUuid = other.getBukkitPlayer().getUniqueId();
+                    Trade trade = new Trade(viewerUuid, viewerOffer, otherUuid, otherOffer);
+
+                    // TODO: Trade Registration
+
+                    closeMenu(p);
+                }
             }
         }, ClickType.LEFT, ClickType.RIGHT);
         ItemStack unreadyItem = new ItemStack(Material.BARRIER);
@@ -168,6 +187,22 @@ public class TradeView extends ChestMenu {
 
     public SimpleMenuComponent getOtherStatusComponent() {
         return otherStatusComponent;
+    }
+
+    public List<ItemStack> getOfferedItems() {
+        List<ItemStack> items = new ArrayList<>();
+
+        for (int y = 0; y < 4; y++) {
+            for (int x = 0; x < 4; x++) {
+                InventoryView view = this.viewer.getBukkitPlayer().getOpenInventory();
+                ItemStack item = view.getItem(x + (y * 9));
+                if (item != null && item.getType() != Material.AIR) {
+                    items.add(item);
+                }
+            }
+        }
+
+        return items;
     }
 
     private ItemStack getPlayerHead(Player player, boolean self) {
