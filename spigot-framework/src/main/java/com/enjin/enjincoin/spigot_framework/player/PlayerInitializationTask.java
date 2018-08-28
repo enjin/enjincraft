@@ -41,7 +41,7 @@ public class PlayerInitializationTask extends BukkitRunnable {
 
         this.inProgress = true;
 
-        if (!this.minecraftPlayer.getBukkitPlayer().isOnline()) {
+        if (this.minecraftPlayer.getBukkitPlayer() == null || !this.minecraftPlayer.getBukkitPlayer().isOnline()) {
             cancel();
         } else {
             try {
