@@ -1,5 +1,6 @@
 package com.enjin.enjincoin.spigot_framework.trade;
 
+import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.player.MinecraftPlayer;
 import com.enjin.enjincoin.spigot_framework.util.MessageUtils;
 import com.enjin.minecraft_commons.spigot.ui.Component;
@@ -23,6 +24,8 @@ import java.util.UUID;
 
 public class TradeView extends ChestMenu {
 
+    private BasePlugin plugin;
+
     private MinecraftPlayer viewer;
     private MinecraftPlayer other;
 
@@ -37,8 +40,9 @@ public class TradeView extends ChestMenu {
     private ItemStack readyPane = new ItemStack(Material.GREEN_STAINED_GLASS_PANE);
     private ItemStack unreadyPane = new ItemStack(Material.RED_STAINED_GLASS_PANE);
 
-    public TradeView(MinecraftPlayer viewer, MinecraftPlayer other) {
+    public TradeView(BasePlugin plugin, MinecraftPlayer viewer, MinecraftPlayer other) {
         super("Trade", 6);
+        this.plugin = plugin;
         this.viewer = viewer;
         this.other = other;
         init();
@@ -120,7 +124,7 @@ public class TradeView extends ChestMenu {
                     UUID otherUuid = other.getBukkitPlayer().getUniqueId();
                     Trade trade = new Trade(viewerUuid, viewerOffer, otherUuid, otherOffer);
 
-                    // TODO: Trade Registration
+                    this.plugin.getBootstrap().getTradeManager().submit(trade);
 
                     closeMenu(p);
                 }

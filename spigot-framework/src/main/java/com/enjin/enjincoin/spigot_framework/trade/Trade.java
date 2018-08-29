@@ -20,6 +20,22 @@ public class Trade {
         this.playerTwoOffer = playerTwoOffer;
     }
 
+    public UUID getPlayerOneUuid() {
+        return playerOneUuid;
+    }
+
+    public List<ItemStack> getPlayerOneOffer() {
+        return playerOneOffer;
+    }
+
+    public UUID getPlayerTwoUuid() {
+        return playerTwoUuid;
+    }
+
+    public List<ItemStack> getPlayerTwoOffer() {
+        return playerTwoOffer;
+    }
+
     @Override
     public String toString() {
         return "Trade{" +
