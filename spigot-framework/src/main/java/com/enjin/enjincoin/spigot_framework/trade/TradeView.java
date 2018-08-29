@@ -50,32 +50,36 @@ public class TradeView extends ChestMenu {
             if (player == this.viewer.getBukkitPlayer()) {
                 this.viewer.setActiveTradeView(null);
 
-                Inventory playerInventory = player.getInventory();
-                Inventory inventory = getInventory(player, false);
-                if (inventory != null) {
-                    for (int y = 0; y < this.viewerItemsComponent.getDimension().getHeight(); y++) {
-                        for (int x = 0; x < this.viewerItemsComponent.getDimension().getWidth(); x++) {
-                            ItemStack item = inventory.getItem(x + (y * getDimension().getWidth()));
-                            if (item != null && item.getType() != Material.AIR) {
-                                playerInventory.addItem(item);
-                            }
-                        }
-                    }
-                }
-
                 TradeView otherTradeView = this.other.getActiveTradeView();
                 if (otherTradeView != null) {
                     otherTradeView.removePlayer(this.other.getBukkitPlayer());
                     otherTradeView.destroy();
-                } else if (!tradeApproved) {
-                    MessageUtils.sendMessage(viewer.getBukkitPlayer(), TextComponent.builder("")
-                            .color(TextColor.GRAY)
-                            .append(TextComponent.builder(other.getBukkitPlayer().getName())
-                                    .color(TextColor.GOLD)
-                                    .build())
-                            .append(TextComponent.builder(" has cancelled the trade.")
-                                    .build())
-                            .build());
+                }
+
+                if (!tradeApproved) {
+                    Inventory playerInventory = player.getInventory();
+                    Inventory inventory = getInventory(player, false);
+                    if (inventory != null) {
+                        for (int y = 0; y < this.viewerItemsComponent.getDimension().getHeight(); y++) {
+                            for (int x = 0; x < this.viewerItemsComponent.getDimension().getWidth(); x++) {
+                                ItemStack item = inventory.getItem(x + (y * getDimension().getWidth()));
+                                if (item != null && item.getType() != Material.AIR) {
+                                    playerInventory.addItem(item);
+                                }
+                            }
+                        }
+                    }
+
+                    if (otherTradeView == null) {
+                        MessageUtils.sendMessage(viewer.getBukkitPlayer(), TextComponent.builder("")
+                                .color(TextColor.GRAY)
+                                .append(TextComponent.builder(other.getBukkitPlayer().getName())
+                                        .color(TextColor.GOLD)
+                                        .build())
+                                .append(TextComponent.builder(" has cancelled the trade.")
+                                        .build())
+                                .build());
+                    }
                 }
 
                 destroy();
