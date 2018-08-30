@@ -46,6 +46,7 @@ public class HelpCommand {
         sender.sendMessage("");
         sender.sendMessage(ChatColor.GOLD + "/enj balance: " + ChatColor.WHITE + "Display wallet Address, Ethereum and Enjin Coin balances, as well as a list of owned CryptoItems.");
         sender.sendMessage(ChatColor.GOLD + "/enj link: " + ChatColor.WHITE + "Display linking code or linked address if available.");
+        sender.sendMessage(ChatColor.GOLD + "/enj scoreboard: " + ChatColor.WHITE + "Displays/hides the ENJ Scoreboard.");
         sender.sendMessage(ChatColor.GOLD + "/enj trade <target> <item> <qty>: " + ChatColor.WHITE + "Send an ENJ item to another player on the same server.");
         sender.sendMessage( ChatColor.GOLD + "/enj unlink: " + ChatColor.WHITE + "Removes the link to an Ethereum Wallet.");
         sender.sendMessage(ChatColor.GOLD + "/enj wallet: " + ChatColor.WHITE + "Opens a wallet inventory panel which allows for checkout of owned CryptoItems.");

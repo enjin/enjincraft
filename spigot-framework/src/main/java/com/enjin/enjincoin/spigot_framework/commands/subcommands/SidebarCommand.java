@@ -1,0 +1,74 @@
+package com.enjin.enjincoin.spigot_framework.commands.subcommands;
+
+import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
+import com.enjin.enjincoin.spigot_framework.BasePlugin;
+import com.enjin.enjincoin.spigot_framework.player.MinecraftPlayer;
+import com.enjin.enjincoin.spigot_framework.player.TokenData;
+import com.enjin.enjincoin.spigot_framework.util.MessageUtils;
+import com.google.gson.JsonObject;
+import net.kyori.text.TextComponent;
+import net.kyori.text.format.TextColor;
+import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * <p>Balance command handler.</p>
+ */
+public class SidebarCommand {
+
+    /**
+     * <p>The spigot plugin.</p>
+     */
+    private BasePlugin main;
+
+    /**
+     * <p>Balance command handler constructor.</p>
+     *
+     * @param main the Spigot plugin
+     */
+    public SidebarCommand(BasePlugin main) {
+        this.main = main;
+    }
+
+    /**
+     * <p>Executes and performs operations defined for the command.</p>
+     *
+     * @param sender the command sender
+     * @param args the command arguments
+     *
+     * @since 1.0
+     */
+    public void execute(CommandSender sender, String[] args) {
+        if (sender instanceof Player) {
+            Player player = (Player) sender;
+
+            MinecraftPlayer mcPlayer = this.main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId());
+            // reload/refresh user info
+            mcPlayer.reloadUser();
+
+            if (mcPlayer.showScoreboard()) {
+                this.main.getBootstrap().getScoreboardManager().hideSidebar(mcPlayer.getBukkitPlayer());
+                mcPlayer.showScoreboard(false);
+            } else {
+                this.main.getBootstrap().getScoreboardManager().setSidebar(mcPlayer);
+                mcPlayer.showScoreboard(true);
+            }
+        } else {
+            TextComponent text = TextComponent.of("Only players can use this command.")
+                .color(TextColor.RED);
+            MessageUtils.sendMessage(sender, text);
+        }
+    }
+
+    private void sendMsg(CommandSender sender, String msg) {
+        TextComponent text = TextComponent.of(msg)
+                .color(TextColor.GOLD);
+        MessageUtils.sendMessage(sender, text);
+    }
+
+}

@@ -64,6 +64,8 @@ public class WalletInventory {
         if (items == null)
             items = new HashMap<>();
 
+//        System.out.println("WalletInventory.create: started");
+
         // Fetch configured tokens from the config.
         JsonObject tokensDisplayConfig = main.getBootstrap().getConfig().get("tokens").getAsJsonObject();
         // Generate a 6 by 9 chest inventory.
@@ -75,19 +77,30 @@ public class WalletInventory {
         owner.getWallet().setInventory(inventory);
         WalletCheckoutManager manager = owner.getWallet().accessCheckoutManager();
 
+//        System.out.println("WalletInventory.create: setup checkout manager");
+
         int index = 0;
+//        System.out.println("WalletInventory.create: processing " + tokens.size() + " tokens");
         for (TokenData entry : tokens) {
             // Check if the inventory is full.
-            if (index >= 6 * 9)
+            if (index >= 6 * 9) {
+//                System.out.println("WalletInventory.create: failed at index...");
                 break;
+            }
 
             // Check if the token entry has value.
+//            System.out.println("WalletInventory.create: entry.getBalance() " + entry.getBalance());
             if (entry.getBalance() > 0) {
                 //TODO if the balance is greater than maxStackSize, split the item into multiple stacks in the Wallet Inventory
+//                System.out.println("WalletInventory.create: entry is " + entry.getId());
                 Token token = main.getBootstrap().getTokens().get(entry.getId());
                 // Verify that the token data exists.
-                if (token == null)
+
+                if (token == null) {
+//                    System.out.println("WalletInventory.create: token is null for entry id " + entry.getId());
                     continue;
+                }
+//                System.out.println("WalletInventory.create: token is " + token.getTokenId());
 
                 // Fetch data for the matching token ID.
                 JsonObject tokenDisplay = tokensDisplayConfig.has(String.valueOf(token.getTokenId()))
@@ -169,15 +182,24 @@ public class WalletInventory {
                 NBTItem nbti = new NBTItem(stack);
                 nbti.setString("tokenID", token.getTokenId());
 
+//                System.out.println("WalletInventory.create: created NBT for item " + token.getTokenId());
+
                 // Add ItemStack to wallet inventory.
 //                inventory.setItem(index++, stack);
                 inventory.setItem(index++, nbti.getItemStack());
 
+                System.out.println("WalletInventory.create: added stack to inventory");
+
                 // Add ItemStack to local map.
 //                items.put(holder.getName(), stack);
                 items.put(holder.getName(), nbti.getItemStack());
+                System.out.println("WalletInventory.create: added item to local map");
+            } else {
+                System.out.println("WalletInventory.create: entry.balance was less than 1...");
             }
+
         }
+        System.out.println("WalletInventory.create: done. returning inventory!");
         return inventory;
     }
 

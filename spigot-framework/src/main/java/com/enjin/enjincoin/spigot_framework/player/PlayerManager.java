@@ -2,6 +2,7 @@ package com.enjin.enjincoin.spigot_framework.player;
 
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.event.MinecraftPlayerQuitEvent;
+import com.enjin.enjincoin.spigot_framework.util.Scoreboards;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -28,10 +29,6 @@ public class PlayerManager implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         MinecraftPlayer minecraftPlayer = new MinecraftPlayer(this.plugin, event.getPlayer());
-
-        ScoreboardManager sm = this.plugin.getBootstrap().getScoreboardManager();
-        Scoreboard sb = sm.getNewScoreboard();
-        minecraftPlayer.setScoreboard(sb);
 
         addPlayer(minecraftPlayer);
         // Fetch or create a User and Identity associated with the joining Player

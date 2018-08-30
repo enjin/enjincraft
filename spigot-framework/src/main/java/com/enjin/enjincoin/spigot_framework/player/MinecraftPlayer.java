@@ -7,6 +7,7 @@ import com.enjin.enjincoin.sdk.client.service.users.vo.User;
 import com.enjin.enjincoin.sdk.client.service.users.vo.data.UsersData;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.trade.TradeView;
+import com.enjin.enjincoin.spigot_framework.util.Scoreboards;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -33,10 +34,10 @@ public class MinecraftPlayer {
     // State Fields
     private boolean userLoaded;
     private boolean identityLoaded;
+    private boolean showScoreboard;
 
     // Helper Fields
     private User user;
-    private Scoreboard scoreboard;
 
     // Trade Fields
     private List<MinecraftPlayer> sentTradeInvites = new ArrayList<>();
@@ -46,7 +47,7 @@ public class MinecraftPlayer {
     public MinecraftPlayer(BasePlugin plugin, Player player) {
         this.plugin = plugin;
         this.bukkitPlayer = player;
-        this.scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+        this.showScoreboard = (player.getScoreboard() == null) ? false : true;
     }
 
     public Player getBukkitPlayer() {
@@ -83,6 +84,8 @@ public class MinecraftPlayer {
                 .filter(identity -> identity.getAppId() == appId)
                 .findFirst();
         optionalIdentity.ifPresent(this::loadIdentity);
+
+        setScoreboard();
     }
 
     public User getUser() { return this.user; }
@@ -142,13 +145,6 @@ public class MinecraftPlayer {
         this.bukkitPlayer = null;
     }
 
-    public Scoreboard getScoreboard() { return this.scoreboard; }
-
-    public void setScoreboard(Scoreboard scoreboard) {
-        this.scoreboard = scoreboard;
-        bukkitPlayer.setScoreboard(this.scoreboard);
-    }
-
     public List<MinecraftPlayer> getSentTradeInvites() {
         return sentTradeInvites;
     }
@@ -157,32 +153,23 @@ public class MinecraftPlayer {
         return receivedTradeInvites;
     }
 
+    public boolean showScoreboard() {
+        return showScoreboard;
+    }
+
+    public void showScoreboard(boolean showScoreboard) {
+        this.showScoreboard = showScoreboard;
+    }
+
     public void setScoreboard() {
-//        Team team = scoreboard.registerNewTeam(bukkitPlayer.getName());
-//        team.addEntry(bukkitPlayer.getName());
-//        Objective obj = scoreboard.registerNewObjective("ETH:", "0");
-//        obj.setDisplaySlot(DisplaySlot.SIDEBAR);
-//        obj.setDisplayName("BALANCE");
-//
-//        Score score = obj.getScore("GET SCORE");
-//        score.setScore(0);
-//
-//        Objective obj = board.registerNewObjective("ENJ", "Wallet");
-//        obj.setDisplaySlot(DisplaySlot.SIDEBAR);
-//        obj.setDisplayName("ENJ Wallet ");
-//
-//        Score score11x = obj.getScore("§2");
-//        score11x.setScore(1);
-//        Score score = obj.getScore(ChatColor.WHITE + "ENJ: " + ChatColor.LIGHT_PURPLE + identity.getEnjBalance());
-//        score.setScore(1);
+        if (showScoreboard) {
+            this.plugin.getBootstrap().getScoreboardManager().setSidebar(this);
+        }
     }
 
     public void refresh() {
-//        Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-//            public void run() {
-//                setScoreBoard();
-//            }
-//        });
+        if (showScoreboard)
+            this.plugin.getBootstrap().getScoreboardManager().setSidebar(this);
     }
 
     public TradeView getActiveTradeView() {

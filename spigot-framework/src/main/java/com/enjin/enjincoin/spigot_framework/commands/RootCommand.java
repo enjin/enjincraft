@@ -57,6 +57,11 @@ public class RootCommand implements CommandExecutor {
     private final MenuCommand menu;
 
     /**
+     * <p>Show/Hide the sidebar ENJ summary</p>
+     */
+    private final SidebarCommand sidebar;
+
+    /**
      * <p>commands list and details</p>
      * key is command name
      * value is command help body
@@ -79,6 +84,7 @@ public class RootCommand implements CommandExecutor {
         this.help = new HelpCommand(main);
         this.trade = new TradeCommand(main);
         this.menu = new MenuCommand(main);
+        this.sidebar = new SidebarCommand(main);
     }
 
     public Map<String, String> getCommandsMap() { return commands; }
@@ -118,6 +124,10 @@ public class RootCommand implements CommandExecutor {
                     break;
                 case "menu":
                     this.menu.execute(player, subArgs);
+                    break;
+                case "scoreboard":
+                    this.sidebar.execute(player, subArgs);
+                    break;
                 default:
                     player.sendMessage(String.format("No sub-command with alias %s exists.", sub));
                     this.help.execute(player);

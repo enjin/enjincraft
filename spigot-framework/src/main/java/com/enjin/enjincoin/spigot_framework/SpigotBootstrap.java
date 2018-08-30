@@ -4,10 +4,10 @@ import com.enjin.enjincoin.sdk.client.model.body.GraphQLResponse;
 import com.enjin.enjincoin.sdk.client.service.tokens.vo.Token;
 import com.enjin.enjincoin.sdk.client.service.tokens.vo.data.TokensData;
 import com.enjin.enjincoin.spigot_framework.listeners.ConnectionListener;
-import com.enjin.enjincoin.spigot_framework.listeners.InventoryListener;
 import com.enjin.enjincoin.spigot_framework.listeners.PlayerInteractionListener;
 import com.enjin.enjincoin.spigot_framework.player.PlayerManager;
 import com.enjin.enjincoin.spigot_framework.trade.TradeManager;
+import com.enjin.enjincoin.spigot_framework.util.Scoreboards;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -17,7 +17,6 @@ import com.enjin.enjincoin.spigot_framework.commands.RootCommand;
 import com.enjin.enjincoin.spigot_framework.controllers.SdkClientController;
 import com.enjin.enjincoin.spigot_framework.listeners.notifications.GenericNotificationListener;
 import org.bukkit.Bukkit;
-import org.bukkit.conversations.ConversationFactory;
 import org.bukkit.scoreboard.ScoreboardManager;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -64,7 +63,7 @@ public class SpigotBootstrap extends PluginBootstrap {
 
     private TradeManager tradeManager;
 
-    private ScoreboardManager scoreboardManager;
+    private Scoreboards scoreboardManager;
 
     /**
      * <p>The mapping of token IDs and associated data.</p>
@@ -84,7 +83,7 @@ public class SpigotBootstrap extends PluginBootstrap {
     public void setUp() {
         this.playerManager = new PlayerManager(this.main);
         this.tradeManager = new TradeManager(this.main);
-        this.scoreboardManager = Bukkit.getScoreboardManager();
+        this.scoreboardManager = new Scoreboards();
         this.tokens = new ConcurrentHashMap<>();
 
         // Load the config to ensure that it is created or already exists.
@@ -131,7 +130,7 @@ public class SpigotBootstrap extends PluginBootstrap {
                         if (data != null && data.getTokens() != null) {
                             data.getTokens().forEach(token -> {
                                 if (config.get("appId").getAsInt() == token.getAppId()) {
-                                    SpigotBootstrap.this.tokens.put(token.getTokenId(), token);
+                                    main.getBootstrap().tokens.put(token.getTokenId(), token);
                                 }
                             });
                         }
@@ -154,6 +153,7 @@ public class SpigotBootstrap extends PluginBootstrap {
         Bukkit.getPluginManager().registerEvents(new ConnectionListener(this.main), this.main);
 //        Bukkit.getPluginManager().registerEvents(new InventoryListener(this.main), this.main);
         Bukkit.getPluginManager().registerEvents(new PlayerInteractionListener(this.main), this.main);
+        Bukkit.getPluginManager().registerEvents(this.scoreboardManager, this.main);
 
         // Register Commands
         this.main.getCommand("enj").setExecutor(new RootCommand(this.main));
@@ -165,7 +165,7 @@ public class SpigotBootstrap extends PluginBootstrap {
         this.sdkClientController = null;
     }
 
-    public ScoreboardManager getScoreboardManager() { return this.scoreboardManager; }
+    public Scoreboards getScoreboardManager() { return this.scoreboardManager; }
 
     @Override
     public SdkClientController getSdkController() {

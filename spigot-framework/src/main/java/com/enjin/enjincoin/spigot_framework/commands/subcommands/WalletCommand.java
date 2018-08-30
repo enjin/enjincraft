@@ -50,7 +50,11 @@ public class WalletCommand {
 
             Identity identity = this.main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId()).getIdentity();
 
+//            System.out.println("WalletCommand.execute: player.getUniqueId() " + player.getUniqueId());
+//            System.out.println("WalletCommand.execute: player Identity Id " + this.main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId()).getIdentityData().getId());
             List<TokenData> tokens = this.main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId()).getWallet().getTokens();
+//            System.out.println("WalletCommand.execute: player # tokens found " + tokens.size());
+
             if (identity != null) {
                 // we have an identity, but the wallet has not been linked yet.
                 if (identity.getLinkingCode() != null) {
