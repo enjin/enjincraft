@@ -2,6 +2,7 @@ package com.enjin.enjincoin.spigot_framework.listeners.notifications;
 
 import com.enjin.enjincoin.sdk.client.service.notifications.vo.NotificationEvent;
 import com.enjin.enjincoin.spigot_framework.player.MinecraftPlayer;
+import com.enjin.enjincoin.spigot_framework.player.PlayerManager;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -9,7 +10,6 @@ import com.google.gson.JsonParser;
 import com.enjin.enjincoin.sdk.client.enums.NotificationType;
 import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
 import com.enjin.enjincoin.sdk.client.service.identities.vo.IdentityField;
-import com.enjin.enjincoin.sdk.client.service.identities.vo.data.IdentitiesData;
 import com.enjin.enjincoin.sdk.client.service.notifications.NotificationListener;
 import com.enjin.enjincoin.sdk.client.service.tokens.vo.Token;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
@@ -50,57 +50,59 @@ public class GenericNotificationListener implements NotificationListener {
 
     @Override
     public void notificationReceived(NotificationEvent event) {
-        this.main.getBootstrap().debug(String.format("Received %s event with data: %s", event.getNotificationType().getEventType(), event.getSourceData()));
-        if (event.getNotificationType() == NotificationType.TX_EXECUTED) {
-            this.main.getBootstrap().debug(String.format("Parsing data for %s event", event.getNotificationType().getEventType()));
-            JsonParser parser = new JsonParser();
-            String eventType = event.getNotificationType().getEventType();
-            JsonObject data = parser.parse(event.getSourceData()).getAsJsonObject().get("data").getAsJsonObject();
+        NotificationType eventType = event.getNotificationType();
 
-            // txr_ => transaction request
-            // tx_ => transaction
-            if (eventType.equalsIgnoreCase("txr_pending")) {
-                this.main.getBootstrap().debug("Transaction is pending");
-            } else if (eventType.equalsIgnoreCase("tx_executed")) {
-                this.main.getBootstrap().debug("Transaction is executed");
-                if (data.get("event") != null && data.get("event").getAsString().equalsIgnoreCase("Transfer")) {
+        this.main.getBootstrap().debug(String.format("Received %s event with data: %s", eventType, event.getSourceData()));
+        this.main.getBootstrap().debug(String.format("Parsing data for %s event", event.getNotificationType().getEventType()));
+        JsonParser parser = new JsonParser();
+        JsonObject data = parser.parse(event.getSourceData()).getAsJsonObject().get("data").getAsJsonObject();
+
+        // txr_ => transaction request
+        // tx_ => transaction
+        if (eventType == NotificationType.TXR_PENDING) {
+            this.main.getBootstrap().debug("Transaction is pending");
+        } else if (eventType == NotificationType.TX_EXECUTED) {
+            this.main.getBootstrap().debug("Transaction is executed");
+            JsonElement eventElement = data.get("event");
+            if (eventElement != null) {
+                String eventString = eventElement.getAsString();
+
+                if (eventString.equalsIgnoreCase("transfer")) {
                     // handle transfer event.
                     String fromEthereumAddress = data.get("param1").getAsString();
                     String toEthereumAddress = data.get("param2").getAsString();
                     String tokenId = data.get("token").getAsJsonObject().get("token_id").getAsString();
                     String amount = data.get("param3").getAsString();
 
-                    MinecraftPlayer fromPlayer = null;
-                    MinecraftPlayer toPlayer = null;
-                    int found = 0;
-                    for(Map.Entry<UUID, MinecraftPlayer> entry : this.main.getBootstrap().getPlayerManager().getPlayers().entrySet()) {
-                        if (entry.getValue().getIdentity().getEthereumAddress().equals(fromEthereumAddress) && found < 2) {
-                            entry.getValue().reloadUser();
-                            TextComponent text = TextComponent.of("You have successfully sent ").color(TextColor.GOLD)
-                                    .append(TextComponent.of(amount).color(TextColor.GREEN))
-                                    .append(TextComponent.of(" " + data.get("token").getAsJsonObject().get("name").getAsString()).color(TextColor.DARK_PURPLE));
-                            MessageUtils.sendMessage(entry.getValue().getBukkitPlayer(), text);
-                            found++;
-                        }
+                    PlayerManager playerManager = this.main.getBootstrap().getPlayerManager();
+                    MinecraftPlayer fromPlayer = playerManager.getPlayer(fromEthereumAddress);
+                    MinecraftPlayer toPlayer = playerManager.getPlayer(toEthereumAddress);
 
-                        if (entry.getValue().getIdentity().getEthereumAddress().equals(toEthereumAddress) && found < 2) {
-                            entry.getValue().reloadUser();
-                            TextComponent text = TextComponent.of("You have received ").color(TextColor.GOLD)
-                                    .append(TextComponent.of(amount).color(TextColor.GREEN))
-                                    .append(TextComponent.of(" " + data.get("token").getAsJsonObject().get("name").getAsString()).color(TextColor.DARK_PURPLE));
-                            MessageUtils.sendMessage(entry.getValue().getBukkitPlayer(), text);
-                            found++;
-                        }
+                    if (fromPlayer != null) {
+                        fromPlayer.reloadUser();
+                        TextComponent text = TextComponent.of("You have successfully sent ").color(TextColor.GOLD)
+                                .append(TextComponent.of(amount).color(TextColor.GREEN))
+                                .append(TextComponent.of(" " + data.get("token").getAsJsonObject().get("name").getAsString()).color(TextColor.DARK_PURPLE));
+                        MessageUtils.sendMessage(fromPlayer.getBukkitPlayer(), text);
+                    }
+
+                    if (toPlayer != null) {
+                        toPlayer.reloadUser();
+                        TextComponent text = TextComponent.of("You have received ").color(TextColor.GOLD)
+                                .append(TextComponent.of(amount).color(TextColor.GREEN))
+                                .append(TextComponent.of(" " + data.get("token").getAsJsonObject().get("name").getAsString()).color(TextColor.DARK_PURPLE));
+                        MessageUtils.sendMessage(toPlayer.getBukkitPlayer(), text);
                     }
                 }
-
-            } else if (eventType.equalsIgnoreCase("txr_canceled_user")) {
-                this.main.getBootstrap().debug("Transaction was canceled");
-
-            } else {
-                this.main.getBootstrap().debug("Transaction was last in state: " + eventType);
             }
-                // Handle melt event.
+        } else if (eventType == NotificationType.TXR_CANCELED_USER) {
+            this.main.getBootstrap().debug("Transaction was canceled");
+        } else {
+            this.main.getBootstrap().debug("Transaction was last in state: " + eventType);
+        }
+
+//        if (event.getNotificationType() == NotificationType.TX_EXECUTED) {
+//                 Handle melt event.
 //                String ethereumAddress = data.get("param1").getAsString();
 //                double amount = Double.valueOf(data.get("param2").getAsString());
 //                String tokenId = data.get("token").getAsJsonObject().get("token_id").getAsString();
@@ -138,7 +140,7 @@ public class GenericNotificationListener implements NotificationListener {
 //                        addTokenValue(fromIdentity, tokenId, -amount);
 //                }
 //            }
-        }
+//        }
     }
 
     /**

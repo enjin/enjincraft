@@ -7,17 +7,13 @@ import com.enjin.enjincoin.sdk.client.service.users.vo.User;
 import com.enjin.enjincoin.sdk.client.service.users.vo.data.UsersData;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.trade.TradeView;
-import com.enjin.enjincoin.spigot_framework.util.Scoreboards;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.scoreboard.*;
 import retrofit2.Response;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 public class MinecraftPlayer {
 
@@ -34,7 +30,10 @@ public class MinecraftPlayer {
     // State Fields
     private boolean userLoaded;
     private boolean identityLoaded;
+
+    // Scoreboard
     private boolean showScoreboard;
+    private ENJScoreboard scoreboard;
 
     // Helper Fields
     private User user;
@@ -47,7 +46,8 @@ public class MinecraftPlayer {
     public MinecraftPlayer(BasePlugin plugin, Player player) {
         this.plugin = plugin;
         this.bukkitPlayer = player;
-        this.showScoreboard = (player.getScoreboard() == null) ? false : true;
+        this.showScoreboard = true;
+        this.scoreboard = new ENJScoreboard(this);
     }
 
     public Player getBukkitPlayer() {
@@ -85,7 +85,7 @@ public class MinecraftPlayer {
                 .findFirst();
         optionalIdentity.ifPresent(this::loadIdentity);
 
-        Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, () -> setScoreboard(), 1);
+        Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, () -> this.scoreboard.setEnabled(this.showScoreboard), 1);
     }
 
     public User getUser() { return this.user; }
@@ -142,6 +142,10 @@ public class MinecraftPlayer {
     protected void cleanUp() {
         PlayerInitializationTask.cleanUp(bukkitPlayer.getUniqueId());
 
+        if (this.showScoreboard) {
+            this.scoreboard.setEnabled(false);
+        }
+
         this.bukkitPlayer = null;
     }
 
@@ -154,22 +158,18 @@ public class MinecraftPlayer {
     }
 
     public boolean showScoreboard() {
-        return showScoreboard;
+        return this.showScoreboard;
     }
 
     public void showScoreboard(boolean showScoreboard) {
         this.showScoreboard = showScoreboard;
+        this.scoreboard.setEnabled(showScoreboard);
     }
 
-    public void setScoreboard() {
+    public void updateScoreboard() {
         if (showScoreboard) {
-            this.plugin.getBootstrap().getScoreboardManager().setSidebar(this);
+            this.scoreboard.update();
         }
-    }
-
-    public void refresh() {
-        if (showScoreboard)
-            this.plugin.getBootstrap().getScoreboardManager().setSidebar(this);
     }
 
     public TradeView getActiveTradeView() {

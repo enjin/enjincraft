@@ -2,14 +2,12 @@ package com.enjin.enjincoin.spigot_framework.player;
 
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.event.MinecraftPlayerQuitEvent;
-import com.enjin.enjincoin.spigot_framework.util.Scoreboards;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.scoreboard.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -55,8 +53,10 @@ public class PlayerManager implements Listener {
     }
 
     public MinecraftPlayer getPlayer(String ethereumAddress) {
-        // TODO stream a return....
-        return null;
+        return this.players.values().stream()
+                .filter(player -> player.getIdentityData() != null
+                        && ethereumAddress.equalsIgnoreCase(player.getIdentityData().getEthereumAddress()))
+                .findFirst().orElse(null);
     }
 
     public void addPlayer(MinecraftPlayer minecraftPlayer) {

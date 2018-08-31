@@ -52,10 +52,8 @@ public class SidebarCommand {
             mcPlayer.reloadUser();
 
             if (mcPlayer.showScoreboard()) {
-                this.main.getBootstrap().getScoreboardManager().hideSidebar(mcPlayer.getBukkitPlayer());
                 mcPlayer.showScoreboard(false);
             } else {
-                this.main.getBootstrap().getScoreboardManager().setSidebar(mcPlayer);
                 mcPlayer.showScoreboard(true);
             }
         } else {
