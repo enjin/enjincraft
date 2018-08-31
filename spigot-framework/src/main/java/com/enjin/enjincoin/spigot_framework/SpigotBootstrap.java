@@ -49,7 +49,8 @@ public class SpigotBootstrap extends PluginBootstrap {
     /**
      * <p>Debug mode flag.</p>
      */
-    private boolean debug;
+    private boolean sdkDebug;
+    private boolean pluginDebug;
 
     /**
      * <p>The Enjin Coin SDK controller.</p>
@@ -99,8 +100,16 @@ public class SpigotBootstrap extends PluginBootstrap {
         this.appId = config.get("appId").getAsInt();
 
         // If the config has debug mode set the debug flag equal to the config value.
-        if (config.has("debug"))
-            this.debug = config.get("debug").getAsBoolean();
+        if (config.has("debugging")) {
+            JsonObject debugging = config.getAsJsonObject("debugging");
+            if (debugging.has("sdk")) {
+                sdkDebug = debugging.get("sdk").getAsBoolean();
+            }
+
+            if (debugging.has("plugin")) {
+                pluginDebug = debugging.get("plugin").getAsBoolean();
+            }
+        }
 
         try {
             // Initialize the Enjin Coin SDK controller with the provided Spigot plugin and the config.
@@ -220,14 +229,18 @@ public class SpigotBootstrap extends PluginBootstrap {
     }
 
     @Override
-    public boolean isDebugEnabled() {
-        return this.debug;
-    }
-
-    @Override
     public void debug(String log) {
-        if (isDebugEnabled())
+        if (isPluginDebuggingEnabled())
             this.main.getLogger().info(log);
     }
 
+    @Override
+    public boolean isPluginDebuggingEnabled() {
+        return this.pluginDebug;
+    }
+
+    @Override
+    public boolean isSDKDebuggingEnabled() {
+        return this.sdkDebug;
+    }
 }

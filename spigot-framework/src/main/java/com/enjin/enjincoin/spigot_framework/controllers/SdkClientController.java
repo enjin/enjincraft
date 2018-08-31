@@ -82,7 +82,7 @@ public class SdkClientController {
         if (!config.has(SECRET))
             throw new IllegalStateException(String.format("The \"%s\" key does not exists in the config.", APP_ID));
         this.client = Clients.createClient(this.config.get(PLATFORM_BASE_URL).getAsString(),
-                this.main.getBootstrap().getAppId(), this.main.getBootstrap().isDebugEnabled());
+                this.main.getBootstrap().getAppId(), this.main.getBootstrap().isSDKDebuggingEnabled());
         this.client.auth(this.config.get(SECRET).getAsString());
     }
 
@@ -100,7 +100,7 @@ public class SdkClientController {
             throw new IllegalStateException(String.format("The \"%s\" key does not exists in the config.", APP_ID));
 
         Client session = Clients.createClient(this.config.get(PLATFORM_BASE_URL).getAsString(),
-                this.config.get(APP_ID).getAsInt(), this.main.getBootstrap().isDebugEnabled());
+                this.config.get(APP_ID).getAsInt(), this.main.getBootstrap().isSDKDebuggingEnabled());
     }
 
     /**

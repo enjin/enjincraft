@@ -78,14 +78,9 @@ public interface Bootstrap {
      */
     Integer getAppId();
 
-    /**
-     * <p>Returns whether debug mode is enabled or not.</p>
-     *
-     * @return true if debug mode is enabled
-     *
-     * @since 1.0
-     */
-    boolean isDebugEnabled();
+    boolean isPluginDebuggingEnabled();
+
+    boolean isSDKDebuggingEnabled();
 
     /**
      * <p>Logs a debug message if debug mode is enabled.</p>
