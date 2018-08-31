@@ -124,7 +124,12 @@ public class TradeView extends ChestMenu {
                     UUID otherUuid = other.getBukkitPlayer().getUniqueId();
                     Trade trade = new Trade(viewerUuid, viewerOffer, otherUuid, otherOffer);
 
-                    this.plugin.getBootstrap().getTradeManager().submit(trade);
+                    // TODO: Complete Trade Request
+                    // this.plugin.getBootstrap().getTradeManager().submit(trade);
+
+                    // TODO: To be removed
+                    viewer.getBukkitPlayer().getInventory().addItem(trade.getPlayerTwoOffer().toArray(new ItemStack[0]));
+                    other.getBukkitPlayer().getInventory().addItem(trade.getPlayerOneOffer().toArray(new ItemStack[0]));
 
                     closeMenu(p);
                 }
