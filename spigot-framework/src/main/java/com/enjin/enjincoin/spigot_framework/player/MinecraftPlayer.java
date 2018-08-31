@@ -85,7 +85,7 @@ public class MinecraftPlayer {
                 .findFirst();
         optionalIdentity.ifPresent(this::loadIdentity);
 
-        setScoreboard();
+        Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, () -> setScoreboard(), 1);
     }
 
     public User getUser() { return this.user; }

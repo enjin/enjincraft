@@ -22,8 +22,7 @@ import org.bukkit.scoreboard.Scoreboard;
  */
 public class Scoreboards implements Listener {
 
-	// stores the last set of lines set on a player's scoreboard, so only non-repeated lines are cleared
-	private final Map<UUID, List<String>> lastLines = new HashMap<>();
+	private Map<UUID, Scoreboard> scoreboards = new HashMap<>();
 
 	/**
 	 * Sets a player's scoreboard sidebar with the Enj Coin stats.
@@ -85,33 +84,22 @@ public class Scoreboards implements Listener {
 			throw new IllegalArgumentException("Scoreboard sidebar can only have 15 lines set");
 		}
 
+		Scoreboard scoreboard = scoreboards.get(player.getUniqueId());
 		// create new sccoreboard if doesn't exist
-		Scoreboard scoreboard = player.getScoreboard();
 		if (scoreboard == null) {
 			scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+			scoreboards.put(player.getUniqueId(), scoreboard);
+			player.setScoreboard(scoreboard);
 		}
-//		player.setScoreboard(scoreboard);
 
 		// create sidebar objective if doesn't exist
 		Objective sidebar = scoreboard.getObjective(DisplaySlot.SIDEBAR);
 		if (sidebar == null) {
-			sidebar = scoreboard.registerNewObjective("sidebar", "dummy");
-			sidebar.setDisplayName(title);
+			sidebar = scoreboard.registerNewObjective(player.getName(), "dummy", title);
 			sidebar.setDisplaySlot(DisplaySlot.SIDEBAR);
 		}
 
-		// clear lines that no longer exist
-		if (this.lastLines.containsKey(player.getUniqueId())) {
-			this.lastLines.get(player.getUniqueId()).clear();
-//			for (String last : this.lastLines.get(player.getUniqueId())) {
-//				if (!lines.contains(last)) {
-//					scoreboard.resetScores(last);
-//				}
-//			}
-		}
-		this.lastLines.put(player.getUniqueId(), lines);
-
-		// add new lines
+		// Add lines
 		int score = lines.size();
 		for (String line : lines) {
 			sidebar.getScore(line).setScore(score--);
@@ -120,10 +108,6 @@ public class Scoreboards implements Listener {
 
 	public void clearSidebar(Player player) {
 		hideSidebar(player);
-		if (this.lastLines.get(player.getUniqueId()) != null)
-			this.lastLines.get(player.getUniqueId()).clear();
-
-		this.lastLines.remove(player.getUniqueId());
 	}
 
 	/**
@@ -148,8 +132,10 @@ public class Scoreboards implements Listener {
 
 	@EventHandler
 	public void onPlayerQuit(PlayerQuitEvent event) {
-		// remove to avoid memory leaks
-		this.lastLines.remove(event.getPlayer().getUniqueId());
+		Player player = event.getPlayer();
+		player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
+
+		this.scoreboards.remove(player.getUniqueId());
 	}
 
 }
