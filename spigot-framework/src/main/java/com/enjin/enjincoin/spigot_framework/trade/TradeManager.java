@@ -32,8 +32,16 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TradeManager implements Listener {
 
     private BasePlugin plugin;
-    private Map<Integer, Trade> tradesAwaitingWalletApproval = new ConcurrentHashMap<>();
-    private Map<String, Trade> tradesAwaitingBlockChainConfirmation = new ConcurrentHashMap<>();
+    private Map<Integer, Trade> tradesPendingCompletion = new ConcurrentHashMap<>();
+
+    TextComponent action = TextComponent.builder()
+            .content("Please confirm the trade in your Enjin wallet!")
+            .color(TextColor.GRAY)
+            .build();
+    TextComponent wait = TextComponent.builder()
+            .content("Please wait while the other player confirms the trade.")
+            .color(TextColor.GRAY)
+            .build();
 
     public TradeManager(BasePlugin plugin) {
         this.plugin = plugin;
@@ -68,7 +76,109 @@ public class TradeManager implements Listener {
         return result;
     }
 
-    public void submit(Trade trade) {
+    public void completeTrade(int requestId) {
+        Trade trade = tradesPendingCompletion.remove(requestId);
+        if (trade != null) {
+            PlayerManager playerManager = this.plugin.getBootstrap().getPlayerManager();
+            MinecraftPlayer playerOne = playerManager.getPlayer(trade.getPlayerOneUuid());
+            MinecraftPlayer playerTwo = playerManager.getPlayer(trade.getPlayerTwoUuid());
+
+            if (playerOne != null && playerTwo != null) {
+                Player bukkitPlayerOne = playerOne.getBukkitPlayer();
+                Player bukkitPlayerTwo = playerTwo.getBukkitPlayer();
+
+                bukkitPlayerOne.getInventory().addItem(trade.getPlayerTwoOffer().toArray(new ItemStack[0]));
+                bukkitPlayerTwo.getInventory().addItem(trade.getPlayerOneOffer().toArray(new ItemStack[0]));
+
+                TextComponent text = TextComponent.builder()
+                        .content("Your trade is complete!")
+                        .color(TextColor.GRAY)
+                        .build();
+
+                if (bukkitPlayerOne != null && bukkitPlayerOne.isOnline()) {
+                    MessageUtils.sendMessage(bukkitPlayerOne, text);
+                }
+
+                if (bukkitPlayerTwo != null && bukkitPlayerTwo.isOnline()) {
+                    MessageUtils.sendMessage(bukkitPlayerTwo, text);
+                }
+            }
+        }
+    }
+
+    public void submitCompleteTrade(int requestId, String tradeId) {
+        Trade trade = tradesPendingCompletion.remove(requestId);
+        trade.setTradeId(tradeId);
+
+        if (trade == null) return;
+
+        PlayerManager playerManager = this.plugin.getBootstrap().getPlayerManager();
+        MinecraftPlayer playerOne = playerManager.getPlayer(trade.getPlayerOneUuid());
+        MinecraftPlayer playerTwo = playerManager.getPlayer(trade.getPlayerTwoUuid());
+
+        if (playerOne != null && playerTwo != null) {
+            Identity playerOneIdentity = playerOne.getIdentity();
+            Identity playerTwoIdentity = playerTwo.getIdentity();
+
+            if (playerOneIdentity != null && playerTwoIdentity != null) {
+                SdkClientController clientController = this.plugin.getBootstrap().getSdkController();
+                Client client = clientController.getClient();
+                RequestsService service = client.getRequestsService();
+                Player bukkitPlayerOne = playerOne.getBukkitPlayer();
+                Player bukkitPlayerTwo = playerTwo.getBukkitPlayer();
+
+                JsonObject data = new JsonObject();
+                data.addProperty("trade_id", trade.getTradeId());
+
+                service.createRequestAsync(playerTwoIdentity.getId(), null, TransactionType.COMPLETE_TRADE, null,
+                        null, null, null, null, data, null,
+                        null, null, new Callback<GraphQLResponse<CreateRequestData>>() {
+                            @Override
+                            public void onResponse(Call<GraphQLResponse<CreateRequestData>> call, Response<GraphQLResponse<CreateRequestData>> response) {
+                                if (response.isSuccessful()) {
+                                    if (response.body() != null) {
+                                        GraphQLResponse<CreateRequestData> body = response.body();
+
+                                        if (body.getData() != null) {
+                                            CreateRequestData data = body.getData();
+
+                                            if (bukkitPlayerOne != null && bukkitPlayerOne.isOnline()) {
+                                                MessageUtils.sendMessage(bukkitPlayerOne, wait);
+                                            }
+
+                                            if (bukkitPlayerTwo != null && bukkitPlayerTwo.isOnline()) {
+                                                MessageUtils.sendMessage(bukkitPlayerTwo, action);
+                                            }
+
+                                            tradesPendingCompletion.put(data.getRequest().getId(), trade);
+                                        }
+                                    }
+                                } else {
+                                    TextComponent text = TextComponent.builder()
+                                            .content("An error occurred when completing your trade.")
+                                            .color(TextColor.RED)
+                                            .build();
+
+                                    if (bukkitPlayerOne != null && bukkitPlayerOne.isOnline()) {
+                                        MessageUtils.sendMessage(bukkitPlayerOne, text);
+                                    }
+
+                                    if (bukkitPlayerTwo != null && bukkitPlayerTwo.isOnline()) {
+                                        MessageUtils.sendMessage(bukkitPlayerTwo, text);
+                                    }
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<GraphQLResponse<CreateRequestData>> call, Throwable t) {
+                                plugin.getLogger().warning(t.toString());
+                            }
+                        });
+            }
+        }
+    }
+
+    public void submitCreateTrade(Trade trade) {
         PlayerManager playerManager = this.plugin.getBootstrap().getPlayerManager();
         MinecraftPlayer playerOne = playerManager.getPlayer(trade.getPlayerOneUuid());
         MinecraftPlayer playerTwo = playerManager.getPlayer(trade.getPlayerTwoUuid());
@@ -94,7 +204,7 @@ public class TradeManager implements Listener {
 
                 service.createRequestAsync(playerOneIdentity.getId(), null, TransactionType.CREATE_TRADE, null,
                         null, null, null, data, null, null,
-                        null, new Callback<GraphQLResponse<CreateRequestData>>() {
+                        null, null, new Callback<GraphQLResponse<CreateRequestData>>() {
                             @Override
                             public void onResponse(Call<GraphQLResponse<CreateRequestData>> call, Response<GraphQLResponse<CreateRequestData>> response) {
                                 if (response.isSuccessful()) {
@@ -104,20 +214,15 @@ public class TradeManager implements Listener {
                                         if (body.getData() != null) {
                                             CreateRequestData data = body.getData();
 
-                                            TextComponent text = TextComponent.builder()
-                                                    .content("Please confirm the trade in your Enjin wallet!")
-                                                    .color(TextColor.GRAY)
-                                                    .build();
-
                                             if (bukkitPlayerOne != null && bukkitPlayerOne.isOnline()) {
-                                                MessageUtils.sendMessage(bukkitPlayerOne, text);
+                                                MessageUtils.sendMessage(bukkitPlayerOne, action);
                                             }
 
                                             if (bukkitPlayerTwo != null && bukkitPlayerTwo.isOnline()) {
-                                                MessageUtils.sendMessage(bukkitPlayerTwo, text);
+                                                MessageUtils.sendMessage(bukkitPlayerTwo, wait);
                                             }
 
-                                            tradesAwaitingWalletApproval.put(data.getRequest().getId(), trade);
+                                            tradesPendingCompletion.put(data.getRequest().getId(), trade);
                                         }
                                     }
                                 } else {
@@ -143,6 +248,10 @@ public class TradeManager implements Listener {
                         });
             }
         }
+    }
+
+    public Trade getTrade(int requestId) {
+        return tradesPendingCompletion.get(requestId);
     }
 
     private JsonArray extractTokens(List<ItemStack> offeredItems) {

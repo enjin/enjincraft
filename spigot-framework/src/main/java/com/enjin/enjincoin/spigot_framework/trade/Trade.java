@@ -13,6 +13,8 @@ public class Trade {
     private UUID playerTwoUuid;
     private List<ItemStack> playerTwoOffer;
 
+    private String tradeId;
+
     public Trade(UUID playerOneUuid, List<ItemStack> playerOneOffer, UUID playerTwoUuid, List<ItemStack> playerTwoOffer) {
         this.playerOneUuid = playerOneUuid;
         this.playerOneOffer = playerOneOffer;
@@ -34,6 +36,14 @@ public class Trade {
 
     public List<ItemStack> getPlayerTwoOffer() {
         return playerTwoOffer;
+    }
+
+    public String getTradeId() {
+        return tradeId;
+    }
+
+    public void setTradeId(String tradeId) {
+        this.tradeId = tradeId;
     }
 
     @Override
