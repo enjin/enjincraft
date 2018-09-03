@@ -8,6 +8,9 @@ import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 public class ENJScoreboard {
 
     private static String title = ChatColor.GOLD.toString() + ChatColor.BOLD.toString() + "ENJIN COIN";
@@ -61,8 +64,8 @@ public class ENJScoreboard {
     }
 
     public void update() {
-        String enjBalance = (owner.getIdentityData() == null) ? "0.0" : String.valueOf(owner.getIdentityData().getEnjBalance());
-        String ethBalance = (owner.getIdentityData() == null) ? "0.0" : String.valueOf(owner.getIdentityData().getEthBalance());
+        String enjBalance = (owner.getIdentityData() == null) ? "0.0" : formatDouble(owner.getIdentityData().getEnjBalance());
+        String ethBalance = (owner.getIdentityData() == null) ? "0.0" : formatDouble(owner.getIdentityData().getEthBalance());
         String linkStatus = (owner.getIdentityData() == null) ? "N/A"
                 : (owner.getIdentityData().getLinkingCode() == null ? ChatColor.DARK_PURPLE + "linked"
                 : ChatColor.GOLD + owner.getIdentity().getLinkingCode());
@@ -107,6 +110,21 @@ public class ENJScoreboard {
         objective.getScore(urlEntry).setScore(0);
 
         update();
+    }
+
+    /**
+     * Formats a number to display no more than two decimals.
+     *
+     * @param value The value to format.
+     *
+     * @return The formatted string.
+     */
+    private String formatDouble(Double value) {
+        String retv = "";
+        BigDecimal bd = new BigDecimal(value);
+        bd = bd.setScale(2, RoundingMode.HALF_DOWN);
+
+        return String.valueOf(bd);
     }
 
     private String getSpacer(int spaces) {
