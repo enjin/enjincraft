@@ -3,6 +3,7 @@ package com.enjin.enjincoin.spigot_framework.listeners.notifications;
 import com.enjin.enjincoin.sdk.client.service.notifications.vo.NotificationEvent;
 import com.enjin.enjincoin.spigot_framework.player.MinecraftPlayer;
 import com.enjin.enjincoin.spigot_framework.player.PlayerManager;
+import com.enjin.enjincoin.spigot_framework.trade.TradeManager;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -67,7 +68,7 @@ public class GenericNotificationListener implements NotificationListener {
             if (eventElement != null) {
                 String eventString = eventElement.getAsString();
 
-                if (eventString.equalsIgnoreCase("transfer")) {
+                if (eventString.equalsIgnoreCase("Transfer")) {
                     // handle transfer event.
                     String fromEthereumAddress = data.get("param1").getAsString();
                     String toEthereumAddress = data.get("param2").getAsString();
@@ -93,6 +94,15 @@ public class GenericNotificationListener implements NotificationListener {
                                 .append(TextComponent.of(" " + data.get("token").getAsJsonObject().get("name").getAsString()).color(TextColor.DARK_PURPLE));
                         MessageUtils.sendMessage(toPlayer.getBukkitPlayer(), text);
                     }
+                } else if (eventString.equalsIgnoreCase("CreateTrade")) {
+                    int requestId = data.get("transaction_id").getAsInt();
+                    String tradeId = data.get("param1").getAsString();
+                    TradeManager manager = main.getBootstrap().getTradeManager();
+                    manager.submitCompleteTrade(requestId, tradeId);
+                } else if (eventString.equalsIgnoreCase("CompleteTrade")) {
+                    int requestId = data.get("transaction_id").getAsInt();
+                    TradeManager manager = main.getBootstrap().getTradeManager();
+                    manager.completeTrade(requestId);
                 }
             }
         } else if (eventType == NotificationType.TXR_CANCELED_USER) {
