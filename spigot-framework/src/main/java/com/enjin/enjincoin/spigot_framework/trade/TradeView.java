@@ -174,8 +174,6 @@ public class TradeView extends ChestMenu {
         addComponent(Position.of(4, 0), verticalBarrierTop);
         addComponent(Position.of(4, 5), verticalBarrierBottom);
         addComponent(Position.of(0, 4), horizontalBarrier);
-
-        open(this.viewer.getBukkitPlayer());
     }
 
     public MinecraftPlayer getViewer() {
@@ -216,6 +214,10 @@ public class TradeView extends ChestMenu {
         }
 
         return items;
+    }
+
+    public void open() {
+        open(this.viewer.getBukkitPlayer());
     }
 
     private ItemStack getPlayerHead(Player player, boolean self) {

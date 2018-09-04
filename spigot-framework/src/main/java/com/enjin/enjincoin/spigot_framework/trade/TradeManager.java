@@ -71,6 +71,9 @@ public class TradeManager implements Listener {
 
             sender.setActiveTradeView(new TradeView(this.plugin, sender, target));
             target.setActiveTradeView(new TradeView(this.plugin, target, sender));
+
+            sender.getActiveTradeView().open();
+            target.getActiveTradeView().open();
         }
 
         return result;
