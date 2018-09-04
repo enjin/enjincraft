@@ -133,8 +133,8 @@ public class SpigotBootstrap extends PluginBootstrap {
                         TokensData data = response.body().getData();
                         if (data != null && data.getTokens() != null) {
                             data.getTokens().forEach(token -> {
-                                if (config.get("appId").getAsInt() == token.getAppId()) {
-                                    main.getBootstrap().tokens.put(token.getTokenId(), token);
+                                if (config.get("appId").getAsInt() == token.getAppId() && config.get("tokens").getAsJsonObject().has(token.getTokenId())) {
+                                    tokens.put(token.getTokenId(), token);
                                 }
                             });
                         }

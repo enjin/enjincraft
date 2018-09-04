@@ -69,7 +69,7 @@ public class ENJScoreboard {
         String linkStatus = (owner.getIdentityData() == null) ? "N/A"
                 : (owner.getIdentityData().getLinkingCode() == null ? ChatColor.DARK_PURPLE + "linked"
                 : ChatColor.GOLD + owner.getIdentity().getLinkingCode());
-        int tokenCount = owner.getIdentity() == null ? 0 : owner.getIdentity().getTokens().size();
+        int tokenCount = owner.getIdentity() == null ? 0 : owner.getWallet().getTokens().size();
 
         enj.setSuffix(enjBalance);
         eth.setSuffix(ethBalance);

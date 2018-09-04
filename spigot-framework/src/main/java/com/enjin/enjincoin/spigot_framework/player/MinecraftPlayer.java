@@ -99,7 +99,7 @@ public class MinecraftPlayer {
 
             User user = null;
             // we likely need a legit reload function for the wallet to repopulate it.
-            this.wallet = new Wallet(bukkitPlayer.getUniqueId());
+            this.wallet = new Wallet(plugin, bukkitPlayer.getUniqueId());
 
             if (networkResponse.isSuccessful()) {
                 GraphQLResponse<UsersData> response = networkResponse.body();
@@ -129,7 +129,7 @@ public class MinecraftPlayer {
         this.identity = identity;
 
         this.identityData = new IdentityData(identity);
-        this.wallet = new Wallet(bukkitPlayer.getUniqueId());
+        this.wallet = new Wallet(plugin, bukkitPlayer.getUniqueId());
         this.identityLoaded = true;
 
         this.wallet.populate(identity.getTokens());

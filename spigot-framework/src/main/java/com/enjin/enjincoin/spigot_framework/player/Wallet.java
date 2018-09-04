@@ -11,13 +11,14 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Wallet {
 
+    private BasePlugin plugin;
+
     private Map<String, TokenData> tokenBalances = new ConcurrentHashMap<>();
-
     private Inventory inventory = null;
-
     private static WalletCheckoutManager manager;
 
-    public Wallet(UUID uuid) {
+    public Wallet(BasePlugin plugin, UUID uuid) {
+        this.plugin = plugin;
         initializeCheckoutManager(uuid);
     }
 
@@ -30,11 +31,15 @@ public class Wallet {
     }
 
     public TokenData addToken(String id, TokenData data) {
-        // sync with checkout manager
-        if (manager.accessCheckout().containsKey(id)) {
-            data.setCheckedOut(manager.accessCheckout().get(id).getAmount());
+        if (plugin.getBootstrap().getTokens().containsKey(id)) {
+            // sync with checkout manager
+            if (manager.accessCheckout().containsKey(id)) {
+                data.setCheckedOut(manager.accessCheckout().get(id).getAmount());
+            }
+            return this.tokenBalances.put(id, data);
         }
-        return this.tokenBalances.put(id, data);
+
+        return null;
     }
 
     public Inventory getInventory() { return this.inventory; }
