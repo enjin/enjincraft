@@ -126,7 +126,6 @@ public class SpigotBootstrap extends PluginBootstrap {
             notificationsService.startAsync(future);
 
             // Fetch a list of all tokens registered to the configured app ID.
-            System.out.println(String.format("Main Server Thread: [%s, %s]", Thread.currentThread().getId(), Thread.currentThread().getName()));
             final TokensService tokensService = this.sdkClientController.getClient().getTokensService();
             tokensService.getAllTokensAsync(new Callback<GraphQLResponse<TokensData>>() {
                 @Override
