@@ -8,6 +8,7 @@ import com.enjin.enjincoin.spigot_framework.util.MessageUtils;
 import com.google.gson.JsonObject;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -49,13 +50,17 @@ public class SidebarCommand {
 
             MinecraftPlayer mcPlayer = this.main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId());
             // reload/refresh user info
-            mcPlayer.reloadUser();
+            Bukkit.getScheduler().runTaskAsynchronously(main, () -> {
+                mcPlayer.reloadUser();
 
-            if (mcPlayer.showScoreboard()) {
-                mcPlayer.showScoreboard(false);
-            } else {
-                mcPlayer.showScoreboard(true);
-            }
+                Bukkit.getScheduler().runTask(main, () -> {
+                    if (mcPlayer.showScoreboard()) {
+                        mcPlayer.showScoreboard(false);
+                    } else {
+                        mcPlayer.showScoreboard(true);
+                    }
+                });
+            });
         } else {
             TextComponent text = TextComponent.of("Only players can use this command.")
                 .color(TextColor.RED);

@@ -8,6 +8,7 @@ import com.enjin.enjincoin.spigot_framework.util.MessageUtils;
 import com.enjin.enjincoin.spigot_framework.util.UuidUtils;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import retrofit2.Response;
@@ -73,15 +74,17 @@ public class UnlinkCommand {
                 if (minecraftPlayer.isLoaded()) {
                     if (minecraftPlayer.getIdentityData().getEthereumAddress() == null || minecraftPlayer.getIdentityData().getEthereumAddress().isEmpty()) {
                         if (minecraftPlayer.getIdentity().getLinkingCode() != null)
-                            handleUnlinked(sender, minecraftPlayer.getIdentity().getLinkingCode());
+                            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> handleUnlinked(sender, minecraftPlayer.getIdentity().getLinkingCode()));
                     } else {
-                        try {
-                            handleUnlinking(sender, minecraftPlayer.getIdentityData().getId());
-                            // reload the identity for the existing user post unlink.
-                            minecraftPlayer.reloadUser();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                        // reload the identity for the existing user post unlink.
+                        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                            try {
+                                handleUnlinking(sender, minecraftPlayer.getIdentityData().getId());
+                                minecraftPlayer.reloadUser();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        });
                     }
                 } else {
                     // TODO: Warn sender that the online player has not fully loaded

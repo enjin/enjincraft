@@ -80,7 +80,7 @@ public class GenericNotificationListener implements NotificationListener {
                     MinecraftPlayer toPlayer = playerManager.getPlayer(toEthereumAddress);
 
                     if (fromPlayer != null) {
-                        fromPlayer.reloadUser();
+                        Bukkit.getScheduler().runTaskAsynchronously(main, () -> fromPlayer.reloadUser());
                         TextComponent text = TextComponent.of("You have successfully sent ").color(TextColor.GOLD)
                                 .append(TextComponent.of(amount).color(TextColor.GREEN))
                                 .append(TextComponent.of(" " + data.get("token").getAsJsonObject().get("name").getAsString()).color(TextColor.DARK_PURPLE));
@@ -88,7 +88,7 @@ public class GenericNotificationListener implements NotificationListener {
                     }
 
                     if (toPlayer != null) {
-                        toPlayer.reloadUser();
+                        Bukkit.getScheduler().runTaskAsynchronously(main, () -> toPlayer.reloadUser());
                         TextComponent text = TextComponent.of("You have received ").color(TextColor.GOLD)
                                 .append(TextComponent.of(amount).color(TextColor.GREEN))
                                 .append(TextComponent.of(" " + data.get("token").getAsJsonObject().get("name").getAsString()).color(TextColor.DARK_PURPLE));
