@@ -64,8 +64,8 @@ public class ENJScoreboard {
     }
 
     public void update() {
-        String enjBalance = (owner.getIdentityData() == null) ? "0.0" : formatDouble(owner.getIdentityData().getEnjBalance());
-        String ethBalance = (owner.getIdentityData() == null) ? "0.0" : formatDouble(owner.getIdentityData().getEthBalance());
+        String enjBalance = (owner.getIdentityData() == null) ? "N/A" : formatDouble(owner.getIdentityData().getEnjBalance());
+        String ethBalance = (owner.getIdentityData() == null) ? "N/A" : formatDouble(owner.getIdentityData().getEthBalance());
         String linkStatus = (owner.getIdentityData() == null) ? "N/A"
                 : (owner.getIdentityData().getLinkingCode() == null ? ChatColor.DARK_PURPLE + "linked"
                 : ChatColor.GOLD + owner.getIdentity().getLinkingCode());
@@ -123,7 +123,7 @@ public class ENJScoreboard {
         String retv = "";
 
         if (value == null) {
-            retv = "n/a";
+            retv = "N/A";
         } else {
             BigDecimal bd = new BigDecimal(value);
             bd = bd.setScale(2, RoundingMode.HALF_DOWN);
