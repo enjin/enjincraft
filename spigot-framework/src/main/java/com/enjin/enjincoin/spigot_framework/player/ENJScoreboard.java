@@ -121,10 +121,16 @@ public class ENJScoreboard {
      */
     private String formatDouble(Double value) {
         String retv = "";
-        BigDecimal bd = new BigDecimal(value);
-        bd = bd.setScale(2, RoundingMode.HALF_DOWN);
 
-        return String.valueOf(bd);
+        if (value == null) {
+            retv = "n/a";
+        } else {
+            BigDecimal bd = new BigDecimal(value);
+            bd = bd.setScale(2, RoundingMode.HALF_DOWN);
+            retv = String.valueOf(bd);
+        }
+
+        return retv;
     }
 
     private String getSpacer(int spaces) {
