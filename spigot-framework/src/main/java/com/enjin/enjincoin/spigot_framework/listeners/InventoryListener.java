@@ -11,6 +11,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -20,6 +21,7 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -37,11 +39,6 @@ public class InventoryListener implements Listener {
      * <p>The name of an inventory representing an Enjin wallet.</p>
      */
     private static final String WALLET_INVENTORY = "Enjin Wallet";
-
-    /**
-     * <p>The name of an inventory representing a player inventory.</p>
-     */
-    private static final String PLAYER_INVENTORY = "container.inventory";
 
     /**
      * <p>The spigot plugin.</p>
@@ -67,31 +64,14 @@ public class InventoryListener implements Listener {
      */
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInventoryDrag(InventoryDragEvent event) {
-        if (event.getInventory() == null || !isWalletInventory(event.getInventory()))
-            return;
+        if (!(event.getWhoClicked() instanceof Player)) return;
 
-        Player player = (Player) event.getInventory().getHolder();
-        if (player == null)
-            return;
+        InventoryView view = event.getView();
+        Inventory topInventory = view.getTopInventory();
 
-        MinecraftPlayer mcplayer = this.main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId());
-
-        if (ChatColor.stripColor(event.getView().getTitle()).equalsIgnoreCase("container.crafting")) {
-            event.setCancelled(true);
-            return;
-        }
-
-        if (isWalletInventory(event.getInventory())) {
-            ItemStack stack = event.getOldCursor();
-
-            WalletCheckoutManager checkout = mcplayer.getWallet().accessCheckoutManager();
-
-            String tokenId = checkout.getTokenId(stack);
-
-            if (tokenId != null && !tokenId.isEmpty())
-                checkout.returnItem(stack);
-            else
-                event.setCancelled(true);
+        // TODO: Allow dragging tokenized items only.
+        if (isWalletInventory(topInventory)) {
+            event.setResult(Event.Result.DENY);
         }
     }
 
@@ -106,6 +86,14 @@ public class InventoryListener implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInventoryClick(InventoryClickEvent event) {
         if (event.getClickedInventory() == null) return;
+
+        if (!isWalletInventory(event.getView().getTopInventory()))
+            return;
+
+        if (event.getAction() == InventoryAction.HOTBAR_SWAP ||
+            event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
+            event.setResult(Event.Result.DENY);
+        }
 
         if (event.getAction() == InventoryAction.PLACE_ALL ||
                 event.getAction() == InventoryAction.PLACE_ONE ||
