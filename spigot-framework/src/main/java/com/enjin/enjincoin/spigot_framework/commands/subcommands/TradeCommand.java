@@ -63,6 +63,8 @@ public class TradeCommand {
                 invite(sender, subArgs);
             } else if (sub.equalsIgnoreCase("accept")) {
                 inviteAccept(sender, subArgs);
+            } else if (sub.equalsIgnoreCase("decline")) {
+                inviteDecline(sender, subArgs);
             }
         }
     }
@@ -135,7 +137,40 @@ public class TradeCommand {
         if (args.length > 0) {
             Player target = Bukkit.getPlayer(args[0]);
 
-            // TODO: Decline player invite in trade manager.
+            if (target != null) {
+                PlayerManager playerManager = this.plugin.getBootstrap().getPlayerManager();
+                TradeManager tradeManager = this.plugin.getBootstrap().getTradeManager();
+                MinecraftPlayer senderMP = playerManager.getPlayer(target.getUniqueId());
+                MinecraftPlayer targetMP = playerManager.getPlayer(sender.getUniqueId());
+
+                boolean result = tradeManager.declineInvite(senderMP, targetMP);
+
+                if (result) {
+                    TextComponent inviteTargetText = TextComponent.builder()
+                            .content("You have declined ")
+                            .color(TextColor.GRAY)
+                            .append(TextComponent.builder()
+                                    .content(target.getName())
+                                    .color(TextColor.GOLD)
+                                    .build())
+                            .append(TextComponent.of("'s trade invite."))
+                            .build();
+                    MessageUtils.sendMessage(sender, inviteTargetText);
+
+                    TextComponent inviteSenderText = TextComponent.builder()
+                            .content("")
+                            .color(TextColor.GRAY)
+                            .append(TextComponent.builder()
+                                    .content(target.getName())
+                                    .color(TextColor.GOLD)
+                                    .build())
+                            .append(TextComponent.of(" has declined your trade invite."))
+                            .build();
+                    MessageUtils.sendMessage(target, inviteSenderText);
+                } else {
+                    // TODO: No trades from sender found
+                }
+            }
         } else {
             // TODO: Error: no player name was provided!
         }

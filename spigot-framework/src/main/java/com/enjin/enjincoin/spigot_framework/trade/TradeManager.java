@@ -79,6 +79,11 @@ public class TradeManager implements Listener {
         return result;
     }
 
+    public boolean declineInvite(MinecraftPlayer sender, MinecraftPlayer target) {
+        sender.getSentTradeInvites().remove(target);
+        return target.getReceivedTradeInvites().remove(sender);
+    }
+
     public void completeTrade(int requestId) {
         Trade trade = tradesPendingCompletion.remove(requestId);
         if (trade != null) {
