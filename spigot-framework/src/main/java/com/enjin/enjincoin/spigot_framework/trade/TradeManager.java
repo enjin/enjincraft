@@ -116,9 +116,10 @@ public class TradeManager implements Listener {
 
     public void submitCompleteTrade(int requestId, String tradeId) {
         Trade trade = tradesPendingCompletion.remove(requestId);
-        trade.setTradeId(tradeId);
 
         if (trade == null) return;
+
+        trade.setTradeId(tradeId);
 
         PlayerManager playerManager = this.plugin.getBootstrap().getPlayerManager();
         MinecraftPlayer playerOne = playerManager.getPlayer(trade.getPlayerOneUuid());
