@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 
 /**
  * <p>Extended bootstrap for the Spigot Minecraft server platform.</p>
@@ -117,6 +118,9 @@ public class SpigotBootstrap extends PluginBootstrap {
             future.whenComplete((result, throwable) -> {
                 if (throwable != null || result == null || !result) {
                     this.main.getLogger().warning("An error occurred while starting the notifications service.");
+                    if (throwable != null) {
+                        this.main.getLogger().log(Level.SEVERE, throwable.getMessage(), throwable);
+                    }
                 } else {
                     this.main.getLogger().info("Registering pusher notification listener.");
                     notificationsService.addNotificationListener(new GenericNotificationListener(this.main));

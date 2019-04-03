@@ -82,7 +82,7 @@ public class MinecraftPlayer {
 
         Integer appId = this.plugin.getBootstrap().getAppId();
         Optional<Identity> optionalIdentity = user.getIdentities().stream()
-                .filter(identity -> identity.getAppId() == appId)
+                .filter(identity -> identity.getAppId().intValue() == appId.intValue())
                 .findFirst();
         optionalIdentity.ifPresent(this::loadIdentity);
 
