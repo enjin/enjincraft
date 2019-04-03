@@ -1,15 +1,16 @@
 package com.enjin.enjincoin.spigot_framework.player;
 
-import com.enjin.enjincoin.sdk.client.Client;
-import com.enjin.enjincoin.sdk.client.model.body.GraphQLResponse;
-import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
-import com.enjin.enjincoin.sdk.client.service.users.vo.User;
-import com.enjin.enjincoin.sdk.client.service.users.vo.data.UsersData;
+import com.enjin.enjincoin.sdk.Client;
+import com.enjin.enjincoin.sdk.Response;
+import com.enjin.enjincoin.sdk.model.body.GraphQLResponse;
+import com.enjin.enjincoin.sdk.service.identities.IdentitiesService;
+import com.enjin.enjincoin.sdk.service.identities.vo.Identity;
+import com.enjin.enjincoin.sdk.service.users.vo.User;
+import com.enjin.enjincoin.sdk.service.users.vo.data.UsersData;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.trade.TradeView;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import retrofit2.Response;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -95,13 +96,13 @@ public class MinecraftPlayer {
         // Fetch the User for the Player in question
         try {
             Response<GraphQLResponse<UsersData>> networkResponse = client.getUsersService()
-                    .getUsersSync(null, bukkitPlayer.getUniqueId().toString(), null);
+                    .getUsersSync(null, bukkitPlayer.getUniqueId().toString(), null, false);
 
             User user = null;
             // we likely need a legit reload function for the wallet to repopulate it.
             this.wallet = new Wallet(plugin, bukkitPlayer.getUniqueId());
 
-            if (networkResponse.isSuccessful()) {
+            if (networkResponse.body() != null) {
                 GraphQLResponse<UsersData> response = networkResponse.body();
                 if (!response.isEmpty()) {
                     UsersData data = response.getData();

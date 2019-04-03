@@ -23,6 +23,7 @@ import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.*;
@@ -127,15 +128,25 @@ public class InventoryListener implements Listener {
 
             WalletCheckoutManager checkout = mcplayer.getWallet().accessCheckoutManager();
 
+            ItemStack cursor = event.getCursor();
+
             // handle returning an item to the inventory.
-            String tokenId = checkout.getTokenId(event.getCursor());
+            String tokenId = checkout.getTokenId(cursor);
 
             // check to see if the current cursor stack is a checked out item.
             if (tokenId != null) {
                 // System.out.println(tokenId);
                 // repair and unbreakable flag the item... just to be safe.
-                event.getCursor().setDurability((short)0);
-                event.getCursor().getItemMeta().setUnbreakable(true);
+                ItemMeta meta = cursor.getItemMeta();
+
+                if (meta instanceof Damageable) {
+                    Damageable damageable = (Damageable) meta;
+                    damageable.setDamage((short) 0);
+                }
+
+                meta.setUnbreakable(true);
+
+                cursor.setItemMeta(meta);
 
                 // handle checkout manager return.
                 returnItemStack(player, event.getCursor());

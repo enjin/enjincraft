@@ -1,6 +1,6 @@
 package com.enjin.enjincoin.spigot_framework.player;
 
-import com.enjin.enjincoin.sdk.client.service.tokens.vo.Token;
+import com.enjin.enjincoin.sdk.service.tokens.vo.Token;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.inventory.WalletCheckoutManager;
 import org.bukkit.inventory.Inventory;

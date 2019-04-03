@@ -1,15 +1,15 @@
 package com.enjin.enjincoin.spigot_framework.player;
 
-import com.enjin.enjincoin.sdk.client.Client;
-import com.enjin.enjincoin.sdk.client.model.body.GraphQLResponse;
-import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
-import com.enjin.enjincoin.sdk.client.service.identities.vo.data.CreateIdentityData;
-import com.enjin.enjincoin.sdk.client.service.users.vo.User;
-import com.enjin.enjincoin.sdk.client.service.users.vo.data.CreateUserData;
-import com.enjin.enjincoin.sdk.client.service.users.vo.data.UsersData;
+import com.enjin.enjincoin.sdk.Client;
+import com.enjin.enjincoin.sdk.Response;
+import com.enjin.enjincoin.sdk.model.body.GraphQLResponse;
+import com.enjin.enjincoin.sdk.service.identities.vo.Identity;
+import com.enjin.enjincoin.sdk.service.identities.vo.data.CreateIdentityData;
+import com.enjin.enjincoin.sdk.service.users.vo.User;
+import com.enjin.enjincoin.sdk.service.users.vo.data.CreateUserData;
+import com.enjin.enjincoin.sdk.service.users.vo.data.UsersData;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import org.bukkit.scheduler.BukkitRunnable;
-import retrofit2.Response;
 
 import java.io.IOException;
 import java.util.Map;
@@ -88,11 +88,11 @@ public class PlayerInitializationTask extends BukkitRunnable {
         Client client = this.plugin.getBootstrap().getSdkController().getClient();
         // Fetch the User for the Player in question
         Response<GraphQLResponse<UsersData>> networkResponse = client.getUsersService()
-                .getUsersSync(null, playerUuid.toString(),null);
+                .getUsersSync(null, playerUuid.toString(),null, false);
 
         User user = null;
 
-        if (networkResponse.isSuccessful()) {
+        if (networkResponse.body() != null) {
             GraphQLResponse<UsersData> response = networkResponse.body();
             if (!response.isEmpty()) {
                 UsersData data = response.getData();
@@ -113,7 +113,7 @@ public class PlayerInitializationTask extends BukkitRunnable {
 
         User user = null;
 
-        if (networkResponse.isSuccessful()) {
+        if (networkResponse.body() != null) {
             GraphQLResponse<CreateUserData> response = networkResponse.body();
             if (!response.isEmpty()) {
                 CreateUserData data = response.getData();
@@ -128,11 +128,11 @@ public class PlayerInitializationTask extends BukkitRunnable {
         Client client = this.plugin.getBootstrap().getSdkController().getClient();
         // Create the Identity for the App ID and Player in question
         Response<GraphQLResponse<CreateIdentityData>> networkResponse = client.getIdentitiesService()
-                .createIdentitySync(this.minecraftPlayer.getUserData().getId(), null, null);
+                .createIdentitySync(this.minecraftPlayer.getUserData().getId(), null, null, null);
 
         Identity identity = null;
 
-        if (networkResponse.isSuccessful()) {
+        if (networkResponse.body() != null) {
             GraphQLResponse<CreateIdentityData> response = networkResponse.body();
             if (!response.isEmpty()) {
                 CreateIdentityData data = response.getData();

@@ -1,6 +1,6 @@
 package com.enjin.enjincoin.spigot_framework.player;
 
-import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
+import com.enjin.enjincoin.sdk.service.identities.vo.Identity;
 
 public class IdentityData {
 

@@ -1,7 +1,8 @@
 package com.enjin.enjincoin.spigot_framework.commands.subcommands;
 
-import com.enjin.enjincoin.sdk.client.model.body.GraphQLResponse;
-import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
+import com.enjin.enjincoin.sdk.Response;
+import com.enjin.enjincoin.sdk.model.body.GraphQLResponse;
+import com.enjin.enjincoin.sdk.service.identities.vo.Identity;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.player.MinecraftPlayer;
 import com.enjin.enjincoin.spigot_framework.util.MessageUtils;
@@ -11,7 +12,6 @@ import net.kyori.text.format.TextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import retrofit2.Response;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -134,11 +134,11 @@ public class UnlinkCommand {
         Response<GraphQLResponse<Identity>> response = this.plugin.getBootstrap().getSdkController().getClient().getIdentitiesService().unlinkIdentitySync(id, true);
 
         String code = "";
-        if (response.isSuccessful()) {
+        if (response.body() != null) {
             if (response.body().getData() != null) {
                 code = response.body().getData().getLinkingCode();
             } else {
-                System.out.println("Error unlinking: " + response.errorBody().string());
+//                System.out.println("Error unlinking: " + response.errorBody().string());
             }
         }
 

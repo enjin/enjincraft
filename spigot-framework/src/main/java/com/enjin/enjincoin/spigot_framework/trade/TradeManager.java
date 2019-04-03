@@ -1,11 +1,13 @@
 package com.enjin.enjincoin.spigot_framework.trade;
 
-import com.enjin.enjincoin.sdk.client.Client;
-import com.enjin.enjincoin.sdk.client.model.body.GraphQLResponse;
-import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
-import com.enjin.enjincoin.sdk.client.service.requests.RequestsService;
-import com.enjin.enjincoin.sdk.client.service.requests.vo.TransactionType;
-import com.enjin.enjincoin.sdk.client.service.requests.vo.data.CreateRequestData;
+import com.enjin.enjincoin.sdk.Callback;
+import com.enjin.enjincoin.sdk.Client;
+import com.enjin.enjincoin.sdk.Response;
+import com.enjin.enjincoin.sdk.model.body.GraphQLResponse;
+import com.enjin.enjincoin.sdk.service.identities.vo.Identity;
+import com.enjin.enjincoin.sdk.service.requests.RequestsService;
+import com.enjin.enjincoin.sdk.service.requests.vo.TransactionType;
+import com.enjin.enjincoin.sdk.service.requests.vo.data.CreateRequestData;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.controllers.SdkClientController;
 import com.enjin.enjincoin.spigot_framework.event.MinecraftPlayerQuitEvent;
@@ -21,9 +23,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 import java.util.List;
 import java.util.Map;
@@ -136,53 +135,71 @@ public class TradeManager implements Listener {
                 Player bukkitPlayerOne = playerOne.getBukkitPlayer();
                 Player bukkitPlayerTwo = playerTwo.getBukkitPlayer();
 
-                JsonObject data = new JsonObject();
-                data.addProperty("trade_id", trade.getTradeId());
+                JsonObject dataOut = new JsonObject();
+                dataOut.addProperty("trade_id", trade.getTradeId());
 
-                service.createRequestAsync(playerTwoIdentity.getId(), null, TransactionType.COMPLETE_TRADE, null,
-                        null, null, null, null, data, null,
-                        null, null, new Callback<GraphQLResponse<CreateRequestData>>() {
-                            @Override
-                            public void onResponse(Call<GraphQLResponse<CreateRequestData>> call, Response<GraphQLResponse<CreateRequestData>> response) {
-                                if (response.isSuccessful()) {
-                                    if (response.body() != null) {
-                                        GraphQLResponse<CreateRequestData> body = response.body();
+                service.createRequestAsync(
+                        playerTwoIdentity.getId(),
+                        TransactionType.COMPLETE_TRADE,
+                        false,
+                        false,
+                        null,
+                        null,
+                        dataOut,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        response -> {
+                            if (response.body() != null) {
+                                if (response.body() != null) {
+                                    GraphQLResponse<CreateRequestData> body = response.body();
 
-                                        if (body.getData() != null) {
-                                            CreateRequestData data = body.getData();
+                                    if (body.getData() != null) {
+                                        CreateRequestData dataIn = body.getData();
 
-                                            if (bukkitPlayerOne != null && bukkitPlayerOne.isOnline()) {
-                                                MessageUtils.sendMessage(bukkitPlayerOne, wait);
-                                            }
-
-                                            if (bukkitPlayerTwo != null && bukkitPlayerTwo.isOnline()) {
-                                                MessageUtils.sendMessage(bukkitPlayerTwo, action);
-                                            }
-
-                                            tradesPendingCompletion.put(data.getRequest().getId(), trade);
+                                        if (bukkitPlayerOne != null && bukkitPlayerOne.isOnline()) {
+                                            MessageUtils.sendMessage(bukkitPlayerOne, wait);
                                         }
-                                    }
-                                } else {
-                                    TextComponent text = TextComponent.builder()
-                                            .content("An error occurred when completing your trade.")
-                                            .color(TextColor.RED)
-                                            .build();
 
-                                    if (bukkitPlayerOne != null && bukkitPlayerOne.isOnline()) {
-                                        MessageUtils.sendMessage(bukkitPlayerOne, text);
-                                    }
+                                        if (bukkitPlayerTwo != null && bukkitPlayerTwo.isOnline()) {
+                                            MessageUtils.sendMessage(bukkitPlayerTwo, action);
+                                        }
 
-                                    if (bukkitPlayerTwo != null && bukkitPlayerTwo.isOnline()) {
-                                        MessageUtils.sendMessage(bukkitPlayerTwo, text);
+                                        tradesPendingCompletion.put(dataIn.getRequest().getId(), trade);
                                     }
                                 }
-                            }
+                            } else {
+                                TextComponent text = TextComponent.builder()
+                                        .content("An error occurred when completing your trade.")
+                                        .color(TextColor.RED)
+                                        .build();
 
-                            @Override
-                            public void onFailure(Call<GraphQLResponse<CreateRequestData>> call, Throwable t) {
-                                plugin.getLogger().warning(t.toString());
+                                if (bukkitPlayerOne != null && bukkitPlayerOne.isOnline()) {
+                                    MessageUtils.sendMessage(bukkitPlayerOne, text);
+                                }
+
+                                if (bukkitPlayerTwo != null && bukkitPlayerTwo.isOnline()) {
+                                    MessageUtils.sendMessage(bukkitPlayerTwo, text);
+                                }
                             }
-                        });
+                        }
+                );
             }
         }
     }
@@ -203,58 +220,76 @@ public class TradeManager implements Listener {
                 Player bukkitPlayerOne = playerOne.getBukkitPlayer();
                 Player bukkitPlayerTwo = playerTwo.getBukkitPlayer();
 
-                JsonObject data = new JsonObject();
+                JsonObject dataOut = new JsonObject();
                 JsonArray playerOneTokens = extractTokens(trade.getPlayerOneOffer());
                 JsonArray playerTwoTokens = extractTokens(trade.getPlayerTwoOffer());
 
-                data.add("offering_tokens", playerOneTokens);
-                data.add("asking_tokens", playerTwoTokens);
-                data.addProperty("second_party_identity_id", playerTwoIdentity.getId());
+                dataOut.add("offering_tokens", playerOneTokens);
+                dataOut.add("asking_tokens", playerTwoTokens);
+                dataOut.addProperty("second_party_identity_id", playerTwoIdentity.getId());
 
-                service.createRequestAsync(playerOneIdentity.getId(), null, TransactionType.CREATE_TRADE, null,
-                        null, null, null, data, null, null,
-                        null, null, new Callback<GraphQLResponse<CreateRequestData>>() {
-                            @Override
-                            public void onResponse(Call<GraphQLResponse<CreateRequestData>> call, Response<GraphQLResponse<CreateRequestData>> response) {
-                                if (response.isSuccessful()) {
-                                    if (response.body() != null) {
-                                        GraphQLResponse<CreateRequestData> body = response.body();
+                service.createRequestAsync(
+                        playerOneIdentity.getId(),
+                        TransactionType.CREATE_TRADE,
+                        false,
+                        false,
+                        null,
+                        dataOut,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        response -> {
+                            if (response.body() != null) {
+                                if (response.body() != null) {
+                                    GraphQLResponse<CreateRequestData> body = response.body();
 
-                                        if (body.getData() != null) {
-                                            CreateRequestData data = body.getData();
+                                    if (body.getData() != null) {
+                                        CreateRequestData dataIn = body.getData();
 
-                                            if (bukkitPlayerOne != null && bukkitPlayerOne.isOnline()) {
-                                                MessageUtils.sendMessage(bukkitPlayerOne, action);
-                                            }
-
-                                            if (bukkitPlayerTwo != null && bukkitPlayerTwo.isOnline()) {
-                                                MessageUtils.sendMessage(bukkitPlayerTwo, wait);
-                                            }
-
-                                            tradesPendingCompletion.put(data.getRequest().getId(), trade);
+                                        if (bukkitPlayerOne != null && bukkitPlayerOne.isOnline()) {
+                                            MessageUtils.sendMessage(bukkitPlayerOne, action);
                                         }
-                                    }
-                                } else {
-                                    TextComponent text = TextComponent.builder()
-                                            .content("An error occurred when creating your trade.")
-                                            .color(TextColor.RED)
-                                            .build();
 
-                                    if (bukkitPlayerOne != null && bukkitPlayerOne.isOnline()) {
-                                        MessageUtils.sendMessage(bukkitPlayerOne, text);
-                                    }
+                                        if (bukkitPlayerTwo != null && bukkitPlayerTwo.isOnline()) {
+                                            MessageUtils.sendMessage(bukkitPlayerTwo, wait);
+                                        }
 
-                                    if (bukkitPlayerTwo != null && bukkitPlayerTwo.isOnline()) {
-                                        MessageUtils.sendMessage(bukkitPlayerTwo, text);
+                                        tradesPendingCompletion.put(dataIn.getRequest().getId(), trade);
                                     }
                                 }
-                            }
+                            } else {
+                                TextComponent text = TextComponent.builder()
+                                        .content("An error occurred when creating your trade.")
+                                        .color(TextColor.RED)
+                                        .build();
 
-                            @Override
-                            public void onFailure(Call<GraphQLResponse<CreateRequestData>> call, Throwable t) {
-                                plugin.getLogger().warning(t.toString());
+                                if (bukkitPlayerOne != null && bukkitPlayerOne.isOnline()) {
+                                    MessageUtils.sendMessage(bukkitPlayerOne, text);
+                                }
+
+                                if (bukkitPlayerTwo != null && bukkitPlayerTwo.isOnline()) {
+                                    MessageUtils.sendMessage(bukkitPlayerTwo, text);
+                                }
                             }
-                        });
+                        }
+                );
             }
         }
     }

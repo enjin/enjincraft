@@ -1,13 +1,13 @@
 package com.enjin.enjincoin.spigot_framework.listeners;
 
-import com.enjin.enjincoin.sdk.client.model.body.GraphQLResponse;
-import com.enjin.enjincoin.sdk.client.service.users.vo.User;
-import com.enjin.enjincoin.sdk.client.service.users.vo.data.UsersData;
+import com.enjin.enjincoin.sdk.model.body.GraphQLResponse;
+import com.enjin.enjincoin.sdk.service.users.vo.User;
+import com.enjin.enjincoin.sdk.service.users.vo.data.UsersData;
 import com.enjin.java_commons.ExceptionUtils;
-import com.enjin.enjincoin.sdk.client.Client;
-import com.enjin.enjincoin.sdk.client.service.identities.IdentitiesService;
-import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
-import com.enjin.enjincoin.sdk.client.service.identities.vo.IdentityField;
+import com.enjin.enjincoin.sdk.Client;
+import com.enjin.enjincoin.sdk.service.identities.IdentitiesService;
+import com.enjin.enjincoin.sdk.service.identities.vo.Identity;
+import com.enjin.enjincoin.sdk.service.identities.vo.IdentityField;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.util.MessageUtils;
 import net.kyori.text.TextComponent;

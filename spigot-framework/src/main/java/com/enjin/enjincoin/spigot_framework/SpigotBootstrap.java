@@ -1,8 +1,10 @@
 package com.enjin.enjincoin.spigot_framework;
 
-import com.enjin.enjincoin.sdk.client.model.body.GraphQLResponse;
-import com.enjin.enjincoin.sdk.client.service.tokens.vo.Token;
-import com.enjin.enjincoin.sdk.client.service.tokens.vo.data.TokensData;
+import com.enjin.enjincoin.sdk.Callback;
+import com.enjin.enjincoin.sdk.Response;
+import com.enjin.enjincoin.sdk.model.body.GraphQLResponse;
+import com.enjin.enjincoin.sdk.service.tokens.vo.Token;
+import com.enjin.enjincoin.sdk.service.tokens.vo.data.TokensData;
 import com.enjin.enjincoin.spigot_framework.listeners.ConnectionListener;
 import com.enjin.enjincoin.spigot_framework.listeners.InventoryListener;
 import com.enjin.enjincoin.spigot_framework.listeners.PlayerInteractionListener;
@@ -11,15 +13,12 @@ import com.enjin.enjincoin.spigot_framework.trade.TradeManager;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.enjin.enjincoin.sdk.client.service.notifications.NotificationsService;
-import com.enjin.enjincoin.sdk.client.service.tokens.TokensService;
+import com.enjin.enjincoin.sdk.service.notifications.NotificationsService;
+import com.enjin.enjincoin.sdk.service.tokens.TokensService;
 import com.enjin.enjincoin.spigot_framework.commands.RootCommand;
 import com.enjin.enjincoin.spigot_framework.controllers.SdkClientController;
 import com.enjin.enjincoin.spigot_framework.listeners.notifications.GenericNotificationListener;
 import org.bukkit.Bukkit;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 import java.io.File;
 import java.io.FileReader;
@@ -129,8 +128,8 @@ public class SpigotBootstrap extends PluginBootstrap {
             final TokensService tokensService = this.sdkClientController.getClient().getTokensService();
             tokensService.getAllTokensAsync(new Callback<GraphQLResponse<TokensData>>() {
                 @Override
-                public void onResponse(Call<GraphQLResponse<TokensData>> call, Response<GraphQLResponse<TokensData>> response) {
-                    if (response.isSuccessful()) {
+                public void onComplete(Response<GraphQLResponse<TokensData>> response) {
+                    if (response.body() != null) {
                         TokensData data = response.body().getData();
                         if (data != null && data.getTokens() != null) {
                             data.getTokens().forEach(token -> {
@@ -140,11 +139,6 @@ public class SpigotBootstrap extends PluginBootstrap {
                             });
                         }
                     }
-                }
-
-                @Override
-                public void onFailure(Call<GraphQLResponse<TokensData>> call, Throwable t) {
-                    main.getLogger().warning("An error occurred while fetching tokens.");
                 }
             });
         } catch (IOException e) {

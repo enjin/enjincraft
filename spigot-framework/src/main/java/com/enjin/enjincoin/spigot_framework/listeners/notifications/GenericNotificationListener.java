@@ -1,6 +1,6 @@
 package com.enjin.enjincoin.spigot_framework.listeners.notifications;
 
-import com.enjin.enjincoin.sdk.client.service.notifications.vo.NotificationEvent;
+import com.enjin.enjincoin.sdk.service.notifications.vo.NotificationEvent;
 import com.enjin.enjincoin.spigot_framework.player.MinecraftPlayer;
 import com.enjin.enjincoin.spigot_framework.player.PlayerManager;
 import com.enjin.enjincoin.spigot_framework.trade.TradeManager;
@@ -8,11 +8,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.enjin.enjincoin.sdk.client.enums.NotificationType;
-import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
-import com.enjin.enjincoin.sdk.client.service.identities.vo.IdentityField;
-import com.enjin.enjincoin.sdk.client.service.notifications.NotificationListener;
-import com.enjin.enjincoin.sdk.client.service.tokens.vo.Token;
+import com.enjin.enjincoin.sdk.enums.NotificationType;
+import com.enjin.enjincoin.sdk.service.identities.vo.Identity;
+import com.enjin.enjincoin.sdk.service.identities.vo.IdentityField;
+import com.enjin.enjincoin.sdk.service.notifications.NotificationListener;
+import com.enjin.enjincoin.sdk.service.tokens.vo.Token;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.inventory.WalletInventory;
 import com.enjin.enjincoin.spigot_framework.util.UuidUtils;
@@ -308,12 +308,8 @@ public class GenericNotificationListener implements NotificationListener {
                                     }
 
                                     List<String> lore = new ArrayList<>();
-                                    if (token.getDecimals() == 0) {
-                                        int balance = Double.valueOf(amount).intValue();
-                                        lore.add(ChatColor.GRAY + "Balance: " + ChatColor.GOLD + balance);
-                                    } else {
-                                        lore.add(ChatColor.GRAY + "Balance: " + ChatColor.GOLD + WalletInventory.DECIMAL_FORMAT.format(amount));
-                                    }
+                                    int balance = Double.valueOf(amount).intValue();
+                                    lore.add(ChatColor.GRAY + "Balance: " + ChatColor.GOLD + balance);
 
                                     if (tokenDisplay.has("lore")) {
                                         JsonElement element = tokenDisplay.get("lore");

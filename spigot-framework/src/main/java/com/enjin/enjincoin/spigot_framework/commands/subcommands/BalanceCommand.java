@@ -1,6 +1,6 @@
 package com.enjin.enjincoin.spigot_framework.commands.subcommands;
 
-import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
+import com.enjin.enjincoin.sdk.service.identities.vo.Identity;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.inventory.WalletInventory;
 import com.enjin.enjincoin.spigot_framework.player.MinecraftPlayer;

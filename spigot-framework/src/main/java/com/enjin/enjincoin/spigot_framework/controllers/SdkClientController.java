@@ -1,8 +1,8 @@
 package com.enjin.enjincoin.spigot_framework.controllers;
 
 import com.google.gson.JsonObject;
-import com.enjin.enjincoin.sdk.client.Client;
-import com.enjin.enjincoin.sdk.client.Clients;
+import com.enjin.enjincoin.sdk.Client;
+import com.enjin.enjincoin.sdk.Clients;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import org.apache.commons.lang.NullArgumentException;
 

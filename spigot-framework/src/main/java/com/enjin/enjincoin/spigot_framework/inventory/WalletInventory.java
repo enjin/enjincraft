@@ -7,9 +7,9 @@ import com.enjin.minecraft_commons.spigot.nbt.NBTItem;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.enjin.enjincoin.sdk.client.service.identities.vo.Identity;
-import com.enjin.enjincoin.sdk.client.service.identities.vo.data.IdentitiesData;
-import com.enjin.enjincoin.sdk.client.service.tokens.vo.Token;
+import com.enjin.enjincoin.sdk.service.identities.vo.Identity;
+import com.enjin.enjincoin.sdk.service.identities.vo.data.IdentitiesData;
+import com.enjin.enjincoin.sdk.service.tokens.vo.Token;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -144,15 +144,8 @@ public class WalletInventory {
 
                 List<String> lore = new ArrayList<>();
                 // Add balance to lore.
-                if (token.getDecimals() != null && token.getDecimals() == 0) {
-                    // Display balance as an integer.
-                    double balance = stack.getAmount();
-                    lore.add(ChatColor.GRAY + "Owned: " + ChatColor.GOLD + entry.getBalance().intValue());
-                } else {
-                    // Display balance using the price format.
-                    double balance = entry.getBalance();
-                    lore.add(ChatColor.GRAY + "Owned: " + ChatColor.GOLD + DECIMAL_FORMAT.format(entry.getBalance().intValue()));
-                }
+                double balance = stack.getAmount();
+                lore.add(ChatColor.GRAY + "Owned: " + ChatColor.GOLD + entry.getBalance().intValue());
 
                 // Fetch and use lore description if found.
                 if (tokenDisplay != null && tokenDisplay.has("lore")) {
@@ -271,16 +264,9 @@ public class WalletInventory {
 
                 List<String> lore = new ArrayList<>();
                 // Add balance to lore.
-                if (token.getDecimals() != null && token.getDecimals() == 0) {
-                    // Display balance as an integer.
-                    double balance = Double.valueOf(entry.getBalance().intValue());
-                    lore.add(ChatColor.GRAY + "Balance: " + ChatColor.GOLD + balance);
-                    lore.add(ChatColor.GRAY + "ENJ Melt Value: " + ChatColor.GOLD + entry.getMeltValue() );
-                } else {
-                    // Display balance using the price format.
-                    double balance = entry.getBalance();
-                    lore.add(ChatColor.GRAY + "Balance: " + ChatColor.GOLD + DECIMAL_FORMAT.format(balance));
-                }
+                double balance = Double.valueOf(entry.getBalance().intValue());
+                lore.add(ChatColor.GRAY + "Balance: " + ChatColor.GOLD + balance);
+                lore.add(ChatColor.GRAY + "ENJ Melt Value: " + ChatColor.GOLD + entry.getMeltValue() );
 
                 // Fetch and use lore description if found.
                 if (tokenDisplay != null && tokenDisplay.has("lore")) {

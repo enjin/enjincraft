@@ -1,6 +1,6 @@
 package com.enjin.enjincoin.spigot_framework.player;
 
-import com.enjin.enjincoin.sdk.client.service.users.vo.User;
+import com.enjin.enjincoin.sdk.service.users.vo.User;
 
 import java.util.UUID;
 
