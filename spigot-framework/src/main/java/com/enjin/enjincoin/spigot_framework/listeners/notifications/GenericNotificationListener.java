@@ -27,6 +27,7 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -53,7 +54,7 @@ public class GenericNotificationListener implements NotificationListener {
     public void notificationReceived(NotificationEvent event) {
         NotificationType eventType = event.getNotificationType();
 
-        this.main.getBootstrap().debug(String.format("Received %s event with data: %s", eventType, event.getSourceData()));
+        this.main.getBootstrap().debug(String.format("Received %s event on %s with data: %s", eventType, event.getChannel(), event.getSourceData()));
         this.main.getBootstrap().debug(String.format("Parsing data for %s event", event.getNotificationType().getEventType()));
         JsonParser parser = new JsonParser();
         JsonObject data = parser.parse(event.getSourceData()).getAsJsonObject().get("data").getAsJsonObject();
@@ -107,68 +108,14 @@ public class GenericNotificationListener implements NotificationListener {
             }
         } else if (eventType == NotificationType.TXR_CANCELED_USER) {
             this.main.getBootstrap().debug("Transaction was canceled");
+        } else if (eventType == NotificationType.IDENTITY_UPDATED) {
+            MinecraftPlayer player = this.main.getBootstrap().getPlayerManager().getPlayer(data.get("id").getAsInt());
+            if (player != null) {
+                Bukkit.getScheduler().runTaskAsynchronously(this.main, () -> player.reloadUser());
+            }
         } else {
             this.main.getBootstrap().debug("Transaction was last in state: " + eventType);
         }
-
-//        if (event.getNotificationType() == NotificationType.TX_EXECUTED) {
-//                 Handle melt event.
-//                String ethereumAddress = data.get("param1").getAsString();
-//                double amount = Double.valueOf(data.get("param2").getAsString());
-//                String tokenId = data.get("token").getAsJsonObject().get("token_id").getAsString();
-//                int appId = data.get("token").getAsJsonObject().get("app_id").getAsInt();
-//
-//                this.main.getBootstrap().debug(String.format("%s of token %s was melted by %s", amount, tokenId, ethereumAddress));
-//
-//                JsonObject config = this.main.getBootstrap().getConfig();
-//                if (config.get("appId").getAsInt() == appId) {
-//                    this.main.getBootstrap().debug(String.format("Updating balance of player linked to %s", ethereumAddress));
-//                    Identity identity = getIdentity(ethereumAddress);
-//
-//                    if (identity != null)
-//                        addTokenValue(identity, tokenId, -amount);
-//                }
-//            } else if (data.get("event").getAsString().equalsIgnoreCase("transfer")) {
-//                // Handle transfer event.
-//                String fromEthereumAddress = data.get("param1").getAsString();
-//                String toEthereumAddress = data.get("param2").getAsString();
-//                double amount = Double.valueOf(data.get("param3").getAsString());
-//                String tokenId = data.get("token").getAsJsonObject().get("token_id").getAsString();
-//                int appId = data.get("token").getAsJsonObject().get("app_id").getAsInt();
-//
-//                this.main.getBootstrap().debug(String.format("%s received %s of %s tokens from %s", toEthereumAddress, amount, tokenId, fromEthereumAddress));
-//
-//                JsonObject config = this.main.getBootstrap().getConfig();
-//                if (config.get("appId").getAsInt() == appId) {
-//                    this.main.getBootstrap().debug(String.format("Updating balance of player linked to %s", toEthereumAddress));
-//                    Identity toIdentity = getIdentity(toEthereumAddress);
-//                    Identity fromIdentity = getIdentity(fromEthereumAddress);
-//
-//                    if (toIdentity != null)
-//                        addTokenValue(toIdentity, tokenId, amount);
-//                    if (fromIdentity != null)
-//                        addTokenValue(fromIdentity, tokenId, -amount);
-//                }
-//            }
-//        }
-    }
-
-    /**
-     * <p>Returns an {@link Identity} of an online player associated with the
-     * provided Ethereum address.</p>
-     *
-     * @param address the Ethereum address
-     *
-     * @return the identity associated with address or null if no matching identity is found
-     *
-     * @since 1.0
-     */
-    public Identity getIdentity(String address) {
-//        return this.main.getBootstrap().getIdentities().values().stream()
-//                .filter(i -> i != null && i.getEthereumAddress().equalsIgnoreCase(address))
-//                .findFirst()
-//                .orElse(null);
-        return null;
     }
 
     /**

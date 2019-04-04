@@ -31,6 +31,7 @@ public class MinecraftPlayer {
     // State Fields
     private boolean userLoaded;
     private boolean identityLoaded;
+    private boolean listening;
 
     // Scoreboard
     private boolean showScoreboard;
@@ -115,6 +116,7 @@ public class MinecraftPlayer {
             loadUser(user);
         } catch (Exception e) {
             System.out.println("Failed to reload user");
+            e.printStackTrace();
         }
     }
 
@@ -134,6 +136,14 @@ public class MinecraftPlayer {
         this.identityLoaded = true;
 
         this.wallet.populate(identity.getTokens());
+
+        if (identity.getLinkingCode() != null && !listening) {
+            this.plugin.getBootstrap().getSdkController().getClient().getNotificationsService().listenForLink(identity.getId());
+            this.listening = true;
+        } else if (identity.getLinkingCode() == null && listening) {
+            this.plugin.getBootstrap().getSdkController().getClient().getNotificationsService().stopListeningForLink(identity.getId());
+            this.listening = false;
+        }
     }
 
     public boolean isLoaded() {

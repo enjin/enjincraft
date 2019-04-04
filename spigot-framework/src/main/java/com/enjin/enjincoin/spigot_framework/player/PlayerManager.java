@@ -59,6 +59,13 @@ public class PlayerManager implements Listener {
                 .findFirst().orElse(null);
     }
 
+    public MinecraftPlayer getPlayer(int identityId) {
+        return this.players.values().stream()
+                .filter(player -> player.getIdentityData() != null
+                        && identityId == player.getIdentityData().getId().intValue())
+                .findFirst().orElse(null);
+    }
+
     public void addPlayer(MinecraftPlayer minecraftPlayer) {
         if (!minecraftPlayer.getBukkitPlayer().isOnline()) {
             return;
