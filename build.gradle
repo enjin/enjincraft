@@ -21,8 +21,8 @@ subprojects {
 
     apply from: scriptFile('deps.gradle')
 
-    group 'com.enjin.enjincoin'
-    version '0.2.0-SNAPSHOT'
+    group 'com.enjin'
+    version '0.3.0-SNAPSHOT'
 
     idea {
         module {

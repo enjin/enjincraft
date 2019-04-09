@@ -14,7 +14,7 @@ repositories {
 dependencies {
     shadow deps.spigot
 
-    compile project(':spigot-framework')
+    compile project(':ecmp-spigot-framework')
 }
 
 shadowJar {
