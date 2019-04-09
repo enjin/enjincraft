@@ -221,6 +221,10 @@ public class SpigotBootstrap extends PluginBootstrap {
         return this.appId;
     }
 
+    public Integer getDevIdentityId() {
+        return devIdentityId;
+    }
+
     @Override
     public void debug(String log) {
         if (isPluginDebuggingEnabled())
