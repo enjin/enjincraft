@@ -1,7 +1,8 @@
 {
   "platformBaseUrl": "https://master.tp-enj.in/",
   "secret": "",
-  "appId": 2,
+  "appId": -1,
+  "devIdentityId": -1,
   "tokens": {
     "1": {
       "displayName": "Apple",

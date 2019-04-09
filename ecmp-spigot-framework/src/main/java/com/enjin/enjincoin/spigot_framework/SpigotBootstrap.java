@@ -44,6 +44,7 @@ public class SpigotBootstrap extends PluginBootstrap {
      * <p>App ID.</p>
      */
     private Integer appId;
+    private Integer devIdentityId;
 
     /**
      * <p>Debug mode flag.</p>
@@ -94,6 +95,7 @@ public class SpigotBootstrap extends PluginBootstrap {
         }
 
         this.appId = config.get("appId").getAsInt();
+        this.devIdentityId = config.get("devIdentityId").getAsInt();
 
         // If the config has debug mode set the debug flag equal to the config value.
         if (config.has("debugging")) {
