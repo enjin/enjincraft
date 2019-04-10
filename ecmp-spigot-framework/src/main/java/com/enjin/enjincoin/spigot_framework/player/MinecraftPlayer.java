@@ -8,6 +8,7 @@ import com.enjin.enjincoin.sdk.service.identities.vo.Identity;
 import com.enjin.enjincoin.sdk.service.users.vo.User;
 import com.enjin.enjincoin.sdk.service.users.vo.data.UsersData;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
+import com.enjin.enjincoin.spigot_framework.event.IdentityLoadedEvent;
 import com.enjin.enjincoin.spigot_framework.trade.TradeView;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -144,6 +145,8 @@ public class MinecraftPlayer {
             this.plugin.getBootstrap().getSdkController().getClient().getNotificationsService().stopListeningForLink(identity.getId());
             this.listening = false;
         }
+
+        Bukkit.getPluginManager().callEvent(new IdentityLoadedEvent(this));
     }
 
     public boolean isLoaded() {
