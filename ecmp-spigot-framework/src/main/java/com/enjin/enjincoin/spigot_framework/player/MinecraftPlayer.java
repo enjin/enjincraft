@@ -32,7 +32,6 @@ public class MinecraftPlayer {
     // State Fields
     private boolean userLoaded;
     private boolean identityLoaded;
-    private boolean listening;
 
     // Scoreboard
     private boolean showScoreboard;
@@ -138,12 +137,12 @@ public class MinecraftPlayer {
 
         this.wallet.populate(identity.getTokens());
 
+        boolean listening = !this.plugin.getBootstrap().getSdkController().getClient().getNotificationsService().isListeningForLink(identity.getId());
+
         if (identity.getLinkingCode() != null && !listening) {
             this.plugin.getBootstrap().getSdkController().getClient().getNotificationsService().listenForLink(identity.getId());
-            this.listening = true;
         } else if (identity.getLinkingCode() == null && listening) {
             this.plugin.getBootstrap().getSdkController().getClient().getNotificationsService().stopListeningForLink(identity.getId());
-            this.listening = false;
         }
 
         Bukkit.getPluginManager().callEvent(new IdentityLoadedEvent(this));
