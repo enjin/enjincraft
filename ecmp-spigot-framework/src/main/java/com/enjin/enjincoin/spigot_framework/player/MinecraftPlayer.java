@@ -159,6 +159,8 @@ public class MinecraftPlayer {
             this.scoreboard.setEnabled(false);
         }
 
+        this.plugin.getBootstrap().getSdkController().getClient().getNotificationsService().stopListeningForLink(identity.getId());
+
         this.bukkitPlayer = null;
     }
 
