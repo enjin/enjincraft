@@ -137,7 +137,7 @@ public class MinecraftPlayer {
 
         this.wallet.populate(identity.getTokens());
 
-        boolean listening = !this.plugin.getBootstrap().getSdkController().getClient().getNotificationsService().isListeningForLink(identity.getId());
+        boolean listening = this.plugin.getBootstrap().getSdkController().getClient().getNotificationsService().isListeningForLink(identity.getId());
 
         if (identity.getLinkingCode() != null && !listening) {
             this.plugin.getBootstrap().getSdkController().getClient().getNotificationsService().listenForLink(identity.getId());
