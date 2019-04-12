@@ -10,6 +10,9 @@ import com.enjin.enjincoin.sdk.service.users.vo.data.UsersData;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.event.IdentityLoadedEvent;
 import com.enjin.enjincoin.spigot_framework.trade.TradeView;
+import com.enjin.enjincoin.spigot_framework.util.MessageUtils;
+import net.kyori.text.TextComponent;
+import net.kyori.text.format.TextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -143,6 +146,15 @@ public class MinecraftPlayer {
             this.plugin.getBootstrap().getSdkController().getClient().getNotificationsService().listenForLink(identity.getId());
         } else if (identity.getLinkingCode() == null && listening) {
             this.plugin.getBootstrap().getSdkController().getClient().getNotificationsService().stopListeningForLink(identity.getId());
+        }
+
+        if (identity.getLinkingCode() == null && (identity.getEnjAllowance() == null || identity.getEnjAllowance().doubleValue() <= 0.0)) {
+            TextComponent text = TextComponent.builder()
+                    .content("Before you can send or trade items with other players you must approve the enj " +
+                            "request in your wallet app.")
+                    .color(TextColor.GOLD)
+                    .build();
+            MessageUtils.sendMessage(getBukkitPlayer(), text);
         }
 
         Bukkit.getPluginManager().callEvent(new IdentityLoadedEvent(this));
