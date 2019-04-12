@@ -3,6 +3,7 @@ package com.enjin.enjincoin.spigot_framework.trade;
 import com.enjin.enjincoin.sdk.Callback;
 import com.enjin.enjincoin.sdk.Client;
 import com.enjin.enjincoin.sdk.Response;
+import com.enjin.enjincoin.sdk.model.attribute.GraphError;
 import com.enjin.enjincoin.sdk.model.body.GraphQLResponse;
 import com.enjin.enjincoin.sdk.service.identities.vo.Identity;
 import com.enjin.enjincoin.sdk.service.requests.RequestsService;
@@ -196,6 +197,15 @@ public class TradeManager implements Listener {
 
                                 if (bukkitPlayerTwo != null && bukkitPlayerTwo.isOnline()) {
                                     MessageUtils.sendMessage(bukkitPlayerTwo, text);
+
+                                    if (response.errors() != null) {
+                                        for (GraphError error : response.errors()) {
+                                            MessageUtils.sendMessage(bukkitPlayerOne, TextComponent.builder()
+                                                    .content(error.getMessage())
+                                                    .color(TextColor.RED)
+                                                    .build());
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -282,6 +292,15 @@ public class TradeManager implements Listener {
 
                                 if (bukkitPlayerOne != null && bukkitPlayerOne.isOnline()) {
                                     MessageUtils.sendMessage(bukkitPlayerOne, text);
+
+                                    if (response.errors() != null) {
+                                        for (GraphError error : response.errors()) {
+                                            MessageUtils.sendMessage(bukkitPlayerOne, TextComponent.builder()
+                                                    .content(error.getMessage())
+                                                    .color(TextColor.RED)
+                                                    .build());
+                                        }
+                                    }
                                 }
 
                                 if (bukkitPlayerTwo != null && bukkitPlayerTwo.isOnline()) {
