@@ -1,6 +1,6 @@
 package com.enjin.enjincoin.spigot_framework.commands.subcommands;
 
-import com.enjin.enjincoin.sdk.service.identities.vo.Identity;
+import com.enjin.enjincoin.sdk.model.service.identities.Identity;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.player.MinecraftPlayer;
 import com.enjin.enjincoin.spigot_framework.player.PlayerManager;
@@ -13,13 +13,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.event.HandlerList;
-
 
 import java.util.Arrays;
-
-import static org.bukkit.Bukkit.getServer;
 
 /**
  * <p>Trade command handler.</p>
@@ -50,7 +45,6 @@ public class TradeCommand {
      *
      * @param sender the command sender
      * @param args   the command arguments
-     *
      * @since 1.0
      */
     public void execute(Player sender, String[] args) {
@@ -188,8 +182,8 @@ public class TradeCommand {
         if (identity == null || identity.getTokens().isEmpty()) return;
 
         sender.sendMessage(ChatColor.GOLD + "Currently Online Players: " + "" + Bukkit.getServer().getOnlinePlayers().size() + "/" + Bukkit.getServer().getMaxPlayers());
-        for(Player p : Bukkit.getOnlinePlayers()) {
-            sender.sendMessage(ChatColor.GREEN + "" + p.getDisplayName() );
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            sender.sendMessage(ChatColor.GREEN + "" + p.getDisplayName());
         }
 
         final TextComponent.Builder component = TextComponent.builder().content("").color(TextColor.GRAY);
@@ -205,7 +199,7 @@ public class TradeCommand {
 
         // NOTE some elements may require lists with next/previous options such as player lists, items lists and review trades
         if (args.length > 0) {
-            switch(args[0]) {
+            switch (args[0]) {
                 case "start_trade":
                     // build new trade object and set sender
                     // set Prompt to [TRADE: ID]

@@ -1,21 +1,13 @@
 package com.enjin.enjincoin.spigot_framework.commands.subcommands;
 
-import com.enjin.enjincoin.sdk.service.identities.vo.Identity;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.player.MinecraftPlayer;
-import com.enjin.enjincoin.spigot_framework.player.TokenData;
 import com.enjin.enjincoin.spigot_framework.util.MessageUtils;
-import com.google.gson.JsonObject;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * <p>Balance command handler.</p>
@@ -40,8 +32,7 @@ public class SidebarCommand {
      * <p>Executes and performs operations defined for the command.</p>
      *
      * @param sender the command sender
-     * @param args the command arguments
-     *
+     * @param args   the command arguments
      * @since 1.0
      */
     public void execute(CommandSender sender, String[] args) {
@@ -63,7 +54,7 @@ public class SidebarCommand {
             });
         } else {
             TextComponent text = TextComponent.of("Only players can use this command.")
-                .color(TextColor.RED);
+                    .color(TextColor.RED);
             MessageUtils.sendMessage(sender, text);
         }
     }

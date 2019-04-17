@@ -1,7 +1,6 @@
 package com.enjin.enjincoin.spigot_framework.listeners;
 
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
-import com.enjin.enjincoin.spigot_framework.commands.subcommands.TradeCommand;
 import org.bukkit.event.Listener;
 
 public class ConversationListener implements Listener {
@@ -11,6 +10,8 @@ public class ConversationListener implements Listener {
      */
     private BasePlugin main;
 
-    public ConversationListener(BasePlugin main) { this.main = main; }
+    public ConversationListener(BasePlugin main) {
+        this.main = main;
+    }
 
 }

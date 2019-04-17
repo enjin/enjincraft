@@ -5,8 +5,6 @@ import com.enjin.enjincoin.spigot_framework.util.MessageUtils;
 import net.kyori.text.TextComponent;
 import net.kyori.text.event.ClickEvent;
 import net.kyori.text.format.TextColor;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -39,7 +37,6 @@ public class MenuCommand {
      *
      * @param sender the command sender
      * @param args   the command arguments
-     *
      * @since 1.0
      */
     public void execute(CommandSender sender, String[] args) {

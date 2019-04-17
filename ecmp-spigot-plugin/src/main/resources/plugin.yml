@@ -7,15 +7,15 @@ main: com.enjin.enjincoin.spigot_plugin.Main
 softdepend: [Vault]
 api-version: 1.13
 commands:
-    enj:
-        description: Enjin Coin root command.
-        usage: /<command> <subcommand> [args]
-    enj balance:
-            description: Display wallet address and Ethereum and Enjin Coin balances as well as a list of owned CrytoItems.
-            usage: /<command> <subcommand> [args]
-    enj link:
-            description: Display linking code or linked address if available.
-            usage: /<command> <subcommand> [args]
-    enj wallet:
-            description: Opens a wallet inventory panel which allows for checkout of owned CrytoItems.
-            usage: /<command> <subcommand> [args]
+  enj:
+    description: Enjin Coin root command.
+    usage: /<command> <subcommand> [args]
+  enj balance:
+    description: Display wallet address and Ethereum and Enjin Coin balances as well as a list of owned CrytoItems.
+    usage: /<command> <subcommand> [args]
+  enj link:
+    description: Display linking code or linked address if available.
+    usage: /<command> <subcommand> [args]
+  enj wallet:
+    description: Opens a wallet inventory panel which allows for checkout of owned CrytoItems.
+    usage: /<command> <subcommand> [args]

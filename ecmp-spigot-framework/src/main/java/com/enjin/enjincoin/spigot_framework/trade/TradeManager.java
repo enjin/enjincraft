@@ -1,14 +1,13 @@
 package com.enjin.enjincoin.spigot_framework.trade;
 
-import com.enjin.enjincoin.sdk.Callback;
 import com.enjin.enjincoin.sdk.Client;
-import com.enjin.enjincoin.sdk.Response;
-import com.enjin.enjincoin.sdk.model.attribute.GraphError;
-import com.enjin.enjincoin.sdk.model.body.GraphQLResponse;
-import com.enjin.enjincoin.sdk.service.identities.vo.Identity;
+import com.enjin.enjincoin.sdk.graphql.GraphError;
+import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
+import com.enjin.enjincoin.sdk.model.service.identities.Identity;
+import com.enjin.enjincoin.sdk.model.service.requests.CreateRequest;
+import com.enjin.enjincoin.sdk.model.service.requests.CreateRequestResult;
+import com.enjin.enjincoin.sdk.model.service.requests.TransactionType;
 import com.enjin.enjincoin.sdk.service.requests.RequestsService;
-import com.enjin.enjincoin.sdk.service.requests.vo.TransactionType;
-import com.enjin.enjincoin.sdk.service.requests.vo.data.CreateRequestData;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.controllers.SdkClientController;
 import com.enjin.enjincoin.spigot_framework.event.MinecraftPlayerQuitEvent;
@@ -140,39 +139,16 @@ public class TradeManager implements Listener {
                 dataOut.addProperty("trade_id", trade.getTradeId());
 
                 service.createRequestAsync(
-                        playerTwoIdentity.getId(),
-                        TransactionType.COMPLETE_TRADE,
-                        false,
-                        false,
-                        null,
-                        null,
-                        dataOut,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
+                        new CreateRequest().withIdentityId(playerTwoIdentity.getId())
+                                .withType(TransactionType.COMPLETE_TRADE)
+                                .withCompleteTradeData(dataOut),
                         response -> {
                             if (response.body() != null) {
                                 if (response.body() != null) {
-                                    GraphQLResponse<CreateRequestData> body = response.body();
+                                    GraphQLResponse<CreateRequestResult> body = response.body();
 
                                     if (body.getData() != null) {
-                                        CreateRequestData dataIn = body.getData();
+                                        CreateRequestResult dataIn = body.getData();
 
                                         if (bukkitPlayerOne != null && bukkitPlayerOne.isOnline()) {
                                             MessageUtils.sendMessage(bukkitPlayerOne, wait);
@@ -239,39 +215,16 @@ public class TradeManager implements Listener {
                 dataOut.addProperty("second_party_identity_id", playerTwoIdentity.getId());
 
                 service.createRequestAsync(
-                        playerOneIdentity.getId(),
-                        TransactionType.CREATE_TRADE,
-                        false,
-                        false,
-                        null,
-                        dataOut,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
+                        new CreateRequest().withIdentityId(playerOneIdentity.getId())
+                                .withType(TransactionType.CREATE_TRADE)
+                                .withCreateTradeData(dataOut),
                         response -> {
                             if (response.body() != null) {
                                 if (response.body() != null) {
-                                    GraphQLResponse<CreateRequestData> body = response.body();
+                                    GraphQLResponse<CreateRequestResult> body = response.body();
 
                                     if (body.getData() != null) {
-                                        CreateRequestData dataIn = body.getData();
+                                        CreateRequestResult dataIn = body.getData();
 
                                         if (bukkitPlayerOne != null && bukkitPlayerOne.isOnline()) {
                                             MessageUtils.sendMessage(bukkitPlayerOne, action);

@@ -1,10 +1,10 @@
 package com.enjin.enjincoin.spigot_framework;
 
+import com.enjin.enjincoin.sdk.model.service.tokens.Token;
+import com.enjin.enjincoin.spigot_framework.controllers.SdkClientController;
 import com.enjin.enjincoin.spigot_framework.player.PlayerManager;
 import com.enjin.enjincoin.spigot_framework.trade.TradeManager;
 import com.google.gson.JsonObject;
-import com.enjin.enjincoin.sdk.service.tokens.vo.Token;
-import com.enjin.enjincoin.spigot_framework.controllers.SdkClientController;
 
 import java.util.Map;
 
@@ -34,7 +34,6 @@ public interface Bootstrap {
      * <p>Returns the Enjin Coin SDK client controller.</p>
      *
      * @return the sdk client controller
-     *
      * @since 1.0
      */
     SdkClientController getSdkController();
@@ -44,7 +43,6 @@ public interface Bootstrap {
      * and User and Identity data and initialization of MinecraftPlayers.</p>
      *
      * @return PlayerManager instance
-     *
      * @since 1.0
      */
     PlayerManager getPlayerManager();
@@ -55,7 +53,6 @@ public interface Bootstrap {
      * <p>Returns a mapping of token IDs and the associated token data.</p>
      *
      * @return a map of token IDs and associated data
-     *
      * @since 1.0
      */
     Map<String, Token> getTokens();
@@ -64,7 +61,6 @@ public interface Bootstrap {
      * <p>Returns the config for this bootstrap.</p>
      *
      * @return the config
-     *
      * @since 1.0
      */
     JsonObject getConfig();
@@ -73,7 +69,6 @@ public interface Bootstrap {
      * <p>Returns the configured App ID to use.</p>
      *
      * @return configured App ID as Integer
-     *
      * @since 1.0
      */
     Integer getAppId();
@@ -86,7 +81,6 @@ public interface Bootstrap {
      * <p>Logs a debug message if debug mode is enabled.</p>
      *
      * @param log the message to log
-     *
      * @since 1.0
      */
     void debug(String log);

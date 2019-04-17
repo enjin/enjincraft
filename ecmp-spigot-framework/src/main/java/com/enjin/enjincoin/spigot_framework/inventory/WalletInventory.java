@@ -1,23 +1,18 @@
 package com.enjin.enjincoin.spigot_framework.inventory;
 
-import com.enjin.enjincoin.spigot_framework.listeners.InventoryListener;
+import com.enjin.enjincoin.sdk.model.service.identities.Identity;
+import com.enjin.enjincoin.sdk.model.service.tokens.Token;
+import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.player.MinecraftPlayer;
 import com.enjin.enjincoin.spigot_framework.player.TokenData;
 import com.enjin.minecraft_commons.spigot.nbt.NBTItem;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.enjin.enjincoin.sdk.service.identities.vo.Identity;
-import com.enjin.enjincoin.sdk.service.identities.vo.data.IdentitiesData;
-import com.enjin.enjincoin.sdk.service.tokens.vo.Token;
-import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -51,12 +46,10 @@ public class WalletInventory {
      * <p>Returns an {@link Inventory} representing an Enjin wallet
      * for the provided {@link InventoryHolder} and {@link Identity}.</p>
      *
-     * @param main the Spigot plugin
+     * @param main   the Spigot plugin
      * @param holder the inventory holder
      * @param tokens the identity
-     *
      * @return an inventory that represents an Enjin wallet
-     *
      * @since 1.0
      */
     public static Inventory create(BasePlugin main, Player holder, List<TokenData> tokens) {
@@ -200,12 +193,10 @@ public class WalletInventory {
      * <p>Returns an {@link Inventory} representing an Enjin wallet
      * for the provided {@link InventoryHolder} and {@link Identity}.</p>
      *
-     * @param main the Spigot plugin
-     * @param holder the inventory holder
+     * @param main     the Spigot plugin
+     * @param holder   the inventory holder
      * @param identity the identity
-     *
      * @return an inventory that represents an Enjin wallet
-     *
      * @since 1.0
      */
     public static Inventory create(BasePlugin main, InventoryHolder holder, Identity identity) {
@@ -266,7 +257,7 @@ public class WalletInventory {
                 // Add balance to lore.
                 double balance = Double.valueOf(entry.getBalance().intValue());
                 lore.add(ChatColor.GRAY + "Balance: " + ChatColor.GOLD + balance);
-                lore.add(ChatColor.GRAY + "ENJ Melt Value: " + ChatColor.GOLD + entry.getMeltValue() );
+                lore.add(ChatColor.GRAY + "ENJ Melt Value: " + ChatColor.GOLD + entry.getMeltValue());
 
                 // Fetch and use lore description if found.
                 if (tokenDisplay != null && tokenDisplay.has("lore")) {
@@ -296,7 +287,7 @@ public class WalletInventory {
 
     public static String convertToInvisibleString(String s) {
         String hidden = "";
-        for (char c : s.toCharArray()) hidden += ChatColor.COLOR_CHAR+""+c;
+        for (char c : s.toCharArray()) hidden += ChatColor.COLOR_CHAR + "" + c;
         return hidden;
     }
 }

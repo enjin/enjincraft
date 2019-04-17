@@ -46,9 +46,7 @@ public class UuidUtils {
      * <p>Converts a serialized UUID to an instance of {@link UUID}.</p>
      *
      * @param s the serialized uuid
-     *
      * @return {@link UUID} instance of the serialized UUID
-     *
      * @since 1.0
      */
     public static UUID stringToUuid(String s) {

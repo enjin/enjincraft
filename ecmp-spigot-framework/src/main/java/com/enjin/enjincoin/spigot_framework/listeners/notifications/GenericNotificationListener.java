@@ -1,22 +1,22 @@
 package com.enjin.enjincoin.spigot_framework.listeners.notifications;
 
-import com.enjin.enjincoin.sdk.service.notifications.vo.NotificationEvent;
+import com.enjin.enjincoin.sdk.model.service.identities.Identity;
+import com.enjin.enjincoin.sdk.model.service.identities.IdentityField;
+import com.enjin.enjincoin.sdk.model.service.notifications.NotificationEvent;
+import com.enjin.enjincoin.sdk.model.service.notifications.NotificationType;
+import com.enjin.enjincoin.sdk.model.service.tokens.Token;
+import com.enjin.enjincoin.sdk.service.notifications.NotificationListener;
+import com.enjin.enjincoin.spigot_framework.BasePlugin;
+import com.enjin.enjincoin.spigot_framework.inventory.WalletInventory;
 import com.enjin.enjincoin.spigot_framework.player.MinecraftPlayer;
 import com.enjin.enjincoin.spigot_framework.player.PlayerManager;
 import com.enjin.enjincoin.spigot_framework.trade.TradeManager;
+import com.enjin.enjincoin.spigot_framework.util.MessageUtils;
+import com.enjin.enjincoin.spigot_framework.util.UuidUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.enjin.enjincoin.sdk.enums.NotificationType;
-import com.enjin.enjincoin.sdk.service.identities.vo.Identity;
-import com.enjin.enjincoin.sdk.service.identities.vo.IdentityField;
-import com.enjin.enjincoin.sdk.service.notifications.NotificationListener;
-import com.enjin.enjincoin.sdk.service.tokens.vo.Token;
-import com.enjin.enjincoin.spigot_framework.BasePlugin;
-import com.enjin.enjincoin.spigot_framework.inventory.WalletInventory;
-import com.enjin.enjincoin.spigot_framework.util.UuidUtils;
-import com.enjin.enjincoin.spigot_framework.util.MessageUtils;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
 import org.bukkit.Bukkit;
@@ -27,8 +27,9 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * <p>A listener for handling Enjin Coin SDK events.</p>
@@ -123,10 +124,8 @@ public class GenericNotificationListener implements NotificationListener {
      * of an online player that matches the provided token ID.</p>
      *
      * @param identity the identity
-     * @param tokenId the token ID
-     *
+     * @param tokenId  the token ID
      * @return a {@link Token} if present or null if not present
-     *
      * @since 1.0
      */
     public Token getTokenEntry(Identity identity, String tokenId) {
@@ -145,9 +144,8 @@ public class GenericNotificationListener implements NotificationListener {
      * and identity.</p>
      *
      * @param identity the identity
-     * @param tokenId the token ID
-     * @param amount the amount
-     *
+     * @param tokenId  the token ID
+     * @param amount   the amount
      * @since 1.0
      */
     public void addTokenValue(Identity identity, String tokenId, double amount) {
@@ -172,8 +170,8 @@ public class GenericNotificationListener implements NotificationListener {
      * specified amount.</p>
      *
      * @param identity the identity
-     * @param tokenId the token ID
-     * @param amount the amount
+     * @param tokenId  the token ID
+     * @param amount   the amount
      */
     public void updateInventory(Identity identity, String tokenId, double amount) {
         JsonObject config = main.getBootstrap().getConfig();

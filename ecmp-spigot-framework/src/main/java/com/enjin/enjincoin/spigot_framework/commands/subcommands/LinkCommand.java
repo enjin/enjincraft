@@ -9,8 +9,7 @@ import net.kyori.text.format.TextColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.*;
-import java.util.logging.Level;
+import java.util.UUID;
 
 /**
  * <p>Link command handler.</p>
@@ -41,7 +40,6 @@ public class LinkCommand {
      *
      * @param sender the command sender
      * @param args   the command arguments
-     *
      * @since 1.0
      */
     public void execute(CommandSender sender, String[] args) {

@@ -1,8 +1,10 @@
 package com.enjin.enjincoin.spigot_framework.commands.subcommands;
 
 import com.enjin.enjincoin.sdk.Response;
-import com.enjin.enjincoin.sdk.model.body.GraphQLResponse;
-import com.enjin.enjincoin.sdk.service.identities.vo.Identity;
+import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
+import com.enjin.enjincoin.sdk.model.service.identities.Identity;
+import com.enjin.enjincoin.sdk.model.service.identities.UnlinkIdentity;
+import com.enjin.enjincoin.sdk.service.identities.IdentitiesService;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.player.MinecraftPlayer;
 import com.enjin.enjincoin.spigot_framework.util.MessageUtils;
@@ -45,7 +47,6 @@ public class UnlinkCommand {
      *
      * @param sender the command sender
      * @param args   the command arguments
-     *
      * @since 1.0
      */
     public void execute(CommandSender sender, String[] args) {
@@ -130,8 +131,8 @@ public class UnlinkCommand {
      */
     private void handleUnlinking(CommandSender sender, Integer id) throws IOException {
         System.out.println("unlinking for id " + id);
-
-        Response<GraphQLResponse<Identity>> response = this.plugin.getBootstrap().getSdkController().getClient().getIdentitiesService().unlinkIdentitySync(id, true);
+        IdentitiesService service = this.plugin.getBootstrap().getSdkController().getClient().getIdentitiesService();
+        Response<GraphQLResponse<Identity>> response = service.unlinkIdentitySync(new UnlinkIdentity(id));
 
         String code = "";
         if (response.body() != null) {

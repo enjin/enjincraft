@@ -34,9 +34,8 @@ public class MessageUtils {
     /**
      * <p>Sends a {@code TextComponent} message to a {@code CommandSender}.</p>
      *
-     * @param sender the {@code CommandSender} to send the message to
+     * @param sender    the {@code CommandSender} to send the message to
      * @param component the {@code TextComponent} message to send to the sender
-     *
      * @since 1.0
      */
     public static void sendMessage(CommandSender sender, TextComponent component) {
@@ -48,9 +47,8 @@ public class MessageUtils {
     /**
      * <p>Sends an array of {@code TextComponent} messages to a {@code CommandSender}.</p>
      *
-     * @param sender the {@code CommandSender} to send the message to
+     * @param sender     the {@code CommandSender} to send the message to
      * @param components the array of {@code TextComponent} messages to send to the sender
-     *
      * @since 1.0
      */
     public static void sendMessages(CommandSender sender, TextComponent... components) {
@@ -64,9 +62,8 @@ public class MessageUtils {
     /**
      * <p>Sends a list of {@code TextComponent} messages to a {@code CommandSender}.</p>
      *
-     * @param sender the {@code CommandSender} to send the message to
+     * @param sender     the {@code CommandSender} to send the message to
      * @param components the list of {@code TextComponent} messages to send to the sender
-     *
      * @since 1.0
      */
     public static void sendMessages(CommandSender sender, List<TextComponent> components) {

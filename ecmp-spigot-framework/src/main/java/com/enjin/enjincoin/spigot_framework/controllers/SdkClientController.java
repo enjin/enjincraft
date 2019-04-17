@@ -1,9 +1,9 @@
 package com.enjin.enjincoin.spigot_framework.controllers;
 
-import com.google.gson.JsonObject;
 import com.enjin.enjincoin.sdk.Client;
 import com.enjin.enjincoin.sdk.Clients;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
+import com.google.gson.JsonObject;
 import org.apache.commons.lang.NullArgumentException;
 
 import java.io.IOException;
@@ -61,7 +61,7 @@ public class SdkClientController {
     /**
      * <p>Controller constructor.</p>
      *
-     * @param main the Spigot plugin
+     * @param main   the Spigot plugin
      * @param config the bootstrap config
      */
     public SdkClientController(BasePlugin main, JsonObject config) {
@@ -109,18 +109,17 @@ public class SdkClientController {
      * @since 1.0
      */
     public void tearDown() {
-         try {
-             this.client.close();
-         } catch (IOException e) {
-             this.main.getLogger().log(Level.WARNING, "An error occurred while shutting down the Enjin Coin client.", e);
-         }
+        try {
+            this.client.close();
+        } catch (IOException e) {
+            this.main.getLogger().log(Level.WARNING, "An error occurred while shutting down the Enjin Coin client.", e);
+        }
     }
 
     /**
      * <p>Returns the Enjin Coin SDK client.</p>
      *
      * @return the client or null if not initialized
-     *
      * @since 1.0
      */
     public Client getClient() {

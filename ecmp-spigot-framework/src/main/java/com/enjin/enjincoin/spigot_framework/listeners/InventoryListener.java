@@ -1,10 +1,10 @@
 package com.enjin.enjincoin.spigot_framework.listeners;
 
+import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.inventory.WalletCheckoutManager;
 import com.enjin.enjincoin.spigot_framework.player.MinecraftPlayer;
-import com.enjin.minecraft_commons.spigot.nbt.NBTItem;
-import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.util.MessageUtils;
+import com.enjin.minecraft_commons.spigot.nbt.NBTItem;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
 import org.bukkit.Bukkit;
@@ -26,7 +26,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * <p>A listener for handling events for which queries and updates to
@@ -60,7 +62,6 @@ public class InventoryListener implements Listener {
      * lowest priority.</p>
      *
      * @param event the event
-     *
      * @since 1.0
      */
     @EventHandler(priority = EventPriority.LOWEST)
@@ -81,7 +82,6 @@ public class InventoryListener implements Listener {
      * lowest priority.</p>
      *
      * @param event the event
-     *
      * @since 1.0
      */
     @EventHandler(priority = EventPriority.LOWEST)
@@ -92,7 +92,7 @@ public class InventoryListener implements Listener {
             return;
 
         if (event.getAction() == InventoryAction.HOTBAR_SWAP ||
-            event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
+                event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
             event.setResult(Event.Result.DENY);
         }
 
@@ -223,7 +223,6 @@ public class InventoryListener implements Listener {
      * normal priority.</p>
      *
      * @param event the event
-     *
      * @since 1.0
      */
     @EventHandler
@@ -242,7 +241,6 @@ public class InventoryListener implements Listener {
      * normal priority.</p>
      *
      * @param event the event
-     *
      * @since 1.0
      */
     @EventHandler
@@ -256,7 +254,6 @@ public class InventoryListener implements Listener {
      * normal priority.</p>
      *
      * @param event the event
-     *
      * @since 1.0
      */
     @EventHandler
@@ -275,7 +272,6 @@ public class InventoryListener implements Listener {
      * normal priority.</p>
      *
      * @param event the event
-     *
      * @since 1.0
      */
     @EventHandler
@@ -292,7 +288,7 @@ public class InventoryListener implements Listener {
     @EventHandler
     public void onInventoryMoveItem(InventoryMoveItemEvent event) {
         if (isWalletInventory(event.getDestination())) {
-            returnItemStack((Player)event.getSource().getHolder(), event.getItem());
+            returnItemStack((Player) event.getSource().getHolder(), event.getItem());
         }
         event.getItem().setAmount(0);
     }
@@ -301,8 +297,7 @@ public class InventoryListener implements Listener {
      * <p>Return a (@link ItemStack) to the players wallet inventory.</p>
      *
      * @param player the player
-     * @param stack the ItemStack to return
-     *
+     * @param stack  the ItemStack to return
      * @since 1.0
      */
     private void returnItemStack(Player player, ItemStack stack) {
@@ -316,7 +311,6 @@ public class InventoryListener implements Listener {
      * <p>Clear a {@link Player}'s inventory of all checked out tokens.</p>
      *
      * @param player the player
-     *
      * @since 1.0
      */
     private void clear(Player player) {
@@ -344,9 +338,7 @@ public class InventoryListener implements Listener {
      * <p>Check if an inventory represents an Enjin wallet.</p>
      *
      * @param inventory the inventory
-     *
      * @return true if the inventory represents an Enjin wallet
-     *
      * @since 1.0
      */
     private boolean isWalletInventory(Inventory inventory) {
@@ -359,9 +351,7 @@ public class InventoryListener implements Listener {
      * <p>Check if an inventory represents a valid player inventory.</p>
      *
      * @param inventory the inventory
-     *
      * @return true if the inventory represents a valid player inventory
-     *
      * @since 1.0
      */
     private boolean isPlayerInventory(Inventory inventory) {
@@ -376,11 +366,9 @@ public class InventoryListener implements Listener {
      * <p>Check if a player has checked out the given {@link ItemStack}
      * from and Enjin wallet.</p>
      *
-     * @param uuid the uuid of the player
+     * @param uuid  the uuid of the player
      * @param stack the {@link ItemStack}
-     *
      * @return true if the {@link ItemStack} represents a checked out token by the player
-     *
      * @since 1.0
      */
     private boolean isCheckedOut(UUID uuid, ItemStack stack) {
@@ -397,7 +385,7 @@ public class InventoryListener implements Listener {
 
     public static String convertToInvisibleString(String s) {
         String hidden = "";
-        for (char c : s.toCharArray()) hidden += ChatColor.COLOR_CHAR+""+c;
+        for (char c : s.toCharArray()) hidden += ChatColor.COLOR_CHAR + "" + c;
         return hidden;
     }
 }

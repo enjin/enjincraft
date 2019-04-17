@@ -1,7 +1,6 @@
 package com.enjin.enjincoin.spigot_framework.controllers;
 
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.conversations.*;
@@ -33,7 +32,9 @@ public class ConversationManager implements ConversationAbandonedListener {
                 .addConversationAbandonedListener(this);
     }
 
-    public ConversationFactory getConversationFactory() { return this.conversationFactory; }
+    public ConversationFactory getConversationFactory() {
+        return this.conversationFactory;
+    }
 
     @Override
     public void conversationAbandoned(ConversationAbandonedEvent conversationAbandonedEvent) {
@@ -112,9 +113,9 @@ public class ConversationManager implements ConversationAbandonedListener {
 
     private class SummonedPrompt extends MessagePrompt {
         public String getPromptText(ConversationContext context) {
-            Player who = (Player)context.getSessionData("who");
-            String what = (String)context.getSessionData("type");
-            Integer count = (Integer)context.getSessionData("count");
+            Player who = (Player) context.getSessionData("who");
+            String what = (String) context.getSessionData("type");
+            Integer count = (Integer) context.getSessionData("count");
 
             for (int i = 0; i < count; i++) {
                 World world = who.getWorld();
@@ -133,9 +134,9 @@ public class ConversationManager implements ConversationAbandonedListener {
     private class SummoningConversationPrefix implements ConversationPrefix {
 
         public String getPrefix(ConversationContext context) {
-            String what = (String)context.getSessionData("type");
-            Integer count = (Integer)context.getSessionData("count");
-            Player who = (Player)context.getSessionData("who");
+            String what = (String) context.getSessionData("type");
+            Integer count = (Integer) context.getSessionData("count");
+            Player who = (Player) context.getSessionData("who");
 
             if (what != null && count == null && who == null) {
                 return ChatColor.GREEN + "Summon " + what + ": " + ChatColor.WHITE;
@@ -152,9 +153,9 @@ public class ConversationManager implements ConversationAbandonedListener {
 
     public class BaseConversationPrefix implements ConversationPrefix {
         public String getPrefix(ConversationContext context) {
-            String what = (String)context.getSessionData("type");
-            Integer count = (Integer)context.getSessionData("count");
-            Player who = (Player)context.getSessionData("who");
+            String what = (String) context.getSessionData("type");
+            Integer count = (Integer) context.getSessionData("count");
+            Player who = (Player) context.getSessionData("who");
 
             if (what != null && count == null && who == null) {
                 return ChatColor.GREEN + "Summon " + what + ": " + ChatColor.WHITE;

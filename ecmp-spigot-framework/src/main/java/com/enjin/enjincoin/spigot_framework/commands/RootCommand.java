@@ -7,7 +7,9 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <p>Root command handler.</p>
@@ -87,7 +89,9 @@ public class RootCommand implements CommandExecutor {
         this.sidebar = new SidebarCommand(main);
     }
 
-    public Map<String, String> getCommandsMap() { return commands; }
+    public Map<String, String> getCommandsMap() {
+        return commands;
+    }
 
 
     @Override

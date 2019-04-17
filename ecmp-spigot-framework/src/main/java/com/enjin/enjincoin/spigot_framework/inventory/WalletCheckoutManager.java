@@ -2,12 +2,8 @@ package com.enjin.enjincoin.spigot_framework.inventory;
 
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.player.Wallet;
-import com.enjin.enjincoin.spigot_framework.util.MessageUtils;
 import com.enjin.minecraft_commons.spigot.nbt.NBTItem;
 import com.google.gson.JsonObject;
-import net.kyori.text.TextComponent;
-import net.kyori.text.format.TextColor;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -23,7 +19,7 @@ public class WalletCheckoutManager {
 
     /**
      * Inventory tracker map
-     *
+     * <p>
      * Map<TokenID, ItemStack>
      */
     private static Map<String, ItemStack> checkedOutTokens;
@@ -67,23 +63,24 @@ public class WalletCheckoutManager {
         /**
          * these are individual calls which the getContents call encapsulates
          *
-        if (playerInventory.getArmorContents() != null)
-            allHeldItems.addAll(Arrays.asList(playerInventory.getArmorContents()));
-        if (playerInventory.getExtraContents() != null)
-            allHeldItems.addAll(Arrays.asList(playerInventory.getExtraContents()));
-        if (playerInventory.getStorageContents() != null)
-            allHeldItems.addAll(Arrays.asList(playerInventory.getStorageContents()));
-        if (playerInventory.getItemInMainHand() != null)
-            allHeldItems.add(playerInventory.getItemInMainHand());
-        if (playerInventory.getItemInOffHand() != null)
-            allHeldItems.add(playerInventory.getItemInOffHand());
+         if (playerInventory.getArmorContents() != null)
+         allHeldItems.addAll(Arrays.asList(playerInventory.getArmorContents()));
+         if (playerInventory.getExtraContents() != null)
+         allHeldItems.addAll(Arrays.asList(playerInventory.getExtraContents()));
+         if (playerInventory.getStorageContents() != null)
+         allHeldItems.addAll(Arrays.asList(playerInventory.getStorageContents()));
+         if (playerInventory.getItemInMainHand() != null)
+         allHeldItems.add(playerInventory.getItemInMainHand());
+         if (playerInventory.getItemInOffHand() != null)
+         allHeldItems.add(playerInventory.getItemInOffHand());
          */
 
         // handle inventory contents
         for (int i = 0; i < allHeldItems.size(); i++) {
             String tokenId = getTokenId(allHeldItems.get(i));
 
-            if (tokenId == null || tokenId.isEmpty()) continue; // skip this item as it did not contain a potential token id
+            if (tokenId == null || tokenId.isEmpty())
+                continue; // skip this item as it did not contain a potential token id
 //            System.out.println("found item: " + tokenId + " in inventory.");
 
             ItemStack clone = allHeldItems.get(i).clone();
@@ -98,7 +95,7 @@ public class WalletCheckoutManager {
                         ? tokensDisplayConfig.get(String.valueOf(tokenId)).getAsJsonObject()
                         : null;
 
-                if (tokenDisplay != null ) {
+                if (tokenDisplay != null) {
                     // add the newly found item
                     allItems.put(tokenId, clone);
                 }
@@ -142,7 +139,7 @@ public class WalletCheckoutManager {
                         ? tokensDisplayConfig.get(String.valueOf(tokenId)).getAsJsonObject()
                         : null;
 
-                if (tokenDisplay != null ) {
+                if (tokenDisplay != null) {
                     walletItems.put(tokenId, clone);
                 }
             }
@@ -155,14 +152,13 @@ public class WalletCheckoutManager {
 //                entry.getValue().setAmount(remaining);
 //            else
 //                entry.getValue().setAmount(0); // no more are left to check out.
-                // NOTE we'll need to manage remaining items that exceed the available stock.
-                // Additionally, we'll need to update the population when a transfer is completed (in either direction)
+        // NOTE we'll need to manage remaining items that exceed the available stock.
+        // Additionally, we'll need to update the population when a transfer is completed (in either direction)
 
-        for ( String tokenId : wallet.getTokenBalances().keySet()) {
-            if ( wallet.getTokenBalances() != null && checkedOutTokens.get(tokenId) != null)
+        for (String tokenId : wallet.getTokenBalances().keySet()) {
+            if (wallet.getTokenBalances() != null && checkedOutTokens.get(tokenId) != null)
                 wallet.getTokenBalances().get(tokenId).setCheckedOut(checkedOutTokens.get(tokenId).getAmount());
         }
-
 
 
         return true;
@@ -171,7 +167,7 @@ public class WalletCheckoutManager {
     public boolean checkoutItem(ItemStack itemStack) {
         String tokenId = getTokenId(itemStack);
 
-        if ( checkedOutTokens.get(tokenId) == null ) {
+        if (checkedOutTokens.get(tokenId) == null) {
             // handle first checkout of an item of this ID.
             checkedOutTokens.put(tokenId, itemStack);
             return true;
@@ -194,7 +190,7 @@ public class WalletCheckoutManager {
     public boolean returnItem(ItemStack itemStack) {
         String tokenId = getTokenId(itemStack);
 
-        if ( checkedOutTokens.get(tokenId) == null ) {
+        if (checkedOutTokens.get(tokenId) == null) {
             // no items of this type were registered as checked out or the item is not a valid wallet item.
             return false;
         } else {

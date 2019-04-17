@@ -116,7 +116,6 @@ public class ENJScoreboard {
      * Formats a number to display no more than two decimals.
      *
      * @param value The value to format.
-     *
      * @return The formatted string.
      */
     private String formatDouble(Double value) {

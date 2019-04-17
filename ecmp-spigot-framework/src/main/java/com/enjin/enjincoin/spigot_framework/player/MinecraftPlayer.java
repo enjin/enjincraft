@@ -2,11 +2,11 @@ package com.enjin.enjincoin.spigot_framework.player;
 
 import com.enjin.enjincoin.sdk.Client;
 import com.enjin.enjincoin.sdk.Response;
-import com.enjin.enjincoin.sdk.model.body.GraphQLResponse;
-import com.enjin.enjincoin.sdk.service.identities.IdentitiesService;
-import com.enjin.enjincoin.sdk.service.identities.vo.Identity;
-import com.enjin.enjincoin.sdk.service.users.vo.User;
-import com.enjin.enjincoin.sdk.service.users.vo.data.UsersData;
+import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
+import com.enjin.enjincoin.sdk.model.service.identities.Identity;
+import com.enjin.enjincoin.sdk.model.service.users.GetUsers;
+import com.enjin.enjincoin.sdk.model.service.users.GetUsersResult;
+import com.enjin.enjincoin.sdk.model.service.users.User;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.event.IdentityLoadedEvent;
 import com.enjin.enjincoin.spigot_framework.trade.TradeView;
@@ -63,13 +63,17 @@ public class MinecraftPlayer {
         return this.userData;
     }
 
-    public IdentityData getIdentityData() { return this.identityData; }
+    public IdentityData getIdentityData() {
+        return this.identityData;
+    }
 
     public Wallet getWallet() {
         return wallet;
     }
 
-    public Identity getIdentity() { return this.identity; }
+    public Identity getIdentity() {
+        return this.identity;
+    }
 
     public boolean isUserLoaded() {
         return this.userLoaded;
@@ -93,23 +97,25 @@ public class MinecraftPlayer {
         Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, () -> this.scoreboard.setEnabled(this.showScoreboard), 1);
     }
 
-    public User getUser() { return this.user; }
+    public User getUser() {
+        return this.user;
+    }
 
     public void reloadUser() {
         Client client = this.plugin.getBootstrap().getSdkController().getClient();
         // Fetch the User for the Player in question
         try {
-            Response<GraphQLResponse<UsersData>> networkResponse = client.getUsersService()
-                    .getUsersSync(null, bukkitPlayer.getUniqueId().toString(), null, false);
+            Response<GraphQLResponse<GetUsersResult>> networkResponse = client.getUsersService()
+                    .getUsersSync(new GetUsers().withName(bukkitPlayer.getUniqueId().toString()));
 
             User user = null;
             // we likely need a legit reload function for the wallet to repopulate it.
             this.wallet = new Wallet(plugin, bukkitPlayer.getUniqueId());
 
             if (networkResponse.body() != null) {
-                GraphQLResponse<UsersData> response = networkResponse.body();
+                GraphQLResponse<GetUsersResult> response = networkResponse.body();
                 if (!response.isEmpty()) {
-                    UsersData data = response.getData();
+                    GetUsersResult data = response.getData();
                     if (!data.isEmpty()) {
                         user = data.getUsers().get(0);
                     }

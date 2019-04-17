@@ -1,7 +1,6 @@
 package com.enjin.enjincoin.spigot_framework.commands.subcommands;
 
-import com.enjin.enjincoin.sdk.service.identities.vo.Identity;
-import com.enjin.enjincoin.sdk.service.tokens.vo.Token;
+import com.enjin.enjincoin.sdk.model.service.identities.Identity;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.inventory.WalletInventory;
 import com.enjin.enjincoin.spigot_framework.player.MinecraftPlayer;
@@ -16,7 +15,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * <p>Wallet command handler.</p>
@@ -41,8 +39,7 @@ public class WalletCommand {
      * <p>Executes and performs operations defined for the command.</p>
      *
      * @param sender the command sender
-     * @param args the command arguments
-     *
+     * @param args   the command arguments
      * @since 1.0
      */
     public void execute(CommandSender sender, String[] args) {
@@ -82,7 +79,7 @@ public class WalletCommand {
             });
         } else {
             TextComponent text = TextComponent.of("Only players can use this command.")
-                .color(TextColor.RED);
+                    .color(TextColor.RED);
             MessageUtils.sendMessage(sender, text);
         }
     }

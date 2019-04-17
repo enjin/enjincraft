@@ -33,7 +33,6 @@ public class BasePlugin extends JavaPlugin {
      * <p>Returns the Spigot bootstrap.</p>
      *
      * @return the bootstrap
-     *
      * @since 1.0
      */
     public SpigotBootstrap getBootstrap() {

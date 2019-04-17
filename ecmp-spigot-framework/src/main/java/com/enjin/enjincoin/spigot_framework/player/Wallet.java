@@ -1,10 +1,9 @@
 package com.enjin.enjincoin.spigot_framework.player;
 
-import com.enjin.enjincoin.sdk.service.tokens.vo.Token;
+import com.enjin.enjincoin.sdk.model.service.tokens.Token;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.inventory.WalletCheckoutManager;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,9 +41,13 @@ public class Wallet {
         return null;
     }
 
-    public Inventory getInventory() { return this.inventory; }
+    public Inventory getInventory() {
+        return this.inventory;
+    }
 
-    public void setInventory(Inventory inventory ) { this.inventory = inventory; }
+    public void setInventory(Inventory inventory) {
+        this.inventory = inventory;
+    }
 
     public TokenData removeToken(String id) {
         return this.tokenBalances.remove(id);
@@ -72,7 +75,6 @@ public class Wallet {
     protected void initializeCheckoutManager(UUID playerId) {
         this.manager = new WalletCheckoutManager(playerId);
     }
-
 
 
     public WalletCheckoutManager accessCheckoutManager() {

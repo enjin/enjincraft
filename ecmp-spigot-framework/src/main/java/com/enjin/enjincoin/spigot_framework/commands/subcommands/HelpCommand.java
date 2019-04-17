@@ -1,18 +1,11 @@
 package com.enjin.enjincoin.spigot_framework.commands.subcommands;
 
-import com.enjin.enjincoin.sdk.service.identities.vo.Identity;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
-import com.enjin.enjincoin.spigot_framework.player.TokenData;
 import com.enjin.enjincoin.spigot_framework.util.MessageUtils;
-import com.google.gson.JsonObject;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * <p>Help command handler.</p>
@@ -37,7 +30,6 @@ public class HelpCommand {
      * <p>Executes and performs operations defined for the command.</p>
      *
      * @param sender the command sender
-     *
      * @since 1.0
      */
     public void execute(CommandSender sender) {
@@ -48,7 +40,7 @@ public class HelpCommand {
         sender.sendMessage(ChatColor.GOLD + "/enj link: " + ChatColor.WHITE + "Display linking code or linked address if available.");
         sender.sendMessage(ChatColor.GOLD + "/enj scoreboard: " + ChatColor.WHITE + "Displays/hides the ENJ Scoreboard.");
         sender.sendMessage(ChatColor.GOLD + "/enj trade invite <player>: " + ChatColor.WHITE + "Send a trade invite to another player.");
-        sender.sendMessage( ChatColor.GOLD + "/enj unlink: " + ChatColor.WHITE + "Removes the link to an Ethereum Wallet.");
+        sender.sendMessage(ChatColor.GOLD + "/enj unlink: " + ChatColor.WHITE + "Removes the link to an Ethereum Wallet.");
         sender.sendMessage(ChatColor.GOLD + "/enj wallet: " + ChatColor.WHITE + "Opens a wallet inventory panel which allows for checkout of owned CryptoItems.");
     }
 

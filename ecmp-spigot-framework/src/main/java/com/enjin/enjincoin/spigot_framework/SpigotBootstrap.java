@@ -1,23 +1,22 @@
 package com.enjin.enjincoin.spigot_framework;
 
-import com.enjin.enjincoin.sdk.Callback;
 import com.enjin.enjincoin.sdk.Response;
-import com.enjin.enjincoin.sdk.model.body.GraphQLResponse;
-import com.enjin.enjincoin.sdk.service.tokens.vo.Token;
-import com.enjin.enjincoin.sdk.service.tokens.vo.data.TokensData;
-import com.enjin.enjincoin.spigot_framework.listeners.ConnectionListener;
+import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
+import com.enjin.enjincoin.sdk.model.service.tokens.GetTokensResult;
+import com.enjin.enjincoin.sdk.model.service.tokens.Token;
+import com.enjin.enjincoin.sdk.service.notifications.NotificationsService;
+import com.enjin.enjincoin.sdk.service.tokens.TokensService;
+import com.enjin.enjincoin.sdk.util.concurrent.Callback;
+import com.enjin.enjincoin.spigot_framework.commands.RootCommand;
+import com.enjin.enjincoin.spigot_framework.controllers.SdkClientController;
 import com.enjin.enjincoin.spigot_framework.listeners.InventoryListener;
 import com.enjin.enjincoin.spigot_framework.listeners.PlayerInteractionListener;
+import com.enjin.enjincoin.spigot_framework.listeners.notifications.GenericNotificationListener;
 import com.enjin.enjincoin.spigot_framework.player.PlayerManager;
 import com.enjin.enjincoin.spigot_framework.trade.TradeManager;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.enjin.enjincoin.sdk.service.notifications.NotificationsService;
-import com.enjin.enjincoin.sdk.service.tokens.TokensService;
-import com.enjin.enjincoin.spigot_framework.commands.RootCommand;
-import com.enjin.enjincoin.spigot_framework.controllers.SdkClientController;
-import com.enjin.enjincoin.spigot_framework.listeners.notifications.GenericNotificationListener;
 import org.bukkit.Bukkit;
 
 import java.io.File;
@@ -132,11 +131,11 @@ public class SpigotBootstrap extends PluginBootstrap {
 
             // Fetch a list of all tokens registered to the configured app ID.
             final TokensService tokensService = this.sdkClientController.getClient().getTokensService();
-            tokensService.getAllTokensAsync(new Callback<GraphQLResponse<TokensData>>() {
+            tokensService.getAllTokensAsync(new Callback<GraphQLResponse<GetTokensResult>>() {
                 @Override
-                public void onComplete(Response<GraphQLResponse<TokensData>> response) {
+                public void onComplete(Response<GraphQLResponse<GetTokensResult>> response) {
                     if (response.body() != null) {
-                        TokensData data = response.body().getData();
+                        GetTokensResult data = response.body().getData();
                         if (data != null && data.getTokens() != null) {
                             data.getTokens().forEach(token -> {
                                 if (config.get("appId").getAsInt() == token.getAppId() && config.get("tokens").getAsJsonObject().has(token.getTokenId())) {
@@ -154,8 +153,6 @@ public class SpigotBootstrap extends PluginBootstrap {
         // Register Listeners
         Bukkit.getPluginManager().registerEvents(this.playerManager, this.main);
         Bukkit.getPluginManager().registerEvents(this.tradeManager, this.main);
-        // TODO: Refactor/migrate features from ConnectionListener/InventoryListener
-        Bukkit.getPluginManager().registerEvents(new ConnectionListener(this.main), this.main);
         Bukkit.getPluginManager().registerEvents(new InventoryListener(this.main), this.main);
         Bukkit.getPluginManager().registerEvents(new PlayerInteractionListener(this.main), this.main);
 

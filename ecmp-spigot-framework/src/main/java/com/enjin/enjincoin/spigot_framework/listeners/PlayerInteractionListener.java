@@ -54,7 +54,7 @@ public class PlayerInteractionListener implements Listener {
 //        if (event.useItemInHand() != null)
 //            System.out.println("USE ITEM IN HAND " + event.useItemInHand());
 
-        if (event.getItem() != null && event.useInteractedBlock() != null && event.useItemInHand() != null ) { // use selected item in hand
+        if (event.getItem() != null && event.useInteractedBlock() != null && event.useItemInHand() != null) { // use selected item in hand
             String name = ChatColor.stripColor(event.getItem().getItemMeta().getDisplayName());
 //            System.out.println("Attempting to use " + name);
 
@@ -71,7 +71,8 @@ public class PlayerInteractionListener implements Listener {
                     // This is used for consumable items who's quantity is cannot be represented in a stack.
                     ItemStack clone = event.getItem().clone();
                 }
-            } catch (Exception e) { }
+            } catch (Exception e) {
+            }
         }
 
     }

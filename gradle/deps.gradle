@@ -1,21 +1,21 @@
 ext.deps = [
         // compile Dependencies
-        javaCommons: 'com.enjin:java_commons:0.3.0-SNAPSHOT',
+        javaCommons           : 'com.enjin:java_commons:0.3.0-SNAPSHOT',
         minecraftCommonsSpigot: 'com.enjin.minecraft_commons:spigot:0.1.0-SNAPSHOT',
-        enjinCoinSdk: 'com.enjin:enjincoin-java-sdk:0.4.0-SNAPSHOT',
-        kyoriText: 'net.kyori:text:1.12-1.3.0',
-        gson: 'com.google.code.gson:gson:2.8.2',
+        enjinCoinSdk          : 'com.enjin:enjincoin-java-sdk:0.5.0-SNAPSHOT',
+        kyoriText             : 'net.kyori:text:1.12-1.3.0',
+        gson                  : 'com.google.code.gson:gson:2.8.2',
 
         // Shadow dependencies
-        spigot: 'org.spigotmc:spigot-api:1.13-R0.1-SNAPSHOT',
+        spigot                : 'org.spigotmc:spigot-api:1.13-R0.1-SNAPSHOT',
 
         // testCompile Dependencies
-        junit: 'junit:junit:4.12',
-        mockito: 'org.mockito:mockito-core:2.9.0',
-        powermockMockito: 'org.powermock:powermock-api-mockito2:1.7.3',
-        powermockJUnit4: 'org.powermock:powermock-module-junit4:1.7.3',
-        assertj: 'org.assertj:assertj-core:3.9.0',
+        junit                 : 'junit:junit:4.12',
+        mockito               : 'org.mockito:mockito-core:2.9.0',
+        powermockMockito      : 'org.powermock:powermock-api-mockito2:1.7.3',
+        powermockJUnit4       : 'org.powermock:powermock-module-junit4:1.7.3',
+        assertj               : 'org.assertj:assertj-core:3.9.0',
 
         // clover Dependencies
-        clover: 'org.openclover:clover:4.2.0'
+        clover                : 'org.openclover:clover:4.2.0'
 ]

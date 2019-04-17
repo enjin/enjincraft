@@ -1,6 +1,6 @@
 package com.enjin.enjincoin.spigot_framework.player;
 
-import com.enjin.enjincoin.sdk.service.identities.vo.Identity;
+import com.enjin.enjincoin.sdk.model.service.identities.Identity;
 
 public class IdentityData {
 
@@ -30,7 +30,11 @@ public class IdentityData {
         return this.linkingCode;
     }
 
-    public Double getEthBalance() { return this.ethBalance; }
+    public Double getEthBalance() {
+        return this.ethBalance;
+    }
 
-    public Double getEnjBalance() { return this.enjBalance; }
+    public Double getEnjBalance() {
+        return this.enjBalance;
+    }
 }

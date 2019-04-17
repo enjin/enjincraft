@@ -1,6 +1,6 @@
 package com.enjin.enjincoin.spigot_framework.player;
 
-import com.enjin.enjincoin.sdk.service.tokens.vo.Token;
+import com.enjin.enjincoin.sdk.model.service.tokens.Token;
 
 public class TokenData {
 
@@ -22,7 +22,9 @@ public class TokenData {
         return this.id;
     }
 
-    public int getCheckedOut() { return this.checkedout; }
+    public int getCheckedOut() {
+        return this.checkedout;
+    }
 
     public void setCheckedOut(int checkedOut) {
         this.checkedout = checkedOut;
