@@ -7,6 +7,9 @@ import com.enjin.enjincoin.sdk.model.service.identities.Identity;
 import com.enjin.enjincoin.sdk.model.service.requests.CreateRequest;
 import com.enjin.enjincoin.sdk.model.service.requests.CreateRequestResult;
 import com.enjin.enjincoin.sdk.model.service.requests.TransactionType;
+import com.enjin.enjincoin.sdk.model.service.requests.data.CompleteTradeData;
+import com.enjin.enjincoin.sdk.model.service.requests.data.CreateTradeData;
+import com.enjin.enjincoin.sdk.model.service.requests.data.TokenValueData;
 import com.enjin.enjincoin.sdk.service.requests.RequestsService;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.controllers.SdkClientController;
@@ -24,6 +27,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -135,13 +139,12 @@ public class TradeManager implements Listener {
                 Player bukkitPlayerOne = playerOne.getBukkitPlayer();
                 Player bukkitPlayerTwo = playerTwo.getBukkitPlayer();
 
-                JsonObject dataOut = new JsonObject();
-                dataOut.addProperty("trade_id", trade.getTradeId());
-
                 service.createRequestAsync(
                         new CreateRequest().withIdentityId(playerTwoIdentity.getId())
                                 .withType(TransactionType.COMPLETE_TRADE)
-                                .withCompleteTradeData(dataOut),
+                                .withCompleteTradeData(CompleteTradeData.builder()
+                                        .tradeId(trade.getTradeId())
+                                        .build()),
                         response -> {
                             if (response.body() != null) {
                                 if (response.body() != null) {
@@ -209,18 +212,17 @@ public class TradeManager implements Listener {
                 Player bukkitPlayerOne = playerOne.getBukkitPlayer();
                 Player bukkitPlayerTwo = playerTwo.getBukkitPlayer();
 
-                JsonObject dataOut = new JsonObject();
-                JsonArray playerOneTokens = extractTokens(trade.getPlayerOneOffer());
-                JsonArray playerTwoTokens = extractTokens(trade.getPlayerTwoOffer());
-
-                dataOut.add("offering_tokens", playerOneTokens);
-                dataOut.add("asking_tokens", playerTwoTokens);
-                dataOut.addProperty("second_party_identity_id", playerTwoIdentity.getId());
+                List<TokenValueData> playerOneTokens = extractTokens(trade.getPlayerOneOffer());
+                List<TokenValueData> playerTwoTokens = extractTokens(trade.getPlayerTwoOffer());
 
                 service.createRequestAsync(
                         new CreateRequest().withIdentityId(playerOneIdentity.getId())
                                 .withType(TransactionType.CREATE_TRADE)
-                                .withCreateTradeData(dataOut),
+                                .withCreateTradeData(CreateTradeData.builder()
+                                        .offeringTokens(playerOneTokens)
+                                        .askingTokens(playerTwoTokens)
+                                        .secondPartyIdentityId(playerTwoIdentity.getId())
+                                        .build()),
                         response -> {
                             if (response.body() != null) {
                                 if (response.body() != null) {
@@ -276,23 +278,22 @@ public class TradeManager implements Listener {
         return tradesPendingCompletion.get(requestId);
     }
 
-    private JsonArray extractTokens(List<ItemStack> offeredItems) {
-        JsonArray offer = new JsonArray();
+    private List<TokenValueData> extractTokens(List<ItemStack> offeredItems) {
+        List<TokenValueData> offers = new ArrayList<>();
 
         for (ItemStack item : offeredItems) {
             NBTItem nbtItem = new NBTItem(item);
             if (nbtItem.hasKey("tokenID")) {
                 String tokenId = nbtItem.getString("tokenID");
-                JsonObject tokenData = new JsonObject();
 
-                tokenData.addProperty("id", tokenId);
-                tokenData.addProperty("value", item.getAmount());
-
-                offer.add(tokenData);
+                offers.add(TokenValueData.builder()
+                        .id(tokenId)
+                        .value(item.getAmount())
+                        .build());
             }
         }
 
-        return offer;
+        return offers;
     }
 
     @EventHandler
