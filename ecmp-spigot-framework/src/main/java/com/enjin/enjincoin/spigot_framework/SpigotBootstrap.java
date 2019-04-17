@@ -1,12 +1,12 @@
 package com.enjin.enjincoin.spigot_framework;
 
-import com.enjin.enjincoin.sdk.Response;
 import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
+import com.enjin.enjincoin.sdk.http.Callback;
+import com.enjin.enjincoin.sdk.http.Result;
 import com.enjin.enjincoin.sdk.model.service.tokens.GetTokensResult;
 import com.enjin.enjincoin.sdk.model.service.tokens.Token;
 import com.enjin.enjincoin.sdk.service.notifications.NotificationsService;
 import com.enjin.enjincoin.sdk.service.tokens.TokensService;
-import com.enjin.enjincoin.sdk.util.concurrent.Callback;
 import com.enjin.enjincoin.spigot_framework.commands.RootCommand;
 import com.enjin.enjincoin.spigot_framework.controllers.SdkClientController;
 import com.enjin.enjincoin.spigot_framework.listeners.InventoryListener;
@@ -133,7 +133,7 @@ public class SpigotBootstrap extends PluginBootstrap {
             final TokensService tokensService = this.sdkClientController.getClient().getTokensService();
             tokensService.getAllTokensAsync(new Callback<GraphQLResponse<GetTokensResult>>() {
                 @Override
-                public void onComplete(Response<GraphQLResponse<GetTokensResult>> response) {
+                public void onComplete(Result<GraphQLResponse<GetTokensResult>> response) {
                     if (response.body() != null) {
                         GetTokensResult data = response.body().getData();
                         if (data != null && data.getTokens() != null) {

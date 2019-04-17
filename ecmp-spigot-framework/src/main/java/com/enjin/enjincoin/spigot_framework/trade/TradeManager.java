@@ -174,12 +174,15 @@ public class TradeManager implements Listener {
                                 if (bukkitPlayerTwo != null && bukkitPlayerTwo.isOnline()) {
                                     MessageUtils.sendMessage(bukkitPlayerTwo, text);
 
-                                    if (response.errors() != null) {
-                                        for (GraphError error : response.errors()) {
-                                            MessageUtils.sendMessage(bukkitPlayerOne, TextComponent.builder()
-                                                    .content(error.getMessage())
-                                                    .color(TextColor.RED)
-                                                    .build());
+                                    if (!(response.isSuccess() || response.isEmpty())) {
+                                        GraphQLResponse<?> body = response.body();
+                                        if (body.getErrors() != null) {
+                                            for (GraphError error : body.getErrors()) {
+                                                MessageUtils.sendMessage(bukkitPlayerOne, TextComponent.builder()
+                                                        .content(error.getMessage())
+                                                        .color(TextColor.RED)
+                                                        .build());
+                                            }
                                         }
                                     }
                                 }
@@ -246,12 +249,15 @@ public class TradeManager implements Listener {
                                 if (bukkitPlayerOne != null && bukkitPlayerOne.isOnline()) {
                                     MessageUtils.sendMessage(bukkitPlayerOne, text);
 
-                                    if (response.errors() != null) {
-                                        for (GraphError error : response.errors()) {
-                                            MessageUtils.sendMessage(bukkitPlayerOne, TextComponent.builder()
-                                                    .content(error.getMessage())
-                                                    .color(TextColor.RED)
-                                                    .build());
+                                    if (!(response.isSuccess() || response.isEmpty())) {
+                                        GraphQLResponse<?> body = response.body();
+                                        if (body.getErrors() != null) {
+                                            for (GraphError error : body.getErrors()) {
+                                                MessageUtils.sendMessage(bukkitPlayerOne, TextComponent.builder()
+                                                        .content(error.getMessage())
+                                                        .color(TextColor.RED)
+                                                        .build());
+                                            }
                                         }
                                     }
                                 }

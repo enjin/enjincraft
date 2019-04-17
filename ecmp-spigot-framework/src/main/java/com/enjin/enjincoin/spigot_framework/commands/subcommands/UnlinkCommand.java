@@ -1,7 +1,7 @@
 package com.enjin.enjincoin.spigot_framework.commands.subcommands;
 
-import com.enjin.enjincoin.sdk.Response;
 import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
+import com.enjin.enjincoin.sdk.http.Result;
 import com.enjin.enjincoin.sdk.model.service.identities.Identity;
 import com.enjin.enjincoin.sdk.model.service.identities.UnlinkIdentity;
 import com.enjin.enjincoin.sdk.service.identities.IdentitiesService;
@@ -132,16 +132,7 @@ public class UnlinkCommand {
     private void handleUnlinking(CommandSender sender, Integer id) throws IOException {
         System.out.println("unlinking for id " + id);
         IdentitiesService service = this.plugin.getBootstrap().getSdkController().getClient().getIdentitiesService();
-        Response<GraphQLResponse<Identity>> response = service.unlinkIdentitySync(new UnlinkIdentity(id));
-
-        String code = "";
-        if (response.body() != null) {
-            if (response.body().getData() != null) {
-                code = response.body().getData().getLinkingCode();
-            } else {
-//                System.out.println("Error unlinking: " + response.errorBody().string());
-            }
-        }
+        Result<GraphQLResponse<Identity>> response = service.unlinkIdentitySync(new UnlinkIdentity(id));
 
         final TextComponent notice = TextComponent.of("Wallet successfully unlinked. To re-link use the /enj link command to generate a new Linking Code.")
                 .color(TextColor.GOLD);
