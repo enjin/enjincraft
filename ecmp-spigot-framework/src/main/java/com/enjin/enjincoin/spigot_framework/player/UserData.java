@@ -2,11 +2,12 @@ package com.enjin.enjincoin.spigot_framework.player;
 
 import com.enjin.enjincoin.sdk.model.service.users.User;
 
+import java.math.BigInteger;
 import java.util.UUID;
 
 public class UserData {
 
-    private Integer id;
+    private BigInteger id;
     private String name;
 
     public UserData(User user) {
@@ -14,8 +15,8 @@ public class UserData {
         this.name = user.getName();
     }
 
-    public Integer getId() {
-        return this.id;
+    public BigInteger getId() {
+        return id;
     }
 
     public String getName() {

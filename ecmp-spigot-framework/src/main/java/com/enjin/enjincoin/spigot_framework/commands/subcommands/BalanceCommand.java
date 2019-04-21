@@ -12,6 +12,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,15 +64,19 @@ public class BalanceCommand {
                 }
 
                 if (identity != null) {
-                    Double ethBalance = (mcPlayer.getIdentityData().getEthBalance() == null) ? 0 : mcPlayer.getIdentityData().getEthBalance();
-                    Double enjBalance = (mcPlayer.getIdentityData().getEnjBalance() == null) ? 0 : mcPlayer.getIdentityData().getEnjBalance();
+                    BigDecimal ethBalance = (mcPlayer.getIdentityData().getEthBalance() == null)
+                            ? BigDecimal.ZERO
+                            : mcPlayer.getIdentityData().getEthBalance();
+                    BigDecimal enjBalance = (mcPlayer.getIdentityData().getEnjBalance() == null)
+                            ? BigDecimal.ZERO
+                            : mcPlayer.getIdentityData().getEnjBalance();
 
                     sendMsg(sender, "EthAdr: " + ChatColor.LIGHT_PURPLE + identity.getEthereumAddress());
                     sendMsg(sender, "ID: " + identity.getId() + "   ");
 
-                    if (enjBalance > 0)
+                    if (enjBalance != null)
                         sendMsg(sender, ChatColor.GREEN + "[ " + enjBalance + " ENJ ] ");
-                    if (ethBalance > 0)
+                    if (ethBalance != null)
                         sendMsg(sender, ChatColor.GREEN + "[ " + ethBalance + " ETH ]");
 
                     JsonObject tokensDisplayConfig = main.getBootstrap().getConfig().get("tokens").getAsJsonObject();

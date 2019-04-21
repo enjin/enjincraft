@@ -53,10 +53,10 @@ public class GenericNotificationListener implements NotificationListener {
 
     @Override
     public void notificationReceived(NotificationEvent event) {
-        NotificationType eventType = event.getNotificationType();
+        NotificationType eventType = event.getType();
 
         this.main.getBootstrap().debug(String.format("Received %s event on %s with data: %s", eventType, event.getChannel(), event.getSourceData()));
-        this.main.getBootstrap().debug(String.format("Parsing data for %s event", event.getNotificationType().getEventType()));
+        this.main.getBootstrap().debug(String.format("Parsing data for %s event", eventType.getEventType()));
         JsonParser parser = new JsonParser();
         JsonObject data = parser.parse(event.getSourceData()).getAsJsonObject().get("data").getAsJsonObject();
 
@@ -200,7 +200,7 @@ public class GenericNotificationListener implements NotificationListener {
             UUID uuid = null;
             for (IdentityField field : identity.getFields()) {
                 if (field.getKey().equalsIgnoreCase("uuid")) {
-                    uuid = UuidUtils.stringToUuid(field.getFieldValue());
+                    uuid = UuidUtils.stringToUuid(field.getValue());
                     break;
                 }
             }

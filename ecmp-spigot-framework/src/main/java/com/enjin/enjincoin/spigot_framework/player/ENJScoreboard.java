@@ -118,14 +118,14 @@ public class ENJScoreboard {
      * @param value The value to format.
      * @return The formatted string.
      */
-    private String formatDouble(Double value) {
+    private String formatDouble(BigDecimal value) {
         String retv = "";
 
         if (value == null) {
             retv = "N/A";
         } else {
-            BigDecimal bd = new BigDecimal(value);
-            bd = bd.setScale(2, RoundingMode.HALF_DOWN);
+            BigDecimal bd = value;
+            bd = bd.setScale(2, RoundingMode.DOWN);
             retv = String.valueOf(bd);
         }
 

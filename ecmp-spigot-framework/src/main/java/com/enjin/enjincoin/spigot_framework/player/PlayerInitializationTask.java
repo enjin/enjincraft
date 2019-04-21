@@ -95,7 +95,7 @@ public class PlayerInitializationTask extends BukkitRunnable {
             GraphQLResponse<GetUsersResult> response = networkResponse.body();
             if (!response.isEmpty()) {
                 GetUsersResult data = response.getData();
-                if (!data.isEmpty()) {
+                if (data.getUsers() != null && !data.getUsers().isEmpty()) {
                     user = data.getUsers().get(0);
                 }
             }

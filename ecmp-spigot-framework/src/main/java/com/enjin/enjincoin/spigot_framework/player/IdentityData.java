@@ -2,13 +2,16 @@ package com.enjin.enjincoin.spigot_framework.player;
 
 import com.enjin.enjincoin.sdk.model.service.identities.Identity;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 public class IdentityData {
 
-    private Integer id;
+    private BigInteger id;
     private String ethereumAddress;
     private String linkingCode;
-    private Double ethBalance;
-    private Double enjBalance;
+    private BigDecimal ethBalance;
+    private BigDecimal enjBalance;
 
     public IdentityData(Identity identity) {
         this.id = identity.getId();
@@ -18,8 +21,8 @@ public class IdentityData {
         this.enjBalance = identity.getEnjBalance();
     }
 
-    public Integer getId() {
-        return this.id;
+    public BigInteger getId() {
+        return id;
     }
 
     public String getEthereumAddress() {
@@ -30,11 +33,11 @@ public class IdentityData {
         return this.linkingCode;
     }
 
-    public Double getEthBalance() {
-        return this.ethBalance;
+    public BigDecimal getEthBalance() {
+        return ethBalance;
     }
 
-    public Double getEnjBalance() {
-        return this.enjBalance;
+    public BigDecimal getEnjBalance() {
+        return enjBalance;
     }
 }

@@ -27,6 +27,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TradeManager implements Listener {
 
     private BasePlugin plugin;
-    private Map<Integer, Trade> tradesPendingCompletion = new ConcurrentHashMap<>();
+    private Map<BigInteger, Trade> tradesPendingCompletion = new ConcurrentHashMap<>();
 
     TextComponent action = TextComponent.builder()
             .content("Please confirm the trade in your Enjin wallet!")
