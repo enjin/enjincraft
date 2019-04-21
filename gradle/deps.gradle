@@ -7,7 +7,7 @@ ext.deps = [
         gson                  : 'com.google.code.gson:gson:2.8.2',
 
         // Shadow dependencies
-        spigot                : 'org.spigotmc:spigot-api:1.13-R0.1-SNAPSHOT',
+        spigot                : 'org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT',
 
         // testCompile Dependencies
         junit                 : 'junit:junit:4.12',
