@@ -77,7 +77,7 @@ public class Wallet {
     }
 
 
-    public WalletCheckoutManager accessCheckoutManager() {
+    public WalletCheckoutManager getCheckoutManager() {
         if (manager != null)
             return manager;
 

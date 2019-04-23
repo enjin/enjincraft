@@ -4,6 +4,7 @@ import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.inventory.WalletCheckoutManager;
 import com.enjin.enjincoin.spigot_framework.player.MinecraftPlayer;
 import com.enjin.enjincoin.spigot_framework.util.MessageUtils;
+import com.enjin.enjincoin.spigot_framework.util.TokenUtils;
 import com.enjin.minecraft_commons.spigot.nbt.NBTItem;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
@@ -66,13 +67,11 @@ public class InventoryListener implements Listener {
      */
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInventoryDrag(InventoryDragEvent event) {
+        main.getLogger().info("InventoryListener#onInventoryDrag");
         if (!(event.getWhoClicked() instanceof Player)) return;
 
-        InventoryView view = event.getView();
-        Inventory topInventory = view.getTopInventory();
-
         // TODO: Allow dragging tokenized items only.
-        if (isWalletInventory(topInventory)) {
+        if (isViewingWallet((Player) event.getWhoClicked())) {
             event.setResult(Event.Result.DENY);
         }
     }
@@ -86,10 +85,12 @@ public class InventoryListener implements Listener {
      */
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInventoryClick(InventoryClickEvent event) {
-        if (event.getClickedInventory() == null) return;
+        if (!(event.getWhoClicked() instanceof Player)) return;
 
-        if (!isWalletInventory(event.getView().getTopInventory()))
+        if (!isViewingWallet((Player) event.getWhoClicked())) {
+            InventoryView view = event.getWhoClicked().getOpenInventory();
             return;
+        }
 
         if (event.getAction() == InventoryAction.HOTBAR_SWAP ||
                 event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
@@ -99,93 +100,96 @@ public class InventoryListener implements Listener {
         if (event.getAction() == InventoryAction.PLACE_ALL ||
                 event.getAction() == InventoryAction.PLACE_ONE ||
                 event.getAction() == InventoryAction.PLACE_SOME) {
-            if (!isWalletInventory(event.getClickedInventory())) {
-                // lets validate that the item in question is tagged as a token.
-                if (event.getCursor() != null) {
-                    // check to see if it's a token-tagged nbt
-                    NBTItem item = new NBTItem(event.getCursor());
-                    if (item.getString("tokenID") == null)
-                        // if it isn't, lets just return and act normally.
-                        return;
-                }
-
-                // then check to see if we're dropping into the players inventory
-                if (!isPlayerInventory(event.getClickedInventory())) {
-                    event.setCancelled(true);
+            // lets validate that the item in question is tagged as a token.
+            if (event.getCursor() != null) {
+                // check to see if it's a token-tagged nbt
+                NBTItem item = new NBTItem(event.getCursor());
+                if (item.getString("tokenID") == null)
+                    // if it isn't, lets just return and act normally.
                     return;
-                } // else act normally
             }
-        }
 
-        if (isWalletInventory(event.getClickedInventory())) {
-            if (event.getClickedInventory() == null) {
+            // then check to see if we're dropping into the players inventory
+            if (!isPlayerInventory(event.getClickedInventory())) {
                 event.setCancelled(true);
                 return;
+            } // else act normally
+        }
+
+        if (event.getClickedInventory() == null) {
+            event.setCancelled(true);
+            return;
+        }
+
+        Player player = (Player) event.getClickedInventory().getHolder();
+        MinecraftPlayer mcplayer = this.main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId());
+
+        WalletCheckoutManager checkout = mcplayer.getWallet().getCheckoutManager();
+
+        ItemStack cursor = event.getCursor();
+
+        // handle returning an item to the inventory.
+        String tokenId = TokenUtils.getTokenID(cursor);
+
+        // check to see if the current cursor stack is a checked out item.
+        if (tokenId != null) {
+            // System.out.println(tokenId);
+            // repair and unbreakable flag the item... just to be safe.
+            ItemMeta meta = cursor.getItemMeta();
+
+            if (meta instanceof Damageable) {
+                Damageable damageable = (Damageable) meta;
+                damageable.setDamage((short) 0);
             }
 
-            Player player = (Player) event.getClickedInventory().getHolder();
-            MinecraftPlayer mcplayer = this.main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId());
+            meta.setUnbreakable(true);
 
-            WalletCheckoutManager checkout = mcplayer.getWallet().accessCheckoutManager();
+            cursor.setItemMeta(meta);
 
-            ItemStack cursor = event.getCursor();
+            // handle checkout manager return.
+            returnItemStack(player, event.getCursor());
 
-            // handle returning an item to the inventory.
-            String tokenId = checkout.getTokenId(cursor);
+            int found = 0;
+            // find any instances of the current object in the wallet.
+            for (ItemStack stacks : Arrays.asList(event.getClickedInventory().getContents())) {
+                String stackId = TokenUtils.getTokenID(stacks);
+                if (stackId == null || stackId.isEmpty()) continue;
 
-            // check to see if the current cursor stack is a checked out item.
-            if (tokenId != null) {
-                // System.out.println(tokenId);
-                // repair and unbreakable flag the item... just to be safe.
-                ItemMeta meta = cursor.getItemMeta();
-
-                if (meta instanceof Damageable) {
-                    Damageable damageable = (Damageable) meta;
-                    damageable.setDamage((short) 0);
-                }
-
-                meta.setUnbreakable(true);
-
-                cursor.setItemMeta(meta);
-
-                // handle checkout manager return.
-                returnItemStack(player, event.getCursor());
-
-                int found = 0;
-                // find any instances of the current object in the wallet.
-                for (ItemStack stacks : Arrays.asList(event.getClickedInventory().getContents())) {
-                    String stackId = checkout.getTokenId(stacks);
-                    if (stackId == null || stackId.isEmpty()) continue;
-
-                    if (stackId.equals(tokenId)) {
-                        found += stacks.getAmount();
-                        if (event.getCurrentItem() == null) { // handle empty slot
-                            if (checkout.getTokenId(event.getCurrentItem()).equals(tokenId))
-                                event.getClickedInventory().remove(event.getCurrentItem());
-                            else
-                                event.getClickedInventory().remove(stacks);
-                        } else {
+                if (stackId.equals(tokenId)) {
+                    found += stacks.getAmount();
+                    if (event.getCurrentItem() == null) { // handle empty slot
+                        if (TokenUtils.getTokenID(event.getCurrentItem()).equals(tokenId))
+                            event.getClickedInventory().remove(event.getCurrentItem());
+                        else
                             event.getClickedInventory().remove(stacks);
-                        }
+                    } else {
+                        event.getClickedInventory().remove(stacks);
                     }
                 }
-
-                // we found some matching items in the clicked inventory!
-                if (found > 0) {
-                    event.getCursor().setAmount(event.getCursor().getAmount() + found);
-                } else { // no matches in the inventory were found
-                    // noop
-                }
-                return;
             }
 
-            // handle check out from wallet.
-            ItemStack stack = event.getClickedInventory().getItem(event.getSlot());
-            event.setCancelled(true);
+            // we found some matching items in the clicked inventory!
+            if (found > 0) {
+                event.getCursor().setAmount(event.getCursor().getAmount() + found);
+            } else { // no matches in the inventory were found
+                // noop
+            }
+            return;
+        }
 
-            if (stack != null) {
+        // handle check out from wallet.
+        ItemStack stack = event.getClickedInventory().getItem(event.getSlot());
+        event.setCancelled(true);
+
+        Inventory inventory = event.getClickedInventory();
+        main.getLogger().info(inventory.getType().name());
+
+        if (stack != null) {
+            if (inventory.getType() == InventoryType.PLAYER && TokenUtils.getTokenID(stack) != null) {
+                returnItemStack(player, stack);
+                event.getClickedInventory().clear(event.getSlot());
+            } else if (inventory.getType() == InventoryType.CHEST) {
                 if (stack.getAmount() >= 1 || !isCheckedOut(player.getUniqueId(), stack)) {
-
                     String line = stack.getItemMeta().getLore().get(0).replace("Owned: ", "");
                     line = ChatColor.stripColor(line);
                     int stock = Integer.parseInt(line);
@@ -227,6 +231,7 @@ public class InventoryListener implements Listener {
      */
     @EventHandler
     public void onPlayerDropItem(PlayerDropItemEvent event) {
+        main.getLogger().info("InventoryListener#onPlayerDropItem");
         // If a player drops a token cancel the event.
         Player player = event.getPlayer();
         Item item = event.getItemDrop();
@@ -287,10 +292,16 @@ public class InventoryListener implements Listener {
 
     @EventHandler
     public void onInventoryMoveItem(InventoryMoveItemEvent event) {
-        if (isWalletInventory(event.getDestination())) {
-            returnItemStack((Player) event.getSource().getHolder(), event.getItem());
+        main.getLogger().info("InventoryListener#onInventoryMoveItem");
+        if (event.getSource() != null && event.getSource().getHolder() instanceof Player) {
+            Player player = (Player) event.getSource().getHolder();
+            if (isViewingWallet(player)) {
+                Inventory destination = event.getDestination();
+                if (destination.getType() == InventoryType.CHEST) {
+                    returnItemStack((Player) event.getSource().getHolder(), event.getItem());
+                }
+            }
         }
-        event.getItem().setAmount(0);
     }
 
     /**
@@ -302,7 +313,7 @@ public class InventoryListener implements Listener {
      */
     private void returnItemStack(Player player, ItemStack stack) {
         MinecraftPlayer mcplayer = this.main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId());
-        WalletCheckoutManager manager = mcplayer.getWallet().accessCheckoutManager();
+        WalletCheckoutManager manager = mcplayer.getWallet().getCheckoutManager();
 
         manager.returnItem(stack);
     }
@@ -334,17 +345,16 @@ public class InventoryListener implements Listener {
         Bukkit.getOnlinePlayers().forEach(this::clear);
     }
 
-    /**
-     * <p>Check if an inventory represents an Enjin wallet.</p>
-     *
-     * @param inventory the inventory
-     * @return true if the inventory represents an Enjin wallet
-     * @since 1.0
-     */
-    private boolean isWalletInventory(Inventory inventory) {
-        if (inventory == null)
-            return false;
-        return ChatColor.stripColor(inventory.getName()).equalsIgnoreCase(WALLET_INVENTORY);
+    private boolean isViewingWallet(Player player) {
+        if (player != null) {
+            InventoryView view = player.getOpenInventory();
+
+            if (view != null) {
+                return ChatColor.stripColor(view.getTitle()).equalsIgnoreCase(WALLET_INVENTORY);
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -373,9 +383,9 @@ public class InventoryListener implements Listener {
      */
     private boolean isCheckedOut(UUID uuid, ItemStack stack) {
         MinecraftPlayer mcplayer = this.main.getBootstrap().getPlayerManager().getPlayer(uuid);
-        WalletCheckoutManager manager = mcplayer.getWallet().accessCheckoutManager();
+        WalletCheckoutManager manager = mcplayer.getWallet().getCheckoutManager();
 
-        String stackId = manager.getTokenId(stack);
+        String stackId = TokenUtils.getTokenID(stack);
 
         if (manager.accessCheckout().containsKey(stackId))
             return true;

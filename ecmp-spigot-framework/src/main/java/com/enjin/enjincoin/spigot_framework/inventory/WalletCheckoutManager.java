@@ -2,6 +2,7 @@ package com.enjin.enjincoin.spigot_framework.inventory;
 
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.player.Wallet;
+import com.enjin.enjincoin.spigot_framework.util.TokenUtils;
 import com.enjin.minecraft_commons.spigot.nbt.NBTItem;
 import com.google.gson.JsonObject;
 import org.bukkit.entity.Player;
@@ -35,18 +36,6 @@ public class WalletCheckoutManager {
         return checkedOutTokens;
     }
 
-    public String getTokenId(ItemStack itemStack) {
-        if (itemStack == null) return null;
-
-        NBTItem nbti = new NBTItem(itemStack);
-
-        if (nbti.getString("tokenID") != null) {
-            return nbti.getString("tokenID");
-        } else {
-            return null;
-        }
-    }
-
     public boolean populate(BasePlugin main, Player player, Wallet wallet) {
         PlayerInventory playerInventory = player.getInventory();
 
@@ -77,7 +66,7 @@ public class WalletCheckoutManager {
 
         // handle inventory contents
         for (int i = 0; i < allHeldItems.size(); i++) {
-            String tokenId = getTokenId(allHeldItems.get(i));
+            String tokenId = TokenUtils.getTokenID(allHeldItems.get(i));
 
             if (tokenId == null || tokenId.isEmpty())
                 continue; // skip this item as it did not contain a potential token id
@@ -121,7 +110,7 @@ public class WalletCheckoutManager {
         Map<String, ItemStack> walletItems = new HashMap<>();
 
         for (ItemStack itemStack : allWalletItems) {
-            String tokenId = getTokenId(itemStack);
+            String tokenId = TokenUtils.getTokenID(itemStack);
 
             if (tokenId == null || tokenId.isEmpty()) continue; // this shouldn't happen but just in case...
 //            System.out.println("found item: " + tokenId + " in wallet.");
@@ -165,7 +154,7 @@ public class WalletCheckoutManager {
     }
 
     public boolean checkoutItem(ItemStack itemStack) {
-        String tokenId = getTokenId(itemStack);
+        String tokenId = TokenUtils.getTokenID(itemStack);
 
         if (checkedOutTokens.get(tokenId) == null) {
             // handle first checkout of an item of this ID.
@@ -188,7 +177,7 @@ public class WalletCheckoutManager {
     }
 
     public boolean returnItem(ItemStack itemStack) {
-        String tokenId = getTokenId(itemStack);
+        String tokenId = TokenUtils.getTokenID(itemStack);
 
         if (checkedOutTokens.get(tokenId) == null) {
             // no items of this type were registered as checked out or the item is not a valid wallet item.

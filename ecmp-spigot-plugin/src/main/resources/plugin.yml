@@ -19,3 +19,9 @@ commands:
   enj wallet:
     description: Opens a wallet inventory panel which allows for checkout of owned CrytoItems.
     usage: /<command> <subcommand> [args]
+  enj trade:
+    description: Trade tokens with another player.
+    usage: /<command> <subcommand> [args]
+  enj send:
+    description: Send a token to another player.
+    usage: /<command> <subcommand> [args]

@@ -63,6 +63,8 @@ public class RootCommand implements CommandExecutor {
      */
     private final SidebarCommand sidebar;
 
+    private final SendCommand send;
+
     /**
      * <p>commands list and details</p>
      * key is command name
@@ -87,6 +89,7 @@ public class RootCommand implements CommandExecutor {
         this.trade = new TradeCommand(main);
         this.menu = new MenuCommand(main);
         this.sidebar = new SidebarCommand(main);
+        this.send = new SendCommand(main);
     }
 
     public Map<String, String> getCommandsMap() {
@@ -111,7 +114,7 @@ public class RootCommand implements CommandExecutor {
                 case "link":
                     this.link.execute(sender, subArgs);
                     break;
-                case "wallet": // TODO: Refactor wallet command around MinecraftPlayer
+                case "wallet":
                     this.wallet.execute(player, subArgs);
                     break;
                 case "balance":
@@ -131,6 +134,9 @@ public class RootCommand implements CommandExecutor {
                     break;
                 case "scoreboard":
                     this.sidebar.execute(player, subArgs);
+                    break;
+                case "send":
+                    this.send.execute(player, subArgs);
                     break;
                 default:
                     player.sendMessage(String.format("No sub-command with alias %s exists.", sub));

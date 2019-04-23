@@ -3,6 +3,7 @@ package com.enjin.enjincoin.spigot_framework.listeners;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.inventory.WalletCheckoutManager;
 import com.enjin.enjincoin.spigot_framework.player.MinecraftPlayer;
+import com.enjin.enjincoin.spigot_framework.util.TokenUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -60,9 +61,9 @@ public class PlayerInteractionListener implements Listener {
 
             MinecraftPlayer mcplayer = this.main.getBootstrap().getPlayerManager().getPlayer(event.getPlayer().getUniqueId());
             try {
-                WalletCheckoutManager checkout = mcplayer.getWallet().accessCheckoutManager();
+                WalletCheckoutManager checkout = mcplayer.getWallet().getCheckoutManager();
 
-                String tokenId = checkout.getTokenId(event.getItem());
+                String tokenId = TokenUtils.getTokenID(event.getItem());
                 if (tokenId != null) { // item is tagged as a cryptoItem
                     // do thing with item based on tagged type: CONSUMABLE, REUSABLE, etc.
                     int amount = event.getItem().getAmount();

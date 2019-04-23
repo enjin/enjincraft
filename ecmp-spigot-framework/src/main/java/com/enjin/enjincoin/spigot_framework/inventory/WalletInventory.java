@@ -68,7 +68,7 @@ public class WalletInventory {
         // TODO this may not be necessary .. will ask Tim or Evan
         owner = main.getBootstrap().getPlayerManager().getPlayer(holder.getUniqueId());
         owner.getWallet().setInventory(inventory);
-        WalletCheckoutManager manager = owner.getWallet().accessCheckoutManager();
+        WalletCheckoutManager manager = owner.getWallet().getCheckoutManager();
 
 //        System.out.println("WalletInventory.create: setup checkout manager");
 
