@@ -55,20 +55,17 @@ public class GenericNotificationListener implements NotificationListener {
     public void notificationReceived(NotificationEvent event) {
         NotificationType eventType = event.getType();
 
-        this.main.getBootstrap().debug(String.format("Received %s event on %s with data: %s", eventType, event.getChannel(), event.getSourceData()));
-        this.main.getBootstrap().debug(String.format("Parsing data for %s event", eventType.getEventType()));
         JsonParser parser = new JsonParser();
         JsonObject data = parser.parse(event.getSourceData()).getAsJsonObject().get("data").getAsJsonObject();
 
         // txr_ => transaction request
         // tx_ => transaction
         if (eventType == NotificationType.TXR_PENDING) {
-            this.main.getBootstrap().debug("Transaction is pending");
         } else if (eventType == NotificationType.TX_EXECUTED) {
-            this.main.getBootstrap().debug("Transaction is executed");
             JsonElement eventElement = data.get("event");
             if (eventElement != null) {
                 String eventString = eventElement.getAsString();
+                main.getLogger().info(eventString);
 
                 if (eventString.equalsIgnoreCase("Transfer")) {
                     // handle transfer event.
@@ -97,12 +94,12 @@ public class GenericNotificationListener implements NotificationListener {
                         MessageUtils.sendMessage(toPlayer.getBukkitPlayer(), text);
                     }
                 } else if (eventString.equalsIgnoreCase("CreateTrade")) {
-                    int requestId = data.get("transaction_id").getAsInt();
+                    String requestId = data.get("transaction_id").getAsString();
                     String tradeId = data.get("param1").getAsString();
                     TradeManager manager = main.getBootstrap().getTradeManager();
                     manager.submitCompleteTrade(requestId, tradeId);
                 } else if (eventString.equalsIgnoreCase("CompleteTrade")) {
-                    int requestId = data.get("transaction_id").getAsInt();
+                    String requestId = data.get("transaction_id").getAsString();
                     TradeManager manager = main.getBootstrap().getTradeManager();
                     manager.completeTrade(requestId);
                 }

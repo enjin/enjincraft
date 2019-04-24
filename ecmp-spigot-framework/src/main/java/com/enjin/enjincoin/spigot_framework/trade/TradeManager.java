@@ -18,8 +18,6 @@ import com.enjin.enjincoin.spigot_framework.player.MinecraftPlayer;
 import com.enjin.enjincoin.spigot_framework.player.PlayerManager;
 import com.enjin.enjincoin.spigot_framework.util.MessageUtils;
 import com.enjin.minecraft_commons.spigot.nbt.NBTItem;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
 import org.bukkit.entity.Player;
@@ -27,7 +25,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TradeManager implements Listener {
 
     private BasePlugin plugin;
-    private Map<BigInteger, Trade> tradesPendingCompletion = new ConcurrentHashMap<>();
+    private Map<String, Trade> tradesPendingCompletion = new ConcurrentHashMap<>();
 
     TextComponent action = TextComponent.builder()
             .content("Please confirm the trade in your Enjin wallet!")
@@ -88,7 +85,7 @@ public class TradeManager implements Listener {
         return target.getReceivedTradeInvites().remove(sender);
     }
 
-    public void completeTrade(int requestId) {
+    public void completeTrade(String requestId) {
         Trade trade = tradesPendingCompletion.remove(requestId);
         if (trade != null) {
             PlayerManager playerManager = this.plugin.getBootstrap().getPlayerManager();
@@ -118,10 +115,12 @@ public class TradeManager implements Listener {
         }
     }
 
-    public void submitCompleteTrade(int requestId, String tradeId) {
+    public void submitCompleteTrade(String requestId, String tradeId) {
         Trade trade = tradesPendingCompletion.remove(requestId);
 
-        if (trade == null) return;
+        if (trade == null) {
+            return;
+        }
 
         trade.setTradeId(tradeId);
 
@@ -162,7 +161,8 @@ public class TradeManager implements Listener {
                                             MessageUtils.sendMessage(bukkitPlayerTwo, action);
                                         }
 
-                                        tradesPendingCompletion.put(dataIn.getRequest().getId(), trade);
+                                        String key = dataIn.getRequest().getId().toString();
+                                        tradesPendingCompletion.put(key, trade);
                                     }
                                 }
                             } else {
@@ -240,7 +240,8 @@ public class TradeManager implements Listener {
                                             MessageUtils.sendMessage(bukkitPlayerTwo, wait);
                                         }
 
-                                        tradesPendingCompletion.put(dataIn.getRequest().getId(), trade);
+                                        String key = dataIn.getRequest().getId().toString();
+                                        tradesPendingCompletion.put(key, trade);
                                     }
                                 }
                             } else {
@@ -273,10 +274,6 @@ public class TradeManager implements Listener {
                 );
             }
         }
-    }
-
-    public Trade getTrade(int requestId) {
-        return tradesPendingCompletion.get(requestId);
     }
 
     private List<TokenValueData> extractTokens(List<ItemStack> offeredItems) {
