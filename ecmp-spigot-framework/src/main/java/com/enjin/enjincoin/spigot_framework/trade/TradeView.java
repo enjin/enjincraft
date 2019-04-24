@@ -10,6 +10,7 @@ import com.enjin.minecraft_commons.spigot.ui.menu.ChestMenu;
 import com.enjin.minecraft_commons.spigot.ui.menu.component.SimpleMenuComponent;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -236,7 +237,7 @@ public class TradeView extends ChestMenu {
     private ItemStack createSeparatorItemStack() {
         ItemStack stack = new ItemStack(Material.IRON_BARS);
         ItemMeta meta = stack.getItemMeta();
-        meta.setDisplayName("|");
+        meta.setDisplayName(ChatColor.DARK_PURPLE + "|");
         stack.setItemMeta(meta);
         return stack;
     }
@@ -244,7 +245,7 @@ public class TradeView extends ChestMenu {
     private ItemStack createReadyItemStack() {
         ItemStack stack = new ItemStack(Material.HOPPER);
         ItemMeta meta = stack.getItemMeta();
-        meta.setDisplayName("Ready Up");
+        meta.setDisplayName(ChatColor.GREEN + "Ready Up");
         stack.setItemMeta(meta);
         return stack;
     }
@@ -252,7 +253,7 @@ public class TradeView extends ChestMenu {
     private ItemStack createUnreadyItemStack() {
         ItemStack stack = new ItemStack(Material.BARRIER);
         ItemMeta meta = stack.getItemMeta();
-        meta.setDisplayName("Unready");
+        meta.setDisplayName(ChatColor.RED + "Unready");
         stack.setItemMeta(meta);
         return stack;
     }
@@ -260,7 +261,7 @@ public class TradeView extends ChestMenu {
     private ItemStack createReadyPaneItemStack() {
         ItemStack stack = new ItemStack(Material.GREEN_STAINED_GLASS_PANE);
         ItemMeta meta = stack.getItemMeta();
-        meta.setDisplayName("Ready");
+        meta.setDisplayName(ChatColor.GREEN + "Ready");
         stack.setItemMeta(meta);
         return stack;
     }
@@ -268,7 +269,7 @@ public class TradeView extends ChestMenu {
     private ItemStack createUnreadyPaneItemStack() {
         ItemStack stack = new ItemStack(Material.RED_STAINED_GLASS_PANE);
         ItemMeta meta = stack.getItemMeta();
-        meta.setDisplayName("Unready");
+        meta.setDisplayName(ChatColor.RED + "Not Ready");
         stack.setItemMeta(meta);
         return stack;
     }
