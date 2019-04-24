@@ -16,6 +16,7 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.ArrayList;
@@ -37,8 +38,10 @@ public class TradeView extends ChestMenu {
 
     private boolean playerReady = false;
     private boolean tradeApproved = false;
-    private ItemStack readyPane = new ItemStack(Material.GREEN_STAINED_GLASS_PANE);
-    private ItemStack unreadyPane = new ItemStack(Material.RED_STAINED_GLASS_PANE);
+    private ItemStack readyPane = createReadyPaneItemStack();
+    private ItemStack unreadyPane = createUnreadyPaneItemStack();
+    private ItemStack readyItem = createReadyItemStack();
+    private ItemStack unreadyItem = createUnreadyItemStack();
 
     public TradeView(BasePlugin plugin, MinecraftPlayer viewer, MinecraftPlayer other) {
         super("Trade", 6);
@@ -90,6 +93,7 @@ public class TradeView extends ChestMenu {
             }
         });
 
+        //  Create the offering region for the viewing player
         this.viewerItemsComponent = new SimpleMenuComponent(new Dimension(4, 4));
         this.viewerItemsComponent.setAllowPlace(true);
         this.viewerItemsComponent.setAllowDrag(true);
@@ -100,9 +104,10 @@ public class TradeView extends ChestMenu {
             otherView.setItem(this.other.getBukkitPlayer(), otherView.getOtherItemsComponent(), position, newItem);
         });
 
+        //  Create the status region for the viewing player
         this.viewerStatusComponent = new SimpleMenuComponent(new Dimension(4, 1));
         this.viewerStatusComponent.setItem(Position.of(0, 0), getPlayerHead(viewer.getBukkitPlayer(), true));
-        ItemStack readyItem = new ItemStack(Material.HOPPER);
+
         this.viewerStatusComponent.setItem(Position.of(1, 0), readyItem);
         this.viewerStatusComponent.addAction(readyItem, (p) -> {
             this.playerReady = true;
@@ -124,18 +129,12 @@ public class TradeView extends ChestMenu {
                     UUID otherUuid = other.getBukkitPlayer().getUniqueId();
                     Trade trade = new Trade(viewerUuid, viewerOffer, otherUuid, otherOffer);
 
-                    // TODO: Complete Trade Request
                     this.plugin.getBootstrap().getTradeManager().submitCreateTrade(trade);
-
-                    // TODO: To be removed
-//                    viewer.getBukkitPlayer().getInventory().addItem(trade.getPlayerTwoOffer().toArray(new ItemStack[0]));
-//                    other.getBukkitPlayer().getInventory().addItem(trade.getPlayerOneOffer().toArray(new ItemStack[0]));
 
                     closeMenu(p);
                 }
             }
         }, ClickType.LEFT, ClickType.RIGHT);
-        ItemStack unreadyItem = new ItemStack(Material.BARRIER);
         this.viewerStatusComponent.setItem(Position.of(2, 0), unreadyItem);
         this.viewerStatusComponent.addAction(unreadyItem, (p) -> {
             this.playerReady = false;
@@ -148,24 +147,29 @@ public class TradeView extends ChestMenu {
         }, ClickType.LEFT, ClickType.RIGHT);
         this.viewerStatusComponent.setItem(Position.of(3, 0), unreadyPane);
 
+        // Create the offering region for the other player
         this.otherItemsComponent = new SimpleMenuComponent(new Dimension(4, 4));
 
+        // Create the status region for the other player
         this.otherStatusComponent = new SimpleMenuComponent(new Dimension(4, 1));
         this.otherStatusComponent.setItem(Position.of(0, 0), getPlayerHead(other.getBukkitPlayer(), false));
         this.otherStatusComponent.setItem(Position.of(3, 0), unreadyPane);
 
+        // Place the horizontal separator
         Component horizontalBarrier = new SimpleMenuComponent(new Dimension(9, 1));
         for (int i = 0; i < horizontalBarrier.getDimension().getWidth(); i++) {
-            ((SimpleMenuComponent) horizontalBarrier).setItem(Position.of(i, 0), new ItemStack(Material.IRON_BARS));
+            ((SimpleMenuComponent) horizontalBarrier).setItem(Position.of(i, 0), createSeparatorItemStack());
         }
 
+        // Place the upper vertical separator
         Component verticalBarrierTop = new SimpleMenuComponent(new Dimension(1, 4));
         for (int i = 0; i < verticalBarrierTop.getDimension().getHeight(); i++) {
-            ((SimpleMenuComponent) verticalBarrierTop).setItem(Position.of(0, i), new ItemStack(Material.IRON_BARS));
+            ((SimpleMenuComponent) verticalBarrierTop).setItem(Position.of(0, i), createSeparatorItemStack());
         }
 
+        // Place the lower vertical separator
         Component verticalBarrierBottom = new SimpleMenuComponent(new Dimension(1, 1));
-        ((SimpleMenuComponent) verticalBarrierBottom).setItem(Position.of(0, 0), new ItemStack(Material.IRON_BARS));
+        ((SimpleMenuComponent) verticalBarrierBottom).setItem(Position.of(0, 0), createSeparatorItemStack());
 
         addComponent(Position.of(0, 0), this.viewerItemsComponent);
         addComponent(Position.of(0, 5), this.viewerStatusComponent);
@@ -225,6 +229,46 @@ public class TradeView extends ChestMenu {
         SkullMeta meta = (SkullMeta) stack.getItemMeta();
         meta.setOwningPlayer(player);
         meta.setDisplayName(self ? "You" : player.getName());
+        stack.setItemMeta(meta);
+        return stack;
+    }
+
+    private ItemStack createSeparatorItemStack() {
+        ItemStack stack = new ItemStack(Material.IRON_BARS);
+        ItemMeta meta = stack.getItemMeta();
+        meta.setDisplayName("|");
+        stack.setItemMeta(meta);
+        return stack;
+    }
+
+    private ItemStack createReadyItemStack() {
+        ItemStack stack = new ItemStack(Material.HOPPER);
+        ItemMeta meta = stack.getItemMeta();
+        meta.setDisplayName("Ready Up");
+        stack.setItemMeta(meta);
+        return stack;
+    }
+
+    private ItemStack createUnreadyItemStack() {
+        ItemStack stack = new ItemStack(Material.BARRIER);
+        ItemMeta meta = stack.getItemMeta();
+        meta.setDisplayName("Unready");
+        stack.setItemMeta(meta);
+        return stack;
+    }
+
+    private ItemStack createReadyPaneItemStack() {
+        ItemStack stack = new ItemStack(Material.GREEN_STAINED_GLASS_PANE);
+        ItemMeta meta = stack.getItemMeta();
+        meta.setDisplayName("Ready");
+        stack.setItemMeta(meta);
+        return stack;
+    }
+
+    private ItemStack createUnreadyPaneItemStack() {
+        ItemStack stack = new ItemStack(Material.RED_STAINED_GLASS_PANE);
+        ItemMeta meta = stack.getItemMeta();
+        meta.setDisplayName("Unready");
         stack.setItemMeta(meta);
         return stack;
     }
