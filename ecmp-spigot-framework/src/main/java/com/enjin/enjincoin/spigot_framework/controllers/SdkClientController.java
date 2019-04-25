@@ -38,34 +38,20 @@ public class SdkClientController {
      */
     public static final String UUID = "uuid";
 
-    /**
-     * <p>The spigot plugin.</p>
-     */
-    private final BasePlugin main;
+    private final BasePlugin plugin;
 
-    /**
-     * <p>The cached bootstrap config.</p>
-     */
     private final JsonObject config;
 
-    /**
-     * <p>The Enjin Coin SDK client.</p>
-     */
     private Client client;
-
-    /**
-     * <p>A UUID session/client map for user connections</p>
-     */
-    private Map<UUID, Client> sessionMap;
 
     /**
      * <p>Controller constructor.</p>
      *
-     * @param main   the Spigot plugin
+     * @param plugin   the Spigot plugin
      * @param config the bootstrap config
      */
-    public SdkClientController(BasePlugin main, JsonObject config) {
-        this.main = main;
+    public SdkClientController(BasePlugin plugin, JsonObject config) {
+        this.plugin = plugin;
         this.config = config;
     }
 
@@ -82,25 +68,8 @@ public class SdkClientController {
         if (!config.has(SECRET))
             throw new IllegalStateException(String.format("The \"%s\" key does not exists in the config.", APP_ID));
         this.client = Clients.createClient(this.config.get(PLATFORM_BASE_URL).getAsString(),
-                this.main.getBootstrap().getAppId(), this.main.getBootstrap().isSDKDebuggingEnabled());
+                this.plugin.getBootstrap().getAppId(), this.plugin.getBootstrap().isSDKDebuggingEnabled());
         this.client.auth(this.config.get(SECRET).getAsString());
-    }
-
-    /**
-     * <p>Initialize and add a user's session to the sessions map</p>
-     *
-     * @since #.#
-     */
-    public void addSession(UUID uuid) {
-        if (uuid == null)
-            throw new NullArgumentException(String.format("\"$s\" is null.", UUID));
-        if (!config.has(PLATFORM_BASE_URL))
-            throw new IllegalStateException(String.format("The \"%s\" key does not exists in the config.", PLATFORM_BASE_URL));
-        if (!config.has(APP_ID))
-            throw new IllegalStateException(String.format("The \"%s\" key does not exists in the config.", APP_ID));
-
-        Client session = Clients.createClient(this.config.get(PLATFORM_BASE_URL).getAsString(),
-                this.config.get(APP_ID).getAsInt(), this.main.getBootstrap().isSDKDebuggingEnabled());
     }
 
     /**
@@ -112,7 +81,7 @@ public class SdkClientController {
         try {
             this.client.close();
         } catch (IOException e) {
-            this.main.getLogger().log(Level.WARNING, "An error occurred while shutting down the Enjin Coin client.", e);
+            this.plugin.getLogger().log(Level.WARNING, "An error occurred while shutting down the Enjin Coin client.", e);
         }
     }
 

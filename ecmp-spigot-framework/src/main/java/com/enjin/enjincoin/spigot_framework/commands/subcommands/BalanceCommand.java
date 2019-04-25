@@ -16,40 +16,22 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * <p>Balance command handler.</p>
- */
 public class BalanceCommand {
 
-    /**
-     * <p>The spigot plugin.</p>
-     */
-    private BasePlugin main;
+    private BasePlugin plugin;
 
-    /**
-     * <p>Balance command handler constructor.</p>
-     *
-     * @param main the Spigot plugin
-     */
-    public BalanceCommand(BasePlugin main) {
-        this.main = main;
+    public BalanceCommand(BasePlugin plugin) {
+        this.plugin = plugin;
     }
 
-    /**
-     * <p>Executes and performs operations defined for the command.</p>
-     *
-     * @param sender the command sender
-     * @param args   the command arguments
-     * @since 1.0
-     */
     public void execute(CommandSender sender, String[] args) {
         if (sender instanceof Player) {
             Player player = (Player) sender;
 
-            MinecraftPlayer mcPlayer = this.main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId());
+            MinecraftPlayer mcPlayer = this.plugin.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId());
             // reload/refresh user info
 
-            Bukkit.getScheduler().runTaskAsynchronously(main, () -> {
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
                 mcPlayer.reloadUser();
 
                 boolean showAll = false;
@@ -79,28 +61,26 @@ public class BalanceCommand {
                     if (ethBalance != null)
                         sendMsg(sender, ChatColor.GREEN + "[ " + ethBalance + " ETH ]");
 
-                    JsonObject tokensDisplayConfig = main.getBootstrap().getConfig().get("tokens").getAsJsonObject();
+                    JsonObject tokensDisplayConfig = plugin.getBootstrap().getConfig().get("tokens").getAsJsonObject();
                     int itemCount = 0;
                     List<TextComponent> listing = new ArrayList<>();
                     for (int i = 0; i < identity.getTokens().size(); i++) {
                         JsonObject tokenDisplay = tokensDisplayConfig.has(String.valueOf(identity.getTokens().get(i).getTokenId()))
                                 ? tokensDisplayConfig.get(String.valueOf(identity.getTokens().get(i).getTokenId())).getAsJsonObject()
                                 : null;
-                        Double balance = identity.getTokens().get(i).getBalance();
-                        if (tokenDisplay != null) {
-                            if (balance > 0) {
+                        BigDecimal balance = identity.getTokens().get(i).getBalance();
+                        if (balance.compareTo(BigDecimal.ZERO) == 1) {
+                            if (tokenDisplay != null) {
                                 itemCount++;
                                 if (tokenDisplay != null && tokenDisplay.has("displayName")) {
-                                    listing.add(TextComponent.of(String.valueOf(itemCount) + ". ").color(TextColor.GOLD)
+                                    listing.add(TextComponent.of(itemCount + ". ").color(TextColor.GOLD)
                                             .append(TextComponent.of(tokenDisplay.get("displayName").getAsString()).color(TextColor.DARK_PURPLE))
                                             .append(TextComponent.of(" (qty. " + balance + ")").color(TextColor.GREEN)));
                                 }
-                            }
-                        } else if (showAll) {
-                            if (balance > 0) {
+                            } else if (showAll) {
                                 itemCount++;
 
-                                listing.add(TextComponent.of(String.valueOf(itemCount) + ". ").color(TextColor.GOLD)
+                                listing.add(TextComponent.of(itemCount + ". ").color(TextColor.GOLD)
                                         .append(TextComponent.of(identity.getTokens().get(i).getName()).color(TextColor.DARK_PURPLE))
                                         .append(TextComponent.of(" (qty. " + balance + ")").color(TextColor.GREEN)));
                             }

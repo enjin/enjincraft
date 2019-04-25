@@ -11,85 +11,43 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * <p>Root command handler.</p>
- *
- * @since 1.0
- */
 public class RootCommand implements CommandExecutor {
 
-    /**
-     * <p>The spigot plugin.</p>
-     */
-    private final BasePlugin main;
+    private final BasePlugin plugin;
 
-    /**
-     * <p>Link command handler instance.</p>
-     */
     private final LinkCommand link;
 
-    /**
-     * <p>Unlink command handler instance.</p>
-     */
     private final UnlinkCommand unlink;
 
-    /**
-     * <p>Wallet command handler instance.</p>
-     */
     private final WalletCommand wallet;
 
-    /**
-     * <p>Balance command handler instance.</p>
-     */
     private final BalanceCommand balance;
 
-    /**
-     * <p>Help command handler instance.</p>
-     */
     private final HelpCommand help;
 
-    /**
-     * <p>Trade command handler instance.</p>
-     */
     private final TradeCommand trade;
 
-    /**
-     * <p>Provides a click-text menu for accessing commands</p>
-     */
     private final MenuCommand menu;
 
-    /**
-     * <p>Show/Hide the sidebar ENJ summary</p>
-     */
     private final SidebarCommand sidebar;
 
     private final SendCommand send;
 
-    /**
-     * <p>commands list and details</p>
-     * key is command name
-     * value is command help body
-     */
     private static Map<String, String> commands;
 
-    /**
-     * <p>Root command handler constructor.</p>
-     *
-     * @param main the Spigot plugin
-     */
-    public RootCommand(BasePlugin main) {
+    public RootCommand(BasePlugin plugin) {
         this.commands = new HashMap<>();
-        this.main = main;
+        this.plugin = plugin;
 
-        this.link = new LinkCommand(main);
-        this.unlink = new UnlinkCommand(main);
-        this.wallet = new WalletCommand(main);
-        this.balance = new BalanceCommand(main);
-        this.help = new HelpCommand(main);
-        this.trade = new TradeCommand(main);
-        this.menu = new MenuCommand(main);
-        this.sidebar = new SidebarCommand(main);
-        this.send = new SendCommand(main);
+        this.link = new LinkCommand(plugin);
+        this.unlink = new UnlinkCommand(plugin);
+        this.wallet = new WalletCommand(plugin);
+        this.balance = new BalanceCommand(plugin);
+        this.help = new HelpCommand(plugin);
+        this.trade = new TradeCommand(plugin);
+        this.menu = new MenuCommand(plugin);
+        this.sidebar = new SidebarCommand(plugin);
+        this.send = new SendCommand(plugin);
     }
 
     public Map<String, String> getCommandsMap() {

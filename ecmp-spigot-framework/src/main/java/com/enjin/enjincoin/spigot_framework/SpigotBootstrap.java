@@ -7,7 +7,6 @@ import com.enjin.enjincoin.sdk.service.tokens.TokensService;
 import com.enjin.enjincoin.spigot_framework.commands.RootCommand;
 import com.enjin.enjincoin.spigot_framework.controllers.SdkClientController;
 import com.enjin.enjincoin.spigot_framework.listeners.InventoryListener;
-import com.enjin.enjincoin.spigot_framework.listeners.PlayerInteractionListener;
 import com.enjin.enjincoin.spigot_framework.listeners.EnjinCoinEventListener;
 import com.enjin.enjincoin.spigot_framework.player.PlayerManager;
 import com.enjin.enjincoin.spigot_framework.trade.TradeManager;
@@ -148,7 +147,6 @@ public class SpigotBootstrap extends PluginBootstrap {
         Bukkit.getPluginManager().registerEvents(this.playerManager, this.main);
         Bukkit.getPluginManager().registerEvents(this.tradeManager, this.main);
         Bukkit.getPluginManager().registerEvents(new InventoryListener(this.main), this.main);
-        Bukkit.getPluginManager().registerEvents(new PlayerInteractionListener(this.main), this.main);
 
         // Register Commands
         this.main.getCommand("enj").setExecutor(new RootCommand(this.main));

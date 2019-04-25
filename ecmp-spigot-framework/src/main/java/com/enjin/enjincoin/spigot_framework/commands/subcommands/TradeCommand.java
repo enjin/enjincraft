@@ -16,37 +16,16 @@ import org.bukkit.entity.Player;
 
 import java.util.Arrays;
 
-/**
- * <p>Trade command handler.</p>
- */
 public class TradeCommand {
 
-    /**
-     * <p>The spigot plugin.</p>
-     */
     private BasePlugin plugin;
 
-    /**
-     * <p>Empty line helper for MessageUtils.sendMessage</p>
-     */
     private final TextComponent newline = TextComponent.of("");
 
-    /**
-     * <p>Link command handler constructor.</p>
-     *
-     * @param plugin the Spigot plugin
-     */
     public TradeCommand(BasePlugin plugin) {
         this.plugin = plugin;
     }
 
-    /**
-     * <p>Executes and performs operations defined for the command.</p>
-     *
-     * @param sender the command sender
-     * @param args   the command arguments
-     * @since 1.0
-     */
     public void execute(Player sender, String[] args) {
         if (args.length > 0) {
             String sub = args[0];

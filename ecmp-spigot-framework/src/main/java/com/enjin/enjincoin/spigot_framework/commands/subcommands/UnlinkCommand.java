@@ -19,37 +19,16 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.UUID;
 
-/**
- * <p>Link command handler.</p>
- */
 public class UnlinkCommand {
 
-    /**
-     * <p>The spigot plugin.</p>
-     */
     private BasePlugin plugin;
 
-    /**
-     * <p>Empty line helper for MessageUtils.sendMessage</p>
-     */
     private final TextComponent newline = TextComponent.of("");
 
-    /**
-     * <p>Link command handler constructor.</p>
-     *
-     * @param plugin the Spigot plugin
-     */
     public UnlinkCommand(BasePlugin plugin) {
         this.plugin = plugin;
     }
 
-    /**
-     * <p>Executes and performs operations defined for the command.</p>
-     *
-     * @param sender the command sender
-     * @param args   the command arguments
-     * @since 1.0
-     */
     public void execute(CommandSender sender, String[] args) {
         UUID uuid = null;
 
@@ -90,11 +69,9 @@ public class UnlinkCommand {
                     }
                 } else {
                     // TODO: Warn sender that the online player has not fully loaded
-                    System.out.println("player not fully loaded..");
                 }
             } else {
                 // TODO: Fetch Identity for the provided UUID
-                System.out.println("need to fetch identity via uuid...");
                 // Only fetch, do not create new Identity instances
             }
         } else {
@@ -110,13 +87,6 @@ public class UnlinkCommand {
         MessageUtils.sendMessage(sender, text);
     }
 
-    /**
-     * method should just provide user feedback that the player's identity is already unlinked then provide
-     * the linking code for them to use to link a wallet.
-     *
-     * @param sender
-     * @param address
-     */
     private void handleUnlinked(CommandSender sender, String address) {
         TextComponent text = TextComponent.of("You have not linked a wallet to your account.").color(TextColor.RED);
         MessageUtils.sendMessage(sender, text);
@@ -124,14 +94,7 @@ public class UnlinkCommand {
         MessageUtils.sendMessage(sender, text);
     }
 
-    /**
-     * method should execute the unlink action for the given identity
-     *
-     * @param sender
-     * @param id
-     */
     private void handleUnlinking(CommandSender sender, BigInteger id) throws IOException {
-        System.out.println("unlinking for id " + id);
         IdentitiesService service = this.plugin.getBootstrap().getSdkController().getClient().getIdentitiesService();
         Result<GraphQLResponse<DeleteIdentityResult>> response = service.deleteIdentitySync(DeleteIdentity.unlink(id));
 

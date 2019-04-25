@@ -16,48 +16,26 @@ import org.bukkit.inventory.Inventory;
 
 import java.util.List;
 
-/**
- * <p>Wallet command handler.</p>
- */
 public class WalletCommand {
 
-    /**
-     * <p>The spigot plugin.</p>
-     */
-    private BasePlugin main;
+    private BasePlugin plugin;
 
-    /**
-     * <p>Wallet command handler constructor.</p>
-     *
-     * @param main the Spigot plugin
-     */
-    public WalletCommand(BasePlugin main) {
-        this.main = main;
+    public WalletCommand(BasePlugin plugin) {
+        this.plugin = plugin;
     }
 
-    /**
-     * <p>Executes and performs operations defined for the command.</p>
-     *
-     * @param sender the command sender
-     * @param args   the command arguments
-     * @since 1.0
-     */
     public void execute(CommandSender sender, String[] args) {
-        // TODO: Redesign around MinecraftPlayer
         if (sender instanceof Player) {
             Player player = (Player) sender;
 
-            Bukkit.getScheduler().runTaskAsynchronously(main, () -> {
-                PlayerManager playerManager = this.main.getBootstrap().getPlayerManager();
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                PlayerManager playerManager = this.plugin.getBootstrap().getPlayerManager();
                 MinecraftPlayer minecraftPlayer = playerManager.getPlayer(player.getUniqueId());
                 minecraftPlayer.reloadUser();
 
                 Identity identity = minecraftPlayer.getIdentity();
 
-//            System.out.println("WalletCommand.execute: player.getUniqueId() " + player.getUniqueId());
-//            System.out.println("WalletCommand.execute: player Identity Id " + this.main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId()).getIdentityData().getId());
                 List<TokenData> tokens = minecraftPlayer.getWallet().getTokens();
-//            System.out.println("WalletCommand.execute: player # tokens found " + tokens.size());
 
                 if (identity != null) {
                     // we have an identity, but the wallet has not been linked yet.
@@ -69,7 +47,7 @@ public class WalletCommand {
                         return;
                     }
 
-                    Inventory inventory = WalletInventory.create(main, player, tokens);
+                    Inventory inventory = WalletInventory.create(plugin, player, tokens);
                     player.openInventory(inventory);
                 } else {
                     TextComponent text = TextComponent.of("You have not linked a wallet to your account.")

@@ -10,14 +10,10 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class BasePlugin extends JavaPlugin {
 
-    /**
-     * <p>The Spigot bootstrap.</p>
-     */
     private SpigotBootstrap bootstrap;
 
     @Override
     public void onEnable() {
-        // Initialize Spigot bootstrap.
         this.bootstrap = new SpigotBootstrap(this);
         this.bootstrap.setUp();
     }

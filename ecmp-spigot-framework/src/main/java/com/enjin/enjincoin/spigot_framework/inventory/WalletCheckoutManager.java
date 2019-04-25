@@ -3,7 +3,6 @@ package com.enjin.enjincoin.spigot_framework.inventory;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.player.Wallet;
 import com.enjin.enjincoin.spigot_framework.util.TokenUtils;
-import com.enjin.minecraft_commons.spigot.nbt.NBTItem;
 import com.google.gson.JsonObject;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -13,23 +12,15 @@ import org.bukkit.inventory.PlayerInventory;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * class responsible for managing the persistent state of objects checkedout by a player.
- */
 public class WalletCheckoutManager {
 
-    /**
-     * Inventory tracker map
-     * <p>
-     * Map<TokenID, ItemStack>
-     */
     private static Map<String, ItemStack> checkedOutTokens;
 
-    private UUID playerId;
+    private UUID playerUuid;
 
-    public WalletCheckoutManager(UUID playerId) {
+    public WalletCheckoutManager(UUID playerUuid) {
         checkedOutTokens = new HashMap<>();
-        this.playerId = playerId;
+        this.playerUuid = playerUuid;
     }
 
     public Map<String, ItemStack> accessCheckout() {
@@ -49,28 +40,12 @@ public class WalletCheckoutManager {
         if (playerInventory.getContents() != null)
             allHeldItems.addAll(Arrays.asList(playerInventory.getContents()));
 
-        /**
-         * these are individual calls which the getContents call encapsulates
-         *
-         if (playerInventory.getArmorContents() != null)
-         allHeldItems.addAll(Arrays.asList(playerInventory.getArmorContents()));
-         if (playerInventory.getExtraContents() != null)
-         allHeldItems.addAll(Arrays.asList(playerInventory.getExtraContents()));
-         if (playerInventory.getStorageContents() != null)
-         allHeldItems.addAll(Arrays.asList(playerInventory.getStorageContents()));
-         if (playerInventory.getItemInMainHand() != null)
-         allHeldItems.add(playerInventory.getItemInMainHand());
-         if (playerInventory.getItemInOffHand() != null)
-         allHeldItems.add(playerInventory.getItemInOffHand());
-         */
-
         // handle inventory contents
         for (int i = 0; i < allHeldItems.size(); i++) {
             String tokenId = TokenUtils.getTokenID(allHeldItems.get(i));
 
             if (tokenId == null || tokenId.isEmpty())
                 continue; // skip this item as it did not contain a potential token id
-//            System.out.println("found item: " + tokenId + " in inventory.");
 
             ItemStack clone = allHeldItems.get(i).clone();
 
@@ -100,12 +75,6 @@ public class WalletCheckoutManager {
         List<ItemStack> allWalletItems = new ArrayList<>();
         if (walletInventory != null)
             allWalletItems.addAll(Arrays.asList(walletInventory.getContents()));
-        // for now, lets assume that we will not be supplying storage boxes with items via the wallet.
-        // if we implement chests and crates, this would be a click to expand where items are removed from the temporary
-        // container and added to the players main wallet inventory. In the event that we do need to move to a different
-        // storage model where chests/boxes/crates are containers -- then we can uncomment the below and alter the logic
-        // accordingly.
-        // allWalletItems = Arrays.asList(walletInventory.getStorageContents());
 
         Map<String, ItemStack> walletItems = new HashMap<>();
 
@@ -113,7 +82,6 @@ public class WalletCheckoutManager {
             String tokenId = TokenUtils.getTokenID(itemStack);
 
             if (tokenId == null || tokenId.isEmpty()) continue; // this shouldn't happen but just in case...
-//            System.out.println("found item: " + tokenId + " in wallet.");
 
             ItemStack clone = itemStack.clone();
 
@@ -134,21 +102,10 @@ public class WalletCheckoutManager {
             }
         }
 
-        // okay. now we can compare our two maps and decrement the wallet's available quantities based on the amount current held.
-//        for( Map.Entry<String, ItemStack> entry : walletItems.entrySet()) {
-//            int remaining = entry.getValue().getAmount() - checkedOutTokens.get(entry.getKey()).getAmount();
-//            if (remaining >= 0)
-//                entry.getValue().setAmount(remaining);
-//            else
-//                entry.getValue().setAmount(0); // no more are left to check out.
-        // NOTE we'll need to manage remaining items that exceed the available stock.
-        // Additionally, we'll need to update the population when a transfer is completed (in either direction)
-
         for (String tokenId : wallet.getTokenBalances().keySet()) {
             if (wallet.getTokenBalances() != null && checkedOutTokens.get(tokenId) != null)
                 wallet.getTokenBalances().get(tokenId).setCheckedOut(checkedOutTokens.get(tokenId).getAmount());
         }
-
 
         return true;
     }

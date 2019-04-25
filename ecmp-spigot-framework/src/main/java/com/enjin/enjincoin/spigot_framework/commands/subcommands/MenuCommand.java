@@ -8,40 +8,15 @@ import net.kyori.text.format.TextColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-/**
- * <p>Trade command handler.</p>
- */
 public class MenuCommand {
 
-    /**
-     * <p>The spigot plugin.</p>
-     */
     private BasePlugin plugin;
 
-    /**
-     * <p>Empty line helper for MessageUtils.sendMessage</p>
-     */
-    private final TextComponent newline = TextComponent.of("");
-
-    /**
-     * <p>Link command handler constructor.</p>
-     *
-     * @param plugin the Spigot plugin
-     */
     public MenuCommand(BasePlugin plugin) {
         this.plugin = plugin;
     }
 
-    /**
-     * <p>Executes and performs operations defined for the command.</p>
-     *
-     * @param sender the command sender
-     * @param args   the command arguments
-     * @since 1.0
-     */
     public void execute(CommandSender sender, String[] args) {
-        Player player = (Player) sender;
-
         final TextComponent.Builder component = TextComponent.builder().content("").color(TextColor.GRAY);
         component.append(TextComponent.builder().content(" ").build());
         component.append(TextComponent.builder().content("ENJ MENU").color(TextColor.DARK_PURPLE).build());

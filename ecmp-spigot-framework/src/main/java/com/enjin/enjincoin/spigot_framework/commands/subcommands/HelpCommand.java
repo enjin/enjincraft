@@ -7,31 +7,14 @@ import net.kyori.text.format.TextColor;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
-/**
- * <p>Help command handler.</p>
- */
 public class HelpCommand {
 
-    /**
-     * <p>The spigot plugin.</p>
-     */
-    private BasePlugin main;
+    private BasePlugin plugin;
 
-    /**
-     * <p>Help command handler constructor.</p>
-     *
-     * @param main the Spigot plugin
-     */
-    public HelpCommand(BasePlugin main) {
-        this.main = main;
+    public HelpCommand(BasePlugin plugin) {
+        this.plugin = plugin;
     }
 
-    /**
-     * <p>Executes and performs operations defined for the command.</p>
-     *
-     * @param sender the command sender
-     * @since 1.0
-     */
     public void execute(CommandSender sender) {
         sender.sendMessage("Usage:");
         sender.sendMessage("/enj [command]");

@@ -11,14 +11,8 @@ import org.bukkit.entity.Player;
 
 import java.util.UUID;
 
-/**
- * <p>Link command handler.</p>
- */
 public class LinkCommand {
 
-    /**
-     * <p>The spigot plugin.</p>
-     */
     private BasePlugin plugin;
 
     /**

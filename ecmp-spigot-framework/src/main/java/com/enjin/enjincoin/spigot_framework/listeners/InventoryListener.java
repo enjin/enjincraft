@@ -8,7 +8,6 @@ import com.enjin.enjincoin.spigot_framework.util.TokenUtils;
 import com.enjin.minecraft_commons.spigot.nbt.NBTItem;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -17,10 +16,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.*;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
@@ -31,40 +27,16 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * <p>A listener for handling events for which queries and updates to
- * an {@link Player}'s inventory take place.</p>
- *
- * @since 1.0
- */
 public class InventoryListener implements Listener {
 
-    /**
-     * <p>The name of an inventory representing an Enjin wallet.</p>
-     */
     private static final String WALLET_INVENTORY = "Enjin Wallet";
 
-    /**
-     * <p>The spigot plugin.</p>
-     */
-    private BasePlugin main;
+    private BasePlugin plugin;
 
-    /**
-     * <p>Listener constructor.</p>
-     *
-     * @param main the Spigot plugin
-     */
-    public InventoryListener(BasePlugin main) {
-        this.main = main;
+    public InventoryListener(BasePlugin plugin) {
+        this.plugin = plugin;
     }
 
-    /**
-     * <p>Subscription to {@link InventoryDragEvent} with the
-     * lowest priority.</p>
-     *
-     * @param event the event
-     * @since 1.0
-     */
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInventoryDrag(InventoryDragEvent event) {
         if (!(event.getWhoClicked() instanceof Player)) return;
@@ -75,13 +47,6 @@ public class InventoryListener implements Listener {
         }
     }
 
-    /**
-     * <p>Subscription to {@link InventoryClickEvent event} with the
-     * lowest priority.</p>
-     *
-     * @param event the event
-     * @since 1.0
-     */
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInventoryClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player)) return;
@@ -121,7 +86,7 @@ public class InventoryListener implements Listener {
         }
 
         Player player = (Player) event.getClickedInventory().getHolder();
-        MinecraftPlayer mcplayer = this.main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId());
+        MinecraftPlayer mcplayer = this.plugin.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId());
 
         WalletCheckoutManager checkout = mcplayer.getWallet().getCheckoutManager();
 
@@ -132,7 +97,6 @@ public class InventoryListener implements Listener {
 
         // check to see if the current cursor stack is a checked out item.
         if (tokenId != null) {
-            // System.out.println(tokenId);
             // repair and unbreakable flag the item... just to be safe.
             ItemMeta meta = cursor.getItemMeta();
 
@@ -220,13 +184,6 @@ public class InventoryListener implements Listener {
         }
     }
 
-    /**
-     * <p>Subscription to {@link PlayerDropItemEvent event} with the
-     * normal priority.</p>
-     *
-     * @param event the event
-     * @since 1.0
-     */
     @EventHandler
     public void onPlayerDropItem(PlayerDropItemEvent event) {
         // If a player drops a token cancel the event.
@@ -235,55 +192,6 @@ public class InventoryListener implements Listener {
 
         if (isCheckedOut(player.getUniqueId(), item.getItemStack())) {
             event.setCancelled(true);
-        }
-    }
-
-    /**
-     * <p>Subscription to {@link PlayerQuitEvent event} with the
-     * normal priority.</p>
-     *
-     * @param event the event
-     * @since 1.0
-     */
-    @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent event) {
-        // If a player quits clear their inventory of all tokens.
-        // clear(event.getPlayer());
-    }
-
-    /**
-     * <p>Subscription to {@link ServerCommandEvent event} with the
-     * normal priority.</p>
-     *
-     * @param event the event
-     * @since 1.0
-     */
-    @EventHandler
-    public void onServerCommand(ServerCommandEvent event) {
-        /*
-        If the console operator runs the 'stop' command clear
-        all tokens from every online player's inventory.
-         */
-        if (event.getCommand().toLowerCase().startsWith("stop")) {
-            clearAll();
-        }
-    }
-
-    /**
-     * <p>Subscription to {@link PlayerCommandPreprocessEvent event} with the
-     * normal priority.</p>
-     *
-     * @param event the event
-     * @since 1.0
-     */
-    @EventHandler
-    public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
-        /*
-        If a player runs the '/stop' command clear
-        all tokens from every online player's inventory.
-         */
-        if (event.getMessage().startsWith("/stop")) {
-            clearAll();
         }
     }
 
@@ -300,45 +208,11 @@ public class InventoryListener implements Listener {
         }
     }
 
-    /**
-     * <p>Return a (@link ItemStack) to the players wallet inventory.</p>
-     *
-     * @param player the player
-     * @param stack  the ItemStack to return
-     * @since 1.0
-     */
     private void returnItemStack(Player player, ItemStack stack) {
-        MinecraftPlayer mcplayer = this.main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId());
+        MinecraftPlayer mcplayer = this.plugin.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId());
         WalletCheckoutManager manager = mcplayer.getWallet().getCheckoutManager();
 
         manager.returnItem(stack);
-    }
-
-    /**
-     * <p>Clear a {@link Player}'s inventory of all checked out tokens.</p>
-     *
-     * @param player the player
-     * @since 1.0
-     */
-    private void clear(Player player) {
-        // TODO reimplement this in the future.
-//        List<ItemStack> stacks = checkedOutTokens.remove(player.getUniqueId());
-//        PlayerInventory inventory = player.getInventory();
-//
-//        if (stacks != null) {
-//            for (ItemStack stack : stacks) {
-//                inventory.removeItem(stack);
-//            }
-//        }
-    }
-
-    /**
-     * <p>Clear all players' inventories of all checked out tokens.</p>
-     *
-     * @since 1.0
-     */
-    private void clearAll() {
-        Bukkit.getOnlinePlayers().forEach(this::clear);
     }
 
     private boolean isViewingWallet(Player player) {
@@ -353,32 +227,14 @@ public class InventoryListener implements Listener {
         return false;
     }
 
-    /**
-     * <p>Check if an inventory represents a valid player inventory.</p>
-     *
-     * @param inventory the inventory
-     * @return true if the inventory represents a valid player inventory
-     * @since 1.0
-     */
     private boolean isPlayerInventory(Inventory inventory) {
         if (inventory == null)
             return false;
-//        return ChatColor.stripColor(inventory.getName()).equalsIgnoreCase(PLAYER_INVENTORY);
         return inventory.getType().equals(InventoryType.PLAYER);
     }
 
-
-    /**
-     * <p>Check if a player has checked out the given {@link ItemStack}
-     * from and Enjin wallet.</p>
-     *
-     * @param uuid  the uuid of the player
-     * @param stack the {@link ItemStack}
-     * @return true if the {@link ItemStack} represents a checked out token by the player
-     * @since 1.0
-     */
     private boolean isCheckedOut(UUID uuid, ItemStack stack) {
-        MinecraftPlayer mcplayer = this.main.getBootstrap().getPlayerManager().getPlayer(uuid);
+        MinecraftPlayer mcplayer = this.plugin.getBootstrap().getPlayerManager().getPlayer(uuid);
         WalletCheckoutManager manager = mcplayer.getWallet().getCheckoutManager();
 
         String stackId = TokenUtils.getTokenID(stack);
@@ -387,11 +243,5 @@ public class InventoryListener implements Listener {
             return true;
 
         return false;
-    }
-
-    public static String convertToInvisibleString(String s) {
-        String hidden = "";
-        for (char c : s.toCharArray()) hidden += ChatColor.COLOR_CHAR + "" + c;
-        return hidden;
     }
 }

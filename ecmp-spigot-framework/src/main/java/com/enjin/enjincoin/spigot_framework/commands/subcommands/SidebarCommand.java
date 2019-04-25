@@ -9,42 +9,24 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-/**
- * <p>Balance command handler.</p>
- */
 public class SidebarCommand {
 
-    /**
-     * <p>The spigot plugin.</p>
-     */
-    private BasePlugin main;
+    private BasePlugin plugin;
 
-    /**
-     * <p>Balance command handler constructor.</p>
-     *
-     * @param main the Spigot plugin
-     */
-    public SidebarCommand(BasePlugin main) {
-        this.main = main;
+    public SidebarCommand(BasePlugin plugin) {
+        this.plugin = plugin;
     }
 
-    /**
-     * <p>Executes and performs operations defined for the command.</p>
-     *
-     * @param sender the command sender
-     * @param args   the command arguments
-     * @since 1.0
-     */
     public void execute(CommandSender sender, String[] args) {
         if (sender instanceof Player) {
             Player player = (Player) sender;
 
-            MinecraftPlayer mcPlayer = this.main.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId());
+            MinecraftPlayer mcPlayer = this.plugin.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId());
             // reload/refresh user info
-            Bukkit.getScheduler().runTaskAsynchronously(main, () -> {
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
                 mcPlayer.reloadUser();
 
-                Bukkit.getScheduler().runTask(main, () -> {
+                Bukkit.getScheduler().runTask(plugin, () -> {
                     if (mcPlayer.showScoreboard()) {
                         mcPlayer.showScoreboard(false);
                     } else {

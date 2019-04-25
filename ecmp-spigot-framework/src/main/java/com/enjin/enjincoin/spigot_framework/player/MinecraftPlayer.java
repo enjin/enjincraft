@@ -124,7 +124,6 @@ public class MinecraftPlayer {
 
             loadUser(user);
         } catch (Exception e) {
-            System.out.println("Failed to reload user");
             e.printStackTrace();
         }
     }

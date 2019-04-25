@@ -13,23 +13,12 @@ import org.bukkit.Bukkit;
 
 import java.math.BigInteger;
 
-/**
- * <p>A listener for handling Enjin Coin SDK events.</p>
- */
 public class EnjinCoinEventListener implements NotificationListener {
 
     private Gson gson = new GsonBuilder().create();
 
-    /**
-     * <p>The spigot plugin.</p>
-     */
     private BasePlugin plugin;
 
-    /**
-     * <p>Listener constructor.</p>
-     *
-     * @param plugin the Spigot plugin
-     */
     public EnjinCoinEventListener(BasePlugin plugin) {
         this.plugin = plugin;
     }

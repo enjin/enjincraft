@@ -2,13 +2,15 @@ package com.enjin.enjincoin.spigot_framework.player;
 
 import com.enjin.enjincoin.sdk.model.service.tokens.Token;
 
+import java.math.BigDecimal;
+
 public class TokenData {
 
     // ID of the token
     private String id;
 
     // Wallet Balance from the TP (max balance)
-    private Double balance;
+    private BigDecimal balance;
 
     // Amount available for in-game checkout
     private int checkedout = 0;
@@ -30,12 +32,12 @@ public class TokenData {
         this.checkedout = checkedOut;
     }
 
-    public Double getBalance() {
+    public BigDecimal getBalance() {
         return this.balance;
     }
 
-    public Double addBalance(Double add) {
-        this.balance += add;
+    public BigDecimal addBalance(BigDecimal amount) {
+        this.balance = this.balance.add(amount);
         return this.balance;
     }
 }
