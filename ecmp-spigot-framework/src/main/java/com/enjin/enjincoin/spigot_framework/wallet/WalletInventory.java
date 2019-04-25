@@ -15,7 +15,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,7 +26,7 @@ public class WalletInventory {
     public static MinecraftPlayer owner;
     public static Map<String, ItemStack> items;
 
-    private static final int maxStackSize = 64;
+    private static final int MAX_STACK_SIZE = 64;
 
     public static Inventory create(BasePlugin main, Player holder, List<Balance> tokens) {
         // initialize item map if not already initialized
@@ -38,7 +37,7 @@ public class WalletInventory {
         JsonObject tokensDisplayConfig = main.getBootstrap().getConfig().get("tokens").getAsJsonObject();
         // Generate a 6 by 9 chest inventory.
         Inventory inventory = Bukkit.createInventory(holder, 6 * 9, ChatColor.DARK_PURPLE + "Enjin Wallet");
-        inventory.setMaxStackSize(maxStackSize);
+        inventory.setMaxStackSize(MAX_STACK_SIZE);
 
         owner = main.getBootstrap().getPlayerManager().getPlayer(holder.getUniqueId());
         owner.getWallet().setInventory(inventory);
