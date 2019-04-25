@@ -67,7 +67,6 @@ public class InventoryListener implements Listener {
      */
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInventoryDrag(InventoryDragEvent event) {
-        main.getLogger().info("InventoryListener#onInventoryDrag");
         if (!(event.getWhoClicked() instanceof Player)) return;
 
         // TODO: Allow dragging tokenized items only.
@@ -182,7 +181,6 @@ public class InventoryListener implements Listener {
         event.setCancelled(true);
 
         Inventory inventory = event.getClickedInventory();
-        main.getLogger().info(inventory.getType().name());
 
         if (stack != null) {
             if (inventory.getType() == InventoryType.PLAYER && TokenUtils.getTokenID(stack) != null) {
@@ -231,7 +229,6 @@ public class InventoryListener implements Listener {
      */
     @EventHandler
     public void onPlayerDropItem(PlayerDropItemEvent event) {
-        main.getLogger().info("InventoryListener#onPlayerDropItem");
         // If a player drops a token cancel the event.
         Player player = event.getPlayer();
         Item item = event.getItemDrop();
@@ -292,7 +289,6 @@ public class InventoryListener implements Listener {
 
     @EventHandler
     public void onInventoryMoveItem(InventoryMoveItemEvent event) {
-        main.getLogger().info("InventoryListener#onInventoryMoveItem");
         if (event.getSource() != null && event.getSource().getHolder() instanceof Player) {
             Player player = (Player) event.getSource().getHolder();
             if (isViewingWallet(player)) {
