@@ -13,6 +13,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,8 +69,8 @@ public class BalanceCommand {
                         JsonObject tokenDisplay = tokensDisplayConfig.has(String.valueOf(identity.getTokens().get(i).getTokenId()))
                                 ? tokensDisplayConfig.get(String.valueOf(identity.getTokens().get(i).getTokenId())).getAsJsonObject()
                                 : null;
-                        BigDecimal balance = identity.getTokens().get(i).getBalance();
-                        if (balance.compareTo(BigDecimal.ZERO) == 1) {
+                        BigInteger balance = identity.getTokens().get(i).getBalance();
+                        if (balance.compareTo(BigInteger.ZERO) == 1) {
                             if (tokenDisplay != null) {
                                 itemCount++;
                                 if (tokenDisplay != null && tokenDisplay.has("displayName")) {

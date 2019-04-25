@@ -215,22 +215,22 @@ public class TradeCommand {
                     // construct a new senderOffer with item
                     // register senderOffer to trade
                     // save argument to status
-                    // run command /enj trade amount
+                    // run command /enj trade balance
                     if (args[1] == null) {
                         component.append(TextComponent.builder().content("show item list").build());
                         component.append(TextComponent.builder().content("ITEM #1").color(TextColor.DARK_AQUA).clickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/enj trade item")).build());
                     } else {
                         component.append(TextComponent.builder().content(args[1] + " selected...").build());
-                        component.append(TextComponent.builder().content("Yes").color(TextColor.DARK_AQUA).clickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/enj trade amount")).build());
+                        component.append(TextComponent.builder().content("Yes").color(TextColor.DARK_AQUA).clickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/enj trade balance")).build());
                         component.append(TextComponent.builder().content(" or ").build());
                         component.append(TextComponent.builder().content("No").color(TextColor.DARK_AQUA).clickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/enj trade item")).build());
                     }
                     break;
-                case "amount":
+                case "balance":
                     // if args[1] == null
                     // show number available for trade.senderOffer.item
                     // show prompt for quantity (minimum 1
-                    // suggest command /enj trade amount
+                    // suggest command /enj trade balance
                     // else
                     // validate quantity to send
                     // register quantity to trade.senderOffer
@@ -238,12 +238,12 @@ public class TradeCommand {
                     // run command /enj trade validate
                     if (args[1] == null) {
                         component.append(TextComponent.builder().content("how many?").build());
-                        component.append(TextComponent.builder().content("Specify quantity").color(TextColor.DARK_AQUA).clickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/enj trade amount")).build());
+                        component.append(TextComponent.builder().content("Specify quantity").color(TextColor.DARK_AQUA).clickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/enj trade balance")).build());
                     } else {
                         component.append(TextComponent.builder().content(args[1] + " of Item, is this correct?").build());
                         component.append(TextComponent.builder().content("Yes").color(TextColor.DARK_AQUA).clickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/enj trade item")).build());
                         component.append(TextComponent.builder().content(" or ").build());
-                        component.append(TextComponent.builder().content("No").color(TextColor.DARK_AQUA).clickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/enj trade amount")).build());
+                        component.append(TextComponent.builder().content("No").color(TextColor.DARK_AQUA).clickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/enj trade balance")).build());
                     }
                     break;
                 case "verify":

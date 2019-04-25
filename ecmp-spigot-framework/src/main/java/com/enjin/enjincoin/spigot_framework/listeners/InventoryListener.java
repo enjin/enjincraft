@@ -1,7 +1,7 @@
 package com.enjin.enjincoin.spigot_framework.listeners;
 
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
-import com.enjin.enjincoin.spigot_framework.inventory.WalletCheckoutManager;
+import com.enjin.enjincoin.spigot_framework.wallet.WalletCheckoutManager;
 import com.enjin.enjincoin.spigot_framework.player.MinecraftPlayer;
 import com.enjin.enjincoin.spigot_framework.util.MessageUtils;
 import com.enjin.enjincoin.spigot_framework.util.TokenUtils;

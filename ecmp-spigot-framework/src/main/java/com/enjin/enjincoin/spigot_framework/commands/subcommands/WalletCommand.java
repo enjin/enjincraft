@@ -2,10 +2,10 @@ package com.enjin.enjincoin.spigot_framework.commands.subcommands;
 
 import com.enjin.enjincoin.sdk.model.service.identities.Identity;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
-import com.enjin.enjincoin.spigot_framework.inventory.WalletInventory;
+import com.enjin.enjincoin.spigot_framework.wallet.WalletInventory;
 import com.enjin.enjincoin.spigot_framework.player.MinecraftPlayer;
 import com.enjin.enjincoin.spigot_framework.player.PlayerManager;
-import com.enjin.enjincoin.spigot_framework.player.TokenData;
+import com.enjin.enjincoin.spigot_framework.wallet.Balance;
 import com.enjin.enjincoin.spigot_framework.util.MessageUtils;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
@@ -35,7 +35,7 @@ public class WalletCommand {
 
                 Identity identity = minecraftPlayer.getIdentity();
 
-                List<TokenData> tokens = minecraftPlayer.getWallet().getTokens();
+                List<Balance> tokens = minecraftPlayer.getWallet().getTokens();
 
                 if (identity != null) {
                     // we have an identity, but the wallet has not been linked yet.

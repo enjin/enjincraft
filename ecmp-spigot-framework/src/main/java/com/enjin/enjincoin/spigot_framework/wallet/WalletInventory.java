@@ -1,9 +1,8 @@
-package com.enjin.enjincoin.spigot_framework.inventory;
+package com.enjin.enjincoin.spigot_framework.wallet;
 
 import com.enjin.enjincoin.sdk.model.service.tokens.Token;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.player.MinecraftPlayer;
-import com.enjin.enjincoin.spigot_framework.player.TokenData;
 import com.enjin.minecraft_commons.spigot.nbt.NBTItem;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -17,6 +16,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +29,7 @@ public class WalletInventory {
 
     private static final int maxStackSize = 64;
 
-    public static Inventory create(BasePlugin main, Player holder, List<TokenData> tokens) {
+    public static Inventory create(BasePlugin main, Player holder, List<Balance> tokens) {
         // initialize item map if not already initialized
         if (items == null)
             items = new HashMap<>();
@@ -45,15 +45,15 @@ public class WalletInventory {
         WalletCheckoutManager manager = owner.getWallet().getCheckoutManager();
 
         int index = 0;
-        for (TokenData entry : tokens) {
+        for (Balance entry : tokens) {
             // Check if the inventory is full.
             if (index >= 6 * 9) {
                 break;
             }
 
             // Check if the token entry has value.
-            if (entry.getBalance().compareTo(BigDecimal.ZERO) == 1) {
-                Token token = main.getBootstrap().getTokens().get(entry.getId());
+            if (entry.balance().compareTo(BigInteger.ZERO) == 1) {
+                Token token = main.getBootstrap().getTokens().get(entry.getTokenId());
                 // Verify that the token data exists.
 
                 if (token == null) {
@@ -74,13 +74,13 @@ public class WalletInventory {
 
                 // Create an ItemStack with the selected material.
                 ItemStack stack = new ItemStack(material);
-                // deduct checked out item counts from the amount available
-                int amount = entry.getBalance().intValue();
+                // deduct checked out item counts from the balance available
+                int amount = entry.balance().intValue();
                 if (manager.accessCheckout().isEmpty()) {
                     manager.populate(main, owner.getBukkitPlayer(), owner.getWallet());
                 }
-                if (manager.accessCheckout().get(entry.getId()) != null)
-                    amount -= manager.accessCheckout().get(entry.getId()).getAmount();
+                if (manager.accessCheckout().get(entry.getTokenId()) != null)
+                    amount -= manager.accessCheckout().get(entry.getTokenId()).getAmount();
 
                 stack.setAmount(amount);
                 stack.getItemMeta().setUnbreakable(true);
@@ -101,7 +101,7 @@ public class WalletInventory {
 
                 List<String> lore = new ArrayList<>();
                 // Add balance to lore.
-                lore.add(ChatColor.GRAY + "Owned: " + ChatColor.GOLD + entry.getBalance().intValue());
+                lore.add(ChatColor.GRAY + "Owned: " + ChatColor.GOLD + entry.balance().intValue());
 
                 // Fetch and use lore description if found.
                 if (tokenDisplay != null && tokenDisplay.has("lore")) {

@@ -1,7 +1,7 @@
-package com.enjin.enjincoin.spigot_framework.inventory;
+package com.enjin.enjincoin.spigot_framework.wallet;
 
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
-import com.enjin.enjincoin.spigot_framework.player.Wallet;
+import com.enjin.enjincoin.spigot_framework.wallet.LegacyWallet;
 import com.enjin.enjincoin.spigot_framework.util.TokenUtils;
 import com.google.gson.JsonObject;
 import org.bukkit.entity.Player;
@@ -27,7 +27,7 @@ public class WalletCheckoutManager {
         return checkedOutTokens;
     }
 
-    public boolean populate(BasePlugin main, Player player, Wallet wallet) {
+    public boolean populate(BasePlugin main, Player player, LegacyWallet wallet) {
         PlayerInventory playerInventory = player.getInventory();
 
         // Fetch configured tokens from the config.
@@ -104,7 +104,8 @@ public class WalletCheckoutManager {
 
         for (String tokenId : wallet.getTokenBalances().keySet()) {
             if (wallet.getTokenBalances() != null && checkedOutTokens.get(tokenId) != null)
-                wallet.getTokenBalances().get(tokenId).setCheckedOut(checkedOutTokens.get(tokenId).getAmount());
+                break;
+//                wallet.getTokenBalances().get(tokenId).setCheckedOut(checkedOutTokens.get(tokenId).getAmount());
         }
 
         return true;

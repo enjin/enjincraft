@@ -11,6 +11,7 @@ import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.event.IdentityLoadedEvent;
 import com.enjin.enjincoin.spigot_framework.trade.TradeView;
 import com.enjin.enjincoin.spigot_framework.util.MessageUtils;
+import com.enjin.enjincoin.spigot_framework.wallet.LegacyWallet;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
 import org.bukkit.Bukkit;
@@ -30,7 +31,7 @@ public class MinecraftPlayer {
     private UserData userData;
     private Identity identity;
     private IdentityData identityData;
-    private Wallet wallet;
+    private LegacyWallet wallet;
 
     // State Fields
     private boolean userLoaded;
@@ -67,7 +68,7 @@ public class MinecraftPlayer {
         return this.identityData;
     }
 
-    public Wallet getWallet() {
+    public LegacyWallet getWallet() {
         return wallet;
     }
 
@@ -110,7 +111,7 @@ public class MinecraftPlayer {
 
             User user = null;
             // we likely need a legit reload function for the wallet to repopulate it.
-            this.wallet = new Wallet(plugin, bukkitPlayer.getUniqueId());
+            this.wallet = new LegacyWallet(plugin, bukkitPlayer.getUniqueId());
 
             if (networkResponse.body() != null) {
                 GraphQLResponse<GetUsersResult> response = networkResponse.body();
@@ -140,7 +141,7 @@ public class MinecraftPlayer {
         this.identity = identity;
 
         this.identityData = new IdentityData(identity);
-        this.wallet = new Wallet(plugin, bukkitPlayer.getUniqueId());
+        this.wallet = new LegacyWallet(plugin, bukkitPlayer.getUniqueId());
         this.identityLoaded = true;
 
         this.wallet.populate(identity.getTokens());

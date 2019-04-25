@@ -11,13 +11,13 @@ commands:
     description: Enjin Coin root command.
     usage: /<command> <subcommand> [args]
   enj balance:
-    description: Display wallet address and Ethereum and Enjin Coin balances as well as a list of owned CrytoItems.
+    description: Display wallet address and Ethereum and Enjin Coin balances as well as a list of balance CrytoItems.
     usage: /<command> <subcommand> [args]
   enj link:
     description: Display linking code or linked address if available.
     usage: /<command> <subcommand> [args]
   enj wallet:
-    description: Opens a wallet inventory panel which allows for checkout of owned CrytoItems.
+    description: Opens a wallet inventory panel which allows for checkout of balance CrytoItems.
     usage: /<command> <subcommand> [args]
   enj trade:
     description: Trade tokens with another player.
