@@ -1,8 +1,5 @@
 package com.enjin.enjincoin.spigot_framework;
 
-import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
-import com.enjin.enjincoin.sdk.http.Callback;
-import com.enjin.enjincoin.sdk.http.Result;
 import com.enjin.enjincoin.sdk.model.service.tokens.GetTokensResult;
 import com.enjin.enjincoin.sdk.model.service.tokens.Token;
 import com.enjin.enjincoin.sdk.service.notifications.NotificationsService;
@@ -11,7 +8,7 @@ import com.enjin.enjincoin.spigot_framework.commands.RootCommand;
 import com.enjin.enjincoin.spigot_framework.controllers.SdkClientController;
 import com.enjin.enjincoin.spigot_framework.listeners.InventoryListener;
 import com.enjin.enjincoin.spigot_framework.listeners.PlayerInteractionListener;
-import com.enjin.enjincoin.spigot_framework.listeners.notifications.GenericNotificationListener;
+import com.enjin.enjincoin.spigot_framework.listeners.EnjinCoinEventListener;
 import com.enjin.enjincoin.spigot_framework.player.PlayerManager;
 import com.enjin.enjincoin.spigot_framework.trade.TradeManager;
 import com.google.gson.JsonElement;
@@ -124,25 +121,22 @@ public class SpigotBootstrap extends PluginBootstrap {
                     }
                 } else {
                     this.main.getLogger().info("Registering pusher notification listener.");
-                    notificationsService.addNotificationListener(new GenericNotificationListener(this.main));
+                    notificationsService.addNotificationListener(new EnjinCoinEventListener(this.main));
                 }
             });
             notificationsService.startAsync(future);
 
             // Fetch a list of all tokens registered to the configured app ID.
             final TokensService tokensService = this.sdkClientController.getClient().getTokensService();
-            tokensService.getAllTokensAsync(new Callback<GraphQLResponse<GetTokensResult>>() {
-                @Override
-                public void onComplete(Result<GraphQLResponse<GetTokensResult>> response) {
-                    if (response.body() != null) {
-                        GetTokensResult data = response.body().getData();
-                        if (data != null && data.getTokens() != null) {
-                            data.getTokens().forEach(token -> {
-                                if (config.get("appId").getAsInt() == token.getAppId() && config.get("tokens").getAsJsonObject().has(token.getTokenId())) {
-                                    tokens.put(token.getTokenId(), token);
-                                }
-                            });
-                        }
+            tokensService.getAllTokensAsync(response -> {
+                if (response.body() != null) {
+                    GetTokensResult data = response.body().getData();
+                    if (data != null && data.getTokens() != null) {
+                        data.getTokens().forEach(token -> {
+                            if (config.get("appId").getAsInt() == token.getAppId() && config.get("tokens").getAsJsonObject().has(token.getTokenId())) {
+                                tokens.put(token.getTokenId(), token);
+                            }
+                        });
                     }
                 }
             });

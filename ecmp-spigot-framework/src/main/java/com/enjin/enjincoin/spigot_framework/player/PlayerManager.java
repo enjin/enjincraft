@@ -9,6 +9,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -44,25 +45,27 @@ public class PlayerManager implements Listener {
     }
 
     public Map<UUID, MinecraftPlayer> getPlayers() {
-        // Return shallow copy of the players map
         return new HashMap<>(this.players);
     }
 
-    public MinecraftPlayer getPlayer(UUID playerUuid) {
-        return this.players.get(playerUuid);
+    public MinecraftPlayer getPlayer(UUID uuid) {
+        if (uuid == null) throw new NullPointerException("uuid must not be null");
+        return this.players.get(uuid);
     }
 
-    public MinecraftPlayer getPlayer(String ethereumAddress) {
+    public MinecraftPlayer getPlayer(String ethAddr) {
+        if (ethAddr == null) throw new NullPointerException("ethAddr must not be null");
         return this.players.values().stream()
                 .filter(player -> player.getIdentityData() != null
-                        && ethereumAddress.equalsIgnoreCase(player.getIdentityData().getEthereumAddress()))
+                        && ethAddr.equalsIgnoreCase(player.getIdentityData().getEthereumAddress()))
                 .findFirst().orElse(null);
     }
 
-    public MinecraftPlayer getPlayer(int identityId) {
+    public MinecraftPlayer getPlayer(BigInteger identityId) {
+        if (identityId == null) throw new NullPointerException("identityId must not be null");
         return this.players.values().stream()
                 .filter(player -> player.getIdentityData() != null
-                        && identityId == player.getIdentityData().getId().intValue())
+                        && identityId.equals(player.getIdentityData().getId()))
                 .findFirst().orElse(null);
     }
 
