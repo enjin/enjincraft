@@ -1,8 +1,6 @@
 package com.enjin.enjincoin.spigot_framework.commands.subcommands;
 
-import com.enjin.enjincoin.sdk.http.Callback;
-import com.enjin.enjincoin.sdk.http.Result;
-import com.enjin.enjincoin.sdk.model.service.identities.Identity;
+import com.enjin.enjincoin.sdk.http.HttpResponse;
 import com.enjin.enjincoin.sdk.service.ethereum.EthereumService;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.player.MinecraftPlayer;
@@ -13,8 +11,6 @@ import net.kyori.text.TextComponent;
 import net.kyori.text.event.ClickEvent;
 import net.kyori.text.format.TextColor;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.io.IOException;
@@ -74,7 +70,7 @@ public class TradeCommand {
                                 MessageUtils.sendMessage(sender, TextComponent.of("Your allowance is not set. Please confirm the request in your wallet app."));
                             } else {
                                 try {
-                                    Result<BigInteger> r2 = ethereumService.getAllowanceSync(targetMP.getIdentity().getEthereumAddress());
+                                    HttpResponse<BigInteger> r2 = ethereumService.getAllowanceSync(targetMP.getIdentity().getEthereumAddress());
                                     if (r2.body() == null || r2.body().equals(BigInteger.ZERO)) {
                                         MessageUtils.sendMessage(sender, TextComponent.of("The other player is not capable of trading at this time."));
                                     } else {

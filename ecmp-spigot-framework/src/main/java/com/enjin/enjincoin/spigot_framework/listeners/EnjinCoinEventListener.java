@@ -46,7 +46,7 @@ public class EnjinCoinEventListener implements NotificationListener {
     }
 
     private void onTxExecuted(NotificationEvent event) {
-        JsonObject source = gson.fromJson(event.getSourceData(), JsonObject.class);
+        JsonObject source = gson.fromJson(event.getData(), JsonObject.class);
         JsonObject data = source.get("data").getAsJsonObject();
 
         if (data.has("event")) {
@@ -71,7 +71,7 @@ public class EnjinCoinEventListener implements NotificationListener {
     }
 
     private void onIdentityUpdated(NotificationEvent event) {
-        JsonObject source = gson.fromJson(event.getSourceData(), JsonObject.class);
+        JsonObject source = gson.fromJson(event.getData(), JsonObject.class);
         JsonObject data = source.get("data").getAsJsonObject();
 
         if (data.has("id")) {

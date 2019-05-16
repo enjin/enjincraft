@@ -1,8 +1,7 @@
 package com.enjin.enjincoin.spigot_framework.commands.subcommands;
 
 import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
-import com.enjin.enjincoin.sdk.http.Callback;
-import com.enjin.enjincoin.sdk.http.Result;
+import com.enjin.enjincoin.sdk.http.HttpResponse;
 import com.enjin.enjincoin.sdk.model.service.requests.CreateRequest;
 import com.enjin.enjincoin.sdk.model.service.requests.CreateRequestResult;
 import com.enjin.enjincoin.sdk.model.service.requests.TransactionType;
@@ -81,7 +80,7 @@ public class SendCommand {
     private void send(Player sender, BigInteger senderId, BigInteger targetId, String tokenId, int amount) {
         RequestsService service = this.plugin.getBootstrap().getSdkController().getClient().getRequestsService();
         try {
-            Result<GraphQLResponse<CreateRequestResult>> result = service.createRequestSync(new CreateRequest()
+            HttpResponse<GraphQLResponse<CreateRequestResult>> result = service.createRequestSync(new CreateRequest()
                     .withIdentityId(senderId)
                     .withType(TransactionType.SEND)
                     .withSendTokenData(SendTokenData.builder()

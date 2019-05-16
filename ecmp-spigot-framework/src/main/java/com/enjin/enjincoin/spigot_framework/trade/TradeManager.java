@@ -1,7 +1,7 @@
 package com.enjin.enjincoin.spigot_framework.trade;
 
 import com.enjin.enjincoin.sdk.Client;
-import com.enjin.enjincoin.sdk.graphql.GraphError;
+import com.enjin.enjincoin.sdk.graphql.GraphQLError;
 import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
 import com.enjin.enjincoin.sdk.model.service.identities.Identity;
 import com.enjin.enjincoin.sdk.model.service.requests.CreateRequest;
@@ -181,7 +181,7 @@ public class TradeManager implements Listener {
                                     if (!(response.isSuccess() || response.isEmpty())) {
                                         GraphQLResponse<?> body = response.body();
                                         if (body.getErrors() != null) {
-                                            for (GraphError error : body.getErrors()) {
+                                            for (GraphQLError error : body.getErrors()) {
                                                 MessageUtils.sendMessage(bukkitPlayerOne, TextComponent.builder()
                                                         .content(error.getMessage())
                                                         .color(TextColor.RED)
@@ -256,7 +256,7 @@ public class TradeManager implements Listener {
                                     if (!(response.isSuccess() || response.isEmpty())) {
                                         GraphQLResponse<?> body = response.body();
                                         if (body.getErrors() != null) {
-                                            for (GraphError error : body.getErrors()) {
+                                            for (GraphQLError error : body.getErrors()) {
                                                 MessageUtils.sendMessage(bukkitPlayerOne, TextComponent.builder()
                                                         .content(error.getMessage())
                                                         .color(TextColor.RED)

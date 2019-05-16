@@ -2,7 +2,7 @@ package com.enjin.enjincoin.spigot_framework.player;
 
 import com.enjin.enjincoin.sdk.Client;
 import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
-import com.enjin.enjincoin.sdk.http.Result;
+import com.enjin.enjincoin.sdk.http.HttpResponse;
 import com.enjin.enjincoin.sdk.model.service.identities.Identity;
 import com.enjin.enjincoin.sdk.model.service.users.GetUsers;
 import com.enjin.enjincoin.sdk.model.service.users.GetUsersResult;
@@ -106,7 +106,7 @@ public class MinecraftPlayer {
         Client client = this.plugin.getBootstrap().getSdkController().getClient();
         // Fetch the User for the Player in question
         try {
-            Result<GraphQLResponse<GetUsersResult>> networkResponse = client.getUsersService()
+            HttpResponse<GraphQLResponse<GetUsersResult>> networkResponse = client.getUsersService()
                     .getUsersSync(new GetUsers().withName(bukkitPlayer.getUniqueId().toString()));
 
             User user = null;
