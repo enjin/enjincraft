@@ -3,6 +3,7 @@ package com.enjin.enjincoin.spigot_framework.trade;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.player.MinecraftPlayer;
 import com.enjin.enjincoin.spigot_framework.util.MessageUtils;
+import com.enjin.enjincoin.spigot_framework.util.TokenUtils;
 import com.enjin.minecraft_commons.spigot.ui.Component;
 import com.enjin.minecraft_commons.spigot.ui.Dimension;
 import com.enjin.minecraft_commons.spigot.ui.Position;
@@ -13,10 +14,14 @@ import net.kyori.text.format.TextColor;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
@@ -272,5 +277,22 @@ public class TradeView extends ChestMenu {
         meta.setDisplayName(ChatColor.RED + "Not Ready");
         stack.setItemMeta(meta);
         return stack;
+    }
+
+    @EventHandler
+    public void onInventoryClick(InventoryClickEvent event) {
+        if (event.getClickedInventory() instanceof PlayerInventory) {
+            if (plugin.getBootstrap().isAllowVanillaItemsInTrades()) {
+                return;
+            }
+
+            ItemStack is = event.getCurrentItem();
+            String id = TokenUtils.getTokenID(is);
+            if (id == null) {
+                event.setResult(Event.Result.DENY);
+            }
+        } else {
+            super.onInventoryClick(event);
+        }
     }
 }

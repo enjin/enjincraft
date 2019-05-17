@@ -23,52 +23,21 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
-/**
- * <p>Extended bootstrap for the Spigot Minecraft server platform.</p>
- *
- * @since 1.0
- */
 public class SpigotBootstrap extends PluginBootstrap {
 
-    /**
-     * <p>The Spigot plugin.</p>
-     */
     private final BasePlugin main;
 
-    /**
-     * <p>App ID.</p>
-     */
     private Integer appId;
     private Integer devIdentityId;
-
-    /**
-     * <p>Debug mode flag.</p>
-     */
+    private boolean allowVanillaItemsInTrades;
     private boolean sdkDebug;
     private boolean pluginDebug;
-
-    /**
-     * <p>The Enjin Coin SDK controller.</p>
-     */
-    private SdkClientController sdkClientController;
-
-    /**
-     * <p>The Enjin Coin Player controller.</p>
-     */
-    private PlayerManager playerManager;
-
-    private TradeManager tradeManager;
-
-    /**
-     * <p>The mapping of token IDs and associated data.</p>
-     */
     private Map<String, Token> tokens;
 
-    /**
-     * <p>Bootstrap constructor that accepts a Spigot plugin instance.</p>
-     *
-     * @param main the Spigot plugin
-     */
+    private SdkClientController sdkClientController;
+    private PlayerManager playerManager;
+    private TradeManager tradeManager;
+
     public SpigotBootstrap(BasePlugin main) {
         this.main = main;
     }
@@ -91,6 +60,10 @@ public class SpigotBootstrap extends PluginBootstrap {
 
         this.appId = config.get("appId").getAsInt();
         this.devIdentityId = config.get("devIdentityId").getAsInt();
+
+        if (config.has("allowVanillaItemsInTrades")) {
+            this.allowVanillaItemsInTrades = config.get("allowVanillaItemsInTrades").getAsBoolean();
+        }
 
         // If the config has debug mode set the debug flag equal to the config value.
         if (config.has("debugging")) {
@@ -228,5 +201,10 @@ public class SpigotBootstrap extends PluginBootstrap {
     @Override
     public boolean isSDKDebuggingEnabled() {
         return this.sdkDebug;
+    }
+
+    @Override
+    public boolean isAllowVanillaItemsInTrades() {
+        return allowVanillaItemsInTrades;
     }
 }

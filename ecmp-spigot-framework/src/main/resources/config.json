@@ -13,6 +13,7 @@
       ]
     }
   },
+  "allowVanillaItemsInTrades": false,
   "debugging": {
     "sdk": false,
     "plugin": false

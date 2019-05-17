@@ -15,6 +15,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.Inventory;
@@ -24,6 +25,7 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -152,15 +154,21 @@ public class InventoryListener implements Listener {
                 event.getClickedInventory().clear(event.getSlot());
             } else if (inventory.getType() == InventoryType.CHEST) {
                 if (stack.getAmount() >= 1 || !isCheckedOut(player.getUniqueId(), stack)) {
-                    String line = stack.getItemMeta().getLore().get(0).replace("Owned: ", "");
-                    line = ChatColor.stripColor(line);
-                    int stock = Integer.parseInt(line);
+//                    String line = stack.getItemMeta().getLore().get(0).replace("Owned: ", "");
+//                    line = ChatColor.stripColor(line);
+//                    int stock = Integer.parseInt(line);
                     ItemStack clone = stack.clone();
                     // only check out 1 item from the wallet at a time (for now!)
-                    if (clone.getAmount() >= 1 && stock < 64) {
+                    if (clone.getAmount() >= 1) {
                         clone.setAmount(1);
-                        stack.setAmount(stack.getAmount() - 1);
+
+                        if (stack.getAmount() == 1) {
+                            inventory.clear(event.getSlot());
+                        } else {
+                            stack.setAmount(stack.getAmount() - 1);
+                        }
                     }
+
                     ItemMeta meta = clone.getItemMeta();
                     meta.setUnbreakable(true);
 
@@ -203,6 +211,24 @@ public class InventoryListener implements Listener {
                 Inventory destination = event.getDestination();
                 if (destination.getType() == InventoryType.CHEST) {
                     returnItemStack((Player) event.getSource().getHolder(), event.getItem());
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent event) {
+        if (!event.getKeepInventory()) {
+            List<ItemStack> drops = event.getDrops();
+            MinecraftPlayer player = plugin.getBootstrap().getPlayerManager().getPlayer(event.getEntity().getUniqueId());
+
+            for (int i = drops.size() - 1; i >= 0; i--) {
+                ItemStack stack = drops.get(i);
+                String id = TokenUtils.getTokenID(stack);
+
+                if (id != null) {
+                    drops.remove(i);
+                    player.getWallet().getCheckoutManager().returnItem(stack);
                 }
             }
         }

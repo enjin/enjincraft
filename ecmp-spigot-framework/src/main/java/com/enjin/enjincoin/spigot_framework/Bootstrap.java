@@ -85,4 +85,6 @@ public interface Bootstrap {
      */
     void debug(String log);
 
+    boolean isAllowVanillaItemsInTrades();
+
 }
