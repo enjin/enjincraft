@@ -57,7 +57,12 @@ public class TradeCommand {
                     MinecraftPlayer targetMP = playerManager.getPlayer(target.getUniqueId());
 
                     if (targetMP == null || !targetMP.isLinked()) {
-                        MessageUtils.sendMessage(sender, TextComponent.of("That player has not linked a wallet."));
+                        MessageUtils.sendMessage(sender, TextComponent
+                                .of(String.format("%s has not linked their wallet yet, a request has been sent.",
+                                        target.getName())));
+                        MessageUtils.sendMessage(target, TextComponent
+                                .of(String.format("%s wants to trade with you. Please link your wallet to begin trading",
+                                        sender.getName())));
                         return;
                     }
 
@@ -67,12 +72,17 @@ public class TradeCommand {
                     ethereumService.getAllowanceAsync(senderMP.getIdentity().getEthereumAddress(), r1 -> {
                         if (r1.isSuccess()) {
                             if (r1.body() == null || r1.body().equals(BigInteger.ZERO)) {
-                                MessageUtils.sendMessage(sender, TextComponent.of("Your allowance is not set. Please confirm the request in your wallet app."));
+                                MessageUtils.sendMessage(sender, TextComponent.of("An allowance has not been approved for your wallet. Please confirm the approval notification in your wallet."));
                             } else {
                                 try {
                                     HttpResponse<BigInteger> r2 = ethereumService.getAllowanceSync(targetMP.getIdentity().getEthereumAddress());
                                     if (r2.body() == null || r2.body().equals(BigInteger.ZERO)) {
-                                        MessageUtils.sendMessage(sender, TextComponent.of("The other player is not capable of trading at this time."));
+                                        MessageUtils.sendMessage(sender, TextComponent
+                                                .of(String.format("%s has not approved the wallet allowance yet, a request has been sent.",
+                                                        target.getName())));
+                                        MessageUtils.sendMessage(target, TextComponent
+                                                .of(String.format("%s wants to trade with you. Please confirm the balance approval notification in your wallet.",
+                                                        sender.getName())));
                                     } else {
                                         invite(senderMP, targetMP);
                                     }
@@ -82,8 +92,6 @@ public class TradeCommand {
                             }
                         }
                     });
-
-                    invite(senderMP, targetMP);
                 } else {
                     // TODO: Error: cannot invite yourself to trade!
                 }
@@ -100,6 +108,10 @@ public class TradeCommand {
         boolean result = tradeManager.addInvite(sender, target);
 
         if (result) {
+            MessageUtils.sendMessage(sender.getBukkitPlayer(), TextComponent.builder()
+                    .content(String.format("Trade invite with %s has been sent!", target.getBukkitPlayer().getName()))
+                    .color(TextColor.GREEN)
+                    .build());
             final TextComponent.Builder inviteMessageBuilder = TextComponent.builder("")
                     .color(TextColor.GRAY)
                     .append(TextComponent.builder(String.format("%s", sender.getBukkitPlayer().getName()))
@@ -119,7 +131,10 @@ public class TradeCommand {
                             .build());
             MessageUtils.sendMessage(target.getBukkitPlayer(), inviteMessageBuilder.build());
         } else {
-            // TODO: Info: a trade invite with that player is already open!
+            MessageUtils.sendMessage(sender.getBukkitPlayer(), TextComponent.builder()
+                    .content(String.format("You have already invited %s to trade.", target.getBukkitPlayer().getName()))
+                    .color(TextColor.RED)
+                    .build());
         }
     }
 
