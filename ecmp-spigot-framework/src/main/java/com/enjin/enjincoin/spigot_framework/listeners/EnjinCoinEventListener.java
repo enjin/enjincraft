@@ -27,6 +27,7 @@ public class EnjinCoinEventListener implements NotificationListener {
     public void notificationReceived(NotificationEvent event) {
         try {
             NotificationType eventType = event.getType();
+            plugin.getBootstrap().debug(String.format("Received event type %s on channel %s.", eventType, event.getChannel()));
 
             if (eventType == null) return;
 
@@ -34,7 +35,7 @@ public class EnjinCoinEventListener implements NotificationListener {
                 case TX_EXECUTED:
                     onTxExecuted(event);
                     break;
-                case IDENTITY_UPDATED:
+                case IDENTITY_LINKED:
                     onIdentityUpdated(event);
                     break;
                 default:
