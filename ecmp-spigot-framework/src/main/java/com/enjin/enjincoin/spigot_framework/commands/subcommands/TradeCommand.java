@@ -49,14 +49,14 @@ public class TradeCommand {
                     PlayerManager playerManager = this.plugin.getBootstrap().getPlayerManager();
                     MinecraftPlayer senderMP = playerManager.getPlayer(sender.getUniqueId());
 
-                    if (senderMP == null || !senderMP.isLoaded()) {
+                    if (!senderMP.isLinked()) {
                         MessageUtils.sendMessage(sender, TextComponent.of("You must link your wallet before using this command."));
                         return;
                     }
 
                     MinecraftPlayer targetMP = playerManager.getPlayer(target.getUniqueId());
 
-                    if (targetMP == null || !targetMP.isLoaded()) {
+                    if (targetMP == null || !targetMP.isLinked()) {
                         MessageUtils.sendMessage(sender, TextComponent.of("That player has not linked a wallet."));
                         return;
                     }

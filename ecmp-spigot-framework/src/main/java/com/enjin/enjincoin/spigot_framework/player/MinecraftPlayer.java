@@ -135,9 +135,11 @@ public class MinecraftPlayer {
 
     public void loadIdentity(Identity identity) {
         if (identity == null) {
+            this.plugin.getBootstrap().debug("Failed to load identity: null");
             return;
         }
 
+        this.plugin.getBootstrap().debug("Loading identity: " + identity.toString());
         this.identity = identity;
 
         this.identityData = new IdentityData(identity);
@@ -168,6 +170,10 @@ public class MinecraftPlayer {
 
     public boolean isLoaded() {
         return isUserLoaded() && isIdentityLoaded();
+    }
+
+    public boolean isLinked() {
+        return isIdentityLoaded() && this.identity.getEthereumAddress() != null;
     }
 
     protected void cleanUp() {

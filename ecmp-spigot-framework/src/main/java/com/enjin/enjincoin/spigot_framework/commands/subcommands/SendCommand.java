@@ -34,7 +34,7 @@ public class SendCommand {
         MinecraftPlayer senderMP = playerManager.getPlayer(sender.getUniqueId());
 
         if (args.length > 0) {
-            if (!senderMP.isLoaded()) {
+            if (!senderMP.isLinked()) {
                 MessageUtils.sendMessage(sender, TextComponent.of("You must link your wallet before using this command."));
                 return;
             }
@@ -42,7 +42,7 @@ public class SendCommand {
             Player target = Bukkit.getPlayer(args[0]);
             if (target != null && target != sender) {
                 MinecraftPlayer targetMP = playerManager.getPlayer(target.getUniqueId());
-                if (!targetMP.isLoaded()) {
+                if (!targetMP.isLinked()) {
                     MessageUtils.sendMessage(sender, TextComponent.of("That player has not linked a wallet."));
                     return;
                 }
