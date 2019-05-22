@@ -1,4 +1,4 @@
-name: Enjin_Coin_Spigot_Plugin
+name: ECMP
 description: Spigot plugin for the Enjin Coin Minecraft Framework, a platform for game assets on the Ethereum block-chain.
 version: @version@-spigot
 authors: [Evan "Favorlock" Lindsay, Damien Gallagher, Tobias Drewry, Enjin Coin Team]
