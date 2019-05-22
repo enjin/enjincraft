@@ -18,6 +18,7 @@ import org.bukkit.Bukkit;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,7 +29,7 @@ public class SpigotBootstrap extends PluginBootstrap {
     private final BasePlugin main;
 
     private Integer appId;
-    private Integer devIdentityId;
+    private BigInteger devIdentityId;
     private boolean allowVanillaItemsInTrades;
     private boolean sdkDebug;
     private boolean pluginDebug;
@@ -59,7 +60,7 @@ public class SpigotBootstrap extends PluginBootstrap {
         }
 
         this.appId = config.get("appId").getAsInt();
-        this.devIdentityId = config.get("devIdentityId").getAsInt();
+        this.devIdentityId = config.get("devIdentityId").getAsBigInteger();
 
         if (config.has("allowVanillaItemsInTrades")) {
             this.allowVanillaItemsInTrades = config.get("allowVanillaItemsInTrades").getAsBoolean();
@@ -183,8 +184,9 @@ public class SpigotBootstrap extends PluginBootstrap {
         return this.appId;
     }
 
-    public Integer getDevIdentityId() {
-        return devIdentityId;
+    @Override
+    public BigInteger getDevIdentityId() {
+        return this.devIdentityId;
     }
 
     @Override

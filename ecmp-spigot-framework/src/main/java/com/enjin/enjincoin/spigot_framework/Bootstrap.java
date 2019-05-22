@@ -6,6 +6,7 @@ import com.enjin.enjincoin.spigot_framework.player.PlayerManager;
 import com.enjin.enjincoin.spigot_framework.trade.TradeManager;
 import com.google.gson.JsonObject;
 
+import java.math.BigInteger;
 import java.util.Map;
 
 /**
@@ -72,6 +73,8 @@ public interface Bootstrap {
      * @since 1.0
      */
     Integer getAppId();
+
+    BigInteger getDevIdentityId();
 
     boolean isPluginDebuggingEnabled();
 
