@@ -29,7 +29,7 @@ public class RootCommand implements CommandExecutor {
 
     private final MenuCommand menu;
 
-    private final SidebarCommand sidebar;
+    private final ScoreboardrCommand sidebar;
 
     private final SendCommand send;
 
@@ -46,7 +46,7 @@ public class RootCommand implements CommandExecutor {
         this.help = new HelpCommand(plugin);
         this.trade = new TradeCommand(plugin);
         this.menu = new MenuCommand(plugin);
-        this.sidebar = new SidebarCommand(plugin);
+        this.sidebar = new ScoreboardrCommand(plugin);
         this.send = new SendCommand(plugin);
     }
 

@@ -28,7 +28,7 @@ commands:
   enj send:
     description: Send a token to another player
     usage: /<command> send <player>
-  enj sidebar:
+  enj scoreboard:
     description: Turns the sidebar on/off
 permissions:
   ecmp.*:
