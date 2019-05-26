@@ -92,7 +92,7 @@ public class BalanceCommand {
                     if (itemCount == 0)
                         sendMsg(sender, ChatColor.BOLD + "" + ChatColor.GOLD + "No CryptoItems found in your Enjin Wallet.");
                     else
-                        sendMsg(sender, ChatColor.BOLD + "" + ChatColor.GOLD + "Found " + itemCount + " CryptoItems in Wallet: ");
+                        sendMsg(sender, ChatColor.BOLD + "" + ChatColor.GOLD + "Found " + itemCount + " CryptoItems in your Wallet: ");
 
                     listing.forEach(l -> MessageUtils.sendMessage(sender, l));
 

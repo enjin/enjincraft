@@ -115,7 +115,7 @@ public class LinkCommand {
             MessageUtils.sendMessage(sender, newline);
             MessageUtils.sendMessage(sender, text);
         } else {
-            final TextComponent notice = TextComponent.of("Please link your account by downloading the Enjin Wallet for Android or iOS and browsing to Link Game. Enter the Identity Code shown below:")
+            final TextComponent notice = TextComponent.of("Please link your account by downloading the Enjin Wallet for Android or iOS and browsing to Linked Apps. Enter the Identity Code shown below:")
                     .color(TextColor.GOLD);
 
             final TextComponent text = TextComponent.of("Identity Code: ")
