@@ -90,11 +90,11 @@ public class ENJScoreboard {
         this.url.addEntry(urlEntry);
 
         objective.getScore(getSpacer(3)).setScore(7);
-        objective.getScore(enjEntry).setScore(8);
+        objective.getScore(enjEntry).setScore(6);
         objective.getScore(getSpacer(2)).setScore(5);
-        objective.getScore(ethEntry).setScore(6);
+        objective.getScore(ethEntry).setScore(4);
         objective.getScore(getSpacer(1)).setScore(3);
-        objective.getScore(statusEntry).setScore(4);
+        objective.getScore(statusEntry).setScore(2);
         objective.getScore(getSpacer(0)).setScore(1);
         objective.getScore(urlEntry).setScore(0);
 
