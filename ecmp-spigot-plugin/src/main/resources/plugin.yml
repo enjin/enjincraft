@@ -38,21 +38,24 @@ permissions:
   enjincoin.*:
     description: Gives access to all ECMP commands
     children:
+      enjincoin
       enjincoin.balance
       enjincoin.link
       enjincoin.unlink
       enjincoin.wallet
       enjincoin.trade
       enjincoin.send
-    enjincoin.balance:
-      default: true
-    enjincoin.link:
-      default: true
-    enjincoin.unlink:
-      default: true
-    enjincoin.wallet:
-      default: true
-    enjincoin.trade:
-      default: false
-    enjincoin.send:
-      default: false
+  enjincoin:
+    default: true
+  enjincoin.balance:
+    default: true
+  enjincoin.link:
+    default: true
+  enjincoin.unlink:
+    default: true
+  enjincoin.wallet:
+    default: true
+  enjincoin.trade:
+    default: false
+  enjincoin.send:
+    default: false
