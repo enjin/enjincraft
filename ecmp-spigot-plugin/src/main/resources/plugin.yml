@@ -8,26 +8,28 @@ softdepend: [Vault]
 api-version: 1.13
 commands:
   enj:
-    description: Enjin Coin root command.
+    description: Presents a list of ECMP commands
     usage: /<command>
   enj balance:
-    description: Display wallet address and Ethereum and Enjin Coin balances as well as a list of balance CrytoItems.
+    description: Display wallet address and Ethereum and Enjin Coin balances as well as a list of balance CrytoItems
     usage: /<command> balance
   enj link:
-    description: Display linking code or linked address if available.
+    description: Display linking code or linked address if available
     usage: /<command> link
   enj unlink:
-    description: Unlink the wallet from your account.
+    description: Unlink the wallet from your account
     usage: /<command> unlink
   enj wallet:
-    description: Opens a wallet inventory panel which allows for checkout of balance CrytoItems.
+    description: Opens a wallet inventory panel which allows for checkout of balance CrytoItems
     usage: /<command> wallet
   enj trade:
-    description: Trade tokens with another player.
+    description: Trade tokens with another player
     usage: /<command> trade invite <player>
   enj send:
-    description: Send a token to another player.
+    description: Send a token to another player
     usage: /<command> send <player>
+  enj sidebar:
+    description: Turns the sidebar on/off
 permissions:
   ecmp.*:
     default: op

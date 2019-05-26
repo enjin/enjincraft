@@ -24,9 +24,6 @@ public class ENJScoreboard {
     private static String statusKey = "status";
     private static String statusEntry = "Status: ";
 
-    private static String tokensKey = "tokens";
-    private static String tokensEntry = "Tokens: " + ChatColor.GREEN.toString();
-
     private static String urlKey = "url";
     private static String urlEntry = ChatColor.YELLOW.toString() + "www.enjincoin.io";
 
@@ -93,20 +90,15 @@ public class ENJScoreboard {
         this.status = scoreboard.registerNewTeam(statusKey);
         this.status.addEntry(statusEntry);
 
-        this.tokens = scoreboard.registerNewTeam(tokensKey);
-        this.tokens.addEntry(tokensEntry);
-
         this.url = scoreboard.registerNewTeam(urlKey);
         this.url.addEntry(urlEntry);
 
-        objective.getScore(getSpacer(4)).setScore(9);
-        objective.getScore(enjEntry).setScore(8);
         objective.getScore(getSpacer(3)).setScore(7);
-        objective.getScore(ethEntry).setScore(6);
+        objective.getScore(enjEntry).setScore(8);
         objective.getScore(getSpacer(2)).setScore(5);
-        objective.getScore(statusEntry).setScore(4);
+        objective.getScore(ethEntry).setScore(6);
         objective.getScore(getSpacer(1)).setScore(3);
-        objective.getScore(tokensEntry).setScore(2);
+        objective.getScore(statusEntry).setScore(4);
         objective.getScore(getSpacer(0)).setScore(1);
         objective.getScore(urlEntry).setScore(0);
 
