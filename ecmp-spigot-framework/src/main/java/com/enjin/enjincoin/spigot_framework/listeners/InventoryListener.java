@@ -20,6 +20,7 @@ import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -170,7 +171,9 @@ public class InventoryListener implements Listener {
                     }
 
                     ItemMeta meta = clone.getItemMeta();
-                    meta.setUnbreakable(true);
+                    List<String> lore = meta.getLore();
+                    lore.remove(0);
+                    meta.setLore(lore);
 
                     NBTItem nbt = new NBTItem(clone);
                     nbt.setBoolean("ENJ-Token", true);

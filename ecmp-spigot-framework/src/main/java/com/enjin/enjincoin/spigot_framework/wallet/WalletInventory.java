@@ -12,6 +12,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -82,9 +83,11 @@ public class WalletInventory {
                     amount -= manager.accessCheckout().get(entry.getTokenId()).getAmount();
 
                 stack.setAmount(amount);
-                stack.getItemMeta().setUnbreakable(true);
 
                 ItemMeta meta = stack.getItemMeta();
+                meta.setUnbreakable(true);
+                meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+                meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
 
                 // Set the display name to provided display name or generate one if not specified.
                 if (tokenDisplay != null && tokenDisplay.has("displayName")) {
