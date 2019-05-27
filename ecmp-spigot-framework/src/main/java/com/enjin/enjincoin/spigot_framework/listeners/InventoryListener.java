@@ -175,6 +175,7 @@ public class InventoryListener implements Listener {
                     NBTItem nbt = new NBTItem(clone);
                     nbt.setBoolean("ENJ-Token", true);
                     clone = nbt.getItemStack();
+                    clone.setItemMeta(meta);
 
                     Map<Integer, ItemStack> result = player.getInventory().addItem(clone);
                     if (result.isEmpty()) {
