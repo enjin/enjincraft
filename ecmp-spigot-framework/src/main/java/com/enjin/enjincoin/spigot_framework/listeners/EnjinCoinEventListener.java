@@ -50,6 +50,8 @@ public class EnjinCoinEventListener implements NotificationListener {
         JsonObject source = gson.fromJson(event.getData(), JsonObject.class);
         JsonObject data = source.get("data").getAsJsonObject();
 
+        if (data == null || !data.isJsonObject()) return;
+
         if (data.has("event")) {
             String txEventType = data.get("event").getAsString();
 
@@ -101,15 +103,21 @@ public class EnjinCoinEventListener implements NotificationListener {
     }
 
     private void onTransfer(JsonObject data) {
+        if (!isObject(data.get("token"))) return;
+
         JsonObject token = data.get("token").getAsJsonObject();
-        String name = token.get("name").getAsString();
-        String fromEthAddr = data.get("param1").getAsString();
-        String toEthAddr = data.get("param2").getAsString();
-        String amount = data.get("param4").getAsString();
+
+        JsonElement fromEthAddr = token.get("param1");
+        JsonElement toEthAddr = token.get("param2");
+
+        if (!isPrimitive(fromEthAddr) || !isPrimitive(toEthAddr)) return;
+
+        String name = getAsString(token.get("name"));
+        String amount = getAsString(data.get("param4"));
 
         PlayerManager playerManager = this.plugin.getBootstrap().getPlayerManager();
-        MinecraftPlayer fromMcPlayer = playerManager.getPlayer(fromEthAddr);
-        MinecraftPlayer toMcPlayer = playerManager.getPlayer(toEthAddr);
+        MinecraftPlayer fromMcPlayer = playerManager.getPlayer(fromEthAddr.getAsString());
+        MinecraftPlayer toMcPlayer = playerManager.getPlayer(toEthAddr.getAsString());
 
         if (fromMcPlayer != null) {
             Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> fromMcPlayer.reloadUser());
@@ -119,6 +127,26 @@ public class EnjinCoinEventListener implements NotificationListener {
         if (toMcPlayer != null) {
             Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> toMcPlayer.reloadUser());
             Messages.tokenReceived(toMcPlayer.getBukkitPlayer(), amount, name);
+        }
+    }
+
+    private boolean isNull(JsonElement element) {
+        return element == null || element.isJsonNull();
+    }
+
+    private boolean isObject(JsonElement element) {
+        return !isNull(element) && element.isJsonObject();
+    }
+
+    private boolean isPrimitive(JsonElement element) {
+        return !isNull(element) && element.isJsonPrimitive();
+    }
+
+    private String getAsString(JsonElement element) {
+        if (!isNull(element)) {
+            return element.getAsString();
+        } else {
+            return "n/a";
         }
     }
 
