@@ -9,11 +9,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class ScoreboardrCommand {
+public class ScoreboardCommand {
 
     private BasePlugin plugin;
 
-    public ScoreboardrCommand(BasePlugin plugin) {
+    public ScoreboardCommand(BasePlugin plugin) {
         this.plugin = plugin;
     }
 
