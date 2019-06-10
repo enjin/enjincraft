@@ -8,15 +8,20 @@ import com.enjin.enjincoin.sdk.service.identities.IdentitiesService;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.player.MinecraftPlayer;
 import com.enjin.enjincoin.spigot_framework.util.MessageUtils;
+import com.enjin.enjincoin.spigot_framework.util.TokenUtils;
 import com.enjin.enjincoin.spigot_framework.util.UuidUtils;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class UnlinkCommand {
@@ -55,7 +60,7 @@ public class UnlinkCommand {
                 if (minecraftPlayer.isLoaded()) {
                     if (minecraftPlayer.getIdentityData().getEthereumAddress() == null || minecraftPlayer.getIdentityData().getEthereumAddress().isEmpty()) {
                         if (minecraftPlayer.getIdentity().getLinkingCode() != null)
-                            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> handleUnlinked(sender, minecraftPlayer.getIdentity().getLinkingCode()));
+                            Bukkit.getScheduler().runTask(plugin, () -> handleUnlinked(sender, minecraftPlayer.getIdentity().getLinkingCode()));
                     } else {
                         // reload the identity for the existing user post unlink.
                         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
@@ -101,8 +106,19 @@ public class UnlinkCommand {
         final TextComponent notice = TextComponent.of("Wallet successfully unlinked. To re-link use the /enj link command to generate a new Linking Code.")
                 .color(TextColor.GOLD);
 
-        MessageUtils.sendMessage(sender, newline);
         MessageUtils.sendMessage(sender, notice);
+
+        Bukkit.getScheduler().runTask(plugin, () -> {
+           Player player = (Player) sender;
+           Inventory inventory = player.getInventory();
+
+           for (int i = 0; i < inventory.getSize(); i++) {
+               ItemStack is = inventory.getItem(i);
+               if (is != null && TokenUtils.getTokenID(is) != null) {
+                   inventory.setItem(i, null);
+               }
+           }
+        });
     }
 
 }
