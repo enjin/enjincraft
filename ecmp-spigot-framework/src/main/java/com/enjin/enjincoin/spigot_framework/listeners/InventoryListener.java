@@ -201,10 +201,8 @@ public class InventoryListener implements Listener {
         // If a player drops a token cancel the event.
         Player player = event.getPlayer();
         Item item = event.getItemDrop();
-
-        if (isCheckedOut(player.getUniqueId(), item.getItemStack())) {
-            event.setCancelled(true);
-        }
+        String id = TokenUtils.getTokenID(item.getItemStack());
+        event.setCancelled(id != null);
     }
 
     @EventHandler
