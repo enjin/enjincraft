@@ -3,7 +3,7 @@ package com.enjin.enjincoin.spigot_framework.commands.subcommands;
 import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
 import com.enjin.enjincoin.sdk.http.HttpResponse;
 import com.enjin.enjincoin.sdk.model.service.identities.DeleteIdentity;
-import com.enjin.enjincoin.sdk.model.service.identities.DeleteIdentityResult;
+import com.enjin.enjincoin.sdk.model.service.identities.Identity;
 import com.enjin.enjincoin.sdk.service.identities.IdentitiesService;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.player.MinecraftPlayer;
@@ -99,9 +99,9 @@ public class UnlinkCommand {
         MessageUtils.sendMessage(sender, text);
     }
 
-    private void handleUnlinking(CommandSender sender, BigInteger id) throws IOException {
+    private void handleUnlinking(CommandSender sender, int id) throws IOException {
         IdentitiesService service = this.plugin.getBootstrap().getSdkController().getClient().getIdentitiesService();
-        HttpResponse<GraphQLResponse<DeleteIdentityResult>> response = service.deleteIdentitySync(DeleteIdentity.unlink(id));
+        HttpResponse<GraphQLResponse<Identity>> response = service.deleteIdentitySync(DeleteIdentity.unlink(id));
 
         final TextComponent notice = TextComponent.of("Wallet successfully unlinked. To re-link use the /enj link command to generate a new Linking Code.")
                 .color(TextColor.GOLD);

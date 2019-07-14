@@ -1,7 +1,11 @@
 package com.enjin.enjincoin.spigot_framework.commands.subcommands;
 
+import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
 import com.enjin.enjincoin.sdk.http.HttpResponse;
+import com.enjin.enjincoin.sdk.model.service.identities.GetIdentities;
+import com.enjin.enjincoin.sdk.model.service.identities.Identity;
 import com.enjin.enjincoin.sdk.service.ethereum.EthereumService;
+import com.enjin.enjincoin.sdk.service.identities.IdentitiesService;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.player.MinecraftPlayer;
 import com.enjin.enjincoin.spigot_framework.player.PlayerManager;
@@ -16,6 +20,7 @@ import org.bukkit.entity.Player;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.List;
 
 public class TradeCommand {
 
@@ -66,17 +71,17 @@ public class TradeCommand {
                         return;
                     }
 
-                    EthereumService ethereumService = this.plugin.getBootstrap().getSdkController().getClient()
-                            .getEthereumService();
+                    IdentitiesService service = plugin.getBootstrap().getSdkController().getClient().getIdentitiesService();
+                    service.getIdentitiesAsync(new GetIdentities().identityId(senderMP.getIdentity().getId()), response -> {
+                        if (response.isSuccess()) {
+                            GraphQLResponse<List<Identity>> body = response.body();
+                            if (body.isSuccess()) {
+                                List<Identity> data = body.getData();
+                                if (data != null && !data.isEmpty()) {
+                                    Identity identity = data.get(0);
+                                    BigInteger allowance = identity.getEnjAllowance();
 
-                    ethereumService.getAllowanceAsync(senderMP.getIdentity().getEthereumAddress(), r1 -> {
-                        if (r1.isSuccess()) {
-                            if (r1.body() == null || r1.body().equals(BigInteger.ZERO)) {
-                                MessageUtils.sendMessage(sender, TextComponent.of("An allowance has not been approved for your wallet. Please confirm the approval notification in your wallet."));
-                            } else {
-                                try {
-                                    HttpResponse<BigInteger> r2 = ethereumService.getAllowanceSync(targetMP.getIdentity().getEthereumAddress());
-                                    if (r2.body() == null || r2.body().equals(BigInteger.ZERO)) {
+                                    if (allowance == null || allowance.equals(BigInteger.ZERO)) {
                                         MessageUtils.sendMessage(sender, TextComponent
                                                 .of(String.format("%s has not approved the wallet allowance yet, a request has been sent.",
                                                         target.getName())));
@@ -86,8 +91,6 @@ public class TradeCommand {
                                     } else {
                                         invite(senderMP, targetMP);
                                     }
-                                } catch (IOException e) {
-                                    e.printStackTrace();
                                 }
                             }
                         }

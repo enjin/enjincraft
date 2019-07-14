@@ -1,14 +1,18 @@
 package com.enjin.enjincoin.spigot_framework.controllers;
 
-import com.enjin.enjincoin.sdk.Client;
-import com.enjin.enjincoin.sdk.Clients;
+import com.enjin.enjincoin.sdk.TrustedPlatformClient;
+import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
+import com.enjin.enjincoin.sdk.http.HttpResponse;
+import com.enjin.enjincoin.sdk.model.service.auth.AuthResult;
+import com.enjin.enjincoin.sdk.model.service.platform.PlatformDetails;
+import com.enjin.enjincoin.sdk.service.notifications.NotificationsService;
+import com.enjin.enjincoin.sdk.service.notifications.PusherNotificationService;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
+import com.enjin.enjincoin.spigot_framework.listeners.EnjinCoinEventListener;
 import com.google.gson.JsonObject;
-import org.apache.commons.lang.NullArgumentException;
+import okhttp3.logging.HttpLoggingInterceptor;
 
 import java.io.IOException;
-import java.util.Map;
-import java.util.UUID;
 import java.util.logging.Level;
 
 /**
@@ -42,7 +46,8 @@ public class SdkClientController {
 
     private final JsonObject config;
 
-    private Client client;
+    private TrustedPlatformClient client;
+    private NotificationsService notificationsService;
 
     /**
      * <p>Controller constructor.</p>
@@ -67,9 +72,34 @@ public class SdkClientController {
             throw new IllegalStateException(String.format("The \"%s\" key does not exists in the config.", APP_ID));
         if (!config.has(SECRET))
             throw new IllegalStateException(String.format("The \"%s\" key does not exists in the config.", APP_ID));
-        this.client = Clients.createClient(this.config.get(PLATFORM_BASE_URL).getAsString(),
-                this.plugin.getBootstrap().getAppId(), this.plugin.getBootstrap().isSDKDebuggingEnabled());
-        this.client.auth(this.config.get(SECRET).getAsString());
+
+        final String url = this.config.get(PLATFORM_BASE_URL).getAsString();
+        final int appId = this.config.get(APP_ID).getAsInt();
+        final String secret = this.config.get(SECRET).getAsString();
+
+        this.client = new TrustedPlatformClient.Builder()
+                .httpLogLevel(this.plugin.getBootstrap().isSDKDebuggingEnabled() ? HttpLoggingInterceptor.Level.BODY : HttpLoggingInterceptor.Level.NONE)
+                .baseUrl(url)
+                .build();
+        HttpResponse<AuthResult> authResult = this.client.authAppSync(appId, secret);
+
+        if (!authResult.isSuccess()) {
+            this.plugin.getLogger().warning("Unable to authenticate your app credentials. " +
+                    "Please check that config has the correct app id and secret.");
+        }
+
+        HttpResponse<GraphQLResponse<PlatformDetails>> platformResponse = this.client.getPlatformService().getPlatformSync();
+
+        if (!platformResponse.isSuccess() || !platformResponse.body().isSuccess()) {
+            this.plugin.getLogger().warning("Could not get platform details.");
+        } else {
+            PlatformDetails details = platformResponse.body().getData();
+
+            this.notificationsService = new PusherNotificationService(details);
+            this.notificationsService.start();
+
+            this.notificationsService.registerListener(new EnjinCoinEventListener(this.plugin));
+        }
     }
 
     /**
@@ -91,7 +121,11 @@ public class SdkClientController {
      * @return the client or null if not initialized
      * @since 1.0
      */
-    public Client getClient() {
+    public TrustedPlatformClient getClient() {
         return client;
+    }
+
+    public NotificationsService getNotificationsService() {
+        return notificationsService;
     }
 }

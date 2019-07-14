@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public class UserData {
 
-    private BigInteger id;
+    private int id;
     private String name;
 
     public UserData(User user) {
@@ -15,7 +15,7 @@ public class UserData {
         this.name = user.getName();
     }
 
-    public BigInteger getId() {
+    public int getId() {
         return id;
     }
 

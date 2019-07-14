@@ -1,13 +1,11 @@
 package com.enjin.enjincoin.spigot_framework;
 
-import com.enjin.enjincoin.sdk.model.service.tokens.GetTokensResult;
+import com.enjin.enjincoin.sdk.model.service.tokens.GetTokens;
 import com.enjin.enjincoin.sdk.model.service.tokens.Token;
-import com.enjin.enjincoin.sdk.service.notifications.NotificationsService;
 import com.enjin.enjincoin.sdk.service.tokens.TokensService;
 import com.enjin.enjincoin.spigot_framework.commands.RootCommand;
 import com.enjin.enjincoin.spigot_framework.controllers.SdkClientController;
 import com.enjin.enjincoin.spigot_framework.listeners.InventoryListener;
-import com.enjin.enjincoin.spigot_framework.listeners.EnjinCoinEventListener;
 import com.enjin.enjincoin.spigot_framework.player.PlayerManager;
 import com.enjin.enjincoin.spigot_framework.trade.TradeManager;
 import com.google.gson.JsonElement;
@@ -19,10 +17,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class SpigotBootstrap extends PluginBootstrap {
 
@@ -83,34 +81,16 @@ public class SpigotBootstrap extends PluginBootstrap {
             this.sdkClientController = new SdkClientController(this.main, config);
             this.sdkClientController.setUp();
 
-            // Start the notification service.
-            final NotificationsService notificationsService = this.sdkClientController.getClient().getNotificationsService();
-            CompletableFuture<Boolean> future = new CompletableFuture<>();
-            future.whenComplete((result, throwable) -> {
-                if (throwable != null || result == null || !result) {
-                    this.main.getLogger().warning("An error occurred while starting the notifications service.");
-                    if (throwable != null) {
-                        this.main.getLogger().log(Level.SEVERE, throwable.getMessage(), throwable);
-                    }
-                } else {
-                    this.main.getLogger().info("Registering pusher notification listener.");
-                    notificationsService.addNotificationListener(new EnjinCoinEventListener(this.main));
-                }
-            });
-            notificationsService.startAsync(future);
-
             // Fetch a list of all tokens registered to the configured app ID.
             final TokensService tokensService = this.sdkClientController.getClient().getTokensService();
-            tokensService.getAllTokensAsync(response -> {
+            tokensService.getTokensAsync(new GetTokens(), response -> {
                 if (response.body() != null) {
-                    GetTokensResult data = response.body().getData();
-                    if (data != null && data.getTokens() != null) {
-                        data.getTokens().forEach(token -> {
-                            if (config.get("appId").getAsInt() == token.getAppId() && config.get("tokens").getAsJsonObject().has(token.getTokenId())) {
-                                tokens.put(token.getTokenId(), token);
-                            }
-                        });
-                    }
+                    List<Token> data = response.body().getData();
+                    data.forEach(token -> {
+                        if (config.get("appId").getAsInt() == token.getAppId() && config.get("tokens").getAsJsonObject().has(token.getTokenId())) {
+                            tokens.put(token.getTokenId(), token);
+                        }
+                    });
                 }
             });
         } catch (IOException e) {
@@ -192,7 +172,12 @@ public class SpigotBootstrap extends PluginBootstrap {
     @Override
     public void debug(String log) {
         if (isPluginDebuggingEnabled())
-            this.main.getLogger().info(log);
+            getLogger().info(log);
+    }
+
+    @Override
+    public Logger getLogger() {
+        return this.main.getLogger();
     }
 
     @Override

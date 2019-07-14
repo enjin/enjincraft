@@ -1,16 +1,16 @@
 package com.enjin.enjincoin.spigot_framework.player;
 
-import com.enjin.enjincoin.sdk.Client;
+import com.enjin.enjincoin.sdk.TrustedPlatformClient;
 import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
 import com.enjin.enjincoin.sdk.http.HttpResponse;
 import com.enjin.enjincoin.sdk.model.service.identities.CreateIdentity;
-import com.enjin.enjincoin.sdk.model.service.identities.CreateIdentityResult;
 import com.enjin.enjincoin.sdk.model.service.identities.Identity;
 import com.enjin.enjincoin.sdk.model.service.users.*;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -84,19 +84,19 @@ public class PlayerInitializationTask extends BukkitRunnable {
     }
 
     private User fetchExistingUser(UUID playerUuid) throws IOException {
-        Client client = this.plugin.getBootstrap().getSdkController().getClient();
+        TrustedPlatformClient client = this.plugin.getBootstrap().getSdkController().getClient();
         // Fetch the User for the Player in question
-        HttpResponse<GraphQLResponse<GetUsersResult>> networkResponse = client.getUsersService()
-                .getUsersSync(new GetUsers().withName(playerUuid.toString()));
+        HttpResponse<GraphQLResponse<List<User>>> networkResponse = client.getUsersService()
+                .getUsersSync(new GetUsers().name(playerUuid.toString()));
 
         User user = null;
 
         if (networkResponse.body() != null) {
-            GraphQLResponse<GetUsersResult> response = networkResponse.body();
+            GraphQLResponse<List<User>> response = networkResponse.body();
             if (!response.isEmpty()) {
-                GetUsersResult data = response.getData();
-                if (data.getUsers() != null && !data.getUsers().isEmpty()) {
-                    user = data.getUsers().get(0);
+                List<User> data = response.getData();
+                if (data != null && !data.isEmpty()) {
+                    user = data.get(0);
                 }
             }
         }
@@ -105,18 +105,17 @@ public class PlayerInitializationTask extends BukkitRunnable {
     }
 
     private User createUser(UUID playerUuid) throws IOException {
-        Client client = this.plugin.getBootstrap().getSdkController().getClient();
+        TrustedPlatformClient client = this.plugin.getBootstrap().getSdkController().getClient();
         // Create the User for the Player in question
-        HttpResponse<GraphQLResponse<CreateUserResult>> networkResponse = client.getUsersService()
-                .createUserSync(new CreateUser().withName(playerUuid.toString()));
+        HttpResponse<GraphQLResponse<User>> networkResponse = client.getUsersService()
+                .createUserSync(new CreateUser().name(playerUuid.toString()));
 
         User user = null;
 
         if (networkResponse.body() != null) {
-            GraphQLResponse<CreateUserResult> response = networkResponse.body();
+            GraphQLResponse<User> response = networkResponse.body();
             if (!response.isEmpty()) {
-                CreateUserResult data = response.getData();
-                user = data.getUser();
+                user = response.getData();
             }
         }
 
@@ -124,18 +123,17 @@ public class PlayerInitializationTask extends BukkitRunnable {
     }
 
     private Identity createIdentity() throws IOException {
-        Client client = this.plugin.getBootstrap().getSdkController().getClient();
+        TrustedPlatformClient client = this.plugin.getBootstrap().getSdkController().getClient();
         // Create the Identity for the App ID and Player in question
-        HttpResponse<GraphQLResponse<CreateIdentityResult>> networkResponse = client.getIdentitiesService()
-                .createIdentitySync(new CreateIdentity().withUserId(this.minecraftPlayer.getUserData().getId()));
+        HttpResponse<GraphQLResponse<Identity>> networkResponse = client.getIdentitiesService()
+                .createIdentitySync(new CreateIdentity().userId(this.minecraftPlayer.getUserData().getId()));
 
         Identity identity = null;
 
         if (networkResponse.body() != null) {
-            GraphQLResponse<CreateIdentityResult> response = networkResponse.body();
+            GraphQLResponse<Identity> response = networkResponse.body();
             if (!response.isEmpty()) {
-                CreateIdentityResult data = response.getData();
-                identity = data.getIdentity();
+                identity = response.getData();
             }
         }
 
