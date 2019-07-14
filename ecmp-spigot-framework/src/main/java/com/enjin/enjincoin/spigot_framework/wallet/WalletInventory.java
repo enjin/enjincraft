@@ -52,7 +52,7 @@ public class WalletInventory {
             }
 
             // Check if the token entry has value.
-            if (entry.balance().compareTo(BigInteger.ZERO) == 1) {
+            if (entry.balance().compareTo(0) == 1) {
                 Token token = main.getBootstrap().getTokens().get(entry.getTokenId());
                 // Verify that the token data exists.
 

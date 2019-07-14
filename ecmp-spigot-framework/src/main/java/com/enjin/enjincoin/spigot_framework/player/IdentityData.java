@@ -7,7 +7,7 @@ import java.math.BigInteger;
 
 public class IdentityData {
 
-    private BigInteger id;
+    private int id;
     private String ethereumAddress;
     private String linkingCode;
     private BigDecimal ethBalance;
@@ -21,7 +21,7 @@ public class IdentityData {
         this.enjBalance = identity.getEnjBalance();
     }
 
-    public BigInteger getId() {
+    public int getId() {
         return id;
     }
 

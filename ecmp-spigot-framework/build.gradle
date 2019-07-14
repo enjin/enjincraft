@@ -12,7 +12,7 @@ repositories {
 dependencies {
     shadow deps.spigot
 
-    compile deps.minecraftCommonsSpigot;
+    compile deps.minecraftCommonsSpigot
     compile deps.enjinCoinSdk
     compile deps.kyoriText
     compile deps.gson

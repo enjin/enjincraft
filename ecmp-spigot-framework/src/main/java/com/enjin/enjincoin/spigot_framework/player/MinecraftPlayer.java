@@ -1,11 +1,10 @@
 package com.enjin.enjincoin.spigot_framework.player;
 
-import com.enjin.enjincoin.sdk.Client;
+import com.enjin.enjincoin.sdk.TrustedPlatformClient;
 import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
 import com.enjin.enjincoin.sdk.http.HttpResponse;
 import com.enjin.enjincoin.sdk.model.service.identities.Identity;
 import com.enjin.enjincoin.sdk.model.service.users.GetUsers;
-import com.enjin.enjincoin.sdk.model.service.users.GetUsersResult;
 import com.enjin.enjincoin.sdk.model.service.users.User;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.event.IdentityLoadedEvent;
@@ -103,22 +102,22 @@ public class MinecraftPlayer {
     }
 
     public void reloadUser() {
-        Client client = this.plugin.getBootstrap().getSdkController().getClient();
+        TrustedPlatformClient client = this.plugin.getBootstrap().getSdkController().getClient();
         // Fetch the User for the Player in question
         try {
-            HttpResponse<GraphQLResponse<GetUsersResult>> networkResponse = client.getUsersService()
-                    .getUsersSync(new GetUsers().withName(bukkitPlayer.getUniqueId().toString()));
+            HttpResponse<GraphQLResponse<List<User>>> networkResponse = client.getUsersService()
+                    .getUsersSync(new GetUsers().name(bukkitPlayer.getUniqueId().toString()));
 
             User user = null;
             // we likely need a legit reload function for the wallet to repopulate it.
             this.wallet = new LegacyWallet(plugin, bukkitPlayer.getUniqueId());
 
             if (networkResponse.body() != null) {
-                GraphQLResponse<GetUsersResult> response = networkResponse.body();
+                GraphQLResponse<List<User>> response = networkResponse.body();
                 if (!response.isEmpty()) {
-                    GetUsersResult data = response.getData();
-                    if (data != null && !data.getUsers().isEmpty()) {
-                        user = data.getUsers().get(0);
+                    List<User> data = response.getData();
+                    if (data != null && !data.isEmpty()) {
+                        user = data.get(0);
                     }
                 }
             }
@@ -148,12 +147,12 @@ public class MinecraftPlayer {
 
         this.wallet.populate(identity.getTokens());
 
-        boolean listening = this.plugin.getBootstrap().getSdkController().getClient().getNotificationsService().isListeningForLink(identity.getId());
+        boolean listening = this.plugin.getBootstrap().getSdkController().getNotificationsService().isSubscribedToIdentity(identity.getId());
 
         if (identity.getLinkingCode() != null && !listening) {
-            this.plugin.getBootstrap().getSdkController().getClient().getNotificationsService().listenForLink(identity.getId());
+            this.plugin.getBootstrap().getSdkController().getNotificationsService().subscribeToIdentity(identity.getId());
         } else if (identity.getLinkingCode() == null && listening) {
-            this.plugin.getBootstrap().getSdkController().getClient().getNotificationsService().stopListeningForLink(identity.getId());
+            this.plugin.getBootstrap().getSdkController().getNotificationsService().unsubscribeToIdentity(identity.getId());
         }
 
         if (identity.getLinkingCode() == null && (identity.getEnjAllowance() == null || identity.getEnjAllowance().doubleValue() <= 0.0)) {
@@ -183,7 +182,7 @@ public class MinecraftPlayer {
             this.scoreboard.setEnabled(false);
         }
 
-        this.plugin.getBootstrap().getSdkController().getClient().getNotificationsService().stopListeningForLink(identity.getId());
+        this.plugin.getBootstrap().getSdkController().getNotificationsService().unsubscribeToIdentity(identity.getId());
 
         this.bukkitPlayer = null;
     }

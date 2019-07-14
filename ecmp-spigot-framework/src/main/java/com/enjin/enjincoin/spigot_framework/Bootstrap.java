@@ -8,6 +8,7 @@ import com.google.gson.JsonObject;
 
 import java.math.BigInteger;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * <p>An entry-point for the Enjin Coin Minecraft framework. Serves
@@ -87,6 +88,8 @@ public interface Bootstrap {
      * @since 1.0
      */
     void debug(String log);
+
+    Logger getLogger();
 
     boolean isAllowVanillaItemsInTrades();
 

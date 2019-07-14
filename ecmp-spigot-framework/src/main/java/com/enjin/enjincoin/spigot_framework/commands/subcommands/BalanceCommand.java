@@ -69,8 +69,8 @@ public class BalanceCommand {
                         JsonObject tokenDisplay = tokensDisplayConfig.has(String.valueOf(identity.getTokens().get(i).getTokenId()))
                                 ? tokensDisplayConfig.get(String.valueOf(identity.getTokens().get(i).getTokenId())).getAsJsonObject()
                                 : null;
-                        BigInteger balance = identity.getTokens().get(i).getBalance();
-                        if (balance.compareTo(BigInteger.ZERO) == 1) {
+                        Integer balance = identity.getTokens().get(i).getBalance();
+                        if (balance != null && balance > 0) {
                             if (tokenDisplay != null) {
                                 itemCount++;
                                 if (tokenDisplay != null && tokenDisplay.has("displayName")) {

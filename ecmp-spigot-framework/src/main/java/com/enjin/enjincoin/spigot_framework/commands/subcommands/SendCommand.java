@@ -2,11 +2,12 @@ package com.enjin.enjincoin.spigot_framework.commands.subcommands;
 
 import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
 import com.enjin.enjincoin.sdk.http.HttpResponse;
+import com.enjin.enjincoin.sdk.model.service.identities.GetIdentities;
+import com.enjin.enjincoin.sdk.model.service.identities.Identity;
 import com.enjin.enjincoin.sdk.model.service.requests.CreateRequest;
-import com.enjin.enjincoin.sdk.model.service.requests.CreateRequestResult;
-import com.enjin.enjincoin.sdk.model.service.requests.TransactionType;
+import com.enjin.enjincoin.sdk.model.service.requests.Transaction;
 import com.enjin.enjincoin.sdk.model.service.requests.data.SendTokenData;
-import com.enjin.enjincoin.sdk.service.ethereum.EthereumService;
+import com.enjin.enjincoin.sdk.service.identities.IdentitiesService;
 import com.enjin.enjincoin.sdk.service.requests.RequestsService;
 import com.enjin.enjincoin.spigot_framework.BasePlugin;
 import com.enjin.enjincoin.spigot_framework.player.MinecraftPlayer;
@@ -20,6 +21,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.List;
 
 public class SendCommand {
 
@@ -58,14 +60,23 @@ public class SendCommand {
                         sender.getInventory().clear(sender.getInventory().getHeldItemSlot());
                         senderMP.getWallet().getCheckoutManager().returnItem(is);
 
-                        EthereumService service = this.plugin.getBootstrap().getSdkController().getClient().getEthereumService();
-                        service.getAllowanceAsync(senderMP.getIdentity().getEthereumAddress(), result -> {
-                            if (result.isSuccess()) {
-                                if (result.body() == null || result.body().equals(BigInteger.ZERO)) {
-                                    MessageUtils.sendMessage(sender, TextComponent.of("Your allowance is not set. Please confirm the request in your wallet app."));
-                                } else {
-                                    send(sender, senderMP.getIdentity().getId(), targetMP.getIdentity().getId(),
-                                            tokenId, is.getAmount());
+                        IdentitiesService service = plugin.getBootstrap().getSdkController().getClient().getIdentitiesService();
+                        service.getIdentitiesAsync(new GetIdentities().identityId(senderMP.getIdentity().getId()), response -> {
+                            if (response.isSuccess()) {
+                                GraphQLResponse<List<Identity>> body = response.body();
+                                if (body.isSuccess()) {
+                                    List<Identity> data = body.getData();
+                                    if (data != null && !data.isEmpty()) {
+                                        Identity identity = data.get(0);
+                                        BigInteger allowance = identity.getEnjAllowance();
+
+                                        if (allowance == null || allowance.equals(BigInteger.ZERO)) {
+                                            MessageUtils.sendMessage(sender, TextComponent.of("Your allowance is not set. Please confirm the request in your wallet app."));
+                                        } else {
+                                            send(sender, senderMP.getIdentity().getId(), targetMP.getIdentity().getId(),
+                                                    tokenId, is.getAmount());
+                                        }
+                                    }
                                 }
                             }
                         });
@@ -77,13 +88,12 @@ public class SendCommand {
         }
     }
 
-    private void send(Player sender, BigInteger senderId, BigInteger targetId, String tokenId, int amount) {
+    private void send(Player sender, int senderId, int targetId, String tokenId, int amount) {
         RequestsService service = this.plugin.getBootstrap().getSdkController().getClient().getRequestsService();
         try {
-            HttpResponse<GraphQLResponse<CreateRequestResult>> result = service.createRequestSync(new CreateRequest()
-                    .withIdentityId(senderId)
-                    .withType(TransactionType.SEND)
-                    .withSendTokenData(SendTokenData.builder()
+            HttpResponse<GraphQLResponse<Transaction>> result = service.createRequestSync(new CreateRequest()
+                    .identityId(senderId)
+                    .sendToken(SendTokenData.builder()
                             .recipientIdentityId(targetId)
                             .tokenId(tokenId)
                             .value(amount)

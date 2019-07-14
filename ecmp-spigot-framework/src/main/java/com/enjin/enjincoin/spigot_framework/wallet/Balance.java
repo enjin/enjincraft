@@ -16,10 +16,10 @@ public class Balance {
     private final String tokenId;
 
     // Balance contained in wallet
-    private BigInteger balance = BigInteger.ZERO;
+    private Integer balance = 0;
 
     // Amount withdrawn from balance
-    private BigInteger withdrawn = BigInteger.ZERO;
+    private Integer withdrawn = 0;
 
     public Balance(Token token) {
         this.tokenId = token.getTokenId();
@@ -30,41 +30,43 @@ public class Balance {
         return this.tokenId;
     }
 
-    public BigInteger balance() {
+    public Integer balance() {
         return this.balance;
     }
 
-    public BigInteger withdrawn() {
+    public Integer withdrawn() {
         synchronized (this.withdrawn) {
             return this.withdrawn;
         }
     }
 
-    public BigInteger amountAvailableForWithdrawal() {
+    public Integer amountAvailableForWithdrawal() {
         synchronized (this.balance) {
-            return this.balance.min(this.withdrawn);
+            synchronized (this.withdrawn) {
+                return this.balance - this.withdrawn;
+            }
         }
     }
 
-    public BigInteger subtract(BigInteger amount) {
+    public Integer subtract(Integer amount) {
         synchronized (this.balance) {
-            this.balance = this.balance.subtract(amount);
-            if (this.balance.compareTo(BigInteger.ZERO) == -1) this.balance = BigInteger.ZERO;
+            this.balance -= amount;
+            if (this.balance < 0) this.balance = 0;
             return this.balance;
         }
     }
 
-    public BigInteger add(BigInteger amount) {
+    public Integer add(Integer amount) {
         synchronized (this.balance) {
-            this.balance = this.balance.add(amount);
+            this.balance += amount;
             return this.balance;
         }
     }
 
-    public boolean withdraw(BigInteger amount) {
+    public boolean withdraw(Integer amount) {
         synchronized (this.withdrawn) {
             if (amountAvailableForWithdrawal().compareTo(amount) != -1) {
-                this.withdrawn.add(amount);
+                this.withdrawn += amount;
                 return true;
             }
         }
@@ -72,10 +74,10 @@ public class Balance {
         return false;
     }
 
-    public void deposit(BigInteger amount) {
+    public void deposit(Integer amount) {
         synchronized (this.withdrawn) {
-            this.withdrawn.subtract(amount);
-            if (this.withdrawn.compareTo(BigInteger.ZERO) == -1) this.withdrawn = BigInteger.ZERO;
+            this.withdrawn -= amount;
+            if (this.withdrawn < 0) this.withdrawn = 0;
         }
     }
 }
