@@ -56,15 +56,15 @@ public class MinecraftPlayer {
     }
 
     public Player getBukkitPlayer() {
-        return this.bukkitPlayer;
+        return bukkitPlayer;
     }
 
     public UserData getUserData() {
-        return this.userData;
+        return userData;
     }
 
     public IdentityData getIdentityData() {
-        return this.identityData;
+        return identityData;
     }
 
     public LegacyWallet getWallet() {
@@ -72,11 +72,11 @@ public class MinecraftPlayer {
     }
 
     public Identity getIdentity() {
-        return this.identity;
+        return identity;
     }
 
     public boolean isUserLoaded() {
-        return this.userLoaded;
+        return userLoaded;
     }
 
     public void loadUser(User user) {
@@ -85,24 +85,24 @@ public class MinecraftPlayer {
         }
 
         this.user = user;
-        this.userData = new UserData(user);
-        this.userLoaded = true;
+        userData = new UserData(user);
+        userLoaded = true;
 
-        Integer appId = this.plugin.getBootstrap().getAppId();
+        Integer appId = plugin.getBootstrap().getConfig().getAppId();
         Optional<Identity> optionalIdentity = user.getIdentities().stream()
                 .filter(identity -> identity.getAppId().intValue() == appId.intValue())
                 .findFirst();
         optionalIdentity.ifPresent(this::loadIdentity);
 
-        Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, () -> this.scoreboard.setEnabled(this.showScoreboard), 1);
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> scoreboard.setEnabled(showScoreboard), 1);
     }
 
     public User getUser() {
-        return this.user;
+        return user;
     }
 
     public void reloadUser() {
-        TrustedPlatformClient client = this.plugin.getBootstrap().getSdkController().getClient();
+        TrustedPlatformClient client = plugin.getBootstrap().getSdkController().getClient();
         // Fetch the User for the Player in question
         try {
             HttpResponse<GraphQLResponse<List<User>>> networkResponse = client.getUsersService()
@@ -110,7 +110,7 @@ public class MinecraftPlayer {
 
             User user = null;
             // we likely need a legit reload function for the wallet to repopulate it.
-            this.wallet = new LegacyWallet(plugin, bukkitPlayer.getUniqueId());
+            wallet = new LegacyWallet(plugin, bukkitPlayer.getUniqueId());
 
             if (networkResponse.body() != null) {
                 GraphQLResponse<List<User>> response = networkResponse.body();
@@ -129,30 +129,30 @@ public class MinecraftPlayer {
     }
 
     public boolean isIdentityLoaded() {
-        return this.identityLoaded;
+        return identityLoaded;
     }
 
     public void loadIdentity(Identity identity) {
         if (identity == null) {
-            this.plugin.getBootstrap().debug("Failed to load identity: null");
+            plugin.getBootstrap().debug("Failed to load identity: null");
             return;
         }
 
-        this.plugin.getBootstrap().debug("Loading identity: " + identity.toString());
+        plugin.getBootstrap().debug("Loading identity: " + identity.toString());
         this.identity = identity;
 
-        this.identityData = new IdentityData(identity);
-        this.wallet = new LegacyWallet(plugin, bukkitPlayer.getUniqueId());
-        this.identityLoaded = true;
+        identityData = new IdentityData(identity);
+        wallet = new LegacyWallet(plugin, bukkitPlayer.getUniqueId());
+        identityLoaded = true;
 
-        this.wallet.populate(identity.getTokens());
+        wallet.populate(identity.getTokens());
 
-        boolean listening = this.plugin.getBootstrap().getSdkController().getNotificationsService().isSubscribedToIdentity(identity.getId());
+        boolean listening = plugin.getBootstrap().getSdkController().getNotificationsService().isSubscribedToIdentity(identity.getId());
 
         if (identity.getLinkingCode() != null && !listening) {
-            this.plugin.getBootstrap().getSdkController().getNotificationsService().subscribeToIdentity(identity.getId());
+            plugin.getBootstrap().getSdkController().getNotificationsService().subscribeToIdentity(identity.getId());
         } else if (identity.getLinkingCode() == null && listening) {
-            this.plugin.getBootstrap().getSdkController().getNotificationsService().unsubscribeToIdentity(identity.getId());
+            plugin.getBootstrap().getSdkController().getNotificationsService().unsubscribeToIdentity(identity.getId());
         }
 
         if (identity.getLinkingCode() == null && (identity.getEnjAllowance() == null || identity.getEnjAllowance().doubleValue() <= 0.0)) {
@@ -172,19 +172,19 @@ public class MinecraftPlayer {
     }
 
     public boolean isLinked() {
-        return isIdentityLoaded() && this.identity.getEthereumAddress() != null;
+        return isIdentityLoaded() && identity.getEthereumAddress() != null;
     }
 
     protected void cleanUp() {
         PlayerInitializationTask.cleanUp(bukkitPlayer.getUniqueId());
 
-        if (this.showScoreboard) {
-            this.scoreboard.setEnabled(false);
+        if (showScoreboard) {
+            scoreboard.setEnabled(false);
         }
 
-        this.plugin.getBootstrap().getSdkController().getNotificationsService().unsubscribeToIdentity(identity.getId());
+        plugin.getBootstrap().getSdkController().getNotificationsService().unsubscribeToIdentity(identity.getId());
 
-        this.bukkitPlayer = null;
+        bukkitPlayer = null;
     }
 
     public List<MinecraftPlayer> getSentTradeInvites() {
@@ -196,17 +196,17 @@ public class MinecraftPlayer {
     }
 
     public boolean showScoreboard() {
-        return this.showScoreboard;
+        return showScoreboard;
     }
 
     public void showScoreboard(boolean showScoreboard) {
         this.showScoreboard = showScoreboard;
-        this.scoreboard.setEnabled(showScoreboard);
+        scoreboard.setEnabled(showScoreboard);
     }
 
     public void updateScoreboard() {
         if (showScoreboard) {
-            this.scoreboard.update();
+            scoreboard.update();
         }
     }
 

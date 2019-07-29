@@ -2,7 +2,6 @@ package com.enjin.ecmp.spigot_framework.commands;
 
 import com.enjin.ecmp.spigot_framework.BasePlugin;
 import com.enjin.ecmp.spigot_framework.commands.subcommands.*;
-import com.enjin.enjincoin.spigot_framework.commands.subcommands.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
