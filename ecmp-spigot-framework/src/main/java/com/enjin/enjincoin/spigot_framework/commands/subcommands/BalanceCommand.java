@@ -65,25 +65,27 @@ public class BalanceCommand {
                     JsonObject tokensDisplayConfig = plugin.getBootstrap().getConfig().get("tokens").getAsJsonObject();
                     int itemCount = 0;
                     List<TextComponent> listing = new ArrayList<>();
-                    for (int i = 0; i < identity.getTokens().size(); i++) {
-                        JsonObject tokenDisplay = tokensDisplayConfig.has(String.valueOf(identity.getTokens().get(i).getTokenId()))
-                                ? tokensDisplayConfig.get(String.valueOf(identity.getTokens().get(i).getTokenId())).getAsJsonObject()
-                                : null;
-                        Integer balance = identity.getTokens().get(i).getBalance();
-                        if (balance != null && balance > 0) {
-                            if (tokenDisplay != null) {
-                                itemCount++;
-                                if (tokenDisplay != null && tokenDisplay.has("displayName")) {
+                    if (identity.getTokens() != null) {
+                        for (int i = 0; i < identity.getTokens().size(); i++) {
+                            JsonObject tokenDisplay = tokensDisplayConfig.has(String.valueOf(identity.getTokens().get(i).getTokenId()))
+                                    ? tokensDisplayConfig.get(String.valueOf(identity.getTokens().get(i).getTokenId())).getAsJsonObject()
+                                    : null;
+                            Integer balance = identity.getTokens().get(i).getBalance();
+                            if (balance != null && balance > 0) {
+                                if (tokenDisplay != null) {
+                                    itemCount++;
+                                    if (tokenDisplay != null && tokenDisplay.has("displayName")) {
+                                        listing.add(TextComponent.of(itemCount + ". ").color(TextColor.GOLD)
+                                                .append(TextComponent.of(tokenDisplay.get("displayName").getAsString()).color(TextColor.DARK_PURPLE))
+                                                .append(TextComponent.of(" (qty. " + balance + ")").color(TextColor.GREEN)));
+                                    }
+                                } else if (showAll) {
+                                    itemCount++;
+
                                     listing.add(TextComponent.of(itemCount + ". ").color(TextColor.GOLD)
-                                            .append(TextComponent.of(tokenDisplay.get("displayName").getAsString()).color(TextColor.DARK_PURPLE))
+                                            .append(TextComponent.of(identity.getTokens().get(i).getName()).color(TextColor.DARK_PURPLE))
                                             .append(TextComponent.of(" (qty. " + balance + ")").color(TextColor.GREEN)));
                                 }
-                            } else if (showAll) {
-                                itemCount++;
-
-                                listing.add(TextComponent.of(itemCount + ". ").color(TextColor.GOLD)
-                                        .append(TextComponent.of(identity.getTokens().get(i).getName()).color(TextColor.DARK_PURPLE))
-                                        .append(TextComponent.of(" (qty. " + balance + ")").color(TextColor.GREEN)));
                             }
                         }
                     }

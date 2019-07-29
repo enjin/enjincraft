@@ -53,21 +53,16 @@ public class WalletInventory {
 
             // Check if the token entry has value.
             if (entry.balance().compareTo(0) == 1) {
-                Token token = main.getBootstrap().getTokens().get(entry.getTokenId());
-                // Verify that the token data exists.
-
-                if (token == null) {
-                    continue;
-                }
-
                 // Fetch data for the matching token ID.
-                JsonObject tokenDisplay = tokensDisplayConfig.has(String.valueOf(token.getTokenId()))
-                        ? tokensDisplayConfig.get(String.valueOf(token.getTokenId())).getAsJsonObject()
+                JsonObject tokenDisplay = tokensDisplayConfig.has(String.valueOf(entry.getTokenId()))
+                        ? tokensDisplayConfig.get(String.valueOf(entry.getTokenId())).getAsJsonObject()
                         : null;
+
+                if (tokenDisplay == null) continue;
 
                 // Select a material to use for this menu entry.
                 Material material = null;
-                if (tokenDisplay != null && tokenDisplay.has("material"))
+                if (tokenDisplay.has("material"))
                     material = Material.getMaterial(tokenDisplay.get("material").getAsString());
                 if (material == null)
                     material = Material.APPLE;
@@ -93,12 +88,8 @@ public class WalletInventory {
                 if (tokenDisplay != null && tokenDisplay.has("displayName")) {
                     meta.setDisplayName(ChatColor.DARK_PURPLE + tokenDisplay.get("displayName").getAsString());
                 } else {
-                    if (token.getName() != null)
-                        // Use token name as display name.
-                        meta.setDisplayName(ChatColor.DARK_PURPLE + token.getName());
-                    else
-                        // Use token ID as display name.
-                        meta.setDisplayName(ChatColor.DARK_PURPLE + "Token #" + token.getTokenId());
+                    // Use token ID as display name.
+                    meta.setDisplayName(ChatColor.DARK_PURPLE + "Token #" + entry.getTokenId());
                 }
 
                 List<String> lore = new ArrayList<>();
@@ -125,7 +116,7 @@ public class WalletInventory {
                 stack.setItemMeta(meta);
 
                 NBTItem nbti = new NBTItem(stack);
-                nbti.setString("tokenID", token.getTokenId());
+                nbti.setString("tokenID", entry.getTokenId());
 
                 // Add ItemStack to wallet inventory.
                 inventory.setItem(index++, nbti.getItemStack());

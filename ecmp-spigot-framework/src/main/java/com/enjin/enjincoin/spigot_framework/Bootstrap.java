@@ -52,14 +52,6 @@ public interface Bootstrap {
     TradeManager getTradeManager();
 
     /**
-     * <p>Returns a mapping of token IDs and the associated token data.</p>
-     *
-     * @return a map of token IDs and associated data
-     * @since 1.0
-     */
-    Map<String, Token> getTokens();
-
-    /**
      * <p>Returns the config for this bootstrap.</p>
      *
      * @return the config

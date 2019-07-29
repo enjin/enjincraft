@@ -31,7 +31,6 @@ public class SpigotBootstrap extends PluginBootstrap {
     private boolean allowVanillaItemsInTrades;
     private boolean sdkDebug;
     private boolean pluginDebug;
-    private Map<String, Token> tokens;
 
     private SdkClientController sdkClientController;
     private PlayerManager playerManager;
@@ -45,7 +44,6 @@ public class SpigotBootstrap extends PluginBootstrap {
     public void setUp() {
         this.playerManager = new PlayerManager(this.main);
         this.tradeManager = new TradeManager(this.main);
-        this.tokens = new ConcurrentHashMap<>();
 
         // Load the config to ensure that it is created or already exists.
         final JsonObject config = getConfig();
@@ -80,19 +78,6 @@ public class SpigotBootstrap extends PluginBootstrap {
             // Initialize the Enjin Coin SDK controller with the provided Spigot plugin and the config.
             this.sdkClientController = new SdkClientController(this.main, config);
             this.sdkClientController.setUp();
-
-            // Fetch a list of all tokens registered to the configured app ID.
-            final TokensService tokensService = this.sdkClientController.getClient().getTokensService();
-            tokensService.getTokensAsync(new GetTokens(), response -> {
-                if (response.body() != null) {
-                    List<Token> data = response.body().getData();
-                    data.forEach(token -> {
-                        if (config.get("appId").getAsInt() == token.getAppId() && config.get("tokens").getAsJsonObject().has(token.getTokenId())) {
-                            tokens.put(token.getTokenId(), token);
-                        }
-                    });
-                }
-            });
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -125,11 +110,6 @@ public class SpigotBootstrap extends PluginBootstrap {
     @Override
     public TradeManager getTradeManager() {
         return this.tradeManager;
-    }
-
-    @Override
-    public Map<String, Token> getTokens() {
-        return this.tokens;
     }
 
     @Override

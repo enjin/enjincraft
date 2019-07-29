@@ -29,15 +29,11 @@ public class LegacyWallet {
     }
 
     public Balance addToken(String id, Balance data) {
-        if (plugin.getBootstrap().getTokens().containsKey(id)) {
-            // sync with checkout manager
-            if (manager.accessCheckout().containsKey(id)) {
+        // sync with checkout manager
+        if (manager.accessCheckout().containsKey(id)) {
 //                data.setCheckedOut(manager.accessCheckout().get(id).getAmount());
-            }
-            return this.tokenBalances.put(id, data);
         }
-
-        return null;
+        return this.tokenBalances.put(id, data);
     }
 
     public Inventory getInventory() {
