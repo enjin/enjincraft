@@ -38,7 +38,7 @@ public class MinecraftPlayer {
 
     // Scoreboard
     private boolean showScoreboard;
-    private ENJScoreboard scoreboard;
+    private PlayerScoreboard scoreboard;
 
     // Helper Fields
     private User user;
@@ -52,7 +52,7 @@ public class MinecraftPlayer {
         this.plugin = plugin;
         this.bukkitPlayer = player;
         this.showScoreboard = true;
-        this.scoreboard = new ENJScoreboard(this);
+        this.scoreboard = new PlayerScoreboard(this);
     }
 
     public Player getBukkitPlayer() {

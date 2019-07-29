@@ -11,7 +11,7 @@ import org.bukkit.scoreboard.Team;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-public class ENJScoreboard {
+public class PlayerScoreboard {
 
     private static String title = ChatColor.GOLD.toString() + ChatColor.BOLD.toString() + "ENJIN COIN";
 
@@ -38,7 +38,7 @@ public class ENJScoreboard {
     private Team status;
     private Team url;
 
-    public ENJScoreboard(MinecraftPlayer owner) {
+    public PlayerScoreboard(MinecraftPlayer owner) {
         this.owner = owner;
     }
 
