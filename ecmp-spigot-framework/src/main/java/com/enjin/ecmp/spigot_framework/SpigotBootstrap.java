@@ -30,6 +30,7 @@ public class SpigotBootstrap extends PluginBootstrap {
     @Override
     public void setUp() {
         this.config = new EcmpConfig(plugin);
+        this.config.load();
 
         this.playerManager = new PlayerManager(this.plugin);
         this.tradeManager = new TradeManager(this.plugin);
