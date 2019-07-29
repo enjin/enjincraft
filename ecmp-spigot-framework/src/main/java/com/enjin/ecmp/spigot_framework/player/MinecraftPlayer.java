@@ -102,7 +102,7 @@ public class MinecraftPlayer {
     }
 
     public void reloadUser() {
-        TrustedPlatformClient client = plugin.getBootstrap().getSdkController().getClient();
+        TrustedPlatformClient client = plugin.getBootstrap().getTrustedPlatformClient();
         // Fetch the User for the Player in question
         try {
             HttpResponse<GraphQLResponse<List<User>>> networkResponse = client.getUsersService()
@@ -147,12 +147,12 @@ public class MinecraftPlayer {
 
         wallet.populate(identity.getTokens());
 
-        boolean listening = plugin.getBootstrap().getSdkController().getNotificationsService().isSubscribedToIdentity(identity.getId());
+        boolean listening = plugin.getBootstrap().getNotificationsService().isSubscribedToIdentity(identity.getId());
 
         if (identity.getLinkingCode() != null && !listening) {
-            plugin.getBootstrap().getSdkController().getNotificationsService().subscribeToIdentity(identity.getId());
+            plugin.getBootstrap().getNotificationsService().subscribeToIdentity(identity.getId());
         } else if (identity.getLinkingCode() == null && listening) {
-            plugin.getBootstrap().getSdkController().getNotificationsService().unsubscribeToIdentity(identity.getId());
+            plugin.getBootstrap().getNotificationsService().unsubscribeToIdentity(identity.getId());
         }
 
         if (identity.getLinkingCode() == null && (identity.getEnjAllowance() == null || identity.getEnjAllowance().doubleValue() <= 0.0)) {
@@ -182,7 +182,7 @@ public class MinecraftPlayer {
             scoreboard.setEnabled(false);
         }
 
-        plugin.getBootstrap().getSdkController().getNotificationsService().unsubscribeToIdentity(identity.getId());
+        plugin.getBootstrap().getNotificationsService().unsubscribeToIdentity(identity.getId());
 
         bukkitPlayer = null;
     }

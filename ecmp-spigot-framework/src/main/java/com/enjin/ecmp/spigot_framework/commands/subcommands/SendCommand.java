@@ -60,7 +60,7 @@ public class SendCommand {
                         sender.getInventory().clear(sender.getInventory().getHeldItemSlot());
                         senderMP.getWallet().getCheckoutManager().returnItem(is);
 
-                        IdentitiesService service = plugin.getBootstrap().getSdkController().getClient().getIdentitiesService();
+                        IdentitiesService service = plugin.getBootstrap().getTrustedPlatformClient().getIdentitiesService();
                         service.getIdentitiesAsync(new GetIdentities().identityId(senderMP.getIdentity().getId()), response -> {
                             if (response.isSuccess()) {
                                 GraphQLResponse<List<Identity>> body = response.body();
@@ -89,7 +89,7 @@ public class SendCommand {
     }
 
     private void send(Player sender, int senderId, int targetId, String tokenId, int amount) {
-        RequestsService service = this.plugin.getBootstrap().getSdkController().getClient().getRequestsService();
+        RequestsService service = this.plugin.getBootstrap().getTrustedPlatformClient().getRequestsService();
         try {
             HttpResponse<GraphQLResponse<Transaction>> result = service.createRequestSync(new CreateRequest()
                     .identityId(senderId)

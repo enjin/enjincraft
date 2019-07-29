@@ -84,7 +84,7 @@ public class PlayerInitializationTask extends BukkitRunnable {
     }
 
     private User fetchExistingUser(UUID playerUuid) throws IOException {
-        TrustedPlatformClient client = this.plugin.getBootstrap().getSdkController().getClient();
+        TrustedPlatformClient client = this.plugin.getBootstrap().getTrustedPlatformClient();
         // Fetch the User for the Player in question
         HttpResponse<GraphQLResponse<List<User>>> networkResponse = client.getUsersService()
                 .getUsersSync(new GetUsers().name(playerUuid.toString()));
@@ -105,7 +105,7 @@ public class PlayerInitializationTask extends BukkitRunnable {
     }
 
     private User createUser(UUID playerUuid) throws IOException {
-        TrustedPlatformClient client = this.plugin.getBootstrap().getSdkController().getClient();
+        TrustedPlatformClient client = this.plugin.getBootstrap().getTrustedPlatformClient();
         // Create the User for the Player in question
         HttpResponse<GraphQLResponse<User>> networkResponse = client.getUsersService()
                 .createUserSync(new CreateUser().name(playerUuid.toString()));
@@ -123,7 +123,7 @@ public class PlayerInitializationTask extends BukkitRunnable {
     }
 
     private Identity createIdentity() throws IOException {
-        TrustedPlatformClient client = this.plugin.getBootstrap().getSdkController().getClient();
+        TrustedPlatformClient client = this.plugin.getBootstrap().getTrustedPlatformClient();
         // Create the Identity for the App ID and Player in question
         HttpResponse<GraphQLResponse<Identity>> networkResponse = client.getIdentitiesService()
                 .createIdentitySync(new CreateIdentity().userId(this.minecraftPlayer.getUserData().getId()));

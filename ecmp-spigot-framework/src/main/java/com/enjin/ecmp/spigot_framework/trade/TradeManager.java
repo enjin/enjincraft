@@ -1,7 +1,6 @@
 package com.enjin.ecmp.spigot_framework.trade;
 
 import com.enjin.ecmp.spigot_framework.BasePlugin;
-import com.enjin.ecmp.spigot_framework.controllers.SdkClientController;
 import com.enjin.ecmp.spigot_framework.player.MinecraftPlayer;
 import com.enjin.ecmp.spigot_framework.player.PlayerManager;
 import com.enjin.enjincoin.sdk.TrustedPlatformClient;
@@ -123,7 +122,7 @@ public class TradeManager implements Listener {
 
         trade.setTradeId(tradeId);
 
-        PlayerManager playerManager = this.plugin.getBootstrap().getPlayerManager();
+        PlayerManager playerManager = plugin.getBootstrap().getPlayerManager();
         MinecraftPlayer playerOne = playerManager.getPlayer(trade.getPlayerOneUuid());
         MinecraftPlayer playerTwo = playerManager.getPlayer(trade.getPlayerTwoUuid());
 
@@ -132,8 +131,7 @@ public class TradeManager implements Listener {
             Identity playerTwoIdentity = playerTwo.getIdentity();
 
             if (playerOneIdentity != null && playerTwoIdentity != null) {
-                SdkClientController clientController = this.plugin.getBootstrap().getSdkController();
-                TrustedPlatformClient client = clientController.getClient();
+                TrustedPlatformClient client = plugin.getBootstrap().getTrustedPlatformClient();
                 RequestsService service = client.getRequestsService();
                 Player bukkitPlayerOne = playerOne.getBukkitPlayer();
                 Player bukkitPlayerTwo = playerTwo.getBukkitPlayer();
@@ -196,7 +194,7 @@ public class TradeManager implements Listener {
     }
 
     public void submitCreateTrade(Trade trade) {
-        PlayerManager playerManager = this.plugin.getBootstrap().getPlayerManager();
+        PlayerManager playerManager = plugin.getBootstrap().getPlayerManager();
         MinecraftPlayer playerOne = playerManager.getPlayer(trade.getPlayerOneUuid());
         MinecraftPlayer playerTwo = playerManager.getPlayer(trade.getPlayerTwoUuid());
 
@@ -205,8 +203,7 @@ public class TradeManager implements Listener {
             Identity playerTwoIdentity = playerTwo.getIdentity();
 
             if (playerOneIdentity != null && playerTwoIdentity != null) {
-                SdkClientController clientController = this.plugin.getBootstrap().getSdkController();
-                TrustedPlatformClient client = clientController.getClient();
+                TrustedPlatformClient client = plugin.getBootstrap().getTrustedPlatformClient();
                 RequestsService service = client.getRequestsService();
                 Player bukkitPlayerOne = playerOne.getBukkitPlayer();
                 Player bukkitPlayerTwo = playerTwo.getBukkitPlayer();

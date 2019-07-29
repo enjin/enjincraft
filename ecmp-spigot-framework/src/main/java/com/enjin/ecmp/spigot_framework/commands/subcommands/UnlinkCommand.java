@@ -97,7 +97,7 @@ public class UnlinkCommand {
     }
 
     private void handleUnlinking(CommandSender sender, int id) throws IOException {
-        IdentitiesService service = this.plugin.getBootstrap().getSdkController().getClient().getIdentitiesService();
+        IdentitiesService service = this.plugin.getBootstrap().getTrustedPlatformClient().getIdentitiesService();
         HttpResponse<GraphQLResponse<Identity>> response = service.deleteIdentitySync(DeleteIdentity.unlink(id));
 
         final TextComponent notice = TextComponent.of("Wallet successfully unlinked. To re-link use the /enj link command to generate a new Linking Code.")
