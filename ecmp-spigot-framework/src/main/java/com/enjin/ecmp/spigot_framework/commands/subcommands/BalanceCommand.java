@@ -35,9 +35,7 @@ public class BalanceCommand {
                 mcPlayer.reloadUser();
 
                 boolean showAll = false;
-                Identity identity = mcPlayer.getIdentity();
-
-                if (identity.getLinkingCode() != null) {
+                if (!mcPlayer.isLinked()) {
                     TextComponent text = TextComponent.of("You have not linked a wallet to your account.").color(TextColor.RED);
                     MessageUtils.sendMessage(sender, text);
                     text = TextComponent.of("Please type '/enj link' to link your account to your Enjin Wallet.").color(TextColor.RED);
@@ -45,16 +43,16 @@ public class BalanceCommand {
                     return;
                 }
 
-                if (identity != null) {
-                    BigDecimal ethBalance = (mcPlayer.getIdentityData().getEthBalance() == null)
+                if (mcPlayer.isIdentityLoaded()) {
+                    BigDecimal ethBalance = (mcPlayer.getEthBalance() == null)
                             ? BigDecimal.ZERO
-                            : mcPlayer.getIdentityData().getEthBalance();
-                    BigDecimal enjBalance = (mcPlayer.getIdentityData().getEnjBalance() == null)
+                            : mcPlayer.getEthBalance();
+                    BigDecimal enjBalance = (mcPlayer.getEnjBalance() == null)
                             ? BigDecimal.ZERO
-                            : mcPlayer.getIdentityData().getEnjBalance();
+                            : mcPlayer.getEnjBalance();
 
-                    sendMsg(sender, "EthAdr: " + ChatColor.LIGHT_PURPLE + identity.getEthereumAddress());
-                    sendMsg(sender, "ID: " + identity.getId() + "   ");
+                    sendMsg(sender, "EthAdr: " + ChatColor.LIGHT_PURPLE + mcPlayer.getEthereumAddress());
+                    sendMsg(sender, "ID: " + mcPlayer.getIdentityId() + "   ");
 
                     if (enjBalance != null)
                         sendMsg(sender, ChatColor.GREEN + "[ " + enjBalance + " ENJ ] ");
@@ -64,30 +62,30 @@ public class BalanceCommand {
                     JsonObject tokensDisplayConfig = plugin.getBootstrap().getConfig().getRoot().get("tokens").getAsJsonObject();
                     int itemCount = 0;
                     List<TextComponent> listing = new ArrayList<>();
-                    if (identity.getTokens() != null) {
-                        for (int i = 0; i < identity.getTokens().size(); i++) {
-                            JsonObject tokenDisplay = tokensDisplayConfig.has(String.valueOf(identity.getTokens().get(i).getTokenId()))
-                                    ? tokensDisplayConfig.get(String.valueOf(identity.getTokens().get(i).getTokenId())).getAsJsonObject()
-                                    : null;
-                            Integer balance = identity.getTokens().get(i).getBalance();
-                            if (balance != null && balance > 0) {
-                                if (tokenDisplay != null) {
-                                    itemCount++;
-                                    if (tokenDisplay != null && tokenDisplay.has("displayName")) {
-                                        listing.add(TextComponent.of(itemCount + ". ").color(TextColor.GOLD)
-                                                .append(TextComponent.of(tokenDisplay.get("displayName").getAsString()).color(TextColor.DARK_PURPLE))
-                                                .append(TextComponent.of(" (qty. " + balance + ")").color(TextColor.GREEN)));
-                                    }
-                                } else if (showAll) {
-                                    itemCount++;
-
-                                    listing.add(TextComponent.of(itemCount + ". ").color(TextColor.GOLD)
-                                            .append(TextComponent.of(identity.getTokens().get(i).getName()).color(TextColor.DARK_PURPLE))
-                                            .append(TextComponent.of(" (qty. " + balance + ")").color(TextColor.GREEN)));
-                                }
-                            }
-                        }
-                    }
+//                    if (identity.getTokens() != null) {
+//                        for (int i = 0; i < identity.getTokens().size(); i++) {
+//                            JsonObject tokenDisplay = tokensDisplayConfig.has(String.valueOf(identity.getTokens().get(i).getTokenId()))
+//                                    ? tokensDisplayConfig.get(String.valueOf(identity.getTokens().get(i).getTokenId())).getAsJsonObject()
+//                                    : null;
+//                            Integer balance = identity.getTokens().get(i).getBalance();
+//                            if (balance != null && balance > 0) {
+//                                if (tokenDisplay != null) {
+//                                    itemCount++;
+//                                    if (tokenDisplay != null && tokenDisplay.has("displayName")) {
+//                                        listing.add(TextComponent.of(itemCount + ". ").color(TextColor.GOLD)
+//                                                .append(TextComponent.of(tokenDisplay.get("displayName").getAsString()).color(TextColor.DARK_PURPLE))
+//                                                .append(TextComponent.of(" (qty. " + balance + ")").color(TextColor.GREEN)));
+//                                    }
+//                                } else if (showAll) {
+//                                    itemCount++;
+//
+//                                    listing.add(TextComponent.of(itemCount + ". ").color(TextColor.GOLD)
+//                                            .append(TextComponent.of(identity.getTokens().get(i).getName()).color(TextColor.DARK_PURPLE))
+//                                            .append(TextComponent.of(" (qty. " + balance + ")").color(TextColor.GREEN)));
+//                                }
+//                            }
+//                        }
+//                    }
 
                     sendMsg(sender, "");
                     if (itemCount == 0)

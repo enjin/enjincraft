@@ -4,6 +4,7 @@ import com.enjin.ecmp.spigot_framework.BasePlugin;
 import com.enjin.ecmp.spigot_framework.player.MinecraftPlayer;
 import com.enjin.ecmp.spigot_framework.util.MessageUtils;
 import com.enjin.ecmp.spigot_framework.util.UuidUtils;
+import com.enjin.java_commons.StringUtils;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
 import org.bukkit.command.CommandSender;
@@ -60,10 +61,10 @@ public class LinkCommand {
             MinecraftPlayer minecraftPlayer = this.plugin.getBootstrap().getPlayerManager().getPlayer(uuid);
             if (minecraftPlayer != null) {
                 if (minecraftPlayer.isLoaded()) {
-                    if (minecraftPlayer.getIdentityData().getLinkingCode() == null || minecraftPlayer.getIdentityData().getLinkingCode().isEmpty())
-                        handleAddress(sender, minecraftPlayer.getIdentity().getEthereumAddress());
+                    if (StringUtils.isEmpty(minecraftPlayer.getLinkingCode()))
+                        handleAddress(sender, minecraftPlayer.getEthereumAddress());
                     else
-                        handleCode(sender, minecraftPlayer.getIdentityData().getLinkingCode());
+                        handleCode(sender, minecraftPlayer.getLinkingCode());
                 } else {
                     // TODO: Warn sender that the online player has not fully loaded
                 }

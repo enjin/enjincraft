@@ -11,11 +11,13 @@ import com.enjin.enjincoin.sdk.model.service.users.User;
 import com.enjin.ecmp.spigot_framework.event.IdentityLoadedEvent;
 import com.enjin.ecmp.spigot_framework.trade.TradeView;
 import com.enjin.ecmp.spigot_framework.util.MessageUtils;
+import com.enjin.enjincoin.sdk.service.notifications.NotificationsService;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -26,10 +28,17 @@ public class MinecraftPlayer {
     private BasePlugin plugin;
     private Player bukkitPlayer;
 
+    // User Data
+    private Integer userId;
+
+    // Identity Data
+    private Integer identityId;
+    private String ethereumAddress;
+    private String linkingCode;
+    private BigDecimal enjBalance;
+    private BigDecimal ethBalance;
+
     // Trusted Platform Data Fields
-    private UserData userData;
-    private Identity identity;
-    private IdentityData identityData;
     private LegacyWallet wallet;
 
     // State Fields
@@ -39,9 +48,6 @@ public class MinecraftPlayer {
     // Scoreboard
     private boolean showScoreboard;
     private PlayerScoreboard scoreboard;
-
-    // Helper Fields
-    private User user;
 
     // Trade Fields
     private List<MinecraftPlayer> sentTradeInvites = new ArrayList<>();
@@ -53,53 +59,67 @@ public class MinecraftPlayer {
         this.bukkitPlayer = player;
         this.showScoreboard = true;
         this.scoreboard = new PlayerScoreboard(this);
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> scoreboard.setEnabled(showScoreboard), 1);
     }
 
     public Player getBukkitPlayer() {
         return bukkitPlayer;
     }
 
-    public UserData getUserData() {
-        return userData;
-    }
-
-    public IdentityData getIdentityData() {
-        return identityData;
-    }
-
-    public LegacyWallet getWallet() {
-        return wallet;
-    }
-
-    public Identity getIdentity() {
-        return identity;
-    }
-
-    public boolean isUserLoaded() {
-        return userLoaded;
-    }
-
     public void loadUser(User user) {
         if (user == null) {
-            return;
+            userId = null;
+            userLoaded = false;
+        } else {
+            userId = user.getId();
+            userLoaded = true;
+
+            Optional<Identity> optionalIdentity = user.getIdentities().stream()
+                    .filter(identity -> identity.getAppId().intValue() == plugin.getBootstrap().getConfig().getAppId())
+                    .findFirst();
+            optionalIdentity.ifPresent(this::loadIdentity);
+        }
+    }
+
+    public void loadIdentity(Identity identity) {
+        if (identity == null) {
+            identityId = null;
+            ethereumAddress = null;
+            linkingCode = null;
+            identityLoaded = false;
+        } else {
+            identityId = identity.getId();
+            ethereumAddress = identity.getEthereumAddress();
+            linkingCode = identity.getLinkingCode();
+            identityLoaded = true;
+
+            wallet = new LegacyWallet(plugin, bukkitPlayer.getUniqueId());
+            wallet.populate(identity.getTokens());
+
+            NotificationsService service = plugin.getBootstrap().getNotificationsService();
+            boolean listening = service.isSubscribedToIdentity(identityId);
+
+            if (linkingCode != null && !listening) {
+                service.subscribeToIdentity(identityId);
+            } else if (linkingCode == null && listening) {
+                service.unsubscribeToIdentity(identityId);
+            }
+
+            scoreboard.update();
+
+            Bukkit.getPluginManager().callEvent(new IdentityLoadedEvent(this));
         }
 
-        this.user = user;
-        userData = new UserData(user);
-        userLoaded = true;
-
-        Integer appId = plugin.getBootstrap().getConfig().getAppId();
-        Optional<Identity> optionalIdentity = user.getIdentities().stream()
-                .filter(identity -> identity.getAppId().intValue() == appId.intValue())
-                .findFirst();
-        optionalIdentity.ifPresent(this::loadIdentity);
-
-        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> scoreboard.setEnabled(showScoreboard), 1);
+//        if (identity.getLinkingCode() == null && (identity.getEnjAllowance() == null || identity.getEnjAllowance().doubleValue() <= 0.0)) {
+//            TextComponent text = TextComponent.builder()
+//                    .content("Before you can send or trade items with other players you must approve the enj " +
+//                            "request in your wallet app.")
+//                    .color(TextColor.GOLD)
+//                    .build();
+//            MessageUtils.sendMessage(getBukkitPlayer(), text);
+//        }
     }
 
-    public User getUser() {
-        return user;
-    }
 
     public void reloadUser() {
         TrustedPlatformClient client = plugin.getBootstrap().getTrustedPlatformClient();
@@ -128,43 +148,12 @@ public class MinecraftPlayer {
         }
     }
 
-    public boolean isIdentityLoaded() {
-        return identityLoaded;
+    public boolean isUserLoaded() {
+        return userLoaded;
     }
 
-    public void loadIdentity(Identity identity) {
-        if (identity == null) {
-            plugin.getBootstrap().debug("Failed to load identity: null");
-            return;
-        }
-
-        plugin.getBootstrap().debug("Loading identity: " + identity.toString());
-        this.identity = identity;
-
-        identityData = new IdentityData(identity);
-        wallet = new LegacyWallet(plugin, bukkitPlayer.getUniqueId());
-        identityLoaded = true;
-
-        wallet.populate(identity.getTokens());
-
-        boolean listening = plugin.getBootstrap().getNotificationsService().isSubscribedToIdentity(identity.getId());
-
-        if (identity.getLinkingCode() != null && !listening) {
-            plugin.getBootstrap().getNotificationsService().subscribeToIdentity(identity.getId());
-        } else if (identity.getLinkingCode() == null && listening) {
-            plugin.getBootstrap().getNotificationsService().unsubscribeToIdentity(identity.getId());
-        }
-
-        if (identity.getLinkingCode() == null && (identity.getEnjAllowance() == null || identity.getEnjAllowance().doubleValue() <= 0.0)) {
-            TextComponent text = TextComponent.builder()
-                    .content("Before you can send or trade items with other players you must approve the enj " +
-                            "request in your wallet app.")
-                    .color(TextColor.GOLD)
-                    .build();
-            MessageUtils.sendMessage(getBukkitPlayer(), text);
-        }
-
-        Bukkit.getPluginManager().callEvent(new IdentityLoadedEvent(this));
+    public boolean isIdentityLoaded() {
+        return identityLoaded;
     }
 
     public boolean isLoaded() {
@@ -172,7 +161,7 @@ public class MinecraftPlayer {
     }
 
     public boolean isLinked() {
-        return isIdentityLoaded() && identity.getEthereumAddress() != null;
+        return isIdentityLoaded() && ethereumAddress != null;
     }
 
     protected void cleanUp() {
@@ -182,8 +171,7 @@ public class MinecraftPlayer {
             scoreboard.setEnabled(false);
         }
 
-        plugin.getBootstrap().getNotificationsService().unsubscribeToIdentity(identity.getId());
-
+        plugin.getBootstrap().getNotificationsService().unsubscribeToIdentity(identityId);
         bukkitPlayer = null;
     }
 
@@ -195,7 +183,7 @@ public class MinecraftPlayer {
         return receivedTradeInvites;
     }
 
-    public boolean showScoreboard() {
+    public boolean showingScoreboard() {
         return showScoreboard;
     }
 
@@ -204,17 +192,39 @@ public class MinecraftPlayer {
         scoreboard.setEnabled(showScoreboard);
     }
 
-    public void updateScoreboard() {
-        if (showScoreboard) {
-            scoreboard.update();
-        }
-    }
-
     public TradeView getActiveTradeView() {
         return activeTradeView;
     }
 
     public void setActiveTradeView(TradeView activeTradeView) {
         this.activeTradeView = activeTradeView;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public Integer getIdentityId() {
+        return identityId;
+    }
+
+    public String getEthereumAddress() {
+        return ethereumAddress;
+    }
+
+    public String getLinkingCode() {
+        return linkingCode;
+    }
+
+    public BigDecimal getEnjBalance() {
+        return enjBalance;
+    }
+
+    public BigDecimal getEthBalance() {
+        return ethBalance;
+    }
+
+    public LegacyWallet getWallet() {
+        return wallet;
     }
 }

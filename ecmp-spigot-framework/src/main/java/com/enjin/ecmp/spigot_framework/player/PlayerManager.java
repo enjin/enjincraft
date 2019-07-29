@@ -5,6 +5,7 @@ import com.enjin.ecmp.spigot_framework.event.MinecraftPlayerQuitEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -18,14 +19,13 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PlayerManager implements Listener {
 
     private BasePlugin plugin;
-
     private Map<UUID, MinecraftPlayer> players = new ConcurrentHashMap<>();
 
     public PlayerManager(BasePlugin plugin) {
         this.plugin = plugin;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerJoin(PlayerJoinEvent event) {
         MinecraftPlayer minecraftPlayer = new MinecraftPlayer(this.plugin, event.getPlayer());
 
@@ -56,24 +56,21 @@ public class PlayerManager implements Listener {
     public MinecraftPlayer getPlayer(String ethAddr) {
         if (ethAddr == null) throw new NullPointerException("ethAddr must not be null");
         return this.players.values().stream()
-                .filter(player -> player.getIdentityData() != null
-                        && ethAddr.equalsIgnoreCase(player.getIdentityData().getEthereumAddress()))
+                .filter(player -> player.getEthereumAddress() != null
+                        && ethAddr.equalsIgnoreCase(player.getEthereumAddress()))
                 .findFirst().orElse(null);
     }
 
     public MinecraftPlayer getPlayer(BigInteger identityId) {
         if (identityId == null) throw new NullPointerException("identityId must not be null");
         return this.players.values().stream()
-                .filter(player -> player.getIdentityData() != null
-                        && identityId.equals(player.getIdentityData().getId()))
+                .filter(player -> player.getIdentityId() != null
+                        && identityId.equals(player.getIdentityId()))
                 .findFirst().orElse(null);
     }
 
     public void addPlayer(MinecraftPlayer minecraftPlayer) {
-        if (!minecraftPlayer.getBukkitPlayer().isOnline()) {
-            return;
-        }
-
+        if (!minecraftPlayer.getBukkitPlayer().isOnline()) return;
         this.players.put(minecraftPlayer.getBukkitPlayer().getUniqueId(), minecraftPlayer);
     }
 

@@ -61,7 +61,7 @@ public class SendCommand {
                         senderMP.getWallet().getCheckoutManager().returnItem(is);
 
                         IdentitiesService service = plugin.getBootstrap().getTrustedPlatformClient().getIdentitiesService();
-                        service.getIdentitiesAsync(new GetIdentities().identityId(senderMP.getIdentity().getId()), response -> {
+                        service.getIdentitiesAsync(new GetIdentities().identityId(senderMP.getIdentityId()), response -> {
                             if (response.isSuccess()) {
                                 GraphQLResponse<List<Identity>> body = response.body();
                                 if (body.isSuccess()) {
@@ -73,7 +73,7 @@ public class SendCommand {
                                         if (allowance == null || allowance.equals(BigInteger.ZERO)) {
                                             MessageUtils.sendMessage(sender, TextComponent.of("Your allowance is not set. Please confirm the request in your wallet app."));
                                         } else {
-                                            send(sender, senderMP.getIdentity().getId(), targetMP.getIdentity().getId(),
+                                            send(sender, senderMP.getIdentityId(), targetMP.getIdentityId(),
                                                     tokenId, is.getAmount());
                                         }
                                     }
