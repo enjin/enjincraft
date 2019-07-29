@@ -1,9 +1,9 @@
 package com.enjin.ecmp.spigot_framework;
 
-import com.enjin.ecmp.spigot_framework.controllers.SdkClientController;
 import com.enjin.ecmp.spigot_framework.player.PlayerManager;
 import com.enjin.ecmp.spigot_framework.trade.TradeManager;
-import com.google.gson.JsonObject;
+import com.enjin.enjincoin.sdk.TrustedPlatformClient;
+import com.enjin.enjincoin.sdk.service.notifications.NotificationsService;
 
 import java.util.logging.Logger;
 
@@ -29,13 +29,9 @@ public interface Bootstrap {
      */
     void tearDown();
 
-    /**
-     * <p>Returns the Enjin Coin SDK client controller.</p>
-     *
-     * @return the sdk client controller
-     * @since 1.0
-     */
-    SdkClientController getSdkController();
+    TrustedPlatformClient getTrustedPlatformClient();
+
+    NotificationsService getNotificationsService();
 
     /**
      * <p>Returns the Player Manager that handles the fetching
