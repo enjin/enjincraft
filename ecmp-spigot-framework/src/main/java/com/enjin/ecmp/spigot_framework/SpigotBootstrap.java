@@ -42,14 +42,17 @@ public class SpigotBootstrap extends PluginBootstrap {
 
     @Override
     public void setUp() {
+        // Init and load configuration file
         config = new EcmpConfig(plugin);
         config.load();
 
+        // Validate that the required config values are valid
         if (!validateConfig()) {
             Bukkit.getPluginManager().disablePlugin(plugin);
             return;
         }
 
+        // Create the trusted platform client
         trustedPlatformClient = new TrustedPlatformClient.Builder()
                 .httpLogLevel(config.isSdkDebugging() ? BODY : NONE)
                 .baseUrl(config.getPlatformBaseUrl())
@@ -59,14 +62,17 @@ public class SpigotBootstrap extends PluginBootstrap {
         HttpResponse<AuthResult> authResult;
 
         try {
+            // Attempt to authenticate the client using an app secret
             authResult = trustedPlatformClient.authAppSync(config.getAppId(), config.getAppSecret());
 
+            // Could not authenticate the client
             if (!authResult.isSuccess()) {
                 getLogger().warning(String.format("%s: Authentication Failed", authResult.code()));
                 Bukkit.getPluginManager().disablePlugin(plugin);
                 return;
             }
         } catch (IOException ex) {
+            // An exception was caught while attempting authenticating the client
             getLogger().warning("Exception occurred when authenticating the trusted platform client.");
             ex.printStackTrace();
             Bukkit.getPluginManager().disablePlugin(plugin);
@@ -76,17 +82,21 @@ public class SpigotBootstrap extends PluginBootstrap {
         HttpResponse<GraphQLResponse<PlatformDetails>> platformResponse;
 
         try {
+            // Fetch the platform details
             platformResponse = trustedPlatformClient.getPlatformService().getPlatformSync();
 
+            // Could not fetch the platform details
             if (!(platformResponse.isSuccess() && platformResponse.body().isSuccess())) {
                 getLogger().warning(String.format("%s: Unable to fetch platform details.", authResult.code()));
                 Bukkit.getPluginManager().disablePlugin(plugin);
                 return;
             }
 
+            // Init the notification service with the fetched platform details
             PlatformDetails details = platformResponse.body().getData();
             notificationsService = new PusherNotificationService(details);
         } catch (IOException ex) {
+            // An exception was caught while fetching the platform details
             getLogger().warning("Exception occurred when fetching platform details.");
             ex.printStackTrace();
             Bukkit.getPluginManager().disablePlugin(plugin);
@@ -94,9 +104,11 @@ public class SpigotBootstrap extends PluginBootstrap {
         }
 
         try {
+            // Start the notification service and register a listener
             notificationsService.start();
             notificationsService.registerListener(new EnjinCoinEventListener(plugin));
         } catch (Exception ex) {
+            // An exception occurred while starting the notification service
             getLogger().warning("Exception occurred when starting the notification service.");
             ex.printStackTrace();
             Bukkit.getPluginManager().disablePlugin(plugin);
