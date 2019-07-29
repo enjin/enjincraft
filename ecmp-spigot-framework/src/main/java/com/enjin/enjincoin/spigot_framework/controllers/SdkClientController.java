@@ -13,6 +13,7 @@ import com.google.gson.JsonObject;
 import okhttp3.logging.HttpLoggingInterceptor;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 /**
@@ -80,6 +81,7 @@ public class SdkClientController {
         this.client = new TrustedPlatformClient.Builder()
                 .httpLogLevel(this.plugin.getBootstrap().isSDKDebuggingEnabled() ? HttpLoggingInterceptor.Level.BODY : HttpLoggingInterceptor.Level.NONE)
                 .baseUrl(url)
+                .readTimeout(1, TimeUnit.MINUTES)
                 .build();
         HttpResponse<AuthResult> authResult = this.client.authAppSync(appId, secret);
 
