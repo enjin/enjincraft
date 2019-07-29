@@ -33,7 +33,7 @@ public class WalletInventory {
             items = new HashMap<>();
 
         // Fetch configured tokens from the config.
-        JsonObject tokensDisplayConfig = main.getBootstrap().getConfig().get("tokens").getAsJsonObject();
+        JsonObject tokensDisplayConfig = main.getBootstrap().getConfig().getRoot().get("tokens").getAsJsonObject();
         // Generate a 6 by 9 chest inventory.
         Inventory inventory = Bukkit.createInventory(holder, 6 * 9, ChatColor.DARK_PURPLE + "Enjin Wallet");
         inventory.setMaxStackSize(MAX_STACK_SIZE);

@@ -282,7 +282,7 @@ public class TradeView extends ChestMenu {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         if (event.getClickedInventory() instanceof PlayerInventory) {
-            if (plugin.getBootstrap().isAllowVanillaItemsInTrades()) {
+            if (plugin.getBootstrap().getConfig().isAllowVanillaItemsInTrades()) {
                 return;
             }
 

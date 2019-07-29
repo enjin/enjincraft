@@ -61,7 +61,7 @@ public class BalanceCommand {
                     if (ethBalance != null)
                         sendMsg(sender, ChatColor.GREEN + "[ " + ethBalance + " ETH ]");
 
-                    JsonObject tokensDisplayConfig = plugin.getBootstrap().getConfig().get("tokens").getAsJsonObject();
+                    JsonObject tokensDisplayConfig = plugin.getBootstrap().getConfig().getRoot().get("tokens").getAsJsonObject();
                     int itemCount = 0;
                     List<TextComponent> listing = new ArrayList<>();
                     if (identity.getTokens() != null) {

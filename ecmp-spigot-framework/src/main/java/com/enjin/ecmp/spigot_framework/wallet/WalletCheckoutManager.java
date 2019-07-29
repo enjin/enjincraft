@@ -30,7 +30,7 @@ public class WalletCheckoutManager {
         PlayerInventory playerInventory = player.getInventory();
 
         // Fetch configured tokens from the config.
-        JsonObject tokensDisplayConfig = main.getBootstrap().getConfig().get("tokens").getAsJsonObject();
+        JsonObject tokensDisplayConfig = main.getBootstrap().getConfig().getRoot().get("tokens").getAsJsonObject();
 
         Map<String, ItemStack> allItems = new ConcurrentHashMap<>();
 

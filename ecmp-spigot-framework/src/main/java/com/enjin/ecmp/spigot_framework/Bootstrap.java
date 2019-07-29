@@ -5,7 +5,6 @@ import com.enjin.ecmp.spigot_framework.player.PlayerManager;
 import com.enjin.ecmp.spigot_framework.trade.TradeManager;
 import com.google.gson.JsonObject;
 
-import java.math.BigInteger;
 import java.util.logging.Logger;
 
 /**
@@ -55,21 +54,7 @@ public interface Bootstrap {
      * @return the config
      * @since 1.0
      */
-    JsonObject getConfig();
-
-    /**
-     * <p>Returns the configured App ID to use.</p>
-     *
-     * @return configured App ID as Integer
-     * @since 1.0
-     */
-    Integer getAppId();
-
-    BigInteger getDevIdentityId();
-
-    boolean isPluginDebuggingEnabled();
-
-    boolean isSDKDebuggingEnabled();
+    EcmpConfig getConfig();
 
     /**
      * <p>Logs a debug message if debug mode is enabled.</p>
@@ -80,7 +65,5 @@ public interface Bootstrap {
     void debug(String log);
 
     Logger getLogger();
-
-    boolean isAllowVanillaItemsInTrades();
 
 }
