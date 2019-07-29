@@ -27,7 +27,7 @@ public class ScoreboardCommand {
                 mcPlayer.reloadUser();
 
                 Bukkit.getScheduler().runTask(plugin, () -> {
-                    if (mcPlayer.showScoreboard()) {
+                    if (mcPlayer.showingScoreboard()) {
                         mcPlayer.showScoreboard(false);
                     } else {
                         mcPlayer.showScoreboard(true);

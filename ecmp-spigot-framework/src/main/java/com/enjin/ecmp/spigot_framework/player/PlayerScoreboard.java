@@ -60,11 +60,11 @@ public class PlayerScoreboard {
     }
 
     public void update() {
-        String enjBalance = (owner.getIdentityData() == null) ? "N/A" : formatDouble(owner.getIdentityData().getEnjBalance());
-        String ethBalance = (owner.getIdentityData() == null) ? "N/A" : formatDouble(owner.getIdentityData().getEthBalance());
-        String linkStatus = (owner.getIdentityData() == null) ? "N/A"
-                : (owner.getIdentityData().getLinkingCode() == null ? ChatColor.DARK_PURPLE + "linked"
-                : ChatColor.GOLD + owner.getIdentity().getLinkingCode());
+        String enjBalance = (!owner.isIdentityLoaded()) ? "N/A" : formatDouble(owner.getEnjBalance());
+        String ethBalance = (!owner.isIdentityLoaded()) ? "N/A" : formatDouble(owner.getEnjBalance());
+        String linkStatus = (!owner.isIdentityLoaded()) ? "N/A"
+                : (owner.getLinkingCode() == null ? ChatColor.DARK_PURPLE + "linked"
+                : ChatColor.GOLD + owner.getLinkingCode());
 
         enj.setSuffix(enjBalance);
         eth.setSuffix(ethBalance);

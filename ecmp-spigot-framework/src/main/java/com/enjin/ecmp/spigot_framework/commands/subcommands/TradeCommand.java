@@ -69,7 +69,7 @@ public class TradeCommand {
                     }
 
                     IdentitiesService service = plugin.getBootstrap().getTrustedPlatformClient().getIdentitiesService();
-                    service.getIdentitiesAsync(new GetIdentities().identityId(senderMP.getIdentity().getId()), response -> {
+                    service.getIdentitiesAsync(new GetIdentities().identityId(senderMP.getIdentityId()), response -> {
                         if (response.isSuccess()) {
                             GraphQLResponse<List<Identity>> body = response.body();
                             if (body.isSuccess()) {

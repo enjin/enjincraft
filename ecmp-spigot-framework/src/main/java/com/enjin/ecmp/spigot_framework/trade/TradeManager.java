@@ -116,9 +116,7 @@ public class TradeManager implements Listener {
     public void submitCompleteTrade(String requestId, String tradeId) {
         Trade trade = tradesPendingCompletion.remove(requestId);
 
-        if (trade == null) {
-            return;
-        }
+        if (trade == null) return;
 
         trade.setTradeId(tradeId);
 
@@ -127,17 +125,14 @@ public class TradeManager implements Listener {
         MinecraftPlayer playerTwo = playerManager.getPlayer(trade.getPlayerTwoUuid());
 
         if (playerOne != null && playerTwo != null) {
-            Identity playerOneIdentity = playerOne.getIdentity();
-            Identity playerTwoIdentity = playerTwo.getIdentity();
-
-            if (playerOneIdentity != null && playerTwoIdentity != null) {
+            if (playerOne.isIdentityLoaded() && playerTwo.isIdentityLoaded()) {
                 TrustedPlatformClient client = plugin.getBootstrap().getTrustedPlatformClient();
                 RequestsService service = client.getRequestsService();
                 Player bukkitPlayerOne = playerOne.getBukkitPlayer();
                 Player bukkitPlayerTwo = playerTwo.getBukkitPlayer();
 
                 service.createRequestAsync(
-                        new CreateRequest().identityId(playerTwoIdentity.getId())
+                        new CreateRequest().identityId(playerTwo.getIdentityId())
                                 .completeTrade(CompleteTradeData.builder()
                                         .tradeId(trade.getTradeId())
                                         .build()),
@@ -199,10 +194,7 @@ public class TradeManager implements Listener {
         MinecraftPlayer playerTwo = playerManager.getPlayer(trade.getPlayerTwoUuid());
 
         if (playerOne != null && playerTwo != null) {
-            Identity playerOneIdentity = playerOne.getIdentity();
-            Identity playerTwoIdentity = playerTwo.getIdentity();
-
-            if (playerOneIdentity != null && playerTwoIdentity != null) {
+            if (playerOne.isIdentityLoaded() && playerTwo.isIdentityLoaded()) {
                 TrustedPlatformClient client = plugin.getBootstrap().getTrustedPlatformClient();
                 RequestsService service = client.getRequestsService();
                 Player bukkitPlayerOne = playerOne.getBukkitPlayer();
@@ -212,11 +204,11 @@ public class TradeManager implements Listener {
                 List<TokenValueData> playerTwoTokens = extractTokens(trade.getPlayerTwoOffer());
 
                 service.createRequestAsync(
-                        new CreateRequest().identityId(playerOneIdentity.getId())
+                        new CreateRequest().identityId(playerOne.getIdentityId())
                                 .createTrade(CreateTradeData.builder()
                                         .offeringTokens(playerOneTokens)
                                         .askingTokens(playerTwoTokens)
-                                        .secondPartyIdentityId(playerTwoIdentity.getId())
+                                        .secondPartyIdentityId(playerTwo.getIdentityId())
                                         .build()),
                         response -> {
                             if (response.body() != null) {

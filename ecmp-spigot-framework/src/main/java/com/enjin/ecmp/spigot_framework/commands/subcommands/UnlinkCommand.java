@@ -55,14 +55,14 @@ public class UnlinkCommand {
             MinecraftPlayer minecraftPlayer = this.plugin.getBootstrap().getPlayerManager().getPlayer(uuid);
             if (minecraftPlayer != null) {
                 if (minecraftPlayer.isLoaded()) {
-                    if (minecraftPlayer.getIdentityData().getEthereumAddress() == null || minecraftPlayer.getIdentityData().getEthereumAddress().isEmpty()) {
-                        if (minecraftPlayer.getIdentity().getLinkingCode() != null)
-                            Bukkit.getScheduler().runTask(plugin, () -> handleUnlinked(sender, minecraftPlayer.getIdentity().getLinkingCode()));
+                    if (!minecraftPlayer.isLinked()) {
+                        if (minecraftPlayer.getLinkingCode() != null)
+                            Bukkit.getScheduler().runTask(plugin, () -> handleUnlinked(sender, minecraftPlayer.getLinkingCode()));
                     } else {
                         // reload the identity for the existing user post unlink.
                         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
                             try {
-                                handleUnlinking(sender, minecraftPlayer.getIdentityData().getId());
+                                handleUnlinking(sender, minecraftPlayer.getIdentityId());
                                 minecraftPlayer.reloadUser();
                             } catch (IOException e) {
                                 e.printStackTrace();

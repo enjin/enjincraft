@@ -33,13 +33,11 @@ public class WalletCommand {
                 MinecraftPlayer minecraftPlayer = playerManager.getPlayer(player.getUniqueId());
                 minecraftPlayer.reloadUser();
 
-                Identity identity = minecraftPlayer.getIdentity();
-
                 List<Balance> tokens = minecraftPlayer.getWallet().getTokens();
 
-                if (identity != null) {
+                if (minecraftPlayer.isIdentityLoaded()) {
                     // we have an identity, but the wallet has not been linked yet.
-                    if (identity.getLinkingCode() != null) {
+                    if (!minecraftPlayer.isLinked()) {
                         TextComponent text = TextComponent.of("You have not linked a wallet to your account.").color(TextColor.RED);
                         MessageUtils.sendMessage(sender, text);
                         text = TextComponent.of("Please type '/enj link' to link your account to your Enjin Wallet.").color(TextColor.RED);
