@@ -1,7 +1,6 @@
 package com.enjin.ecmp.spigot_framework.player;
 
 import com.enjin.ecmp.spigot_framework.BasePlugin;
-import com.enjin.ecmp.spigot_framework.wallet.LegacyWallet;
 import com.enjin.ecmp.spigot_framework.wallet.TokenWallet;
 import com.enjin.enjincoin.sdk.TrustedPlatformClient;
 import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
@@ -45,9 +44,6 @@ public class MinecraftPlayer {
     private BigDecimal ethBalance;
     private BigInteger enjAllowance;
     private TokenWallet tokenWallet;
-
-    // dep
-    private LegacyWallet wallet;
 
     // State Fields
     private boolean userLoaded;
@@ -105,9 +101,6 @@ public class MinecraftPlayer {
             enjAllowance = identity.getEnjAllowance();
             identityLoaded = true;
 
-            wallet = new LegacyWallet(plugin, bukkitPlayer.getUniqueId());
-            wallet.populate(identity.getTokens());
-
             NotificationsService service = plugin.getBootstrap().getNotificationsService();
             boolean listening = service.isSubscribedToIdentity(identityId);
 
@@ -164,9 +157,6 @@ public class MinecraftPlayer {
                     .getUsersSync(new GetUsers().name(bukkitPlayer.getUniqueId().toString()));
 
             User user = null;
-            // we likely need a legit reload function for the wallet to repopulate it.
-            wallet = new LegacyWallet(plugin, bukkitPlayer.getUniqueId());
-
             if (networkResponse.body() != null) {
                 GraphQLResponse<List<User>> response = networkResponse.body();
                 if (!response.isEmpty()) {
@@ -261,10 +251,6 @@ public class MinecraftPlayer {
 
     public BigInteger getEnjAllowance() {
         return enjAllowance;
-    }
-
-    public LegacyWallet getWallet() {
-        return wallet;
     }
 
     public TokenWallet getTokenWallet() {

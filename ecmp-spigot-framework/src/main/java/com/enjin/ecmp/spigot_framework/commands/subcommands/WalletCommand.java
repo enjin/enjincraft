@@ -30,9 +30,8 @@ public class WalletCommand {
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
                 PlayerManager playerManager = this.plugin.getBootstrap().getPlayerManager();
                 MinecraftPlayer minecraftPlayer = playerManager.getPlayer(player.getUniqueId());
-                minecraftPlayer.reloadUser();
 
-                List<MutableBalance> tokens = minecraftPlayer.getWallet().getTokens();
+                List<MutableBalance> tokens = minecraftPlayer.getTokenWallet().getBalances();
 
                 if (minecraftPlayer.isIdentityLoaded()) {
                     // we have an identity, but the wallet has not been linked yet.
