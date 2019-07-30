@@ -2,10 +2,11 @@ package com.enjin.ecmp.spigot_framework.commands.subcommands;
 
 import com.enjin.ecmp.spigot_framework.BasePlugin;
 import com.enjin.ecmp.spigot_framework.player.PlayerManager;
-import com.enjin.ecmp.spigot_framework.wallet.WalletInventory;
+import com.enjin.ecmp.spigot_framework.wallet.LegacyWalletInventory;
 import com.enjin.ecmp.spigot_framework.player.EnjinCoinPlayer;
 import com.enjin.ecmp.spigot_framework.wallet.MutableBalance;
 import com.enjin.ecmp.spigot_framework.util.MessageUtils;
+import com.enjin.ecmp.spigot_framework.wallet.TokenWalletView;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
 import org.bukkit.Bukkit;
@@ -43,8 +44,11 @@ public class WalletCommand {
                         return;
                     }
 
-                    Inventory inventory = WalletInventory.create(plugin, player, tokens);
-                    player.openInventory(inventory);
+//                    Inventory inventory = LegacyWalletInventory.create(plugin, player, tokens);
+//                    player.openInventory(inventory);
+
+                    TokenWalletView view = new TokenWalletView(plugin, enjinCoinPlayer);
+                    view.open(player);
                 } else {
                     TextComponent text = TextComponent.of("You have not linked a wallet to your account.")
                             .color(TextColor.RED);

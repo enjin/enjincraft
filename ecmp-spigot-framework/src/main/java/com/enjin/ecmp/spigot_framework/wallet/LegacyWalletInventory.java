@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class WalletInventory {
+public class LegacyWalletInventory {
 
     public static EnjinCoinPlayer owner;
     public static Map<String, ItemStack> items;
