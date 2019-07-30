@@ -280,7 +280,7 @@ public class TradeManager implements Listener {
     }
 
     @EventHandler
-    public void onMinecraftPlayerQuit(EnjinCoinPlayerQuitEvent event) {
+    public void onEnjinCoinPlayerQuit(EnjinCoinPlayerQuitEvent event) {
         EnjinCoinPlayer player = event.getPlayer();
 
         player.getSentTradeInvites().forEach(other -> other.getReceivedTradeInvites().remove(player));
