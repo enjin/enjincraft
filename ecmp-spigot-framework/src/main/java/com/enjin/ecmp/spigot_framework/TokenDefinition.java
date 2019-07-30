@@ -21,6 +21,7 @@ public class TokenDefinition {
 
     public TokenDefinition(String id, JsonObject json) {
         this.id = id;
+        setItemStack(json);
     }
 
     protected void setItemStack(JsonObject json) {
