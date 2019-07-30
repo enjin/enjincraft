@@ -1,7 +1,7 @@
 package com.enjin.ecmp.spigot_framework.player;
 
 import com.enjin.ecmp.spigot_framework.BasePlugin;
-import com.enjin.ecmp.spigot_framework.event.MinecraftPlayerQuitEvent;
+import com.enjin.ecmp.spigot_framework.event.EnjinCoinPlayerQuitEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -39,7 +39,7 @@ public class PlayerManager implements Listener {
         EnjinCoinPlayer player = removePlayer(event.getPlayer());
 
         if (player != null) {
-            Bukkit.getPluginManager().callEvent(new MinecraftPlayerQuitEvent(player));
+            Bukkit.getPluginManager().callEvent(new EnjinCoinPlayerQuitEvent(player));
             player.cleanUp();
         }
     }
