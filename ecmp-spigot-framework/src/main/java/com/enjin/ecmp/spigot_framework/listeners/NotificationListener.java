@@ -5,21 +5,20 @@ import com.enjin.ecmp.spigot_framework.Messages;
 import com.enjin.ecmp.spigot_framework.player.PlayerManager;
 import com.enjin.enjincoin.sdk.model.service.notifications.NotificationEvent;
 import com.enjin.enjincoin.sdk.model.service.notifications.NotificationType;
-import com.enjin.enjincoin.sdk.service.notifications.NotificationListener;
-import com.enjin.ecmp.spigot_framework.player.MinecraftPlayer;
+import com.enjin.ecmp.spigot_framework.player.EnjinCoinPlayer;
 import com.enjin.ecmp.spigot_framework.trade.TradeManager;
 import com.google.gson.*;
 import org.bukkit.Bukkit;
 
 import java.math.BigInteger;
 
-public class EnjinCoinEventListener implements NotificationListener {
+public class NotificationListener implements com.enjin.enjincoin.sdk.service.notifications.NotificationListener {
 
     private Gson gson = new GsonBuilder().create();
 
     private BasePlugin plugin;
 
-    public EnjinCoinEventListener(BasePlugin plugin) {
+    public NotificationListener(BasePlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -81,7 +80,7 @@ public class EnjinCoinEventListener implements NotificationListener {
             BigInteger id = new BigInteger(data.get("id").getAsString());
 
             PlayerManager playerManager = this.plugin.getBootstrap().getPlayerManager();
-            MinecraftPlayer mcPlayer = playerManager.getPlayer(id);
+            EnjinCoinPlayer mcPlayer = playerManager.getPlayer(id);
 
             if (mcPlayer != null) {
                 Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> mcPlayer.reloadUser());
@@ -116,8 +115,8 @@ public class EnjinCoinEventListener implements NotificationListener {
         String amount = getAsString(data.get("param4"));
 
         PlayerManager playerManager = this.plugin.getBootstrap().getPlayerManager();
-        MinecraftPlayer fromMcPlayer = playerManager.getPlayer(fromEthAddr.getAsString());
-        MinecraftPlayer toMcPlayer = playerManager.getPlayer(toEthAddr.getAsString());
+        EnjinCoinPlayer fromMcPlayer = playerManager.getPlayer(fromEthAddr.getAsString());
+        EnjinCoinPlayer toMcPlayer = playerManager.getPlayer(toEthAddr.getAsString());
 
         if (fromMcPlayer != null) {
             Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> fromMcPlayer.reloadUser());

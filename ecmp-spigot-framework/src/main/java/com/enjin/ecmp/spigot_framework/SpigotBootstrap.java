@@ -1,7 +1,7 @@
 package com.enjin.ecmp.spigot_framework;
 
 import com.enjin.ecmp.spigot_framework.commands.RootCommand;
-import com.enjin.ecmp.spigot_framework.listeners.EnjinCoinEventListener;
+import com.enjin.ecmp.spigot_framework.listeners.NotificationListener;
 import com.enjin.ecmp.spigot_framework.listeners.InventoryListener;
 import com.enjin.ecmp.spigot_framework.player.PlayerManager;
 import com.enjin.ecmp.spigot_framework.trade.TradeManager;
@@ -106,7 +106,7 @@ public class SpigotBootstrap extends PluginBootstrap {
         try {
             // Start the notification service and register a listener
             notificationsService.start();
-            notificationsService.registerListener(new EnjinCoinEventListener(plugin));
+            notificationsService.registerListener(new NotificationListener(plugin));
         } catch (Exception ex) {
             // An exception occurred while starting the notification service
             getLogger().warning("Exception occurred when starting the notification service.");

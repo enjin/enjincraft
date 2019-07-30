@@ -3,7 +3,7 @@ package com.enjin.ecmp.spigot_framework.commands.subcommands;
 import com.enjin.ecmp.spigot_framework.BasePlugin;
 import com.enjin.ecmp.spigot_framework.player.PlayerManager;
 import com.enjin.ecmp.spigot_framework.wallet.WalletInventory;
-import com.enjin.ecmp.spigot_framework.player.MinecraftPlayer;
+import com.enjin.ecmp.spigot_framework.player.EnjinCoinPlayer;
 import com.enjin.ecmp.spigot_framework.wallet.MutableBalance;
 import com.enjin.ecmp.spigot_framework.util.MessageUtils;
 import net.kyori.text.TextComponent;
@@ -29,13 +29,13 @@ public class WalletCommand {
 
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
                 PlayerManager playerManager = this.plugin.getBootstrap().getPlayerManager();
-                MinecraftPlayer minecraftPlayer = playerManager.getPlayer(player.getUniqueId());
+                EnjinCoinPlayer enjinCoinPlayer = playerManager.getPlayer(player.getUniqueId());
 
-                List<MutableBalance> tokens = minecraftPlayer.getTokenWallet().getBalances();
+                List<MutableBalance> tokens = enjinCoinPlayer.getTokenWallet().getBalances();
 
-                if (minecraftPlayer.isIdentityLoaded()) {
+                if (enjinCoinPlayer.isIdentityLoaded()) {
                     // we have an identity, but the wallet has not been linked yet.
-                    if (!minecraftPlayer.isLinked()) {
+                    if (!enjinCoinPlayer.isLinked()) {
                         TextComponent text = TextComponent.of("You have not linked a wallet to your account.").color(TextColor.RED);
                         MessageUtils.sendMessage(sender, text);
                         text = TextComponent.of("Please type '/enj link' to link your account to your Enjin Wallet.").color(TextColor.RED);

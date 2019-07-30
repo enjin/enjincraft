@@ -1,7 +1,7 @@
 package com.enjin.ecmp.spigot_framework.commands.subcommands;
 
 import com.enjin.ecmp.spigot_framework.BasePlugin;
-import com.enjin.ecmp.spigot_framework.player.MinecraftPlayer;
+import com.enjin.ecmp.spigot_framework.player.EnjinCoinPlayer;
 import com.enjin.ecmp.spigot_framework.util.MessageUtils;
 import com.enjin.ecmp.spigot_framework.util.UuidUtils;
 import com.enjin.java_commons.StringUtils;
@@ -58,13 +58,13 @@ public class LinkCommand {
         }
 
         if (uuid != null) {
-            MinecraftPlayer minecraftPlayer = this.plugin.getBootstrap().getPlayerManager().getPlayer(uuid);
-            if (minecraftPlayer != null) {
-                if (minecraftPlayer.isLoaded()) {
-                    if (StringUtils.isEmpty(minecraftPlayer.getLinkingCode()))
-                        handleAddress(sender, minecraftPlayer.getEthereumAddress());
+            EnjinCoinPlayer enjinCoinPlayer = this.plugin.getBootstrap().getPlayerManager().getPlayer(uuid);
+            if (enjinCoinPlayer != null) {
+                if (enjinCoinPlayer.isLoaded()) {
+                    if (StringUtils.isEmpty(enjinCoinPlayer.getLinkingCode()))
+                        handleAddress(sender, enjinCoinPlayer.getEthereumAddress());
                     else
-                        handleCode(sender, minecraftPlayer.getLinkingCode());
+                        handleCode(sender, enjinCoinPlayer.getLinkingCode());
                 } else {
                     // TODO: Warn sender that the online player has not fully loaded
                 }

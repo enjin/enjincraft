@@ -6,7 +6,7 @@ import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
 import com.enjin.enjincoin.sdk.model.service.identities.GetIdentities;
 import com.enjin.enjincoin.sdk.model.service.identities.Identity;
 import com.enjin.enjincoin.sdk.service.identities.IdentitiesService;
-import com.enjin.ecmp.spigot_framework.player.MinecraftPlayer;
+import com.enjin.ecmp.spigot_framework.player.EnjinCoinPlayer;
 import com.enjin.ecmp.spigot_framework.trade.TradeManager;
 import com.enjin.ecmp.spigot_framework.util.MessageUtils;
 import net.kyori.text.TextComponent;
@@ -49,14 +49,14 @@ public class TradeCommand {
             if (target != null) {
                 if (target != sender) {
                     PlayerManager playerManager = this.plugin.getBootstrap().getPlayerManager();
-                    MinecraftPlayer senderMP = playerManager.getPlayer(sender.getUniqueId());
+                    EnjinCoinPlayer senderMP = playerManager.getPlayer(sender.getUniqueId());
 
                     if (!senderMP.isLinked()) {
                         MessageUtils.sendMessage(sender, TextComponent.of("You must link your wallet before using this command."));
                         return;
                     }
 
-                    MinecraftPlayer targetMP = playerManager.getPlayer(target.getUniqueId());
+                    EnjinCoinPlayer targetMP = playerManager.getPlayer(target.getUniqueId());
 
                     if (targetMP == null || !targetMP.isLinked()) {
                         MessageUtils.sendMessage(sender, TextComponent
@@ -103,7 +103,7 @@ public class TradeCommand {
         }
     }
 
-    private void invite(MinecraftPlayer sender, MinecraftPlayer target) {
+    private void invite(EnjinCoinPlayer sender, EnjinCoinPlayer target) {
         TradeManager tradeManager = this.plugin.getBootstrap().getTradeManager();
         boolean result = tradeManager.addInvite(sender, target);
 
@@ -144,8 +144,8 @@ public class TradeCommand {
             if (target != null) {
                 PlayerManager playerManager = this.plugin.getBootstrap().getPlayerManager();
                 TradeManager tradeManager = this.plugin.getBootstrap().getTradeManager();
-                MinecraftPlayer senderMP = playerManager.getPlayer(target.getUniqueId());
-                MinecraftPlayer targetMP = playerManager.getPlayer(sender.getUniqueId());
+                EnjinCoinPlayer senderMP = playerManager.getPlayer(target.getUniqueId());
+                EnjinCoinPlayer targetMP = playerManager.getPlayer(sender.getUniqueId());
 
                 boolean result = tradeManager.acceptInvite(senderMP, targetMP);
 
@@ -165,8 +165,8 @@ public class TradeCommand {
             if (target != null) {
                 PlayerManager playerManager = this.plugin.getBootstrap().getPlayerManager();
                 TradeManager tradeManager = this.plugin.getBootstrap().getTradeManager();
-                MinecraftPlayer senderMP = playerManager.getPlayer(target.getUniqueId());
-                MinecraftPlayer targetMP = playerManager.getPlayer(sender.getUniqueId());
+                EnjinCoinPlayer senderMP = playerManager.getPlayer(target.getUniqueId());
+                EnjinCoinPlayer targetMP = playerManager.getPlayer(sender.getUniqueId());
 
                 boolean result = tradeManager.declineInvite(senderMP, targetMP);
 

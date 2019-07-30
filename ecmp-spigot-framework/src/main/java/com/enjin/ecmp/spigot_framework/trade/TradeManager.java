@@ -1,12 +1,11 @@
 package com.enjin.ecmp.spigot_framework.trade;
 
 import com.enjin.ecmp.spigot_framework.BasePlugin;
-import com.enjin.ecmp.spigot_framework.player.MinecraftPlayer;
+import com.enjin.ecmp.spigot_framework.player.EnjinCoinPlayer;
 import com.enjin.ecmp.spigot_framework.player.PlayerManager;
 import com.enjin.enjincoin.sdk.TrustedPlatformClient;
 import com.enjin.enjincoin.sdk.graphql.GraphQLError;
 import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
-import com.enjin.enjincoin.sdk.model.service.identities.Identity;
 import com.enjin.enjincoin.sdk.model.service.requests.CreateRequest;
 import com.enjin.enjincoin.sdk.model.service.requests.Transaction;
 import com.enjin.enjincoin.sdk.model.service.requests.data.CompleteTradeData;
@@ -46,11 +45,11 @@ public class TradeManager implements Listener {
         this.plugin = plugin;
     }
 
-    public boolean inviteExists(MinecraftPlayer sender, MinecraftPlayer target) {
+    public boolean inviteExists(EnjinCoinPlayer sender, EnjinCoinPlayer target) {
         return sender.getSentTradeInvites().contains(target);
     }
 
-    public boolean addInvite(MinecraftPlayer sender, MinecraftPlayer target) {
+    public boolean addInvite(EnjinCoinPlayer sender, EnjinCoinPlayer target) {
         boolean result = !inviteExists(sender, target);
 
         if (result) {
@@ -61,7 +60,7 @@ public class TradeManager implements Listener {
         return result;
     }
 
-    public boolean acceptInvite(MinecraftPlayer sender, MinecraftPlayer target) {
+    public boolean acceptInvite(EnjinCoinPlayer sender, EnjinCoinPlayer target) {
         boolean result = inviteExists(sender, target);
 
         if (result) {
@@ -78,7 +77,7 @@ public class TradeManager implements Listener {
         return result;
     }
 
-    public boolean declineInvite(MinecraftPlayer sender, MinecraftPlayer target) {
+    public boolean declineInvite(EnjinCoinPlayer sender, EnjinCoinPlayer target) {
         sender.getSentTradeInvites().remove(target);
         return target.getReceivedTradeInvites().remove(sender);
     }
@@ -87,8 +86,8 @@ public class TradeManager implements Listener {
         Trade trade = tradesPendingCompletion.remove(requestId);
         if (trade != null) {
             PlayerManager playerManager = this.plugin.getBootstrap().getPlayerManager();
-            MinecraftPlayer playerOne = playerManager.getPlayer(trade.getPlayerOneUuid());
-            MinecraftPlayer playerTwo = playerManager.getPlayer(trade.getPlayerTwoUuid());
+            EnjinCoinPlayer playerOne = playerManager.getPlayer(trade.getPlayerOneUuid());
+            EnjinCoinPlayer playerTwo = playerManager.getPlayer(trade.getPlayerTwoUuid());
 
             if (playerOne != null && playerTwo != null) {
                 Player bukkitPlayerOne = playerOne.getBukkitPlayer();
@@ -121,8 +120,8 @@ public class TradeManager implements Listener {
         trade.setTradeId(tradeId);
 
         PlayerManager playerManager = plugin.getBootstrap().getPlayerManager();
-        MinecraftPlayer playerOne = playerManager.getPlayer(trade.getPlayerOneUuid());
-        MinecraftPlayer playerTwo = playerManager.getPlayer(trade.getPlayerTwoUuid());
+        EnjinCoinPlayer playerOne = playerManager.getPlayer(trade.getPlayerOneUuid());
+        EnjinCoinPlayer playerTwo = playerManager.getPlayer(trade.getPlayerTwoUuid());
 
         if (playerOne != null && playerTwo != null) {
             if (playerOne.isIdentityLoaded() && playerTwo.isIdentityLoaded()) {
@@ -190,8 +189,8 @@ public class TradeManager implements Listener {
 
     public void submitCreateTrade(Trade trade) {
         PlayerManager playerManager = plugin.getBootstrap().getPlayerManager();
-        MinecraftPlayer playerOne = playerManager.getPlayer(trade.getPlayerOneUuid());
-        MinecraftPlayer playerTwo = playerManager.getPlayer(trade.getPlayerTwoUuid());
+        EnjinCoinPlayer playerOne = playerManager.getPlayer(trade.getPlayerOneUuid());
+        EnjinCoinPlayer playerTwo = playerManager.getPlayer(trade.getPlayerTwoUuid());
 
         if (playerOne != null && playerTwo != null) {
             if (playerOne.isIdentityLoaded() && playerTwo.isIdentityLoaded()) {
@@ -282,7 +281,7 @@ public class TradeManager implements Listener {
 
     @EventHandler
     public void onMinecraftPlayerQuit(MinecraftPlayerQuitEvent event) {
-        MinecraftPlayer player = event.getPlayer();
+        EnjinCoinPlayer player = event.getPlayer();
 
         player.getSentTradeInvites().forEach(other -> other.getReceivedTradeInvites().remove(player));
         player.getReceivedTradeInvites().forEach(other -> other.getSentTradeInvites().remove(player));
