@@ -148,7 +148,7 @@ public class MinecraftPlayer {
                 GraphQLResponse<List<Balance>> response = networkResponse.body();
                 if (response.isSuccess()) {
                     List<Balance> balances = response.getData();
-                    tokenWallet = new TokenWallet(balances);
+                    tokenWallet = new TokenWallet(plugin.getBootstrap(), balances);
                     plugin.getLogger().info(balances.toString());
                 }
             }
