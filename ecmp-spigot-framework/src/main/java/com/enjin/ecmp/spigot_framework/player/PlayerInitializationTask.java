@@ -5,6 +5,7 @@ import com.enjin.enjincoin.sdk.TrustedPlatformClient;
 import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
 import com.enjin.enjincoin.sdk.http.HttpResponse;
 import com.enjin.enjincoin.sdk.model.service.identities.CreateIdentity;
+import com.enjin.enjincoin.sdk.model.service.identities.GetIdentities;
 import com.enjin.enjincoin.sdk.model.service.identities.Identity;
 import com.enjin.enjincoin.sdk.model.service.users.*;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -53,7 +54,7 @@ public class PlayerInitializationTask extends BukkitRunnable {
                 }
 
                 if (this.minecraftPlayer.isUserLoaded() && !this.minecraftPlayer.isIdentityLoaded()) {
-                    Identity identity = createIdentity();
+                    Identity identity = getIdentity();
                     if (identity != null) {
                         // A new identity has been created
                         this.minecraftPlayer.loadIdentity(identity);
@@ -67,8 +68,8 @@ public class PlayerInitializationTask extends BukkitRunnable {
             }
         }
 
-        if (this.minecraftPlayer.getWallet() != null)
-            this.minecraftPlayer.getWallet().getCheckoutManager().populate(this.plugin, minecraftPlayer.getBukkitPlayer(), this.minecraftPlayer.getWallet());
+//        if (this.minecraftPlayer.getWallet() != null)
+//            this.minecraftPlayer.getWallet().getCheckoutManager().populate(this.plugin, minecraftPlayer.getBukkitPlayer(), this.minecraftPlayer.getWallet());
 
         this.inProgress = false;
     }
@@ -120,6 +121,34 @@ public class PlayerInitializationTask extends BukkitRunnable {
         }
 
         return user;
+    }
+
+    private Identity getIdentity() throws IOException {
+        Identity identity = null;
+
+        if (minecraftPlayer.getIdentityId() == null) {
+            identity = createIdentity();
+        } else {
+            TrustedPlatformClient client = plugin.getBootstrap().getTrustedPlatformClient();
+            HttpResponse<GraphQLResponse<List<Identity>>> networkResponse = client.getIdentitiesService()
+                    .getIdentitiesSync(new GetIdentities().identityId(minecraftPlayer.getIdentityId()));
+
+            if (networkResponse.isSuccess()) {
+                GraphQLResponse<List<Identity>> response = networkResponse.body();
+                if (response.isSuccess()) {
+                    List<Identity> identities = response.getData();
+                    if (identities.size() > 0) {
+                        identity = identities.get(0);
+                    }
+                } else {
+                    identity = null;
+                }
+            } else {
+                identity = null;
+            }
+        }
+
+        return identity;
     }
 
     private Identity createIdentity() throws IOException {

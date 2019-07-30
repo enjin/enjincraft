@@ -88,8 +88,9 @@ public class EcmpConfig {
             JsonElement element = root.get(TOKENS);
             if (element.isJsonObject()) {
                 JsonObject object = element.getAsJsonObject();
-                for (String id : object.keySet()) {
-                    JsonElement tokenDefElem = object.get(id);
+                for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
+                    String id = entry.getKey();
+                    JsonElement tokenDefElem = entry.getValue();
                     if (tokenDefElem.isJsonObject()) {
                         try {
                             this.tokens.put(id, new TokenDefinition(id, tokenDefElem.getAsJsonObject()));
