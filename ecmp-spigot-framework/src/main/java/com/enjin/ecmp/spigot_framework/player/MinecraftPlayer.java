@@ -149,7 +149,6 @@ public class MinecraftPlayer {
                 if (response.isSuccess()) {
                     List<Balance> balances = response.getData();
                     tokenWallet = new TokenWallet(plugin.getBootstrap(), balances);
-                    plugin.getLogger().info(balances.toString());
                 }
             }
         } catch (IOException e) {
