@@ -27,7 +27,7 @@ public class WalletInventory {
 
     private static final int MAX_STACK_SIZE = 64;
 
-    public static Inventory create(BasePlugin main, Player holder, List<Balance> tokens) {
+    public static Inventory create(BasePlugin main, Player holder, List<MutableBalance> tokens) {
         // initialize item map if not already initialized
         if (items == null)
             items = new HashMap<>();
@@ -43,7 +43,7 @@ public class WalletInventory {
         WalletCheckoutManager manager = owner.getWallet().getCheckoutManager();
 
         int index = 0;
-        for (Balance entry : tokens) {
+        for (MutableBalance entry : tokens) {
             // Check if the inventory is full.
             if (index >= 6 * 9) {
                 break;
@@ -52,8 +52,8 @@ public class WalletInventory {
             // Check if the token entry has value.
             if (entry.balance().compareTo(0) == 1) {
                 // Fetch data for the matching token ID.
-                JsonObject tokenDisplay = tokensDisplayConfig.has(String.valueOf(entry.getTokenId()))
-                        ? tokensDisplayConfig.get(String.valueOf(entry.getTokenId())).getAsJsonObject()
+                JsonObject tokenDisplay = tokensDisplayConfig.has(String.valueOf(entry.id()))
+                        ? tokensDisplayConfig.get(String.valueOf(entry.id())).getAsJsonObject()
                         : null;
 
                 if (tokenDisplay == null) continue;
@@ -72,8 +72,8 @@ public class WalletInventory {
                 if (manager.accessCheckout().isEmpty()) {
                     manager.populate(main, owner.getBukkitPlayer(), owner.getWallet());
                 }
-                if (manager.accessCheckout().get(entry.getTokenId()) != null)
-                    amount -= manager.accessCheckout().get(entry.getTokenId()).getAmount();
+                if (manager.accessCheckout().get(entry.id()) != null)
+                    amount -= manager.accessCheckout().get(entry.id()).getAmount();
 
                 stack.setAmount(amount);
 
@@ -87,7 +87,7 @@ public class WalletInventory {
                     meta.setDisplayName(ChatColor.DARK_PURPLE + tokenDisplay.get("displayName").getAsString());
                 } else {
                     // Use token ID as display name.
-                    meta.setDisplayName(ChatColor.DARK_PURPLE + "Token #" + entry.getTokenId());
+                    meta.setDisplayName(ChatColor.DARK_PURPLE + "Token #" + entry.id());
                 }
 
                 List<String> lore = new ArrayList<>();
@@ -114,7 +114,7 @@ public class WalletInventory {
                 stack.setItemMeta(meta);
 
                 NBTItem nbti = new NBTItem(stack);
-                nbti.setString("tokenID", entry.getTokenId());
+                nbti.setString("tokenID", entry.id());
 
                 // Add ItemStack to wallet inventory.
                 inventory.setItem(index++, nbti.getItemStack());
