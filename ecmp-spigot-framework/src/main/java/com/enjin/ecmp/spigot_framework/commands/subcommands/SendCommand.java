@@ -58,7 +58,7 @@ public class SendCommand {
                         MessageUtils.sendMessage(sender, TextComponent.of("You must be holding an Enjin Coin token item."));
                     } else {
                         sender.getInventory().clear(sender.getInventory().getHeldItemSlot());
-                        senderMP.getWallet().getCheckoutManager().returnItem(is);
+//                        senderMP.getWallet().getCheckoutManager().returnItem(is); TODO Fix
 
                         IdentitiesService service = plugin.getBootstrap().getTrustedPlatformClient().getIdentitiesService();
                         service.getIdentitiesAsync(new GetIdentities().identityId(senderMP.getIdentityId()), response -> {

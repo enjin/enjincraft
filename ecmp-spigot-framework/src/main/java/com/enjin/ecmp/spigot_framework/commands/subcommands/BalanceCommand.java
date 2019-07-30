@@ -1,6 +1,8 @@
 package com.enjin.ecmp.spigot_framework.commands.subcommands;
 
 import com.enjin.ecmp.spigot_framework.BasePlugin;
+import com.enjin.ecmp.spigot_framework.wallet.MutableBalance;
+import com.enjin.enjincoin.sdk.model.service.balances.Balance;
 import com.enjin.enjincoin.sdk.model.service.identities.Identity;
 import com.enjin.ecmp.spigot_framework.player.MinecraftPlayer;
 import com.enjin.ecmp.spigot_framework.util.MessageUtils;
@@ -34,7 +36,6 @@ public class BalanceCommand {
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
                 mcPlayer.reloadUser();
 
-                boolean showAll = false;
                 if (!mcPlayer.isLinked()) {
                     TextComponent text = TextComponent.of("You have not linked a wallet to your account.").color(TextColor.RED);
                     MessageUtils.sendMessage(sender, text);
@@ -62,30 +63,22 @@ public class BalanceCommand {
                     JsonObject tokensDisplayConfig = plugin.getBootstrap().getConfig().getRoot().get("tokens").getAsJsonObject();
                     int itemCount = 0;
                     List<TextComponent> listing = new ArrayList<>();
-//                    if (identity.getTokens() != null) {
-//                        for (int i = 0; i < identity.getTokens().size(); i++) {
-//                            JsonObject tokenDisplay = tokensDisplayConfig.has(String.valueOf(identity.getTokens().get(i).getTokenId()))
-//                                    ? tokensDisplayConfig.get(String.valueOf(identity.getTokens().get(i).getTokenId())).getAsJsonObject()
-//                                    : null;
-//                            Integer balance = identity.getTokens().get(i).getBalance();
-//                            if (balance != null && balance > 0) {
-//                                if (tokenDisplay != null) {
-//                                    itemCount++;
-//                                    if (tokenDisplay != null && tokenDisplay.has("displayName")) {
-//                                        listing.add(TextComponent.of(itemCount + ". ").color(TextColor.GOLD)
-//                                                .append(TextComponent.of(tokenDisplay.get("displayName").getAsString()).color(TextColor.DARK_PURPLE))
-//                                                .append(TextComponent.of(" (qty. " + balance + ")").color(TextColor.GREEN)));
-//                                    }
-//                                } else if (showAll) {
-//                                    itemCount++;
-//
-//                                    listing.add(TextComponent.of(itemCount + ". ").color(TextColor.GOLD)
-//                                            .append(TextComponent.of(identity.getTokens().get(i).getName()).color(TextColor.DARK_PURPLE))
-//                                            .append(TextComponent.of(" (qty. " + balance + ")").color(TextColor.GREEN)));
-//                                }
-//                            }
-//                        }
-//                    }
+                    if (mcPlayer.isLinked()) {
+                        List<MutableBalance> balances = mcPlayer.getTokenWallet().getBalances();
+                        for (MutableBalance balance : balances) {
+                            JsonObject tokenDisplay = tokensDisplayConfig.has(balance.id())
+                                    ? tokensDisplayConfig.get(balance.id()).getAsJsonObject()
+                                    : null;
+                            if (tokenDisplay != null && balance != null && balance.balance() > 0) {
+                                itemCount++;
+                                if (tokenDisplay != null && tokenDisplay.has("displayName")) {
+                                    listing.add(TextComponent.of(itemCount + ". ").color(TextColor.GOLD)
+                                            .append(TextComponent.of(tokenDisplay.get("displayName").getAsString()).color(TextColor.DARK_PURPLE))
+                                            .append(TextComponent.of(" (qty. " + balance.balance() + ")").color(TextColor.GREEN)));
+                                }
+                            }
+                        }
+                    }
 
                     sendMsg(sender, "");
                     if (itemCount == 0)

@@ -3,6 +3,8 @@ package com.enjin.ecmp.spigot_framework.wallet;
 import com.enjin.ecmp.spigot_framework.SpigotBootstrap;
 import com.enjin.enjincoin.sdk.model.service.balances.Balance;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,7 +21,23 @@ public class TokenWallet {
         });
     }
 
-    public Map<String, MutableBalance> getBalances() {
-        return balances;
+    public MutableBalance removeBalance(String id) {
+        return this.balances.remove(id);
+    }
+
+    public MutableBalance getBalance(String id) {
+        return this.balances.get(id);
+    }
+
+    public List<MutableBalance> getBalances() {
+        return new ArrayList<>(balances.values());
+    }
+
+    public Map<String, MutableBalance> getBalancesMap() {
+        return new HashMap<>(balances);
+    }
+
+    public boolean isEmpty() {
+        return this.balances.isEmpty();
     }
 }

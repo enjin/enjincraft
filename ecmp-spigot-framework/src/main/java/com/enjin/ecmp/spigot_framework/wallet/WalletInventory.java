@@ -39,8 +39,8 @@ public class WalletInventory {
         inventory.setMaxStackSize(MAX_STACK_SIZE);
 
         owner = main.getBootstrap().getPlayerManager().getPlayer(holder.getUniqueId());
-        owner.getWallet().setInventory(inventory);
-        WalletCheckoutManager manager = owner.getWallet().getCheckoutManager();
+//        owner.getWallet().setInventory(inventory); TODO Fix
+//        WalletCheckoutManager manager = owner.getWallet().getCheckoutManager();
 
         int index = 0;
         for (MutableBalance entry : tokens) {
@@ -69,11 +69,11 @@ public class WalletInventory {
                 ItemStack stack = new ItemStack(material);
                 // deduct checked out item counts from the balance available
                 int amount = entry.balance().intValue();
-                if (manager.accessCheckout().isEmpty()) {
-                    manager.populate(main, owner.getBukkitPlayer(), owner.getWallet());
-                }
-                if (manager.accessCheckout().get(entry.id()) != null)
-                    amount -= manager.accessCheckout().get(entry.id()).getAmount();
+//                if (manager.accessCheckout().isEmpty()) { // TODO Fix
+//                    manager.populate(main, owner.getBukkitPlayer(), owner.getWallet());
+//                }
+//                if (manager.accessCheckout().get(entry.id()) != null)
+//                    amount -= manager.accessCheckout().get(entry.id()).getAmount();
 
                 stack.setAmount(amount);
 
