@@ -11,7 +11,7 @@ public class LegacyWallet {
 
     private BasePlugin plugin;
 
-    private Map<String, Balance> tokenBalances = new ConcurrentHashMap<>();
+    private Map<String, MutableBalance> tokenBalances = new ConcurrentHashMap<>();
     private Inventory inventory = null;
     private static WalletCheckoutManager manager;
 
@@ -20,15 +20,15 @@ public class LegacyWallet {
         initializeCheckoutManager(uuid);
     }
 
-    public Map<String, Balance> getTokenBalances() {
+    public Map<String, MutableBalance> getTokenBalances() {
         return new HashMap<>(this.tokenBalances);
     }
 
-    public Balance addToken(Token token) {
-        return addToken(token.getTokenId(), new Balance(token));
+    public MutableBalance addToken(Token token) {
+        return addToken(token.getTokenId(), new MutableBalance(token));
     }
 
-    public Balance addToken(String id, Balance data) {
+    public MutableBalance addToken(String id, MutableBalance data) {
         // sync with checkout manager
         if (manager.accessCheckout().containsKey(id)) {
 //                data.setCheckedOut(manager.accessCheckout().get(id).getAmount());
@@ -44,15 +44,15 @@ public class LegacyWallet {
         this.inventory = inventory;
     }
 
-    public Balance removeToken(String id) {
+    public MutableBalance removeToken(String id) {
         return this.tokenBalances.remove(id);
     }
 
-    public Balance getToken(String id) {
+    public MutableBalance getToken(String id) {
         return this.tokenBalances.get(id);
     }
 
-    public List<Balance> getTokens() {
+    public List<MutableBalance> getTokens() {
         return new ArrayList<>(tokenBalances.values());
     }
 

@@ -1,5 +1,6 @@
 package com.enjin.ecmp.spigot_framework.wallet;
 
+import com.enjin.enjincoin.sdk.model.service.balances.Balance;
 import com.enjin.enjincoin.sdk.model.service.tokens.Token;
 
 import java.math.BigInteger;
@@ -10,28 +11,31 @@ import java.math.BigInteger;
  * to add and subtract from the balance and withdraw and
  * deposit tokens to be used in-game.
  */
-public class Balance {
+public class MutableBalance {
 
-    // ID of the token
     private final String tokenId;
-
-    // Balance contained in wallet
+    private final String tokenIndex;
     private Integer balance = 0;
-
-    // Amount withdrawn from balance
     private Integer withdrawn = 0;
 
-    public Balance(Token token) {
-        this.tokenId = token.getTokenId();
-        this.balance = token.getBalance();
+    public MutableBalance(Balance balance) {
+        this.tokenId = balance.getTokenId();
+        this.tokenIndex = balance.getTokenIndex();
+        this.balance = balance.getBalance();
     }
 
-    public String getTokenId() {
+    public String id() {
         return this.tokenId;
     }
 
+    public String index() {
+        return tokenIndex;
+    }
+
     public Integer balance() {
-        return this.balance;
+        synchronized (this.balance) {
+            return this.balance;
+        }
     }
 
     public Integer withdrawn() {

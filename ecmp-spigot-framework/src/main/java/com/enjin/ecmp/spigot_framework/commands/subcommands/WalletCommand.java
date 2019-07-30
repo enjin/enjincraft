@@ -2,10 +2,9 @@ package com.enjin.ecmp.spigot_framework.commands.subcommands;
 
 import com.enjin.ecmp.spigot_framework.BasePlugin;
 import com.enjin.ecmp.spigot_framework.player.PlayerManager;
-import com.enjin.enjincoin.sdk.model.service.identities.Identity;
 import com.enjin.ecmp.spigot_framework.wallet.WalletInventory;
 import com.enjin.ecmp.spigot_framework.player.MinecraftPlayer;
-import com.enjin.ecmp.spigot_framework.wallet.Balance;
+import com.enjin.ecmp.spigot_framework.wallet.MutableBalance;
 import com.enjin.ecmp.spigot_framework.util.MessageUtils;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
@@ -33,7 +32,7 @@ public class WalletCommand {
                 MinecraftPlayer minecraftPlayer = playerManager.getPlayer(player.getUniqueId());
                 minecraftPlayer.reloadUser();
 
-                List<Balance> tokens = minecraftPlayer.getWallet().getTokens();
+                List<MutableBalance> tokens = minecraftPlayer.getWallet().getTokens();
 
                 if (minecraftPlayer.isIdentityLoaded()) {
                     // we have an identity, but the wallet has not been linked yet.
