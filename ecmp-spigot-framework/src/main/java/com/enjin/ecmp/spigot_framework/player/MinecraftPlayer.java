@@ -49,10 +49,6 @@ public class MinecraftPlayer {
     private boolean userLoaded;
     private boolean identityLoaded;
 
-    // Scoreboard
-    private boolean showScoreboard;
-    private PlayerScoreboard scoreboard;
-
     // Trade Fields
     private List<MinecraftPlayer> sentTradeInvites = new ArrayList<>();
     private List<MinecraftPlayer> receivedTradeInvites = new ArrayList<>();
@@ -61,9 +57,6 @@ public class MinecraftPlayer {
     public MinecraftPlayer(BasePlugin plugin, Player player) {
         this.plugin = plugin;
         this.bukkitPlayer = player;
-        this.showScoreboard = true;
-        this.scoreboard = new PlayerScoreboard(this);
-        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> scoreboard.setEnabled(showScoreboard), 1);
     }
 
     public Player getBukkitPlayer() {
@@ -109,8 +102,6 @@ public class MinecraftPlayer {
             } else if (linkingCode == null && listening) {
                 service.unsubscribeToIdentity(identityId);
             }
-
-            scoreboard.update();
 
             Bukkit.getPluginManager().callEvent(new IdentityLoadedEvent(this));
         }
@@ -191,11 +182,6 @@ public class MinecraftPlayer {
 
     protected void cleanUp() {
         PlayerInitializationTask.cleanUp(bukkitPlayer.getUniqueId());
-
-        if (showScoreboard) {
-            scoreboard.setEnabled(false);
-        }
-
         plugin.getBootstrap().getNotificationsService().unsubscribeToIdentity(identityId);
         bukkitPlayer = null;
     }
@@ -206,15 +192,6 @@ public class MinecraftPlayer {
 
     public List<MinecraftPlayer> getReceivedTradeInvites() {
         return receivedTradeInvites;
-    }
-
-    public boolean showingScoreboard() {
-        return showScoreboard;
-    }
-
-    public void showScoreboard(boolean showScoreboard) {
-        this.showScoreboard = showScoreboard;
-        scoreboard.setEnabled(showScoreboard);
     }
 
     public TradeView getActiveTradeView() {

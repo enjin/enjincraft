@@ -29,8 +29,6 @@ public class RootCommand implements CommandExecutor {
 
     private final MenuCommand menu;
 
-    private final ScoreboardCommand sidebar;
-
     private final SendCommand send;
 
     private static Map<String, String> commands;
@@ -46,7 +44,6 @@ public class RootCommand implements CommandExecutor {
         this.help = new HelpCommand(plugin);
         this.trade = new TradeCommand(plugin);
         this.menu = new MenuCommand(plugin);
-        this.sidebar = new ScoreboardCommand(plugin);
         this.send = new SendCommand(plugin);
     }
 
@@ -89,9 +86,6 @@ public class RootCommand implements CommandExecutor {
                     break;
                 case "menu":
                     this.menu.execute(player, subArgs);
-                    break;
-                case "scoreboard":
-                    this.sidebar.execute(player, subArgs);
                     break;
                 case "send":
                     this.send.execute(player, subArgs);
