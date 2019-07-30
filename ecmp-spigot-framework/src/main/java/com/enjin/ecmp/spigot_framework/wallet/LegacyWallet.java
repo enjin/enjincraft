@@ -25,7 +25,8 @@ public class LegacyWallet {
     }
 
     public MutableBalance addToken(Token token) {
-        return addToken(token.getTokenId(), new MutableBalance(token));
+//        return addToken(token.getTokenId(), new MutableBalance(token));
+        return null;
     }
 
     public MutableBalance addToken(String id, MutableBalance data) {

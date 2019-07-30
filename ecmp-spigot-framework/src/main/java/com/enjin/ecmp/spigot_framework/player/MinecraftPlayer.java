@@ -2,9 +2,12 @@ package com.enjin.ecmp.spigot_framework.player;
 
 import com.enjin.ecmp.spigot_framework.BasePlugin;
 import com.enjin.ecmp.spigot_framework.wallet.LegacyWallet;
+import com.enjin.ecmp.spigot_framework.wallet.TokenWallet;
 import com.enjin.enjincoin.sdk.TrustedPlatformClient;
 import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
 import com.enjin.enjincoin.sdk.http.HttpResponse;
+import com.enjin.enjincoin.sdk.model.service.balances.Balance;
+import com.enjin.enjincoin.sdk.model.service.balances.GetBalances;
 import com.enjin.enjincoin.sdk.model.service.identities.Identity;
 import com.enjin.enjincoin.sdk.model.service.users.GetUsers;
 import com.enjin.enjincoin.sdk.model.service.users.User;
@@ -12,12 +15,15 @@ import com.enjin.ecmp.spigot_framework.event.IdentityLoadedEvent;
 import com.enjin.ecmp.spigot_framework.trade.TradeView;
 import com.enjin.ecmp.spigot_framework.util.MessageUtils;
 import com.enjin.enjincoin.sdk.service.notifications.NotificationsService;
+import com.enjin.java_commons.StringUtils;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -37,8 +43,10 @@ public class MinecraftPlayer {
     private String linkingCode;
     private BigDecimal enjBalance;
     private BigDecimal ethBalance;
+    private BigInteger enjAllowance;
+    private TokenWallet tokenWallet;
 
-    // Trusted Platform Data Fields
+    // dep
     private LegacyWallet wallet;
 
     // State Fields
@@ -77,7 +85,7 @@ public class MinecraftPlayer {
             Optional<Identity> optionalIdentity = user.getIdentities().stream()
                     .filter(identity -> identity.getAppId().intValue() == plugin.getBootstrap().getConfig().getAppId())
                     .findFirst();
-            optionalIdentity.ifPresent(this::loadIdentity);
+            optionalIdentity.ifPresent(identity -> identityId = identity.getId());
         }
     }
 
@@ -87,10 +95,14 @@ public class MinecraftPlayer {
             ethereumAddress = null;
             linkingCode = null;
             identityLoaded = false;
+            tokenWallet = null;
         } else {
             identityId = identity.getId();
             ethereumAddress = identity.getEthereumAddress();
             linkingCode = identity.getLinkingCode();
+            ethBalance = identity.getEthBalance();
+            enjBalance = identity.getEnjBalance();
+            enjAllowance = identity.getEnjAllowance();
             identityLoaded = true;
 
             wallet = new LegacyWallet(plugin, bukkitPlayer.getUniqueId());
@@ -110,16 +122,40 @@ public class MinecraftPlayer {
             Bukkit.getPluginManager().callEvent(new IdentityLoadedEvent(this));
         }
 
-//        if (identity.getLinkingCode() == null && (identity.getEnjAllowance() == null || identity.getEnjAllowance().doubleValue() <= 0.0)) {
-//            TextComponent text = TextComponent.builder()
-//                    .content("Before you can send or trade items with other players you must approve the enj " +
-//                            "request in your wallet app.")
-//                    .color(TextColor.GOLD)
-//                    .build();
-//            MessageUtils.sendMessage(getBukkitPlayer(), text);
-//        }
+        if (isLinked()) {
+            if (identity.getEnjAllowance() == null || identity.getEnjAllowance().doubleValue() <= 0.0) {
+                TextComponent text = TextComponent.builder()
+                        .content("Before you can send or trade items with other players you must approve the enj " +
+                                "request in your wallet app.")
+                        .color(TextColor.GOLD)
+                        .build();
+                MessageUtils.sendMessage(getBukkitPlayer(), text);
+            }
+
+            initWallet();
+        }
     }
 
+    public void initWallet() {
+        if (StringUtils.isEmpty(ethereumAddress)) return;
+
+        // populate wallet;
+        TrustedPlatformClient client = plugin.getBootstrap().getTrustedPlatformClient();
+        try {
+            HttpResponse<GraphQLResponse<List<Balance>>> networkResponse = client.getBalancesService()
+                    .getBalancesSync(new GetBalances().ethAddr(ethereumAddress));
+            if (networkResponse.isSuccess()) {
+                GraphQLResponse<List<Balance>> response = networkResponse.body();
+                if (response.isSuccess()) {
+                    List<Balance> balances = response.getData();
+                    tokenWallet = new TokenWallet(balances);
+                    plugin.getLogger().info(balances.toString());
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public void reloadUser() {
         TrustedPlatformClient client = plugin.getBootstrap().getTrustedPlatformClient();
@@ -224,7 +260,15 @@ public class MinecraftPlayer {
         return ethBalance;
     }
 
+    public BigInteger getEnjAllowance() {
+        return enjAllowance;
+    }
+
     public LegacyWallet getWallet() {
         return wallet;
+    }
+
+    public TokenWallet getTokenWallet() {
+        return tokenWallet;
     }
 }
