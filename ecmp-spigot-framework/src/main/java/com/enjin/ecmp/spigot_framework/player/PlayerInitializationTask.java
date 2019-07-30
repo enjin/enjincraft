@@ -24,13 +24,13 @@ public class PlayerInitializationTask extends BukkitRunnable {
     private static final Map<UUID, PlayerInitializationTask> PLAYER_TASKS = new ConcurrentHashMap<>();
 
     private BasePlugin plugin;
-    private MinecraftPlayer minecraftPlayer;
+    private EnjinCoinPlayer enjinCoinPlayer;
 
     private boolean inProgress = false;
 
-    protected PlayerInitializationTask(BasePlugin plugin, MinecraftPlayer minecraftPlayer) {
+    protected PlayerInitializationTask(BasePlugin plugin, EnjinCoinPlayer enjinCoinPlayer) {
         this.plugin = plugin;
-        this.minecraftPlayer = minecraftPlayer;
+        this.enjinCoinPlayer = enjinCoinPlayer;
     }
 
     @Override
@@ -41,26 +41,26 @@ public class PlayerInitializationTask extends BukkitRunnable {
 
         this.inProgress = true;
 
-        if (this.minecraftPlayer.getBukkitPlayer() == null || !this.minecraftPlayer.getBukkitPlayer().isOnline()) {
+        if (this.enjinCoinPlayer.getBukkitPlayer() == null || !this.enjinCoinPlayer.getBukkitPlayer().isOnline()) {
             cancel();
         } else {
             try {
-                if (!this.minecraftPlayer.isUserLoaded()) {
-                    User user = getUser(minecraftPlayer.getBukkitPlayer().getUniqueId());
+                if (!this.enjinCoinPlayer.isUserLoaded()) {
+                    User user = getUser(enjinCoinPlayer.getBukkitPlayer().getUniqueId());
                     if (user != null) {
                         // An existing user has been found or a new user has been created
-                        this.minecraftPlayer.loadUser(user);
+                        this.enjinCoinPlayer.loadUser(user);
                     }
                 }
 
-                if (this.minecraftPlayer.isUserLoaded() && !this.minecraftPlayer.isIdentityLoaded()) {
+                if (this.enjinCoinPlayer.isUserLoaded() && !this.enjinCoinPlayer.isIdentityLoaded()) {
                     Identity identity = getIdentity();
                     if (identity != null) {
                         // A new identity has been created
-                        this.minecraftPlayer.loadIdentity(identity);
+                        this.enjinCoinPlayer.loadIdentity(identity);
                         cancel();
                     }
-                } else if (this.minecraftPlayer.isLoaded() && !isCancelled()) {
+                } else if (this.enjinCoinPlayer.isLoaded() && !isCancelled()) {
                     cancel();
                 }
             } catch (IOException e) {
@@ -126,12 +126,12 @@ public class PlayerInitializationTask extends BukkitRunnable {
     private Identity getIdentity() throws IOException {
         Identity identity = null;
 
-        if (minecraftPlayer.getIdentityId() == null) {
+        if (enjinCoinPlayer.getIdentityId() == null) {
             identity = createIdentity();
         } else {
             TrustedPlatformClient client = plugin.getBootstrap().getTrustedPlatformClient();
             HttpResponse<GraphQLResponse<List<Identity>>> networkResponse = client.getIdentitiesService()
-                    .getIdentitiesSync(new GetIdentities().identityId(minecraftPlayer.getIdentityId()));
+                    .getIdentitiesSync(new GetIdentities().identityId(enjinCoinPlayer.getIdentityId()));
 
             if (networkResponse.isSuccess()) {
                 GraphQLResponse<List<Identity>> response = networkResponse.body();
@@ -155,7 +155,7 @@ public class PlayerInitializationTask extends BukkitRunnable {
         TrustedPlatformClient client = this.plugin.getBootstrap().getTrustedPlatformClient();
         // Create the Identity for the App ID and Player in question
         HttpResponse<GraphQLResponse<Identity>> networkResponse = client.getIdentitiesService()
-                .createIdentitySync(new CreateIdentity().userId(this.minecraftPlayer.getUserId()));
+                .createIdentitySync(new CreateIdentity().userId(this.enjinCoinPlayer.getUserId()));
 
         Identity identity = null;
 
@@ -169,10 +169,10 @@ public class PlayerInitializationTask extends BukkitRunnable {
         return identity;
     }
 
-    public static void create(BasePlugin plugin, MinecraftPlayer minecraftPlayer) {
-        cleanUp(minecraftPlayer.getBukkitPlayer().getUniqueId());
+    public static void create(BasePlugin plugin, EnjinCoinPlayer enjinCoinPlayer) {
+        cleanUp(enjinCoinPlayer.getBukkitPlayer().getUniqueId());
 
-        PlayerInitializationTask task = new PlayerInitializationTask(plugin, minecraftPlayer);
+        PlayerInitializationTask task = new PlayerInitializationTask(plugin, enjinCoinPlayer);
         // Note: TASK_PERIOD is measured in server ticks 20 ticks / second.
         task.runTaskTimerAsynchronously(plugin, TASK_DELAY, TASK_PERIOD);
     }

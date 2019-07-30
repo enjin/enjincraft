@@ -1,7 +1,7 @@
 package com.enjin.ecmp.spigot_framework.listeners;
 
 import com.enjin.ecmp.spigot_framework.BasePlugin;
-import com.enjin.ecmp.spigot_framework.player.MinecraftPlayer;
+import com.enjin.ecmp.spigot_framework.player.EnjinCoinPlayer;
 import com.enjin.ecmp.spigot_framework.util.TokenUtils;
 import com.enjin.minecraft_commons.spigot.nbt.NBTItem;
 import org.bukkit.ChatColor;
@@ -80,7 +80,7 @@ public class InventoryListener implements Listener {
         }
 
         Player player = (Player) event.getClickedInventory().getHolder();
-        MinecraftPlayer mcplayer = this.plugin.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId());
+        EnjinCoinPlayer mcplayer = this.plugin.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId());
 
 //        WalletCheckoutManager checkout = mcplayer.getWallet().getCheckoutManager(); // TODO Fix
 //
@@ -213,7 +213,7 @@ public class InventoryListener implements Listener {
     public void onPlayerDeath(PlayerDeathEvent event) {
         if (!event.getKeepInventory()) {
             List<ItemStack> drops = event.getDrops();
-            MinecraftPlayer player = plugin.getBootstrap().getPlayerManager().getPlayer(event.getEntity().getUniqueId());
+            EnjinCoinPlayer player = plugin.getBootstrap().getPlayerManager().getPlayer(event.getEntity().getUniqueId());
 
             for (int i = drops.size() - 1; i >= 0; i--) {
                 ItemStack stack = drops.get(i);
@@ -228,7 +228,7 @@ public class InventoryListener implements Listener {
     }
 
     private void returnItemStack(Player player, ItemStack stack) {
-        MinecraftPlayer mcplayer = this.plugin.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId());
+        EnjinCoinPlayer mcplayer = this.plugin.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId());
 //        WalletCheckoutManager manager = mcplayer.getWallet().getCheckoutManager(); TODO Fix
 //
 //        manager.returnItem(stack);

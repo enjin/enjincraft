@@ -1,7 +1,7 @@
 package com.enjin.ecmp.spigot_framework.trade;
 
 import com.enjin.ecmp.spigot_framework.BasePlugin;
-import com.enjin.ecmp.spigot_framework.player.MinecraftPlayer;
+import com.enjin.ecmp.spigot_framework.player.EnjinCoinPlayer;
 import com.enjin.ecmp.spigot_framework.util.MessageUtils;
 import com.enjin.ecmp.spigot_framework.util.TokenUtils;
 import com.enjin.minecraft_commons.spigot.ui.Component;
@@ -33,8 +33,8 @@ public class TradeView extends ChestMenu {
 
     private BasePlugin plugin;
 
-    private MinecraftPlayer viewer;
-    private MinecraftPlayer other;
+    private EnjinCoinPlayer viewer;
+    private EnjinCoinPlayer other;
 
     private SimpleMenuComponent viewerItemsComponent;
     private SimpleMenuComponent viewerStatusComponent;
@@ -49,7 +49,7 @@ public class TradeView extends ChestMenu {
     private ItemStack readyItem = createReadyItemStack();
     private ItemStack unreadyItem = createUnreadyItemStack();
 
-    public TradeView(BasePlugin plugin, MinecraftPlayer viewer, MinecraftPlayer other) {
+    public TradeView(BasePlugin plugin, EnjinCoinPlayer viewer, EnjinCoinPlayer other) {
         super("Trade", 6);
         this.plugin = plugin;
         this.viewer = viewer;
@@ -186,11 +186,11 @@ public class TradeView extends ChestMenu {
         addComponent(Position.of(0, 4), horizontalBarrier);
     }
 
-    public MinecraftPlayer getViewer() {
+    public EnjinCoinPlayer getViewer() {
         return viewer;
     }
 
-    public MinecraftPlayer getOther() {
+    public EnjinCoinPlayer getOther() {
         return other;
     }
 

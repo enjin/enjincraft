@@ -6,7 +6,7 @@ import com.enjin.enjincoin.sdk.http.HttpResponse;
 import com.enjin.enjincoin.sdk.model.service.identities.DeleteIdentity;
 import com.enjin.enjincoin.sdk.model.service.identities.Identity;
 import com.enjin.enjincoin.sdk.service.identities.IdentitiesService;
-import com.enjin.ecmp.spigot_framework.player.MinecraftPlayer;
+import com.enjin.ecmp.spigot_framework.player.EnjinCoinPlayer;
 import com.enjin.ecmp.spigot_framework.util.MessageUtils;
 import com.enjin.ecmp.spigot_framework.util.TokenUtils;
 import com.enjin.ecmp.spigot_framework.util.UuidUtils;
@@ -52,18 +52,18 @@ public class UnlinkCommand {
         }
 
         if (uuid != null) {
-            MinecraftPlayer minecraftPlayer = this.plugin.getBootstrap().getPlayerManager().getPlayer(uuid);
-            if (minecraftPlayer != null) {
-                if (minecraftPlayer.isLoaded()) {
-                    if (!minecraftPlayer.isLinked()) {
-                        if (minecraftPlayer.getLinkingCode() != null)
-                            Bukkit.getScheduler().runTask(plugin, () -> handleUnlinked(sender, minecraftPlayer.getLinkingCode()));
+            EnjinCoinPlayer enjinCoinPlayer = this.plugin.getBootstrap().getPlayerManager().getPlayer(uuid);
+            if (enjinCoinPlayer != null) {
+                if (enjinCoinPlayer.isLoaded()) {
+                    if (!enjinCoinPlayer.isLinked()) {
+                        if (enjinCoinPlayer.getLinkingCode() != null)
+                            Bukkit.getScheduler().runTask(plugin, () -> handleUnlinked(sender, enjinCoinPlayer.getLinkingCode()));
                     } else {
                         // reload the identity for the existing user post unlink.
                         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
                             try {
-                                handleUnlinking(sender, minecraftPlayer.getIdentityId());
-                                minecraftPlayer.reloadUser();
+                                handleUnlinking(sender, enjinCoinPlayer.getIdentityId());
+                                enjinCoinPlayer.reloadUser();
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }

@@ -2,9 +2,7 @@ package com.enjin.ecmp.spigot_framework.commands.subcommands;
 
 import com.enjin.ecmp.spigot_framework.BasePlugin;
 import com.enjin.ecmp.spigot_framework.wallet.MutableBalance;
-import com.enjin.enjincoin.sdk.model.service.balances.Balance;
-import com.enjin.enjincoin.sdk.model.service.identities.Identity;
-import com.enjin.ecmp.spigot_framework.player.MinecraftPlayer;
+import com.enjin.ecmp.spigot_framework.player.EnjinCoinPlayer;
 import com.enjin.ecmp.spigot_framework.util.MessageUtils;
 import com.google.gson.JsonObject;
 import net.kyori.text.TextComponent;
@@ -30,7 +28,7 @@ public class BalanceCommand {
         if (sender instanceof Player) {
             Player player = (Player) sender;
 
-            MinecraftPlayer mcPlayer = this.plugin.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId());
+            EnjinCoinPlayer mcPlayer = this.plugin.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId());
             // reload/refresh user info
 
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {

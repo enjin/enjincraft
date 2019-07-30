@@ -11,7 +11,7 @@ import com.enjin.enjincoin.sdk.model.service.requests.Transaction;
 import com.enjin.enjincoin.sdk.model.service.requests.data.SendTokenData;
 import com.enjin.enjincoin.sdk.service.identities.IdentitiesService;
 import com.enjin.enjincoin.sdk.service.requests.RequestsService;
-import com.enjin.ecmp.spigot_framework.player.MinecraftPlayer;
+import com.enjin.ecmp.spigot_framework.player.EnjinCoinPlayer;
 import com.enjin.ecmp.spigot_framework.util.MessageUtils;
 import com.enjin.ecmp.spigot_framework.util.TokenUtils;
 import net.kyori.text.TextComponent;
@@ -33,7 +33,7 @@ public class SendCommand {
 
     public void execute(Player sender, String[] args) {
         PlayerManager playerManager = this.plugin.getBootstrap().getPlayerManager();
-        MinecraftPlayer senderMP = playerManager.getPlayer(sender.getUniqueId());
+        EnjinCoinPlayer senderMP = playerManager.getPlayer(sender.getUniqueId());
 
         if (args.length > 0) {
             if (!senderMP.isLinked()) {
@@ -43,7 +43,7 @@ public class SendCommand {
 
             Player target = Bukkit.getPlayer(args[0]);
             if (target != null && target != sender) {
-                MinecraftPlayer targetMP = playerManager.getPlayer(target.getUniqueId());
+                EnjinCoinPlayer targetMP = playerManager.getPlayer(target.getUniqueId());
                 if (!targetMP.isLinked()) {
                     MessageUtils.sendMessage(sender, TextComponent.of("That player has not linked a wallet."));
                     return;

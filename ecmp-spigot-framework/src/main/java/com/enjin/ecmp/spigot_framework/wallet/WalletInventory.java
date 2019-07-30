@@ -1,7 +1,7 @@
 package com.enjin.ecmp.spigot_framework.wallet;
 
 import com.enjin.ecmp.spigot_framework.BasePlugin;
-import com.enjin.ecmp.spigot_framework.player.MinecraftPlayer;
+import com.enjin.ecmp.spigot_framework.player.EnjinCoinPlayer;
 import com.enjin.minecraft_commons.spigot.nbt.NBTItem;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -22,7 +22,7 @@ import java.util.Map;
 
 public class WalletInventory {
 
-    public static MinecraftPlayer owner;
+    public static EnjinCoinPlayer owner;
     public static Map<String, ItemStack> items;
 
     private static final int MAX_STACK_SIZE = 64;

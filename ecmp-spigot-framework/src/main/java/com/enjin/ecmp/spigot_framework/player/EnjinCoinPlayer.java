@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class MinecraftPlayer {
+public class EnjinCoinPlayer {
 
     // Bukkit Fields
     private BasePlugin plugin;
@@ -50,11 +50,11 @@ public class MinecraftPlayer {
     private boolean identityLoaded;
 
     // Trade Fields
-    private List<MinecraftPlayer> sentTradeInvites = new ArrayList<>();
-    private List<MinecraftPlayer> receivedTradeInvites = new ArrayList<>();
+    private List<EnjinCoinPlayer> sentTradeInvites = new ArrayList<>();
+    private List<EnjinCoinPlayer> receivedTradeInvites = new ArrayList<>();
     private TradeView activeTradeView;
 
-    public MinecraftPlayer(BasePlugin plugin, Player player) {
+    public EnjinCoinPlayer(BasePlugin plugin, Player player) {
         this.plugin = plugin;
         this.bukkitPlayer = player;
     }
@@ -186,11 +186,11 @@ public class MinecraftPlayer {
         bukkitPlayer = null;
     }
 
-    public List<MinecraftPlayer> getSentTradeInvites() {
+    public List<EnjinCoinPlayer> getSentTradeInvites() {
         return sentTradeInvites;
     }
 
-    public List<MinecraftPlayer> getReceivedTradeInvites() {
+    public List<EnjinCoinPlayer> getReceivedTradeInvites() {
         return receivedTradeInvites;
     }
 
