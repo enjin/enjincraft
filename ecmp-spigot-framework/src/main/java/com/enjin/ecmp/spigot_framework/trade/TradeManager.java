@@ -12,7 +12,7 @@ import com.enjin.enjincoin.sdk.model.service.requests.data.CompleteTradeData;
 import com.enjin.enjincoin.sdk.model.service.requests.data.CreateTradeData;
 import com.enjin.enjincoin.sdk.model.service.requests.data.TokenValueData;
 import com.enjin.enjincoin.sdk.service.requests.RequestsService;
-import com.enjin.ecmp.spigot_framework.event.MinecraftPlayerQuitEvent;
+import com.enjin.ecmp.spigot_framework.event.EnjinCoinPlayerQuitEvent;
 import com.enjin.ecmp.spigot_framework.util.MessageUtils;
 import com.enjin.minecraft_commons.spigot.nbt.NBTItem;
 import net.kyori.text.TextComponent;
@@ -280,7 +280,7 @@ public class TradeManager implements Listener {
     }
 
     @EventHandler
-    public void onMinecraftPlayerQuit(MinecraftPlayerQuitEvent event) {
+    public void onMinecraftPlayerQuit(EnjinCoinPlayerQuitEvent event) {
         EnjinCoinPlayer player = event.getPlayer();
 
         player.getSentTradeInvites().forEach(other -> other.getReceivedTradeInvites().remove(player));
