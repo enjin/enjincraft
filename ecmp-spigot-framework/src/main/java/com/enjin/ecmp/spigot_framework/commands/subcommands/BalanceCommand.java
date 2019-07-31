@@ -1,6 +1,7 @@
 package com.enjin.ecmp.spigot_framework.commands.subcommands;
 
 import com.enjin.ecmp.spigot_framework.BasePlugin;
+import com.enjin.ecmp.spigot_framework.TokenDefinition;
 import com.enjin.ecmp.spigot_framework.wallet.MutableBalance;
 import com.enjin.ecmp.spigot_framework.player.EnjinCoinPlayer;
 import com.enjin.ecmp.spigot_framework.util.MessageUtils;
@@ -58,22 +59,17 @@ public class BalanceCommand {
                     if (ethBalance != null)
                         sendMsg(sender, ChatColor.GREEN + "[ " + ethBalance + " ETH ]");
 
-                    JsonObject tokensDisplayConfig = plugin.getBootstrap().getConfig().getRoot().get("tokens").getAsJsonObject();
                     int itemCount = 0;
                     List<TextComponent> listing = new ArrayList<>();
                     if (mcPlayer.isLinked()) {
                         List<MutableBalance> balances = mcPlayer.getTokenWallet().getBalances();
                         for (MutableBalance balance : balances) {
-                            JsonObject tokenDisplay = tokensDisplayConfig.has(balance.id())
-                                    ? tokensDisplayConfig.get(balance.id()).getAsJsonObject()
-                                    : null;
-                            if (tokenDisplay != null && balance != null && balance.balance() > 0) {
+                            TokenDefinition def = plugin.getBootstrap().getConfig().getTokens().get(balance.id());
+                            if (def != null && balance != null && balance.balance() > 0) {
                                 itemCount++;
-                                if (tokenDisplay != null && tokenDisplay.has("displayName")) {
-                                    listing.add(TextComponent.of(itemCount + ". ").color(TextColor.GOLD)
-                                            .append(TextComponent.of(tokenDisplay.get("displayName").getAsString()).color(TextColor.DARK_PURPLE))
-                                            .append(TextComponent.of(" (qty. " + balance.balance() + ")").color(TextColor.GREEN)));
-                                }
+                                listing.add(TextComponent.of(itemCount + ". ").color(TextColor.GOLD)
+                                        .append(TextComponent.of(def.getDisplayName()).color(TextColor.DARK_PURPLE))
+                                        .append(TextComponent.of(" (qty. " + balance.balance() + ")").color(TextColor.GREEN)));
                             }
                         }
                     }
