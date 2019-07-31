@@ -1,20 +1,17 @@
 package com.enjin.ecmp.spigot_framework.listeners;
 
 import com.enjin.ecmp.spigot_framework.BasePlugin;
-import com.enjin.ecmp.spigot_framework.Messages;
 import com.enjin.ecmp.spigot_framework.player.PlayerManager;
+import com.enjin.enjincoin.sdk.model.service.notifications.Event;
+import com.enjin.enjincoin.sdk.model.service.notifications.EventData;
 import com.enjin.enjincoin.sdk.model.service.notifications.NotificationEvent;
 import com.enjin.enjincoin.sdk.model.service.notifications.NotificationType;
 import com.enjin.ecmp.spigot_framework.player.EnjinCoinPlayer;
 import com.enjin.ecmp.spigot_framework.trade.TradeManager;
-import com.google.gson.*;
+import com.enjin.java_commons.StringUtils;
 import org.bukkit.Bukkit;
 
-import java.math.BigInteger;
-
 public class NotificationListener implements com.enjin.enjincoin.sdk.service.notifications.NotificationListener {
-
-    private Gson gson = new GsonBuilder().create();
 
     private BasePlugin plugin;
 
@@ -32,10 +29,10 @@ public class NotificationListener implements com.enjin.enjincoin.sdk.service.not
 
             switch (eventType) {
                 case TX_EXECUTED:
-                    onTxExecuted(event);
+                    onTxExecuted(event.getEvent());
                     break;
                 case IDENTITY_LINKED:
-                    onIdentityUpdated(event);
+                    onIdentityUpdated(event.getEvent());
                     break;
                 default:
                     break;
@@ -45,44 +42,34 @@ public class NotificationListener implements com.enjin.enjincoin.sdk.service.not
         }
     }
 
-    private void onTxExecuted(NotificationEvent event) {
-        JsonObject source = gson.fromJson(event.getData(), JsonObject.class);
-        JsonObject data = source.get("data").getAsJsonObject();
+    private void onTxExecuted(Event event) {
+        EventData data = event.getData();
+        String type = event.getEventType();
 
-        if (data == null || !data.isJsonObject()) return;
+        if (StringUtils.isEmpty(type)) return;
 
-        if (data.has("event")) {
-            String txEventType = data.get("event").getAsString();
 
-            if (txEventType == null) return;
-
-            switch (txEventType) {
-                case "CreateTrade":
-                    onCreateTrade(data);
-                    break;
-                case "CompleteTrade":
-                    onCompleteTrade(data);
-                    break;
-                case "Transfer":
-                    onTransfer(data);
-                    break;
-                default:
-                    break;
-            }
+        switch (type) {
+            case "CreateTrade":
+                onCreateTrade(data);
+                break;
+            case "CompleteTrade":
+                onCompleteTrade(data);
+                break;
+            case "Transfer":
+                onTransfer(data);
+                break;
+            default:
+                break;
         }
     }
 
-    private void onIdentityUpdated(NotificationEvent event) {
-        JsonObject source = gson.fromJson(event.getData(), JsonObject.class);
-        JsonObject data = source.get("data").getAsJsonObject();
+    private void onIdentityUpdated(Event event) {
+        EventData data = event.getData();
 
-        if (data.has("id")) {
-            Integer id = data.get("id").getAsInt();
-
-            if (id == null) return;
-
+        if (data.getId() != null) {
             PlayerManager playerManager = this.plugin.getBootstrap().getPlayerManager();
-            EnjinCoinPlayer mcPlayer = playerManager.getPlayer(id);
+            EnjinCoinPlayer mcPlayer = playerManager.getPlayer(data.getId());
 
             if (mcPlayer != null) {
                 Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> mcPlayer.reloadIdentity());
@@ -90,64 +77,41 @@ public class NotificationListener implements com.enjin.enjincoin.sdk.service.not
         }
     }
 
-    private void onCreateTrade(JsonObject data) {
-        String requestId = data.get("transaction_id").getAsString();
-        String tradeId = data.get("param1").getAsString();
+    private void onCreateTrade(EventData data) {
+        String requestId = data.getTransactionId();
+        String tradeId = data.getParam1();
+        if (StringUtils.isEmpty(requestId) || StringUtils.isEmpty(tradeId)) return;
         TradeManager manager = this.plugin.getBootstrap().getTradeManager();
         manager.submitCompleteTrade(requestId, tradeId);
     }
 
-    private void onCompleteTrade(JsonObject data) {
-        String requestId = data.get("transaction_id").getAsString();
+    private void onCompleteTrade(EventData data) {
+        String requestId = data.getTransactionId();
+        if (StringUtils.isEmpty(requestId)) return;
         TradeManager manager = this.plugin.getBootstrap().getTradeManager();
         manager.completeTrade(requestId);
     }
 
-    private void onTransfer(JsonObject data) {
-        if (!isObject(data.get("token"))) return;
+    private void onTransfer(EventData data) {
+        String fromEthAddr = data.getParam1();
+        String toEthAddr = data.getParam2();
 
-        JsonObject token = data.get("token").getAsJsonObject();
+        if (StringUtils.isEmpty(fromEthAddr) || StringUtils.isEmpty(toEthAddr)) return;
 
-        JsonElement fromEthAddr = token.get("param1");
-        JsonElement toEthAddr = token.get("param2");
-
-        if (!isPrimitive(fromEthAddr) || !isPrimitive(toEthAddr)) return;
-
-        String name = getAsString(token.get("name"));
-        String amount = getAsString(data.get("param4"));
+        String amount = data.getParam4();
 
         PlayerManager playerManager = this.plugin.getBootstrap().getPlayerManager();
-        EnjinCoinPlayer fromMcPlayer = playerManager.getPlayer(fromEthAddr.getAsString());
-        EnjinCoinPlayer toMcPlayer = playerManager.getPlayer(toEthAddr.getAsString());
+        EnjinCoinPlayer fromMcPlayer = playerManager.getPlayer(fromEthAddr);
+        EnjinCoinPlayer toMcPlayer = playerManager.getPlayer(toEthAddr);
 
         if (fromMcPlayer != null) {
-            Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> fromMcPlayer.reloadUser());
-            Messages.tokenSent(fromMcPlayer.getBukkitPlayer(), amount, name);
+            Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> fromMcPlayer.reloadIdentity());
+//            Messages.tokenSent(fromMcPlayer.getBukkitPlayer(), amount, name);
         }
 
         if (toMcPlayer != null) {
-            Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> toMcPlayer.reloadUser());
-            Messages.tokenReceived(toMcPlayer.getBukkitPlayer(), amount, name);
-        }
-    }
-
-    private boolean isNull(JsonElement element) {
-        return element == null || element.isJsonNull();
-    }
-
-    private boolean isObject(JsonElement element) {
-        return !isNull(element) && element.isJsonObject();
-    }
-
-    private boolean isPrimitive(JsonElement element) {
-        return !isNull(element) && element.isJsonPrimitive();
-    }
-
-    private String getAsString(JsonElement element) {
-        if (!isNull(element)) {
-            return element.getAsString();
-        } else {
-            return "n/a";
+            Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> toMcPlayer.reloadIdentity());
+//            Messages.tokenReceived(toMcPlayer.getBukkitPlayer(), amount, name);
         }
     }
 
