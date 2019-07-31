@@ -30,6 +30,14 @@ public class WalletCommand {
                 PlayerManager playerManager = this.plugin.getBootstrap().getPlayerManager();
                 EnjinCoinPlayer enjinCoinPlayer = playerManager.getPlayer(player.getUniqueId());
 
+                if (!enjinCoinPlayer.isLinked()) {
+                    TextComponent text = TextComponent.of("You have not linked a wallet to your account.").color(TextColor.RED);
+                    MessageUtils.sendMessage(sender, text);
+                    text = TextComponent.of("Please type '/enj link' to link your account to your Enjin Wallet.").color(TextColor.RED);
+                    MessageUtils.sendMessage(sender, text);
+                    return;
+                }
+
                 List<MutableBalance> tokens = enjinCoinPlayer.getTokenWallet().getBalances();
 
                 if (enjinCoinPlayer.isIdentityLoaded()) {
