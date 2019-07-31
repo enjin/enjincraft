@@ -2,6 +2,7 @@ package com.enjin.ecmp.spigot_framework;
 
 import com.enjin.ecmp.spigot_framework.commands.RootCommand;
 import com.enjin.ecmp.spigot_framework.listeners.NotificationListener;
+import com.enjin.ecmp.spigot_framework.listeners.TokenItemListener;
 import com.enjin.ecmp.spigot_framework.player.PlayerManager;
 import com.enjin.ecmp.spigot_framework.trade.TradeManager;
 import com.enjin.enjincoin.sdk.TrustedPlatformClient;
@@ -121,6 +122,7 @@ public class SpigotBootstrap extends PluginBootstrap {
         // Register Listeners
         Bukkit.getPluginManager().registerEvents(playerManager, plugin);
         Bukkit.getPluginManager().registerEvents(tradeManager, plugin);
+        Bukkit.getPluginManager().registerEvents(new TokenItemListener(this), plugin);
 
         // Register Commands
         plugin.getCommand("enj").setExecutor(new RootCommand(plugin));
