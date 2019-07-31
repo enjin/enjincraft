@@ -12,23 +12,28 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.enjin.ecmp.spigot_framework.ConfigKeys.*;
+
 public class TokenDefinition {
 
     public static final String NBT_ID = "tokenID";
 
     private String id;
+    private String displayName;
     private NBTItem nbtItemStack;
 
     public TokenDefinition(String id, JsonObject json) {
         this.id = id;
+        this.displayName = json.has(ITEM_DISPLAY_NAME)
+                ? json.get(ITEM_DISPLAY_NAME).getAsString() : id;
         setItemStack(json);
     }
 
     protected void setItemStack(JsonObject json) {
-        if (!json.has("material"))
+        if (!json.has(ITEM_MATERIAL))
             throw new RuntimeException("Token definition is missing the material field.");
 
-        String mat = json.get("material").getAsString();
+        String mat = json.get(ITEM_MATERIAL).getAsString();
         Material material = Material.getMaterial(mat);
         // If the material returned null try getting the material using legacy names
         if (material == null) material = Material.getMaterial(mat, true);
@@ -38,15 +43,15 @@ public class TokenDefinition {
         ItemStack itemStack = new ItemStack(material);
         ItemMeta meta = itemStack.getItemMeta();
 
-        if (json.has("displayName"))
-            meta.setDisplayName(ChatColor.DARK_PURPLE + json.get("displayName").getAsString());
+        if (json.has(ITEM_DISPLAY_NAME))
+            meta.setDisplayName(ChatColor.DARK_PURPLE + json.get(ITEM_DISPLAY_NAME).getAsString());
         else
             meta.setDisplayName(ChatColor.DARK_PURPLE + "Token #" + id);
 
-        if (json.has("lore")) {
+        if (json.has(ITEM_LORE)) {
             List<String> lore = new ArrayList<>();
 
-            JsonElement loreElem = json.get("lore");
+            JsonElement loreElem = json.get(ITEM_LORE);
             if (loreElem.isJsonArray()) {
                 JsonArray loreArray = loreElem.getAsJsonArray();
                 for (JsonElement line : loreArray) {
@@ -63,6 +68,14 @@ public class TokenDefinition {
 
         nbtItemStack = new NBTItem(itemStack);
         nbtItemStack.setString(NBT_ID, id);
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getDisplayName() {
+        return displayName;
     }
 
     public ItemStack getItemStackInstance() {
