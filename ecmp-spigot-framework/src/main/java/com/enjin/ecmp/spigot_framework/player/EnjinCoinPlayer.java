@@ -1,6 +1,8 @@
 package com.enjin.ecmp.spigot_framework.player;
 
 import com.enjin.ecmp.spigot_framework.BasePlugin;
+import com.enjin.ecmp.spigot_framework.util.TokenUtils;
+import com.enjin.ecmp.spigot_framework.wallet.MutableBalance;
 import com.enjin.ecmp.spigot_framework.wallet.TokenWallet;
 import com.enjin.enjincoin.sdk.TrustedPlatformClient;
 import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
@@ -19,6 +21,8 @@ import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -133,6 +137,25 @@ public class EnjinCoinPlayer {
                 if (response.isSuccess()) {
                     List<Balance> balances = response.getData();
                     tokenWallet = new TokenWallet(plugin.getBootstrap(), balances);
+                    PlayerInventory inventory = bukkitPlayer.getInventory();
+                    for (int i = inventory.getSize() - 1; i >= 0; i--) {
+                        ItemStack is = inventory.getItem(i);
+                        String id = TokenUtils.getTokenID(is);
+                        if (!StringUtils.isEmpty(id)) {
+                            MutableBalance balance = tokenWallet.getBalance(id);
+                            if (balance != null) {
+                                if (balance.amountAvailableForWithdrawal() == 0) {
+                                    inventory.clear(i);
+                                } else {
+                                    if (balance.amountAvailableForWithdrawal() < is.getAmount()) {
+                                        is.setAmount(balance.amountAvailableForWithdrawal());
+                                    }
+
+                                    balance.withdraw(is.getAmount());
+                                }
+                            }
+                        }
+                    }
                 }
             }
         } catch (IOException e) {
