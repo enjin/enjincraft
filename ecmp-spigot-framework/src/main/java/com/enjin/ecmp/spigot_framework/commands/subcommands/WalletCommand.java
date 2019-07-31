@@ -2,7 +2,6 @@ package com.enjin.ecmp.spigot_framework.commands.subcommands;
 
 import com.enjin.ecmp.spigot_framework.BasePlugin;
 import com.enjin.ecmp.spigot_framework.player.PlayerManager;
-import com.enjin.ecmp.spigot_framework.wallet.LegacyWalletInventory;
 import com.enjin.ecmp.spigot_framework.player.EnjinCoinPlayer;
 import com.enjin.ecmp.spigot_framework.wallet.MutableBalance;
 import com.enjin.ecmp.spigot_framework.util.MessageUtils;
@@ -12,7 +11,6 @@ import net.kyori.text.format.TextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 
 import java.util.List;
 
