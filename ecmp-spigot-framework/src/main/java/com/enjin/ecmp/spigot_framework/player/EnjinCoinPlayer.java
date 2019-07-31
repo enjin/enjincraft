@@ -9,6 +9,7 @@ import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
 import com.enjin.enjincoin.sdk.http.HttpResponse;
 import com.enjin.enjincoin.sdk.model.service.balances.Balance;
 import com.enjin.enjincoin.sdk.model.service.balances.GetBalances;
+import com.enjin.enjincoin.sdk.model.service.identities.GetIdentities;
 import com.enjin.enjincoin.sdk.model.service.identities.Identity;
 import com.enjin.enjincoin.sdk.model.service.users.GetUsers;
 import com.enjin.enjincoin.sdk.model.service.users.User;
@@ -88,6 +89,9 @@ public class EnjinCoinPlayer {
             ethereumAddress = null;
             linkingCode = null;
             identityLoaded = false;
+            ethBalance = null;
+            enjBalance = null;
+            enjAllowance = null;
             tokenWallet = null;
         } else {
             identityId = identity.getId();
@@ -183,6 +187,30 @@ public class EnjinCoinPlayer {
 
             loadUser(user);
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void reloadIdentity() {
+        TrustedPlatformClient client = plugin.getBootstrap().getTrustedPlatformClient();
+
+        try {
+            HttpResponse<GraphQLResponse<List<Identity>>> networkResponse = client.getIdentitiesService()
+                    .getIdentitiesSync(new GetIdentities().identityId(identityId));
+
+            Identity identity = null;
+            if (networkResponse.isSuccess()) {
+                GraphQLResponse<List<Identity>> response = networkResponse.body();
+                if (response.isSuccess()) {
+                    List<Identity> data = response.getData();
+                    if (!data.isEmpty()) {
+                        identity = data.get(0);
+                    }
+                }
+            }
+
+            loadIdentity(identity);
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

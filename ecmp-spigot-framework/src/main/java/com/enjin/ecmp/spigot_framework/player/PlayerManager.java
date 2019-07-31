@@ -61,7 +61,7 @@ public class PlayerManager implements Listener {
                 .findFirst().orElse(null);
     }
 
-    public EnjinCoinPlayer getPlayer(BigInteger identityId) {
+    public EnjinCoinPlayer getPlayer(Integer identityId) {
         if (identityId == null) throw new NullPointerException("identityId must not be null");
         return this.players.values().stream()
                 .filter(player -> player.getIdentityId() != null

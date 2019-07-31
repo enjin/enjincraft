@@ -63,7 +63,7 @@ public class UnlinkCommand {
                         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
                             try {
                                 handleUnlinking(sender, enjinCoinPlayer.getIdentityId());
-                                enjinCoinPlayer.reloadUser();
+                                enjinCoinPlayer.reloadIdentity();
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
