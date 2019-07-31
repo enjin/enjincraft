@@ -7,18 +7,23 @@ import com.enjin.minecraft_commons.spigot.ui.Dimension;
 import com.enjin.minecraft_commons.spigot.ui.Position;
 import com.enjin.minecraft_commons.spigot.ui.menu.ChestMenu;
 import com.enjin.minecraft_commons.spigot.ui.menu.component.SimpleMenuComponent;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 
 public class TokenWalletView extends ChestMenu {
 
+    public static final String WALLET_VIEW_NAME = "Enjin Wallet";
+
     private BasePlugin plugin;
     private EnjinCoinPlayer owner;
 
     public TokenWalletView(BasePlugin plugin, EnjinCoinPlayer owner) {
-        super("Wallet", 6);
+        super(ChatColor.DARK_PURPLE + WALLET_VIEW_NAME, 6);
         this.plugin = plugin;
         this.owner = owner;
         init();
@@ -57,6 +62,18 @@ public class TokenWalletView extends ChestMenu {
 
             index++;
         }
+    }
+
+    public static boolean isViewingWallet(Player player) {
+        if (player != null) {
+            InventoryView view = player.getOpenInventory();
+
+            if (view != null) {
+                return ChatColor.stripColor(view.getTitle()).equalsIgnoreCase(TokenWalletView.WALLET_VIEW_NAME);
+            }
+        }
+
+        return false;
     }
 
 }
