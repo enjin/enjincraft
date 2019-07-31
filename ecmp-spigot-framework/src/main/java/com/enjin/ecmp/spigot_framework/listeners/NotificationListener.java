@@ -77,13 +77,15 @@ public class NotificationListener implements com.enjin.enjincoin.sdk.service.not
         JsonObject data = source.get("data").getAsJsonObject();
 
         if (data.has("id")) {
-            BigInteger id = new BigInteger(data.get("id").getAsString());
+            Integer id = data.get("id").getAsInt();
+
+            if (id == null) return;
 
             PlayerManager playerManager = this.plugin.getBootstrap().getPlayerManager();
             EnjinCoinPlayer mcPlayer = playerManager.getPlayer(id);
 
             if (mcPlayer != null) {
-                Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> mcPlayer.reloadUser());
+                Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> mcPlayer.reloadIdentity());
             }
         }
     }
