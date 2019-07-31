@@ -1,5 +1,6 @@
 package com.enjin.ecmp.spigot_framework.util;
 
+import com.enjin.ecmp.spigot_framework.TokenDefinition;
 import com.enjin.minecraft_commons.spigot.nbt.NBTItem;
 import org.bukkit.inventory.ItemStack;
 
@@ -9,8 +10,8 @@ public class TokenUtils {
         if (is != null) {
             NBTItem nbt = new NBTItem(is);
 
-            if (nbt.hasKey("tokenID")) {
-                return nbt.getString("tokenID");
+            if (nbt.hasKey(TokenDefinition.NBT_ID)) {
+                return nbt.getString(TokenDefinition.NBT_ID);
             }
         }
 
