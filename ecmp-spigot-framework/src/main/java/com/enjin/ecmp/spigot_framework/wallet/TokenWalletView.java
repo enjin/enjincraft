@@ -21,47 +21,52 @@ public class TokenWalletView extends ChestMenu {
 
     private BasePlugin plugin;
     private EnjinCoinPlayer owner;
+    private SimpleMenuComponent component;
 
     public TokenWalletView(BasePlugin plugin, EnjinCoinPlayer owner) {
         super(ChatColor.DARK_PURPLE + WALLET_VIEW_NAME, 6);
         this.plugin = plugin;
         this.owner = owner;
+        this.component = new SimpleMenuComponent(new Dimension(9, 6));
         init();
     }
 
     private void init() {
-        SimpleMenuComponent container = new SimpleMenuComponent(new Dimension(9, 6));
-
         List<MutableBalance> balances = owner.getTokenWallet().getBalances();
 
         int index = 0;
         for (MutableBalance balance : balances) {
-            if (index == container.size()) break;
+            if (index == component.size()) break;
             if (balance.amountAvailableForWithdrawal() == 0) continue;
 
             TokenDefinition def = plugin.getBootstrap().getConfig().getTokens().get(balance.id());
             if (def == null) continue;
-            Position position = Position.toPosition(container, index);
             ItemStack is = def.getItemStackInstance();
-            container.setItem(position, is);
+            component.setItem(index % getDimension().getWidth(), index / getDimension().getWidth(), is);
 
-            addComponent(Position.of(0, 0), container);
-            container.addAction(is, player -> {
+            addComponent(Position.of(0, 0), component);
+            component.addAction(is, player -> {
                 if (balance.amountAvailableForWithdrawal() > 0) {
                     balance.withdraw(1);
                     player.getInventory().addItem(is.clone());
-
-                    if (balance.amountAvailableForWithdrawal() == 0) {
-                        container.removeItem(position);
-                        container.removeAction(is);
-                    }
-
-                    refresh(player);
+                    reinit(player);
                 }
             }, ClickType.LEFT);
 
             index++;
         }
+    }
+
+    public void reinit(Player player) {
+        for (int y = 0; y < component.getDimension().getHeight(); y++) {
+            for (int x = 0; x < component.getDimension().getWidth(); x++) {
+                component.removeItem(x, y);
+            }
+        }
+
+        init();
+
+        refresh(player);
     }
 
     public static boolean isViewingWallet(Player player) {
