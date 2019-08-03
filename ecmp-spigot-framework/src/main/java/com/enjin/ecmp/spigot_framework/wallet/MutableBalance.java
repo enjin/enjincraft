@@ -22,6 +22,10 @@ public class MutableBalance {
         this(balance.getTokenId(), balance.getTokenIndex(), balance.getBalance());
     }
 
+    public MutableBalance(Token token) {
+        this(token.getTokenId(), token.getIndex(), token.getBalance());
+    }
+
     public MutableBalance(String tokenId, String tokenIndex, Integer balance) {
         this.tokenId = tokenId;
         this.tokenIndex = tokenIndex;
