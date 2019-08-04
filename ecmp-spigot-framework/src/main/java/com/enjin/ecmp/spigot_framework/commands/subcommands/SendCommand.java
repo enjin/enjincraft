@@ -2,6 +2,7 @@ package com.enjin.ecmp.spigot_framework.commands.subcommands;
 
 import com.enjin.ecmp.spigot_framework.BasePlugin;
 import com.enjin.ecmp.spigot_framework.player.PlayerManager;
+import com.enjin.ecmp.spigot_framework.wallet.MutableBalance;
 import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
 import com.enjin.enjincoin.sdk.http.HttpResponse;
 import com.enjin.enjincoin.sdk.model.service.identities.GetIdentities;
@@ -57,8 +58,9 @@ public class SendCommand {
                     if (tokenId == null) {
                         MessageUtils.sendMessage(sender, TextComponent.of("You must be holding an Enjin Coin token item."));
                     } else {
+                        MutableBalance balance = senderMP.getTokenWallet().getBalance(tokenId);
+                        balance.deposit(is.getAmount());
                         sender.getInventory().clear(sender.getInventory().getHeldItemSlot());
-//                        senderMP.getWallet().getCheckoutManager().returnItem(is); TODO Fix
 
                         IdentitiesService service = plugin.getBootstrap().getTrustedPlatformClient().getIdentitiesService();
                         service.getIdentitiesAsync(new GetIdentities().identityId(senderMP.getIdentityId()), response -> {
@@ -83,8 +85,6 @@ public class SendCommand {
                     }
                 }
             }
-        } else {
-            // TODO invalid arguments
         }
     }
 
@@ -102,7 +102,6 @@ public class SendCommand {
             if (result.isSuccess()) {
                 MessageUtils.sendMessage(sender, TextComponent.of("Please confirm the transaction in your wallet."));
             } else {
-                // todo
                 MessageUtils.sendMessage(sender, TextComponent.of("Woops, something went wrong."));
             }
         } catch (IOException e) {

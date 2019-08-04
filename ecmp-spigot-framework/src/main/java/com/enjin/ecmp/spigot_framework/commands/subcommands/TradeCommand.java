@@ -92,14 +92,8 @@ public class TradeCommand {
                             }
                         }
                     });
-                } else {
-                    // TODO: Error: cannot invite yourself to trade!
                 }
-            } else {
-                // TODO: Error: could not find the player you specified!
             }
-        } else {
-            // TODO: Display some form of player selection ui.
         }
     }
 
@@ -153,8 +147,6 @@ public class TradeCommand {
                     // TODO: No open invite or player is already in a trade
                 }
             }
-        } else {
-            // TODO: Error: no player name was provided!
         }
     }
 
@@ -192,12 +184,8 @@ public class TradeCommand {
                             .append(TextComponent.of(" has declined your trade invite."))
                             .build();
                     MessageUtils.sendMessage(target, inviteSenderText);
-                } else {
-                    // TODO: No trades from sender found
                 }
             }
-        } else {
-            // TODO: Error: no player name was provided!
         }
     }
 }
