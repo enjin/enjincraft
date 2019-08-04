@@ -3,15 +3,21 @@ package com.enjin.ecmp.spigot_framework.wallet;
 import com.enjin.ecmp.spigot_framework.BasePlugin;
 import com.enjin.ecmp.spigot_framework.TokenDefinition;
 import com.enjin.ecmp.spigot_framework.player.EnjinCoinPlayer;
+import com.enjin.ecmp.spigot_framework.util.TokenUtils;
+import com.enjin.java_commons.StringUtils;
 import com.enjin.minecraft_commons.spigot.ui.Dimension;
 import com.enjin.minecraft_commons.spigot.ui.Position;
 import com.enjin.minecraft_commons.spigot.ui.menu.ChestMenu;
 import com.enjin.minecraft_commons.spigot.ui.menu.component.SimpleMenuComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 
 import java.util.List;
 
@@ -81,4 +87,21 @@ public class TokenWalletView extends ChestMenu {
         return false;
     }
 
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onTokenCheckout(InventoryClickEvent event) {
+        if (event.getClickedInventory() instanceof PlayerInventory) {
+            ItemStack current = event.getCurrentItem();
+            if (current != null) {
+                String id = TokenUtils.getTokenID(current);
+                if (!StringUtils.isEmpty(id)) {
+                    EnjinCoinPlayer player = plugin.getBootstrap().getPlayerManager()
+                            .getPlayer(event.getWhoClicked().getUniqueId());
+                    MutableBalance balance = player.getTokenWallet().getBalance(id);
+                    balance.deposit(current.getAmount());
+                    current.setAmount(0);
+                    reinit((Player) event.getWhoClicked());
+                }
+            }
+        }
+    }
 }
