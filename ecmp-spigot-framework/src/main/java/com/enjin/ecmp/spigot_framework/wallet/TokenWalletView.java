@@ -9,6 +9,7 @@ import com.enjin.minecraft_commons.spigot.ui.Dimension;
 import com.enjin.minecraft_commons.spigot.ui.Position;
 import com.enjin.minecraft_commons.spigot.ui.menu.ChestMenu;
 import com.enjin.minecraft_commons.spigot.ui.menu.component.SimpleMenuComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -54,7 +55,11 @@ public class TokenWalletView extends ChestMenu {
             component.addAction(is, player -> {
                 if (balance.amountAvailableForWithdrawal() > 0) {
                     balance.withdraw(1);
-                    player.getInventory().addItem(is.clone());
+                    ItemStack clone = is.clone();
+                    clone.setAmount(balance.balance() < clone.getMaxStackSize()
+                            ? balance.balance()
+                            : clone.getMaxStackSize());
+                    player.getInventory().addItem(clone);
                     reinit(player);
                 }
             }, ClickType.LEFT);
@@ -99,7 +104,7 @@ public class TokenWalletView extends ChestMenu {
                     MutableBalance balance = player.getTokenWallet().getBalance(id);
                     balance.deposit(current.getAmount());
                     current.setAmount(0);
-                    reinit((Player) event.getWhoClicked());
+                    Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> reinit((Player) event.getWhoClicked()));
                 }
             }
         }
