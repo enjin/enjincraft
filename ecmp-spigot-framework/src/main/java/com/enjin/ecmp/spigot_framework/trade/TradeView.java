@@ -16,6 +16,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
@@ -294,5 +295,11 @@ public class TradeView extends ChestMenu {
         } else {
             super.onInventoryClick(event);
         }
+    }
+
+    @Override
+    protected void onClose(Player player) {
+        HandlerList.unregisterAll(this);
+        super.onClose(player);
     }
 }

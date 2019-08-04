@@ -14,6 +14,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.InventoryView;
@@ -39,6 +40,12 @@ public class TokenWalletView extends ChestMenu {
     }
 
     private void init() {
+        populate();
+    }
+
+
+
+    private void populate() {
         List<MutableBalance> balances = owner.getTokenWallet().getBalances();
 
         int index = 0;
@@ -60,7 +67,7 @@ public class TokenWalletView extends ChestMenu {
                             ? balance.balance()
                             : clone.getMaxStackSize());
                     player.getInventory().addItem(clone);
-                    reinit(player);
+                    repopulate(player);
                 }
             }, ClickType.LEFT);
 
@@ -68,14 +75,14 @@ public class TokenWalletView extends ChestMenu {
         }
     }
 
-    public void reinit(Player player) {
+    public void repopulate(Player player) {
         for (int y = 0; y < component.getDimension().getHeight(); y++) {
             for (int x = 0; x < component.getDimension().getWidth(); x++) {
                 component.removeItem(x, y);
             }
         }
 
-        init();
+        populate();
 
         refresh(player);
     }
@@ -104,9 +111,15 @@ public class TokenWalletView extends ChestMenu {
                     MutableBalance balance = player.getTokenWallet().getBalance(id);
                     balance.deposit(current.getAmount());
                     current.setAmount(0);
-                    Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> reinit((Player) event.getWhoClicked()));
+                    Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> repopulate((Player) event.getWhoClicked()));
                 }
             }
         }
+    }
+
+    @Override
+    protected void onClose(Player player) {
+        HandlerList.unregisterAll(this);
+        super.onClose(player);
     }
 }
