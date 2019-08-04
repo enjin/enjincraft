@@ -56,6 +56,7 @@ public class TokenWalletView extends ChestMenu {
             TokenDefinition def = plugin.getBootstrap().getConfig().getTokens().get(balance.id());
             if (def == null) continue;
             ItemStack is = def.getItemStackInstance();
+            is.setAmount(balance.amountAvailableForWithdrawal());
             component.setItem(index % getDimension().getWidth(), index / getDimension().getWidth(), is);
 
             addComponent(Position.of(0, 0), component);
@@ -63,9 +64,7 @@ public class TokenWalletView extends ChestMenu {
                 if (balance.amountAvailableForWithdrawal() > 0) {
                     balance.withdraw(1);
                     ItemStack clone = is.clone();
-                    clone.setAmount(balance.balance() < clone.getMaxStackSize()
-                            ? balance.balance()
-                            : clone.getMaxStackSize());
+                    clone.setAmount(1);
                     player.getInventory().addItem(clone);
                     repopulate(player);
                 }

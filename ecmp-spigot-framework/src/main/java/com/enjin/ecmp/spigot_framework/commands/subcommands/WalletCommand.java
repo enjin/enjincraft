@@ -38,7 +38,12 @@ public class WalletCommand {
                     return;
                 }
 
-                List<MutableBalance> tokens = enjinCoinPlayer.getTokenWallet().getBalances();
+                if (enjinCoinPlayer.getTokenWallet() == null) {
+                    TextComponent text = TextComponent.of("Your wallet balances are loading, try again in a few seconds.")
+                            .color(TextColor.RED);
+                    MessageUtils.sendMessage(sender, text);
+                    return;
+                }
 
                 if (enjinCoinPlayer.isIdentityLoaded()) {
                     // we have an identity, but the wallet has not been linked yet.
