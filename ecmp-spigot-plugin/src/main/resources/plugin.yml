@@ -4,7 +4,7 @@ version: @version@-spigot
 authors: [Evan "Favorlock" Lindsay, Damien Gallagher, Tobias Drewry, Enjin Coin Team]
 website: https://enjincoin.io
 main: com.enjin.ecmp.spigot_plugin.Main
-softdepend: [Vault]
+softdepend: [Vault, PlaceholderAPI]
 api-version: 1.13
 commands:
   enj:

@@ -7,10 +7,12 @@ configureJavaCompilers(8)
 
 repositories {
     maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+    maven { url 'http://repo.extendedclip.com/content/repositories/placeholderapi/' }
 }
 
 dependencies {
     shadow deps.spigot
+    shadow deps.placeholderapi
 
     compile deps.minecraftCommonsSpigot
     compile deps.enjinCoinSdk
