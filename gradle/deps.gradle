@@ -8,6 +8,7 @@ ext.deps = [
 
         // Shadow dependencies
         spigot                : 'org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT',
+        placeholderapi        : 'me.clip:placeholderapi:2.10.3',
 
         // testCompile Dependencies
         junit                 : 'junit:junit:4.12',

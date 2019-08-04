@@ -4,7 +4,9 @@ import com.enjin.ecmp.spigot_framework.commands.RootCommand;
 import com.enjin.ecmp.spigot_framework.listeners.NotificationListener;
 import com.enjin.ecmp.spigot_framework.listeners.TokenItemListener;
 import com.enjin.ecmp.spigot_framework.player.PlayerManager;
+import com.enjin.ecmp.spigot_framework.third_party.PlaceholderApiExpansion;
 import com.enjin.ecmp.spigot_framework.trade.TradeManager;
+import com.enjin.ecmp.spigot_framework.util.MessageUtils;
 import com.enjin.enjincoin.sdk.TrustedPlatformClient;
 import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
 import com.enjin.enjincoin.sdk.http.HttpResponse;
@@ -13,6 +15,9 @@ import com.enjin.enjincoin.sdk.model.service.platform.PlatformDetails;
 import com.enjin.enjincoin.sdk.service.notifications.NotificationsService;
 import com.enjin.enjincoin.sdk.service.notifications.PusherNotificationService;
 import com.enjin.java_commons.StringUtils;
+import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import net.kyori.text.TextComponent;
+import net.kyori.text.format.TextColor;
 import org.bukkit.Bukkit;
 
 import java.io.IOException;
@@ -126,6 +131,20 @@ public class SpigotBootstrap extends PluginBootstrap {
 
         // Register Commands
         plugin.getCommand("enj").setExecutor(new RootCommand(plugin));
+
+        if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null){
+            MessageUtils.sendMessage(Bukkit.getConsoleSender(), TextComponent.of("[ECMP] Registering PlaceholderAPI Expansion")
+                    .color(TextColor.GOLD));
+            PlaceholderExpansion expansion = new PlaceholderApiExpansion(plugin);
+            boolean registered = expansion.register();
+            if (registered) {
+                MessageUtils.sendMessage(Bukkit.getConsoleSender(), TextComponent.of("[ECMP] Registered PlaceholderAPI Expansion")
+                        .color(TextColor.GREEN));
+            } else {
+                MessageUtils.sendMessage(Bukkit.getConsoleSender(), TextComponent.of("[ECMP] Could not register PlaceholderAPI Expansion")
+                        .color(TextColor.RED));
+            }
+        }
     }
 
     private boolean validateConfig() {
