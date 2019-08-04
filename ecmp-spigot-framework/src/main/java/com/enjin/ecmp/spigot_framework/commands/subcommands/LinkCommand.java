@@ -65,12 +65,7 @@ public class LinkCommand {
                         handleAddress(sender, enjinCoinPlayer.getEthereumAddress());
                     else
                         handleCode(sender, enjinCoinPlayer.getLinkingCode());
-                } else {
-                    // TODO: Warn sender that the online player has not fully loaded
                 }
-            } else {
-                // TODO: Fetch Identity for the provided UUID
-                // Only fetch, do not create new Identity instances
             }
         } else {
             errorInvalidUuid(sender);
