@@ -1,3 +1,2 @@
-include 'ecmp-spigot-framework'
-include 'ecmp-spigot-plugin'
+include 'spigot'
 

@@ -1,0 +1,24 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
+repositories {
+    maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+    maven { url 'http://repo.extendedclip.com/content/repositories/placeholderapi/' }
+}
+
+dependencies {
+    shadow deps.spigot
+    shadow deps.placeholderApi
+
+    implementation deps.javaCommons
+    implementation deps.minecraftCommons
+    implementation deps.kyoriText
+    implementation deps.gson
+
+    api deps.enjinCoinSdk
+}
+
+processResources {
+    filter ReplaceTokens, tokens: [
+            "version": project.property("version")
+    ]
+}
