@@ -1,4 +1,0 @@
-ext.scriptFile = {
-    String fileName ->
-        return new File(new File(rootDir, 'gradle'), fileName)
-}

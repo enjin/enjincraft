@@ -1,53 +1,117 @@
 buildscript {
+    ext.versions = [
+            'javaCommons': '0.3.0-SNAPSHOT',
+            'minecraftCommons': '0.1.0-SNAPSHOT',
+            'enjinCoinSdk': '0.8.0-SNAPSHOT',
+            'kyoriText': '1.12-1.3.0',
+            'gson': '2.8.2',
+            'spigot': '1.13.2-R0.1-SNAPSHOT',
+            'placeholderApi': '2.10.3'
+    ]
+
+    ext.deps = [
+            'javaCommons': "com.enjin:java_commons:${versions.javaCommons}",
+            'minecraftCommons': "com.enjin.minecraft_commons:spigot:${versions.minecraftCommons}",
+            'enjinCoinSdk': "com.enjin:enjincoin-java-sdk:${versions.enjinCoinSdk}",
+            'kyoriText': "net.kyori:text:${versions.kyoriText}",
+            'gson': "com.google.code.gson:gson:${versions.gson}",
+            'spigot': "org.spigotmc:spigot-api:${versions.spigot}",
+            'placeholderApi': "me.clip:placeholderapi:${versions.placeholderApi}"
+    ]
+
+    ext.local = new Properties()
+    File file = project.rootProject.file('local.properties')
+    if (file.exists()) local.load(file.newDataInputStream())
+
     repositories {
         jcenter();
+        gradlePluginPortal()
         mavenCentral()
         maven { url 'https://plugins.gradle.org/m2/' }
     }
 }
 
 plugins {
-    id 'com.github.johnrengelman.shadow' version '1.2.4'
+    id 'io.freefair.lombok' version '3.8.3'
+    id 'com.github.johnrengelman.shadow' version '5.0.0'
+    id 'com.bmuschko.nexus' version '2.3.1'
+    id 'io.codearte.nexus-staging' version '0.21.0'
+    id 'org.ajoberstar.git-publish' version '2.1.1'
 }
 
-apply from: 'gradle/util.gradle'
-
-subprojects {
-    apply plugin: 'eclipse'
-    apply plugin: 'idea'
-    apply plugin: 'java'
-    apply plugin: 'maven'
-    apply plugin: 'com.github.johnrengelman.shadow'
-
-    apply from: scriptFile('deps.gradle')
-
-    group 'com.enjin'
-    version '0.4.0-SNAPSHOT'
-
-    idea {
-        module {
-            scopes.PROVIDED.plus += [configurations.shadow]
-        }
-    }
-
-    tasks.build.dependsOn(shadowJar)
-    artifacts.archives shadowJar
-
-    tasks.withType(AbstractCompile) {
-        classpath += configurations.shadow
-    }
+allprojects {
+    group = 'com.enjin.ecmp'
+    version = '0.4.0-SNAPSHOT'
 
     repositories {
         mavenLocal()
         mavenCentral()
         maven { url 'https://oss.sonatype.org/content/groups/public/' }
     }
+}
 
-    jar {
-        archiveName = "${project.name}-slim.jar"
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'java-library'
+    apply plugin: 'maven'
+    apply plugin: 'io.freefair.lombok'
+    apply plugin: 'com.bmuschko.nexus'
+    apply plugin: 'com.github.johnrengelman.shadow'
+
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+
+    javadoc {
+        dependsOn delombok
+        source = delombok.target
     }
 
-    shadowJar {
-        archiveName = "${project.name}.jar"
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        classifier = 'javadoc'
+        from javadoc
     }
+
+    task sourcesJar(type: Jar) {
+        classifier = 'sources'
+        from sourceSets.main.allJava
+    }
+
+    artifacts {
+        archives javadocJar
+        archives sourcesJar
+        archives shadowJar
+    }
+
+    extraArchive {
+        sources = false
+        javadoc = false
+        tests = false
+    }
+
+    nexus {
+        sign = false
+        repositoryUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+        snapshotRepositoryUrl = 'https://oss.sonatype.org/content/repositories/snapshots/'
+    }
+
+    gitPublish {
+        repoUri = 'git@github.com:enjin/enjin-coin-minecraft-framework.git'
+        branch = 'gh-pages'
+        contents {
+            from(javadoc) {
+                into '/'
+            }
+        }
+        commitMessage = "Publishing documentation for version ${version}."
+    }
+}
+
+nexusStaging {
+    username = local.getProperty('nexusUsername')
+    password = local.getProperty('nexusPassword')
+}
+
+wrapper {
+    gradleVersion = '5.5.1'
+    distributionType = Wrapper.DistributionType.ALL
 }
