@@ -1,7 +1,7 @@
 package com.enjin.ecmp.spigot.commands.subcommands;
 
 import com.enjin.ecmp.spigot.SpigotBootstrap;
-import com.enjin.ecmp.spigot.player.EnjinCoinPlayer;
+import com.enjin.ecmp.spigot.player.ECPlayer;
 import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.ecmp.spigot.util.TokenUtils;
 import com.enjin.ecmp.spigot.util.UuidUtils;
@@ -52,7 +52,7 @@ public class UnlinkCommand {
         }
 
         if (uuid != null) {
-            EnjinCoinPlayer enjinCoinPlayer = bootstrap.getPlayerManager().getPlayer(uuid);
+            ECPlayer enjinCoinPlayer = bootstrap.getPlayerManager().getPlayer(uuid);
             if (enjinCoinPlayer != null) {
                 if (enjinCoinPlayer.isLoaded()) {
                     if (!enjinCoinPlayer.isLinked()) {

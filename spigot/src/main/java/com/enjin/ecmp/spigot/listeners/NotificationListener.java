@@ -2,7 +2,7 @@ package com.enjin.ecmp.spigot.listeners;
 
 import com.enjin.ecmp.spigot.Messages;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
-import com.enjin.ecmp.spigot.player.EnjinCoinPlayer;
+import com.enjin.ecmp.spigot.player.ECPlayer;
 import com.enjin.ecmp.spigot.trade.TradeManager;
 import com.enjin.enjincoin.sdk.model.service.notifications.Event;
 import com.enjin.enjincoin.sdk.model.service.notifications.EventData;
@@ -68,10 +68,10 @@ public class NotificationListener implements com.enjin.enjincoin.sdk.service.not
         EventData data = event.getData();
 
         if (data.getId() != null) {
-            EnjinCoinPlayer mcPlayer = bootstrap.getPlayerManager().getPlayer(data.getId());
+            ECPlayer ecPlayer = bootstrap.getPlayerManager().getPlayer(data.getId());
 
-            if (mcPlayer != null) {
-                Bukkit.getScheduler().runTaskAsynchronously(bootstrap.plugin(), () -> mcPlayer.reloadIdentity());
+            if (ecPlayer != null) {
+                Bukkit.getScheduler().runTaskAsynchronously(bootstrap.plugin(), () -> ecPlayer.reloadIdentity());
             }
         }
     }
@@ -99,17 +99,17 @@ public class NotificationListener implements com.enjin.enjincoin.sdk.service.not
 
         String amount = data.getParam4();
 
-        EnjinCoinPlayer fromMcPlayer = bootstrap.getPlayerManager().getPlayer(fromEthAddr);
-        EnjinCoinPlayer toMcPlayer = bootstrap.getPlayerManager().getPlayer(toEthAddr);
+        ECPlayer fromEcPlayer = bootstrap.getPlayerManager().getPlayer(fromEthAddr);
+        ECPlayer toEcPlayer = bootstrap.getPlayerManager().getPlayer(toEthAddr);
 
-        if (fromMcPlayer != null) {
-            Bukkit.getScheduler().runTaskAsynchronously(bootstrap.plugin(), () -> fromMcPlayer.reloadIdentity());
-            Messages.tokenSent(fromMcPlayer.getBukkitPlayer(), amount, "?"); // TODO
+        if (fromEcPlayer != null) {
+            Bukkit.getScheduler().runTaskAsynchronously(bootstrap.plugin(), () -> fromEcPlayer.reloadIdentity());
+            Messages.tokenSent(fromEcPlayer.getBukkitPlayer(), amount, "?"); // TODO
         }
 
-        if (toMcPlayer != null) {
-            Bukkit.getScheduler().runTaskAsynchronously(bootstrap.plugin(), () -> toMcPlayer.reloadIdentity());
-            Messages.tokenReceived(toMcPlayer.getBukkitPlayer(), amount, "?"); // TODO
+        if (toEcPlayer != null) {
+            Bukkit.getScheduler().runTaskAsynchronously(bootstrap.plugin(), () -> toEcPlayer.reloadIdentity());
+            Messages.tokenReceived(toEcPlayer.getBukkitPlayer(), amount, "?"); // TODO
         }
     }
 

@@ -2,7 +2,7 @@ package com.enjin.ecmp.spigot.wallet;
 
 import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.configuration.TokenDefinition;
-import com.enjin.ecmp.spigot.player.EnjinCoinPlayer;
+import com.enjin.ecmp.spigot.player.ECPlayer;
 import com.enjin.ecmp.spigot.util.TokenUtils;
 import com.enjin.java_commons.StringUtils;
 import com.enjin.minecraft_commons.spigot.ui.Dimension;
@@ -28,10 +28,10 @@ public class TokenWalletView extends ChestMenu {
     public static final String WALLET_VIEW_NAME = "Enjin Wallet";
 
     private SpigotBootstrap bootstrap;
-    private EnjinCoinPlayer owner;
+    private ECPlayer owner;
     private SimpleMenuComponent component;
 
-    public TokenWalletView(SpigotBootstrap bootstrap, EnjinCoinPlayer owner) {
+    public TokenWalletView(SpigotBootstrap bootstrap, ECPlayer owner) {
         super(ChatColor.DARK_PURPLE + WALLET_VIEW_NAME, 6);
         this.bootstrap = bootstrap;
         this.owner = owner;
@@ -105,7 +105,7 @@ public class TokenWalletView extends ChestMenu {
             if (current != null) {
                 String id = TokenUtils.getTokenID(current);
                 if (!StringUtils.isEmpty(id)) {
-                    EnjinCoinPlayer player = bootstrap.getPlayerManager()
+                    ECPlayer player = bootstrap.getPlayerManager()
                             .getPlayer(event.getWhoClicked().getUniqueId());
                     MutableBalance balance = player.getTokenWallet().getBalance(id);
                     balance.deposit(current.getAmount());

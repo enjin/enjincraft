@@ -26,13 +26,13 @@ public class PlayerInitializationTask extends BukkitRunnable {
     private static final Map<UUID, PlayerInitializationTask> PLAYER_TASKS = new ConcurrentHashMap<>();
 
     private SpigotBootstrap bootstrap;
-    private EnjinCoinPlayer enjinCoinPlayer;
+    private ECPlayer player;
 
     private boolean inProgress = false;
 
-    protected PlayerInitializationTask(SpigotBootstrap bootstrap, EnjinCoinPlayer enjinCoinPlayer) {
+    protected PlayerInitializationTask(SpigotBootstrap bootstrap, ECPlayer player) {
         this.bootstrap = bootstrap;
-        this.enjinCoinPlayer = enjinCoinPlayer;
+        this.player = player;
     }
 
     @Override
@@ -43,26 +43,26 @@ public class PlayerInitializationTask extends BukkitRunnable {
 
         this.inProgress = true;
 
-        if (this.enjinCoinPlayer.getBukkitPlayer() == null || !this.enjinCoinPlayer.getBukkitPlayer().isOnline()) {
+        if (this.player.getBukkitPlayer() == null || !this.player.getBukkitPlayer().isOnline()) {
             cancel();
         } else {
             try {
-                if (!this.enjinCoinPlayer.isUserLoaded()) {
-                    User user = getUser(enjinCoinPlayer.getBukkitPlayer().getUniqueId());
+                if (!this.player.isUserLoaded()) {
+                    User user = getUser(player.getBukkitPlayer().getUniqueId());
                     if (user != null) {
                         // An existing user has been found or a new user has been created
-                        this.enjinCoinPlayer.loadUser(user);
+                        this.player.loadUser(user);
                     }
                 }
 
-                if (this.enjinCoinPlayer.isUserLoaded() && !this.enjinCoinPlayer.isIdentityLoaded()) {
+                if (this.player.isUserLoaded() && !this.player.isIdentityLoaded()) {
                     Identity identity = getIdentity();
                     if (identity != null) {
                         // A new identity has been created
-                        this.enjinCoinPlayer.loadIdentity(identity);
+                        this.player.loadIdentity(identity);
                         cancel();
                     }
-                } else if (this.enjinCoinPlayer.isLoaded() && !isCancelled()) {
+                } else if (this.player.isLoaded() && !isCancelled()) {
                     cancel();
                 }
             } catch (IOException e) {
@@ -128,12 +128,12 @@ public class PlayerInitializationTask extends BukkitRunnable {
     private Identity getIdentity() throws IOException {
         Identity identity = null;
 
-        if (enjinCoinPlayer.getIdentityId() == null) {
+        if (player.getIdentityId() == null) {
             identity = createIdentity();
         } else {
             TrustedPlatformClient client = bootstrap.getTrustedPlatformClient();
             HttpResponse<GraphQLResponse<List<Identity>>> networkResponse = client.getIdentitiesService()
-                    .getIdentitiesSync(new GetIdentities().identityId(enjinCoinPlayer.getIdentityId()));
+                    .getIdentitiesSync(new GetIdentities().identityId(player.getIdentityId()));
 
             if (networkResponse.isSuccess()) {
                 GraphQLResponse<List<Identity>> response = networkResponse.body();
@@ -157,7 +157,7 @@ public class PlayerInitializationTask extends BukkitRunnable {
         TrustedPlatformClient client = bootstrap.getTrustedPlatformClient();
         // Create the Identity for the App ID and Player in question
         HttpResponse<GraphQLResponse<Identity>> networkResponse = client.getIdentitiesService()
-                .createIdentitySync(new CreateIdentity().userId(this.enjinCoinPlayer.getUserId()));
+                .createIdentitySync(new CreateIdentity().userId(this.player.getUserId()));
 
         Identity identity = null;
 
@@ -171,10 +171,10 @@ public class PlayerInitializationTask extends BukkitRunnable {
         return identity;
     }
 
-    public static void create(SpigotBootstrap bootstrap, EnjinCoinPlayer enjinCoinPlayer) {
-        cleanUp(enjinCoinPlayer.getBukkitPlayer().getUniqueId());
+    public static void create(SpigotBootstrap bootstrap, ECPlayer player) {
+        cleanUp(player.getBukkitPlayer().getUniqueId());
 
-        PlayerInitializationTask task = new PlayerInitializationTask(bootstrap, enjinCoinPlayer);
+        PlayerInitializationTask task = new PlayerInitializationTask(bootstrap, player);
         // Note: TASK_PERIOD is measured in server ticks 20 ticks / second.
         task.runTaskTimerAsynchronously(bootstrap.plugin(), TASK_DELAY, TASK_PERIOD);
     }

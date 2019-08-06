@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class EnjinCoinPlayer {
+public class ECPlayer {
 
     // Bukkit Fields
     private SpigotBootstrap bootstrap;
@@ -55,11 +55,11 @@ public class EnjinCoinPlayer {
     private boolean identityLoaded;
 
     // Trade Fields
-    private List<EnjinCoinPlayer> sentTradeInvites = new ArrayList<>();
-    private List<EnjinCoinPlayer> receivedTradeInvites = new ArrayList<>();
+    private List<ECPlayer> sentTradeInvites = new ArrayList<>();
+    private List<ECPlayer> receivedTradeInvites = new ArrayList<>();
     private TradeView activeTradeView;
 
-    public EnjinCoinPlayer(SpigotBootstrap bootstrap, Player player) {
+    public ECPlayer(SpigotBootstrap bootstrap, Player player) {
         this.bootstrap = bootstrap;
         this.bukkitPlayer = player;
     }
@@ -237,11 +237,11 @@ public class EnjinCoinPlayer {
         bukkitPlayer = null;
     }
 
-    public List<EnjinCoinPlayer> getSentTradeInvites() {
+    public List<ECPlayer> getSentTradeInvites() {
         return sentTradeInvites;
     }
 
-    public List<EnjinCoinPlayer> getReceivedTradeInvites() {
+    public List<ECPlayer> getReceivedTradeInvites() {
         return receivedTradeInvites;
     }
 

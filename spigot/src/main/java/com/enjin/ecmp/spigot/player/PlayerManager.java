@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PlayerManager implements Listener {
 
     private SpigotBootstrap bootstrap;
-    private Map<UUID, EnjinCoinPlayer> players = new ConcurrentHashMap<>();
+    private Map<UUID, ECPlayer> players = new ConcurrentHashMap<>();
 
     public PlayerManager(SpigotBootstrap bootstrap) {
         this.bootstrap = bootstrap;
@@ -26,16 +26,15 @@ public class PlayerManager implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerJoin(PlayerJoinEvent event) {
-        EnjinCoinPlayer enjinCoinPlayer = new EnjinCoinPlayer(bootstrap, event.getPlayer());
-
-        addPlayer(enjinCoinPlayer);
+        ECPlayer ecPlayer = new ECPlayer(bootstrap, event.getPlayer());
+        addPlayer(ecPlayer);
         // Fetch or create a User and Identity associated with the joining Player
-        PlayerInitializationTask.create(bootstrap, enjinCoinPlayer);
+        PlayerInitializationTask.create(bootstrap, ecPlayer);
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
-        EnjinCoinPlayer player = removePlayer(event.getPlayer());
+        ECPlayer player = removePlayer(event.getPlayer());
 
         if (player != null) {
             Bukkit.getPluginManager().callEvent(new EnjinCoinPlayerQuitEvent(player));
@@ -43,16 +42,16 @@ public class PlayerManager implements Listener {
         }
     }
 
-    public Map<UUID, EnjinCoinPlayer> getPlayers() {
+    public Map<UUID, ECPlayer> getPlayers() {
         return new HashMap<>(this.players);
     }
 
-    public EnjinCoinPlayer getPlayer(UUID uuid) {
+    public ECPlayer getPlayer(UUID uuid) {
         if (uuid == null) throw new NullPointerException("uuid must not be null");
         return this.players.get(uuid);
     }
 
-    public EnjinCoinPlayer getPlayer(String ethAddr) {
+    public ECPlayer getPlayer(String ethAddr) {
         if (ethAddr == null) throw new NullPointerException("ethAddr must not be null");
         return this.players.values().stream()
                 .filter(player -> player.getEthereumAddress() != null
@@ -60,7 +59,7 @@ public class PlayerManager implements Listener {
                 .findFirst().orElse(null);
     }
 
-    public EnjinCoinPlayer getPlayer(Integer identityId) {
+    public ECPlayer getPlayer(Integer identityId) {
         if (identityId == null) throw new NullPointerException("identityId must not be null");
         return this.players.values().stream()
                 .filter(player -> player.getIdentityId() != null
@@ -68,12 +67,12 @@ public class PlayerManager implements Listener {
                 .findFirst().orElse(null);
     }
 
-    public void addPlayer(EnjinCoinPlayer enjinCoinPlayer) {
-        if (!enjinCoinPlayer.getBukkitPlayer().isOnline()) return;
-        this.players.put(enjinCoinPlayer.getBukkitPlayer().getUniqueId(), enjinCoinPlayer);
+    public void addPlayer(ECPlayer player) {
+        if (!player.getBukkitPlayer().isOnline()) return;
+        this.players.put(player.getBukkitPlayer().getUniqueId(), player);
     }
 
-    public EnjinCoinPlayer removePlayer(Player bukkitPlayer) {
+    public ECPlayer removePlayer(Player bukkitPlayer) {
         return this.players.remove(bukkitPlayer.getUniqueId());
     }
 
