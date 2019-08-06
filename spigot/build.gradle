@@ -12,6 +12,8 @@ dependencies {
     implementation deps.javaCommons
     implementation deps.minecraftCommons
     implementation deps.kyoriText
+    implementation deps.kyoriTextLegacy
+    implementation deps.kyoriTextAdapterBukkit
     implementation deps.gson
 
     api deps.enjinCoinSdk

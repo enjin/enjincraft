@@ -47,7 +47,7 @@ public class UnlinkCommand {
             } else {
                 final TextComponent text = TextComponent.of("UUID argument required.")
                         .color(TextColor.RED);
-                MessageUtils.sendMessage(sender, text);
+                MessageUtils.sendComponent(sender, text);
             }
         }
 
@@ -80,15 +80,15 @@ public class UnlinkCommand {
         final TextComponent text = TextComponent.of("The UUID provided is invalid.")
                 .color(TextColor.RED);
 
-        MessageUtils.sendMessage(sender, newline);
-        MessageUtils.sendMessage(sender, text);
+        MessageUtils.sendComponent(sender, newline);
+        MessageUtils.sendComponent(sender, text);
     }
 
     private void handleUnlinked(CommandSender sender, String address) {
         TextComponent text = TextComponent.of("You have not linked a wallet to your account.").color(TextColor.RED);
-        MessageUtils.sendMessage(sender, text);
+        MessageUtils.sendComponent(sender, text);
         text = TextComponent.of("Please type '/enj link' to link your account to your Enjin Wallet.").color(TextColor.RED);
-        MessageUtils.sendMessage(sender, text);
+        MessageUtils.sendComponent(sender, text);
     }
 
     private void handleUnlinking(CommandSender sender, int id) throws IOException {
@@ -98,7 +98,7 @@ public class UnlinkCommand {
         final TextComponent notice = TextComponent.of("Wallet successfully unlinked. To re-link use the /enj link command to generate a new Linking Code.")
                 .color(TextColor.GOLD);
 
-        MessageUtils.sendMessage(sender, notice);
+        MessageUtils.sendComponent(sender, notice);
 
         Bukkit.getScheduler().runTask(plugin, () -> {
            Player player = (Player) sender;

@@ -121,7 +121,7 @@ public class EnjinCoinPlayer {
                                 "request in your wallet app.")
                         .color(TextColor.GOLD)
                         .build();
-                MessageUtils.sendMessage(getBukkitPlayer(), text);
+                MessageUtils.sendComponent(getBukkitPlayer(), text);
             }
 
             initWallet();

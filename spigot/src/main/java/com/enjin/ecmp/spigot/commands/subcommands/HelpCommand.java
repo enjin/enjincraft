@@ -31,7 +31,7 @@ public class HelpCommand {
     private void sendMsg(CommandSender sender, String msg) {
         TextComponent text = TextComponent.of(msg)
                 .color(TextColor.GOLD);
-        MessageUtils.sendMessage(sender, text);
+        MessageUtils.sendComponent(sender, text);
     }
 
 }

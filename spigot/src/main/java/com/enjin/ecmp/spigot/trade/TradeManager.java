@@ -102,11 +102,11 @@ public class TradeManager implements Listener {
                         .build();
 
                 if (bukkitPlayerOne != null && bukkitPlayerOne.isOnline()) {
-                    MessageUtils.sendMessage(bukkitPlayerOne, text);
+                    MessageUtils.sendComponent(bukkitPlayerOne, text);
                 }
 
                 if (bukkitPlayerTwo != null && bukkitPlayerTwo.isOnline()) {
-                    MessageUtils.sendMessage(bukkitPlayerTwo, text);
+                    MessageUtils.sendComponent(bukkitPlayerTwo, text);
                 }
             }
         }
@@ -144,11 +144,11 @@ public class TradeManager implements Listener {
                                         Transaction dataIn = body.getData();
 
                                         if (bukkitPlayerOne != null && bukkitPlayerOne.isOnline()) {
-                                            MessageUtils.sendMessage(bukkitPlayerOne, wait);
+                                            MessageUtils.sendComponent(bukkitPlayerOne, wait);
                                         }
 
                                         if (bukkitPlayerTwo != null && bukkitPlayerTwo.isOnline()) {
-                                            MessageUtils.sendMessage(bukkitPlayerTwo, action);
+                                            MessageUtils.sendComponent(bukkitPlayerTwo, action);
                                         }
 
                                         String key = dataIn.getId().toString();
@@ -162,17 +162,17 @@ public class TradeManager implements Listener {
                                         .build();
 
                                 if (bukkitPlayerOne != null && bukkitPlayerOne.isOnline()) {
-                                    MessageUtils.sendMessage(bukkitPlayerOne, text);
+                                    MessageUtils.sendComponent(bukkitPlayerOne, text);
                                 }
 
                                 if (bukkitPlayerTwo != null && bukkitPlayerTwo.isOnline()) {
-                                    MessageUtils.sendMessage(bukkitPlayerTwo, text);
+                                    MessageUtils.sendComponent(bukkitPlayerTwo, text);
 
                                     if (!(response.isSuccess() || response.isEmpty())) {
                                         GraphQLResponse<?> body = response.body();
                                         if (body.getErrors() != null) {
                                             for (GraphQLError error : body.getErrors()) {
-                                                MessageUtils.sendMessage(bukkitPlayerOne, TextComponent.builder()
+                                                MessageUtils.sendComponent(bukkitPlayerOne, TextComponent.builder()
                                                         .content(error.getMessage())
                                                         .color(TextColor.RED)
                                                         .build());
@@ -218,11 +218,11 @@ public class TradeManager implements Listener {
                                         Transaction dataIn = body.getData();
 
                                         if (bukkitPlayerOne != null && bukkitPlayerOne.isOnline()) {
-                                            MessageUtils.sendMessage(bukkitPlayerOne, action);
+                                            MessageUtils.sendComponent(bukkitPlayerOne, action);
                                         }
 
                                         if (bukkitPlayerTwo != null && bukkitPlayerTwo.isOnline()) {
-                                            MessageUtils.sendMessage(bukkitPlayerTwo, wait);
+                                            MessageUtils.sendComponent(bukkitPlayerTwo, wait);
                                         }
 
                                         String key = dataIn.getId().toString();
@@ -236,13 +236,13 @@ public class TradeManager implements Listener {
                                         .build();
 
                                 if (bukkitPlayerOne != null && bukkitPlayerOne.isOnline()) {
-                                    MessageUtils.sendMessage(bukkitPlayerOne, text);
+                                    MessageUtils.sendComponent(bukkitPlayerOne, text);
 
                                     if (!(response.isSuccess() || response.isEmpty())) {
                                         GraphQLResponse<?> body = response.body();
                                         if (body.getErrors() != null) {
                                             for (GraphQLError error : body.getErrors()) {
-                                                MessageUtils.sendMessage(bukkitPlayerOne, TextComponent.builder()
+                                                MessageUtils.sendComponent(bukkitPlayerOne, TextComponent.builder()
                                                         .content(error.getMessage())
                                                         .color(TextColor.RED)
                                                         .build());
@@ -252,7 +252,7 @@ public class TradeManager implements Listener {
                                 }
 
                                 if (bukkitPlayerTwo != null && bukkitPlayerTwo.isOnline()) {
-                                    MessageUtils.sendMessage(bukkitPlayerTwo, text);
+                                    MessageUtils.sendComponent(bukkitPlayerTwo, text);
                                 }
                             }
                         }

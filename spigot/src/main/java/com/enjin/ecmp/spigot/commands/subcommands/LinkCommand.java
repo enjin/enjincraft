@@ -53,7 +53,7 @@ public class LinkCommand {
             } else {
                 final TextComponent text = TextComponent.of("UUID argument required.")
                         .color(TextColor.RED);
-                MessageUtils.sendMessage(sender, text);
+                MessageUtils.sendComponent(sender, text);
             }
         }
 
@@ -76,8 +76,8 @@ public class LinkCommand {
         final TextComponent text = TextComponent.of("The UUID provided is invalid.")
                 .color(TextColor.RED);
 
-        MessageUtils.sendMessage(sender, newline);
-        MessageUtils.sendMessage(sender, text);
+        MessageUtils.sendComponent(sender, newline);
+        MessageUtils.sendComponent(sender, text);
     }
 
     private void handleAddress(CommandSender sender, String address) {
@@ -88,16 +88,16 @@ public class LinkCommand {
                     .append(TextComponent.of("Ethereum Address.")
                             .color(TextColor.GOLD));
 
-            MessageUtils.sendMessage(sender, newline);
-            MessageUtils.sendMessage(sender, text);
+            MessageUtils.sendComponent(sender, newline);
+            MessageUtils.sendComponent(sender, text);
         } else {
             final TextComponent text = TextComponent.of("Player account already linked to address: ")
                     .color(TextColor.GREEN)
                     .append(TextComponent.of(address)
                             .color(TextColor.GOLD));
 
-            MessageUtils.sendMessage(sender, newline);
-            MessageUtils.sendMessage(sender, text);
+            MessageUtils.sendComponent(sender, newline);
+            MessageUtils.sendComponent(sender, text);
         }
     }
 
@@ -108,8 +108,8 @@ public class LinkCommand {
                     .append(TextComponent.of("code not present or already linked.")
                             .color(TextColor.GOLD));
 
-            MessageUtils.sendMessage(sender, newline);
-            MessageUtils.sendMessage(sender, text);
+            MessageUtils.sendComponent(sender, newline);
+            MessageUtils.sendComponent(sender, text);
         } else {
             final TextComponent notice = TextComponent.of("Please link your account by downloading the Enjin Wallet for Android or iOS and browsing to Linked Apps. Enter the Identity Code shown below:")
                     .color(TextColor.GOLD);
@@ -119,10 +119,10 @@ public class LinkCommand {
                     .append(TextComponent.of(code)
                             .color(TextColor.GOLD));
 
-            MessageUtils.sendMessage(sender, newline);
-            MessageUtils.sendMessage(sender, notice);
-            MessageUtils.sendMessage(sender, newline);
-            MessageUtils.sendMessage(sender, text);
+            MessageUtils.sendComponent(sender, newline);
+            MessageUtils.sendComponent(sender, notice);
+            MessageUtils.sendComponent(sender, newline);
+            MessageUtils.sendComponent(sender, text);
         }
     }
 

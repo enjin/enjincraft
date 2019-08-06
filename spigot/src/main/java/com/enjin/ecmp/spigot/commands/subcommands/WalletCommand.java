@@ -29,16 +29,16 @@ public class WalletCommand {
 
                 if (!enjinCoinPlayer.isLinked()) {
                     TextComponent text = TextComponent.of("You have not linked a wallet to your account.").color(TextColor.RED);
-                    MessageUtils.sendMessage(sender, text);
+                    MessageUtils.sendComponent(sender, text);
                     text = TextComponent.of("Please type '/enj link' to link your account to your Enjin Wallet.").color(TextColor.RED);
-                    MessageUtils.sendMessage(sender, text);
+                    MessageUtils.sendComponent(sender, text);
                     return;
                 }
 
                 if (enjinCoinPlayer.getTokenWallet() == null) {
                     TextComponent text = TextComponent.of("Your wallet balances are loading, try again in a few seconds.")
                             .color(TextColor.RED);
-                    MessageUtils.sendMessage(sender, text);
+                    MessageUtils.sendComponent(sender, text);
                     return;
                 }
 
@@ -46,9 +46,9 @@ public class WalletCommand {
                     // we have an identity, but the wallet has not been linked yet.
                     if (!enjinCoinPlayer.isLinked()) {
                         TextComponent text = TextComponent.of("You have not linked a wallet to your account.").color(TextColor.RED);
-                        MessageUtils.sendMessage(sender, text);
+                        MessageUtils.sendComponent(sender, text);
                         text = TextComponent.of("Please type '/enj link' to link your account to your Enjin Wallet.").color(TextColor.RED);
-                        MessageUtils.sendMessage(sender, text);
+                        MessageUtils.sendComponent(sender, text);
                         return;
                     }
 
@@ -60,20 +60,20 @@ public class WalletCommand {
                 } else {
                     TextComponent text = TextComponent.of("You have not linked a wallet to your account.")
                             .color(TextColor.RED);
-                    MessageUtils.sendMessage(sender, text);
+                    MessageUtils.sendComponent(sender, text);
                 }
             });
         } else {
             TextComponent text = TextComponent.of("Only players can use this command.")
                     .color(TextColor.RED);
-            MessageUtils.sendMessage(sender, text);
+            MessageUtils.sendComponent(sender, text);
         }
     }
 
     private void sendMsg(CommandSender sender, String msg) {
         TextComponent text = TextComponent.of(msg)
                 .color(TextColor.RED);
-        MessageUtils.sendMessage(sender, text);
+        MessageUtils.sendComponent(sender, text);
     }
 
 }
