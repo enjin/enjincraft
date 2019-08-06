@@ -1,7 +1,7 @@
 package com.enjin.ecmp.spigot.commands.subcommands;
 
 import com.enjin.ecmp.spigot.SpigotBootstrap;
-import com.enjin.ecmp.spigot.player.EnjinCoinPlayer;
+import com.enjin.ecmp.spigot.player.ECPlayer;
 import com.enjin.ecmp.spigot.player.PlayerManager;
 import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.ecmp.spigot.wallet.TokenWalletView;
@@ -25,7 +25,7 @@ public class WalletCommand {
 
             Bukkit.getScheduler().runTaskAsynchronously(bootstrap.plugin(), () -> {
                 PlayerManager playerManager = bootstrap.getPlayerManager();
-                EnjinCoinPlayer enjinCoinPlayer = playerManager.getPlayer(player.getUniqueId());
+                ECPlayer enjinCoinPlayer = playerManager.getPlayer(player.getUniqueId());
 
                 if (!enjinCoinPlayer.isLinked()) {
                     TextComponent text = TextComponent.of("You have not linked a wallet to your account.").color(TextColor.RED);

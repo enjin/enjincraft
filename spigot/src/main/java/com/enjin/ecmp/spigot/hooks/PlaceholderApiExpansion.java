@@ -1,7 +1,7 @@
 package com.enjin.ecmp.spigot.hooks;
 
 import com.enjin.ecmp.spigot.SpigotBootstrap;
-import com.enjin.ecmp.spigot.player.EnjinCoinPlayer;
+import com.enjin.ecmp.spigot.player.ECPlayer;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
 
@@ -55,19 +55,19 @@ public class PlaceholderApiExpansion extends PlaceholderExpansion {
             return "";
         }
 
-        EnjinCoinPlayer enjPlayer = bootstrap.getPlayerManager().getPlayer(player.getUniqueId());
+        ECPlayer ecPlayer = bootstrap.getPlayerManager().getPlayer(player.getUniqueId());
 
         if (identifier.equals(ENJ_BALANCE)) {
-            return enjPlayer.getEnjAllowance() == null ? "0" : enjPlayer.getEnjAllowance().toString();
+            return ecPlayer.getEnjAllowance() == null ? "0" : ecPlayer.getEnjAllowance().toString();
         }
 
         if (identifier.equals(ETH_BALANCE)) {
-            return enjPlayer.getEthBalance() == null ? "0" : enjPlayer.getEthBalance().toString();
+            return ecPlayer.getEthBalance() == null ? "0" : ecPlayer.getEthBalance().toString();
         }
 
         if (identifier.equals(LINK_STATUS)) {
-            return enjPlayer.isIdentityLoaded()
-                    ? (enjPlayer.isLinked() ? LINKED : enjPlayer.getLinkingCode())
+            return ecPlayer.isIdentityLoaded()
+                    ? (ecPlayer.isLinked() ? LINKED : ecPlayer.getLinkingCode())
                     : LOADING;
         }
 
@@ -76,8 +76,8 @@ public class PlaceholderApiExpansion extends PlaceholderExpansion {
         }
 
         if (identifier.equals(ETH_ADDR)) {
-            return enjPlayer.isIdentityLoaded()
-                    ? (enjPlayer.isLinked() ? enjPlayer.getEthereumAddress() : NOT_AVAILABLE)
+            return ecPlayer.isIdentityLoaded()
+                    ? (ecPlayer.isLinked() ? ecPlayer.getEthereumAddress() : NOT_AVAILABLE)
                     : LOADING;
         }
 

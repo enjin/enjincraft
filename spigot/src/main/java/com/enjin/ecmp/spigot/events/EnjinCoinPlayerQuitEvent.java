@@ -1,6 +1,6 @@
 package com.enjin.ecmp.spigot.events;
 
-import com.enjin.ecmp.spigot.player.EnjinCoinPlayer;
+import com.enjin.ecmp.spigot.player.ECPlayer;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
@@ -8,13 +8,13 @@ public class EnjinCoinPlayerQuitEvent extends Event {
 
     private static HandlerList handlers = new HandlerList();
 
-    private final EnjinCoinPlayer player;
+    private final ECPlayer player;
 
-    public EnjinCoinPlayerQuitEvent(EnjinCoinPlayer player) {
+    public EnjinCoinPlayerQuitEvent(ECPlayer player) {
         this.player = player;
     }
 
-    public EnjinCoinPlayer getPlayer() {
+    public ECPlayer getPlayer() {
         return this.player;
     }
 

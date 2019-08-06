@@ -1,7 +1,7 @@
 package com.enjin.ecmp.spigot.commands.subcommands;
 
 import com.enjin.ecmp.spigot.SpigotBootstrap;
-import com.enjin.ecmp.spigot.player.EnjinCoinPlayer;
+import com.enjin.ecmp.spigot.player.ECPlayer;
 import com.enjin.ecmp.spigot.player.PlayerManager;
 import com.enjin.ecmp.spigot.trade.TradeManager;
 import com.enjin.ecmp.spigot.util.MessageUtils;
@@ -47,16 +47,16 @@ public class TradeCommand {
             if (target != null) {
                 if (target != sender) {
                     PlayerManager playerManager = bootstrap.getPlayerManager();
-                    EnjinCoinPlayer senderMP = playerManager.getPlayer(sender.getUniqueId());
+                    ECPlayer senderEcPlayer = playerManager.getPlayer(sender.getUniqueId());
 
-                    if (!senderMP.isLinked()) {
+                    if (!senderEcPlayer.isLinked()) {
                         MessageUtils.sendComponent(sender, TextComponent.of("You must link your wallet before using this command."));
                         return;
                     }
 
-                    EnjinCoinPlayer targetMP = playerManager.getPlayer(target.getUniqueId());
+                    ECPlayer targetEcPlayer = playerManager.getPlayer(target.getUniqueId());
 
-                    if (targetMP == null || !targetMP.isLinked()) {
+                    if (targetEcPlayer == null || !targetEcPlayer.isLinked()) {
                         MessageUtils.sendComponent(sender, TextComponent
                                 .of(String.format("%s has not linked their wallet yet, a request has been sent.",
                                         target.getName())));
@@ -67,7 +67,7 @@ public class TradeCommand {
                     }
 
                     IdentitiesService service = bootstrap.getTrustedPlatformClient().getIdentitiesService();
-                    service.getIdentitiesAsync(new GetIdentities().identityId(senderMP.getIdentityId()), response -> {
+                    service.getIdentitiesAsync(new GetIdentities().identityId(senderEcPlayer.getIdentityId()), response -> {
                         if (response.isSuccess()) {
                             GraphQLResponse<List<Identity>> body = response.body();
                             if (body.isSuccess()) {
@@ -84,7 +84,7 @@ public class TradeCommand {
                                                 .of(String.format("%s wants to trade with you. Please confirm the balance approval notification in your wallet.",
                                                         sender.getName())));
                                     } else {
-                                        invite(senderMP, targetMP);
+                                        invite(senderEcPlayer, targetEcPlayer);
                                     }
                                 }
                             }
@@ -95,7 +95,7 @@ public class TradeCommand {
         }
     }
 
-    private void invite(EnjinCoinPlayer sender, EnjinCoinPlayer target) {
+    private void invite(ECPlayer sender, ECPlayer target) {
         TradeManager tradeManager = bootstrap.getTradeManager();
         boolean result = tradeManager.addInvite(sender, target);
 
@@ -134,10 +134,10 @@ public class TradeCommand {
         if (args.length > 0) {
             Player target = Bukkit.getPlayer(args[0]);
             if (target != null) {
-                EnjinCoinPlayer senderMP = bootstrap.getPlayerManager().getPlayer(target.getUniqueId());
-                EnjinCoinPlayer targetMP = bootstrap.getPlayerManager().getPlayer(sender.getUniqueId());
+                ECPlayer senderEcPlayer = bootstrap.getPlayerManager().getPlayer(target.getUniqueId());
+                ECPlayer targetEcPlayer = bootstrap.getPlayerManager().getPlayer(sender.getUniqueId());
 
-                boolean result = bootstrap.getTradeManager().acceptInvite(senderMP, targetMP);
+                boolean result = bootstrap.getTradeManager().acceptInvite(senderEcPlayer, targetEcPlayer);
 
                 if (!result) {
                     // TODO: No open invite or player is already in a trade
@@ -151,10 +151,10 @@ public class TradeCommand {
             Player target = Bukkit.getPlayer(args[0]);
 
             if (target != null) {
-                EnjinCoinPlayer senderMP = bootstrap.getPlayerManager().getPlayer(target.getUniqueId());
-                EnjinCoinPlayer targetMP = bootstrap.getPlayerManager().getPlayer(sender.getUniqueId());
+                ECPlayer senderEcPlayer = bootstrap.getPlayerManager().getPlayer(target.getUniqueId());
+                ECPlayer targetEcPlayer = bootstrap.getPlayerManager().getPlayer(sender.getUniqueId());
 
-                boolean result = bootstrap.getTradeManager().declineInvite(senderMP, targetMP);
+                boolean result = bootstrap.getTradeManager().declineInvite(senderEcPlayer, targetEcPlayer);
 
                 if (result) {
                     TextComponent inviteTargetText = TextComponent.builder()

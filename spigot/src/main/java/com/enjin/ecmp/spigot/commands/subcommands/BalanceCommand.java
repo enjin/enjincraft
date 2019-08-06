@@ -2,7 +2,7 @@ package com.enjin.ecmp.spigot.commands.subcommands;
 
 import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.configuration.TokenDefinition;
-import com.enjin.ecmp.spigot.player.EnjinCoinPlayer;
+import com.enjin.ecmp.spigot.player.ECPlayer;
 import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.ecmp.spigot.wallet.MutableBalance;
 import net.kyori.text.TextComponent;
@@ -27,14 +27,12 @@ public class BalanceCommand {
     public void execute(CommandSender sender, String[] args) {
         if (sender instanceof Player) {
             Player player = (Player) sender;
-
-            EnjinCoinPlayer mcPlayer = bootstrap.getPlayerManager().getPlayer(player.getUniqueId());
-            // reload/refresh user info
+            ECPlayer ecPlayer = bootstrap.getPlayerManager().getPlayer(player.getUniqueId());
 
             Bukkit.getScheduler().runTaskAsynchronously(bootstrap.plugin(), () -> {
-                mcPlayer.reloadUser();
+                ecPlayer.reloadUser();
 
-                if (!mcPlayer.isLinked()) {
+                if (!ecPlayer.isLinked()) {
                     TextComponent text = TextComponent.of("You have not linked a wallet to your account.").color(TextColor.RED);
                     MessageUtils.sendComponent(sender, text);
                     text = TextComponent.of("Please type '/enj link' to link your account to your Enjin Wallet.").color(TextColor.RED);
@@ -42,16 +40,16 @@ public class BalanceCommand {
                     return;
                 }
 
-                if (mcPlayer.isIdentityLoaded()) {
-                    BigDecimal ethBalance = (mcPlayer.getEthBalance() == null)
+                if (ecPlayer.isIdentityLoaded()) {
+                    BigDecimal ethBalance = (ecPlayer.getEthBalance() == null)
                             ? BigDecimal.ZERO
-                            : mcPlayer.getEthBalance();
-                    BigDecimal enjBalance = (mcPlayer.getEnjBalance() == null)
+                            : ecPlayer.getEthBalance();
+                    BigDecimal enjBalance = (ecPlayer.getEnjBalance() == null)
                             ? BigDecimal.ZERO
-                            : mcPlayer.getEnjBalance();
+                            : ecPlayer.getEnjBalance();
 
-                    sendMsg(sender, "EthAdr: " + ChatColor.LIGHT_PURPLE + mcPlayer.getEthereumAddress());
-                    sendMsg(sender, "ID: " + mcPlayer.getIdentityId() + "   ");
+                    sendMsg(sender, "EthAdr: " + ChatColor.LIGHT_PURPLE + ecPlayer.getEthereumAddress());
+                    sendMsg(sender, "ID: " + ecPlayer.getIdentityId() + "   ");
 
                     if (enjBalance != null)
                         sendMsg(sender, ChatColor.GREEN + "[ " + enjBalance + " ENJ ] ");
@@ -60,8 +58,8 @@ public class BalanceCommand {
 
                     int itemCount = 0;
                     List<TextComponent> listing = new ArrayList<>();
-                    if (mcPlayer.isLinked()) {
-                        List<MutableBalance> balances = mcPlayer.getTokenWallet().getBalances();
+                    if (ecPlayer.isLinked()) {
+                        List<MutableBalance> balances = ecPlayer.getTokenWallet().getBalances();
                         for (MutableBalance balance : balances) {
                             TokenDefinition def = bootstrap.getConfig().getTokens().get(balance.id());
                             if (def != null && balance != null && balance.balance() > 0) {
