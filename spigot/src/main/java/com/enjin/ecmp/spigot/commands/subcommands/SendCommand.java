@@ -1,8 +1,10 @@
 package com.enjin.ecmp.spigot.commands.subcommands;
 
-import com.enjin.ecmp.spigot.EcmpPlugin;
-import com.enjin.ecmp.spigot.EcmpSpigot;
+import com.enjin.ecmp.spigot.SpigotBootstrap;
+import com.enjin.ecmp.spigot.player.EnjinCoinPlayer;
 import com.enjin.ecmp.spigot.player.PlayerManager;
+import com.enjin.ecmp.spigot.util.MessageUtils;
+import com.enjin.ecmp.spigot.util.TokenUtils;
 import com.enjin.ecmp.spigot.wallet.MutableBalance;
 import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
 import com.enjin.enjincoin.sdk.http.HttpResponse;
@@ -13,9 +15,6 @@ import com.enjin.enjincoin.sdk.model.service.requests.Transaction;
 import com.enjin.enjincoin.sdk.model.service.requests.data.SendTokenData;
 import com.enjin.enjincoin.sdk.service.identities.IdentitiesService;
 import com.enjin.enjincoin.sdk.service.requests.RequestsService;
-import com.enjin.ecmp.spigot.player.EnjinCoinPlayer;
-import com.enjin.ecmp.spigot.util.MessageUtils;
-import com.enjin.ecmp.spigot.util.TokenUtils;
 import net.kyori.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -27,14 +26,14 @@ import java.util.List;
 
 public class SendCommand {
 
-    private EcmpPlugin plugin;
+    private SpigotBootstrap bootstrap;
 
-    public SendCommand(EcmpPlugin plugin) {
-        this.plugin = plugin;
+    public SendCommand(SpigotBootstrap bootstrap) {
+        this.bootstrap = bootstrap;
     }
 
     public void execute(Player sender, String[] args) {
-        PlayerManager playerManager = EcmpSpigot.bootstrap().getPlayerManager();
+        PlayerManager playerManager = bootstrap.getPlayerManager();
         EnjinCoinPlayer senderMP = playerManager.getPlayer(sender.getUniqueId());
 
         if (args.length > 0) {
@@ -63,7 +62,7 @@ public class SendCommand {
                         balance.deposit(is.getAmount());
                         sender.getInventory().clear(sender.getInventory().getHeldItemSlot());
 
-                        IdentitiesService service = EcmpSpigot.bootstrap().getTrustedPlatformClient().getIdentitiesService();
+                        IdentitiesService service = bootstrap.getTrustedPlatformClient().getIdentitiesService();
                         service.getIdentitiesAsync(new GetIdentities().identityId(senderMP.getIdentityId()), response -> {
                             if (response.isSuccess()) {
                                 GraphQLResponse<List<Identity>> body = response.body();
@@ -90,7 +89,7 @@ public class SendCommand {
     }
 
     private void send(Player sender, int senderId, int targetId, String tokenId, int amount) {
-        RequestsService service = EcmpSpigot.bootstrap().getTrustedPlatformClient().getRequestsService();
+        RequestsService service = bootstrap.getTrustedPlatformClient().getRequestsService();
         try {
             HttpResponse<GraphQLResponse<Transaction>> result = service.createRequestSync(new CreateRequest()
                     .identityId(senderId)

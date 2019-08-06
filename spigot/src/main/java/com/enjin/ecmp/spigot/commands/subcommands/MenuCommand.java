@@ -1,6 +1,5 @@
 package com.enjin.ecmp.spigot.commands.subcommands;
 
-import com.enjin.ecmp.spigot.EcmpPlugin;
 import com.enjin.ecmp.spigot.util.MessageUtils;
 import net.kyori.text.TextComponent;
 import net.kyori.text.event.ClickEvent;
@@ -8,12 +7,6 @@ import net.kyori.text.format.TextColor;
 import org.bukkit.command.CommandSender;
 
 public class MenuCommand {
-
-    private EcmpPlugin plugin;
-
-    public MenuCommand(EcmpPlugin plugin) {
-        this.plugin = plugin;
-    }
 
     public void execute(CommandSender sender, String[] args) {
         final TextComponent.Builder component = TextComponent.builder().content("").color(TextColor.GRAY);

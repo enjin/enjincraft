@@ -2,10 +2,10 @@ package com.enjin.ecmp.spigot;
 
 import com.enjin.ecmp.spigot.commands.RootCommand;
 import com.enjin.ecmp.spigot.configuration.EcmpConfig;
+import com.enjin.ecmp.spigot.hooks.PlaceholderApiExpansion;
 import com.enjin.ecmp.spigot.listeners.NotificationListener;
 import com.enjin.ecmp.spigot.listeners.TokenItemListener;
 import com.enjin.ecmp.spigot.player.PlayerManager;
-import com.enjin.ecmp.spigot.hooks.PlaceholderApiExpansion;
 import com.enjin.ecmp.spigot.trade.TradeManager;
 import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.enjincoin.sdk.TrustedPlatformClient;
@@ -41,10 +41,6 @@ public class SpigotBootstrap implements Bootstrap, Module {
 
     public SpigotBootstrap(EcmpPlugin plugin) {
         this.plugin = plugin;
-    }
-
-    public EcmpPlugin getPlugin() {
-        return plugin;
     }
 
     @Override
@@ -113,7 +109,8 @@ public class SpigotBootstrap implements Bootstrap, Module {
         try {
             // Start the notification service and register a listener
             notificationsService.start();
-            notificationsService.registerListener(new NotificationListener(plugin));
+            notificationsService.registerListener(new NotificationListener(this));
+            notificationsService.subscribeToApp(config.getAppId());
         } catch (Exception ex) {
             // An exception occurred while starting the notification service
             getLogger().warning("Exception occurred when starting the notification service.");
@@ -123,8 +120,8 @@ public class SpigotBootstrap implements Bootstrap, Module {
         }
 
         // Init Managers
-        playerManager = new PlayerManager(plugin);
-        tradeManager = new TradeManager(plugin);
+        playerManager = new PlayerManager(this);
+        tradeManager = new TradeManager(this);
 
         // Register Listeners
         Bukkit.getPluginManager().registerEvents(playerManager, plugin);
@@ -132,12 +129,12 @@ public class SpigotBootstrap implements Bootstrap, Module {
         Bukkit.getPluginManager().registerEvents(new TokenItemListener(this), plugin);
 
         // Register Commands
-        plugin.getCommand("enj").setExecutor(new RootCommand(plugin));
+        plugin.getCommand("enj").setExecutor(new RootCommand(this));
 
         if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null){
             MessageUtils.sendComponent(Bukkit.getConsoleSender(), TextComponent.of("[ECMP] Registering PlaceholderAPI Expansion")
                     .color(TextColor.GOLD));
-            PlaceholderExpansion expansion = new PlaceholderApiExpansion(plugin);
+            PlaceholderExpansion expansion = new PlaceholderApiExpansion(this);
             boolean registered = expansion.register();
             if (registered) {
                 MessageUtils.sendComponent(Bukkit.getConsoleSender(), TextComponent.of("[ECMP] Registered PlaceholderAPI Expansion")

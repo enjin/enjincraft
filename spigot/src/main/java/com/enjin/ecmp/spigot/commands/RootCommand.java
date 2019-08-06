@@ -1,6 +1,6 @@
 package com.enjin.ecmp.spigot.commands;
 
-import com.enjin.ecmp.spigot.EcmpPlugin;
+import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.commands.subcommands.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -12,8 +12,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class RootCommand implements CommandExecutor {
-
-    private final EcmpPlugin plugin;
 
     private final LinkCommand link;
 
@@ -33,18 +31,16 @@ public class RootCommand implements CommandExecutor {
 
     private static Map<String, String> commands;
 
-    public RootCommand(EcmpPlugin plugin) {
+    public RootCommand(SpigotBootstrap bootstrap) {
         this.commands = new HashMap<>();
-        this.plugin = plugin;
-
-        this.link = new LinkCommand(plugin);
-        this.unlink = new UnlinkCommand(plugin);
-        this.wallet = new WalletCommand(plugin);
-        this.balance = new BalanceCommand(plugin);
-        this.help = new HelpCommand(plugin);
-        this.trade = new TradeCommand(plugin);
-        this.menu = new MenuCommand(plugin);
-        this.send = new SendCommand(plugin);
+        this.link = new LinkCommand(bootstrap);
+        this.unlink = new UnlinkCommand(bootstrap);
+        this.wallet = new WalletCommand(bootstrap);
+        this.balance = new BalanceCommand(bootstrap);
+        this.help = new HelpCommand();
+        this.trade = new TradeCommand(bootstrap);
+        this.menu = new MenuCommand();
+        this.send = new SendCommand(bootstrap);
     }
 
     public Map<String, String> getCommandsMap() {

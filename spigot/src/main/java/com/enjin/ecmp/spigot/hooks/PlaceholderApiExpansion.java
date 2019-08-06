@@ -1,7 +1,6 @@
 package com.enjin.ecmp.spigot.hooks;
 
-import com.enjin.ecmp.spigot.EcmpPlugin;
-import com.enjin.ecmp.spigot.EcmpSpigot;
+import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.player.EnjinCoinPlayer;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
@@ -19,25 +18,25 @@ public class PlaceholderApiExpansion extends PlaceholderExpansion {
     public static final String NOT_AVAILABLE = "n/a";
     public static final String URL = "www.enjincoin.io";
 
-    private EcmpPlugin plugin;
+    private SpigotBootstrap bootstrap;
 
-    public PlaceholderApiExpansion(EcmpPlugin plugin) {
-        this.plugin = plugin;
+    public PlaceholderApiExpansion(SpigotBootstrap bootstrap) {
+        this.bootstrap = bootstrap;
     }
 
     @Override
     public String getIdentifier() {
-        return plugin.getDescription().getName();
+        return bootstrap.plugin().getDescription().getName();
     }
 
     @Override
     public String getAuthor() {
-        return plugin.getDescription().getAuthors().toString();
+        return bootstrap.plugin().getDescription().getAuthors().toString();
     }
 
     @Override
     public String getVersion() {
-        return plugin.getDescription().getVersion();
+        return bootstrap.plugin().getDescription().getVersion();
     }
 
     @Override
@@ -56,7 +55,7 @@ public class PlaceholderApiExpansion extends PlaceholderExpansion {
             return "";
         }
 
-        EnjinCoinPlayer enjPlayer = EcmpSpigot.bootstrap().getPlayerManager().getPlayer(player.getUniqueId());
+        EnjinCoinPlayer enjPlayer = bootstrap.getPlayerManager().getPlayer(player.getUniqueId());
 
         if (identifier.equals(ENJ_BALANCE)) {
             return enjPlayer.getEnjAllowance() == null ? "0" : enjPlayer.getEnjAllowance().toString();

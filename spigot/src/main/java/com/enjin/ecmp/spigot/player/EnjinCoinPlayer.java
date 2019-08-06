@@ -1,8 +1,9 @@
 package com.enjin.ecmp.spigot.player;
 
-import com.enjin.ecmp.spigot.EcmpPlugin;
-import com.enjin.ecmp.spigot.EcmpSpigot;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
+import com.enjin.ecmp.spigot.events.IdentityLoadedEvent;
+import com.enjin.ecmp.spigot.trade.TradeView;
+import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.ecmp.spigot.util.TokenUtils;
 import com.enjin.ecmp.spigot.wallet.MutableBalance;
 import com.enjin.ecmp.spigot.wallet.TokenWallet;
@@ -15,9 +16,6 @@ import com.enjin.enjincoin.sdk.model.service.identities.GetIdentities;
 import com.enjin.enjincoin.sdk.model.service.identities.Identity;
 import com.enjin.enjincoin.sdk.model.service.users.GetUsers;
 import com.enjin.enjincoin.sdk.model.service.users.User;
-import com.enjin.ecmp.spigot.events.IdentityLoadedEvent;
-import com.enjin.ecmp.spigot.trade.TradeView;
-import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.enjincoin.sdk.service.notifications.NotificationsService;
 import com.enjin.java_commons.StringUtils;
 import net.kyori.text.TextComponent;
@@ -37,7 +35,7 @@ import java.util.Optional;
 public class EnjinCoinPlayer {
 
     // Bukkit Fields
-    private EcmpPlugin plugin;
+    private SpigotBootstrap bootstrap;
     private Player bukkitPlayer;
 
     // User Data
@@ -61,8 +59,8 @@ public class EnjinCoinPlayer {
     private List<EnjinCoinPlayer> receivedTradeInvites = new ArrayList<>();
     private TradeView activeTradeView;
 
-    public EnjinCoinPlayer(EcmpPlugin plugin, Player player) {
-        this.plugin = plugin;
+    public EnjinCoinPlayer(SpigotBootstrap bootstrap, Player player) {
+        this.bootstrap = bootstrap;
         this.bukkitPlayer = player;
     }
 
@@ -79,7 +77,7 @@ public class EnjinCoinPlayer {
             userLoaded = true;
 
             Optional<Identity> optionalIdentity = user.getIdentities().stream()
-                    .filter(identity -> identity.getAppId().intValue() == EcmpSpigot.bootstrap().getConfig().getAppId())
+                    .filter(identity -> identity.getAppId().intValue() == bootstrap.getConfig().getAppId())
                     .findFirst();
             optionalIdentity.ifPresent(identity -> identityId = identity.getId());
         }
@@ -104,7 +102,7 @@ public class EnjinCoinPlayer {
             enjAllowance = identity.getEnjAllowance();
             identityLoaded = true;
 
-            NotificationsService service = EcmpSpigot.bootstrap().getNotificationsService();
+            NotificationsService service = bootstrap.getNotificationsService();
             boolean listening = service.isSubscribedToIdentity(identityId);
 
             if (linkingCode != null && !listening) {
@@ -134,7 +132,7 @@ public class EnjinCoinPlayer {
         if (StringUtils.isEmpty(ethereumAddress)) return;
 
         // populate wallet;
-        TrustedPlatformClient client = EcmpSpigot.bootstrap().getTrustedPlatformClient();
+        TrustedPlatformClient client = bootstrap.getTrustedPlatformClient();
         try {
             HttpResponse<GraphQLResponse<List<Balance>>> networkResponse = client.getBalancesService()
                     .getBalancesSync(new GetBalances().ethAddr(ethereumAddress));
@@ -142,7 +140,7 @@ public class EnjinCoinPlayer {
                 GraphQLResponse<List<Balance>> response = networkResponse.body();
                 if (response.isSuccess()) {
                     List<Balance> balances = response.getData();
-                    tokenWallet = new TokenWallet((SpigotBootstrap) EcmpSpigot.bootstrap(), balances);
+                    tokenWallet = new TokenWallet((SpigotBootstrap) bootstrap, balances);
                     PlayerInventory inventory = bukkitPlayer.getInventory();
                     for (int i = inventory.getSize() - 1; i >= 0; i--) {
                         ItemStack is = inventory.getItem(i);
@@ -170,7 +168,7 @@ public class EnjinCoinPlayer {
     }
 
     public void reloadUser() {
-        TrustedPlatformClient client = EcmpSpigot.bootstrap().getTrustedPlatformClient();
+        TrustedPlatformClient client = bootstrap.getTrustedPlatformClient();
         // Fetch the User for the Player in question
         try {
             HttpResponse<GraphQLResponse<List<User>>> networkResponse = client.getUsersService()
@@ -194,7 +192,7 @@ public class EnjinCoinPlayer {
     }
 
     public void reloadIdentity() {
-        TrustedPlatformClient client = EcmpSpigot.bootstrap().getTrustedPlatformClient();
+        TrustedPlatformClient client = bootstrap.getTrustedPlatformClient();
 
         try {
             HttpResponse<GraphQLResponse<List<Identity>>> networkResponse = client.getIdentitiesService()
@@ -235,7 +233,7 @@ public class EnjinCoinPlayer {
 
     protected void cleanUp() {
         PlayerInitializationTask.cleanUp(bukkitPlayer.getUniqueId());
-        EcmpSpigot.bootstrap().getNotificationsService().unsubscribeToIdentity(identityId);
+        bootstrap.getNotificationsService().unsubscribeToIdentity(identityId);
         bukkitPlayer = null;
     }
 

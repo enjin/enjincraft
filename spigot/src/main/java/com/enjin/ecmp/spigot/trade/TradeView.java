@@ -1,7 +1,6 @@
 package com.enjin.ecmp.spigot.trade;
 
-import com.enjin.ecmp.spigot.EcmpPlugin;
-import com.enjin.ecmp.spigot.EcmpSpigot;
+import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.player.EnjinCoinPlayer;
 import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.ecmp.spigot.util.TokenUtils;
@@ -33,7 +32,7 @@ import java.util.UUID;
 
 public class TradeView extends ChestMenu {
 
-    private EcmpPlugin plugin;
+    private SpigotBootstrap bootstrap;
 
     private EnjinCoinPlayer viewer;
     private EnjinCoinPlayer other;
@@ -51,9 +50,9 @@ public class TradeView extends ChestMenu {
     private ItemStack readyItem = createReadyItemStack();
     private ItemStack unreadyItem = createUnreadyItemStack();
 
-    public TradeView(EcmpPlugin plugin, EnjinCoinPlayer viewer, EnjinCoinPlayer other) {
+    public TradeView(SpigotBootstrap bootstrap, EnjinCoinPlayer viewer, EnjinCoinPlayer other) {
         super("Trade", 6);
-        this.plugin = plugin;
+        this.bootstrap = bootstrap;
         this.viewer = viewer;
         this.other = other;
         init();
@@ -137,7 +136,7 @@ public class TradeView extends ChestMenu {
                     UUID otherUuid = other.getBukkitPlayer().getUniqueId();
                     Trade trade = new Trade(viewerUuid, viewerOffer, otherUuid, otherOffer);
 
-                    EcmpSpigot.bootstrap().getTradeManager().submitCreateTrade(trade);
+                    bootstrap.getTradeManager().submitCreateTrade(trade);
 
                     closeMenu(p);
                 }
@@ -284,7 +283,7 @@ public class TradeView extends ChestMenu {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         if (event.getClickedInventory() instanceof PlayerInventory) {
-            if (EcmpSpigot.bootstrap().getConfig().isAllowVanillaItemsInTrades()) {
+            if (bootstrap.getConfig().isAllowVanillaItemsInTrades()) {
                 return;
             }
 
