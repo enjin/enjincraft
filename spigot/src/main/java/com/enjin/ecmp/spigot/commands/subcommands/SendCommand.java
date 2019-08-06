@@ -38,7 +38,7 @@ public class SendCommand {
 
         if (args.length > 0) {
             if (!senderMP.isLinked()) {
-                MessageUtils.sendMessage(sender, TextComponent.of("You must link your wallet before using this command."));
+                MessageUtils.sendComponent(sender, TextComponent.of("You must link your wallet before using this command."));
                 return;
             }
 
@@ -46,17 +46,17 @@ public class SendCommand {
             if (target != null && target != sender) {
                 EnjinCoinPlayer targetMP = playerManager.getPlayer(target.getUniqueId());
                 if (!targetMP.isLinked()) {
-                    MessageUtils.sendMessage(sender, TextComponent.of("That player has not linked a wallet."));
+                    MessageUtils.sendComponent(sender, TextComponent.of("That player has not linked a wallet."));
                     return;
                 }
 
                 ItemStack is = sender.getInventory().getItemInMainHand();
                 if (is == null) {
-                    MessageUtils.sendMessage(sender, TextComponent.of("You must be holding a token you wish to send."));
+                    MessageUtils.sendComponent(sender, TextComponent.of("You must be holding a token you wish to send."));
                 } else {
                     String tokenId = TokenUtils.getTokenID(is);
                     if (tokenId == null) {
-                        MessageUtils.sendMessage(sender, TextComponent.of("You must be holding an Enjin Coin token item."));
+                        MessageUtils.sendComponent(sender, TextComponent.of("You must be holding an Enjin Coin token item."));
                     } else {
                         MutableBalance balance = senderMP.getTokenWallet().getBalance(tokenId);
                         balance.deposit(is.getAmount());
@@ -73,7 +73,7 @@ public class SendCommand {
                                         BigInteger allowance = identity.getEnjAllowance();
 
                                         if (allowance == null || allowance.equals(BigInteger.ZERO)) {
-                                            MessageUtils.sendMessage(sender, TextComponent.of("Your allowance is not set. Please confirm the request in your wallet app."));
+                                            MessageUtils.sendComponent(sender, TextComponent.of("Your allowance is not set. Please confirm the request in your wallet app."));
                                         } else {
                                             send(sender, senderMP.getIdentityId(), targetMP.getIdentityId(),
                                                     tokenId, is.getAmount());
@@ -100,9 +100,9 @@ public class SendCommand {
                             .build()));
 
             if (result.isSuccess()) {
-                MessageUtils.sendMessage(sender, TextComponent.of("Please confirm the transaction in your wallet."));
+                MessageUtils.sendComponent(sender, TextComponent.of("Please confirm the transaction in your wallet."));
             } else {
-                MessageUtils.sendMessage(sender, TextComponent.of("Woops, something went wrong."));
+                MessageUtils.sendComponent(sender, TextComponent.of("Woops, something went wrong."));
             }
         } catch (IOException e) {
             e.printStackTrace();

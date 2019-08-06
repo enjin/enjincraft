@@ -52,17 +52,17 @@ public class TradeCommand {
                     EnjinCoinPlayer senderMP = playerManager.getPlayer(sender.getUniqueId());
 
                     if (!senderMP.isLinked()) {
-                        MessageUtils.sendMessage(sender, TextComponent.of("You must link your wallet before using this command."));
+                        MessageUtils.sendComponent(sender, TextComponent.of("You must link your wallet before using this command."));
                         return;
                     }
 
                     EnjinCoinPlayer targetMP = playerManager.getPlayer(target.getUniqueId());
 
                     if (targetMP == null || !targetMP.isLinked()) {
-                        MessageUtils.sendMessage(sender, TextComponent
+                        MessageUtils.sendComponent(sender, TextComponent
                                 .of(String.format("%s has not linked their wallet yet, a request has been sent.",
                                         target.getName())));
-                        MessageUtils.sendMessage(target, TextComponent
+                        MessageUtils.sendComponent(target, TextComponent
                                 .of(String.format("%s wants to trade with you. Please link your wallet to begin trading",
                                         sender.getName())));
                         return;
@@ -79,10 +79,10 @@ public class TradeCommand {
                                     BigInteger allowance = identity.getEnjAllowance();
 
                                     if (allowance == null || allowance.equals(BigInteger.ZERO)) {
-                                        MessageUtils.sendMessage(sender, TextComponent
+                                        MessageUtils.sendComponent(sender, TextComponent
                                                 .of(String.format("%s has not approved the wallet allowance yet, a request has been sent.",
                                                         target.getName())));
-                                        MessageUtils.sendMessage(target, TextComponent
+                                        MessageUtils.sendComponent(target, TextComponent
                                                 .of(String.format("%s wants to trade with you. Please confirm the balance approval notification in your wallet.",
                                                         sender.getName())));
                                     } else {
@@ -102,7 +102,7 @@ public class TradeCommand {
         boolean result = tradeManager.addInvite(sender, target);
 
         if (result) {
-            MessageUtils.sendMessage(sender.getBukkitPlayer(), TextComponent.builder()
+            MessageUtils.sendComponent(sender.getBukkitPlayer(), TextComponent.builder()
                     .content(String.format("Trade invite with %s has been sent!", target.getBukkitPlayer().getName()))
                     .color(TextColor.GREEN)
                     .build());
@@ -114,18 +114,18 @@ public class TradeCommand {
                     .append(TextComponent.of(" has invited you to trade. "))
                     .append(TextComponent.builder("Accept")
                             .color(TextColor.GREEN)
-                            .clickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
+                            .clickEvent(ClickEvent.of(ClickEvent.Action.RUN_COMMAND,
                                     String.format("/enj trade accept %s", sender.getBukkitPlayer().getName())))
                             .build())
                     .append(TextComponent.of(" | "))
                     .append(TextComponent.builder("Decline")
                             .color(TextColor.RED)
-                            .clickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
+                            .clickEvent(ClickEvent.of(ClickEvent.Action.RUN_COMMAND,
                                     String.format("/enj trade decline %s", sender.getBukkitPlayer().getName())))
                             .build());
-            MessageUtils.sendMessage(target.getBukkitPlayer(), inviteMessageBuilder.build());
+            MessageUtils.sendComponent(target.getBukkitPlayer(), inviteMessageBuilder.build());
         } else {
-            MessageUtils.sendMessage(sender.getBukkitPlayer(), TextComponent.builder()
+            MessageUtils.sendComponent(sender.getBukkitPlayer(), TextComponent.builder()
                     .content(String.format("You have already invited %s to trade.", target.getBukkitPlayer().getName()))
                     .color(TextColor.RED)
                     .build());
@@ -172,7 +172,7 @@ public class TradeCommand {
                                     .build())
                             .append(TextComponent.of("'s trade invite."))
                             .build();
-                    MessageUtils.sendMessage(sender, inviteTargetText);
+                    MessageUtils.sendComponent(sender, inviteTargetText);
 
                     TextComponent inviteSenderText = TextComponent.builder()
                             .content("")
@@ -183,7 +183,7 @@ public class TradeCommand {
                                     .build())
                             .append(TextComponent.of(" has declined your trade invite."))
                             .build();
-                    MessageUtils.sendMessage(target, inviteSenderText);
+                    MessageUtils.sendComponent(target, inviteSenderText);
                 }
             }
         }

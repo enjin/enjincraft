@@ -134,15 +134,15 @@ public class SpigotBootstrap extends PluginBootstrap {
         plugin.getCommand("enj").setExecutor(new RootCommand(plugin));
 
         if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null){
-            MessageUtils.sendMessage(Bukkit.getConsoleSender(), TextComponent.of("[ECMP] Registering PlaceholderAPI Expansion")
+            MessageUtils.sendComponent(Bukkit.getConsoleSender(), TextComponent.of("[ECMP] Registering PlaceholderAPI Expansion")
                     .color(TextColor.GOLD));
             PlaceholderExpansion expansion = new PlaceholderApiExpansion(plugin);
             boolean registered = expansion.register();
             if (registered) {
-                MessageUtils.sendMessage(Bukkit.getConsoleSender(), TextComponent.of("[ECMP] Registered PlaceholderAPI Expansion")
+                MessageUtils.sendComponent(Bukkit.getConsoleSender(), TextComponent.of("[ECMP] Registered PlaceholderAPI Expansion")
                         .color(TextColor.GREEN));
             } else {
-                MessageUtils.sendMessage(Bukkit.getConsoleSender(), TextComponent.of("[ECMP] Could not register PlaceholderAPI Expansion")
+                MessageUtils.sendComponent(Bukkit.getConsoleSender(), TextComponent.of("[ECMP] Could not register PlaceholderAPI Expansion")
                         .color(TextColor.RED));
             }
         }

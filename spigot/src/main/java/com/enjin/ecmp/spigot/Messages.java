@@ -11,14 +11,14 @@ public class Messages {
         TextComponent text = TextComponent.of("You have sent ").color(TextColor.GOLD)
                 .append(TextComponent.of(amount + "x ").color(TextColor.GREEN))
                 .append(TextComponent.of(name).color(TextColor.DARK_PURPLE));
-        MessageUtils.sendMessage(target, text);
+        MessageUtils.sendComponent(target, text);
     }
 
     public static void tokenReceived(CommandSender target, String amount, String name) {
         TextComponent text = TextComponent.of("You have received ").color(TextColor.GOLD)
                 .append(TextComponent.of(amount + "x ").color(TextColor.GREEN))
                 .append(TextComponent.of(name).color(TextColor.DARK_PURPLE));
-        MessageUtils.sendMessage(target, text);
+        MessageUtils.sendComponent(target, text);
     }
 
 }

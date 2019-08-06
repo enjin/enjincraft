@@ -36,9 +36,9 @@ public class BalanceCommand {
 
                 if (!mcPlayer.isLinked()) {
                     TextComponent text = TextComponent.of("You have not linked a wallet to your account.").color(TextColor.RED);
-                    MessageUtils.sendMessage(sender, text);
+                    MessageUtils.sendComponent(sender, text);
                     text = TextComponent.of("Please type '/enj link' to link your account to your Enjin Wallet.").color(TextColor.RED);
-                    MessageUtils.sendMessage(sender, text);
+                    MessageUtils.sendComponent(sender, text);
                     return;
                 }
 
@@ -79,26 +79,26 @@ public class BalanceCommand {
                     else
                         sendMsg(sender, ChatColor.BOLD + "" + ChatColor.GOLD + "Found " + itemCount + " CryptoItems in your Wallet: ");
 
-                    listing.forEach(l -> MessageUtils.sendMessage(sender, l));
+                    listing.forEach(l -> MessageUtils.sendComponent(sender, l));
 
 
                 } else {
                     TextComponent text = TextComponent.of("You have not linked a wallet to your account.")
                             .color(TextColor.RED);
-                    MessageUtils.sendMessage(sender, text);
+                    MessageUtils.sendComponent(sender, text);
                 }
             });
         } else {
             TextComponent text = TextComponent.of("Only players can use this command.")
                     .color(TextColor.RED);
-            MessageUtils.sendMessage(sender, text);
+            MessageUtils.sendComponent(sender, text);
         }
     }
 
     private void sendMsg(CommandSender sender, String msg) {
         TextComponent text = TextComponent.of(msg)
                 .color(TextColor.GOLD);
-        MessageUtils.sendMessage(sender, text);
+        MessageUtils.sendComponent(sender, text);
     }
 
 }

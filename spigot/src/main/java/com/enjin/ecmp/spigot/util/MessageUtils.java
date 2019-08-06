@@ -1,11 +1,14 @@
 package com.enjin.ecmp.spigot.util;
 
 import net.kyori.text.TextComponent;
-import net.kyori.text.serializer.ComponentSerializers;
+import net.kyori.text.adapter.bukkit.TextAdapter;
+import net.kyori.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -15,60 +18,90 @@ import java.util.List;
  * An exception will generally not be thrown for a {@code null} input.
  * Each method documents its behaviour in detail.</p>
  *
- * <p>#ThreadSafe#</p>
- *
  * @since 1.0
  */
 public class MessageUtils {
 
-    /**
-     * <p>{@code MessageUtils} instances should NOT be constructed in standard programming.</p>
-     *
-     * <p>This constructor is public to permit tools that require a JavaBean instance
-     * to operate.</p>
-     */
-    public MessageUtils() {
+    public static final LegacyComponentSerializer LEGACY_COMPONENT_SERIALIZER = LegacyComponentSerializer.INSTANCE;
+    public static final char TEXT_FORMAT_TOKEN = '&';
+    public static final String PLUGIN_PREFIX = "&7[&6ECMP&7]";
+
+    private MessageUtils() {
         super();
     }
 
-    /**
-     * <p>Sends a {@code TextComponent} message to a {@code CommandSender}.</p>
-     *
-     * @param sender    the {@code CommandSender} to send the message to
-     * @param component the {@code TextComponent} message to send to the sender
-     * @since 1.0
-     */
-    public static void sendMessage(CommandSender sender, TextComponent component) {
-        String json = ComponentSerializers.JSON.serialize(component);
-        BaseComponent[] components = ComponentSerializer.parse(json);
-        sender.spigot().sendMessage(components);
+    public static void logString(String message) {
+        sendString(Bukkit.getConsoleSender(), String.format("%s &f%s", PLUGIN_PREFIX, message));
     }
 
-    /**
-     * <p>Sends an array of {@code TextComponent} messages to a {@code CommandSender}.</p>
-     *
-     * @param sender     the {@code CommandSender} to send the message to
-     * @param components the array of {@code TextComponent} messages to send to the sender
-     * @since 1.0
-     */
-    public static void sendMessages(CommandSender sender, TextComponent... components) {
+    public static void logStrings(String... messages) {
+        for (String message : messages) {
+            sendString(Bukkit.getConsoleSender(), message);
+        }
+    }
+
+    public static void logStrings(Iterable<String> messages) {
+        Iterator<String> it = messages.iterator();
+        while (it.hasNext()) {
+            sendString(Bukkit.getConsoleSender(), it.next());
+        }
+    }
+
+    public static void logComponent(TextComponent component) {
+        TextAdapter.sendComponent(Bukkit.getConsoleSender(), component);
+    }
+
+    public static void logComponents(TextComponent... components) {
         if (components != null) {
             for (TextComponent component : components) {
-                sendMessage(sender, component);
+                sendComponent(Bukkit.getConsoleSender(), component);
             }
         }
     }
 
-    /**
-     * <p>Sends a list of {@code TextComponent} messages to a {@code CommandSender}.</p>
-     *
-     * @param sender     the {@code CommandSender} to send the message to
-     * @param components the list of {@code TextComponent} messages to send to the sender
-     * @since 1.0
-     */
-    public static void sendMessages(CommandSender sender, List<TextComponent> components) {
+    public static void logComponents(Iterable<TextComponent> components) {
+        Iterator<TextComponent> it = components.iterator();
+        while (it.hasNext()) {
+            sendComponent(Bukkit.getConsoleSender(), it.next());
+        }
+    }
+
+    public static void sendString(CommandSender sender, String message) {
+        if (sender == null || message == null) return;
+        TextComponent component = LEGACY_COMPONENT_SERIALIZER.deserialize(message, TEXT_FORMAT_TOKEN);
+        sendComponent(sender, component);
+    }
+
+    public static void sendStrings(CommandSender sender, String... messages) {
+        for (String message : messages) {
+            sendString(sender, message);
+        }
+    }
+
+    public static void sendStrings(CommandSender sender, Iterable<String> messages) {
+        Iterator<String> it = messages.iterator();
+        while (it.hasNext()) {
+            sendString(sender, it.next());
+        }
+    }
+
+    public static void sendComponent(CommandSender sender, TextComponent component) {
+        if (sender == null || component == null) return;
+        TextAdapter.sendComponent(sender, component);
+    }
+
+    public static void sendComponents(CommandSender sender, TextComponent... components) {
         if (components != null) {
-            sendMessages(sender, components.toArray(new TextComponent[]{}));
+            for (TextComponent component : components) {
+                sendComponent(sender, component);
+            }
+        }
+    }
+
+    public static void sendComponents(CommandSender sender, Iterable<TextComponent> components) {
+        Iterator<TextComponent> it = components.iterator();
+        while (it.hasNext()) {
+            sendComponent(sender, it.next());
         }
     }
 

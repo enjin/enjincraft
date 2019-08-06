@@ -21,15 +21,19 @@ public class MenuCommand {
         component.append(TextComponent.builder().content("ENJ MENU").color(TextColor.DARK_PURPLE).build());
         component.append(TextComponent.builder().content(" ").build());
         component.append(TextComponent.builder().content(" Click to: ").build());
-        component.append(TextComponent.builder().content("Link Status").color(TextColor.DARK_AQUA).clickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/enj link")).build());
+        component.append(TextComponent.builder().content("Link Status").color(TextColor.DARK_AQUA)
+                .clickEvent(ClickEvent.runCommand("/enj link")).build());
         component.append(TextComponent.builder().content(" | ").build());
-        component.append(TextComponent.builder().content("Open Wallet").color(TextColor.DARK_AQUA).clickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/enj wallet")).build());
+        component.append(TextComponent.builder().content("Open Wallet").color(TextColor.DARK_AQUA)
+                .clickEvent(ClickEvent.runCommand("/enj wallet")).build());
         component.append(TextComponent.builder().content(" | ").build());
-        component.append(TextComponent.builder().content("Show Balance").color(TextColor.DARK_AQUA).clickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/enj balance")).build());
+        component.append(TextComponent.builder().content("Show Balance").color(TextColor.DARK_AQUA)
+                .clickEvent(ClickEvent.runCommand("/enj balance")).build());
         component.append(TextComponent.builder().content(" | ").build());
-        component.append(TextComponent.builder().content("Trade CryptoItem").color(TextColor.DARK_AQUA).clickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/enj trade")).build());
+        component.append(TextComponent.builder().content("Trade CryptoItem").color(TextColor.DARK_AQUA)
+                .clickEvent(ClickEvent.runCommand("/enj trade")).build());
 
-        MessageUtils.sendMessage(sender, component.build());
+        MessageUtils.sendComponent(sender, component.build());
 
         return;
     }
