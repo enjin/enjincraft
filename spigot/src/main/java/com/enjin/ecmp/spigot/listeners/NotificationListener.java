@@ -1,6 +1,7 @@
 package com.enjin.ecmp.spigot.listeners;
 
-import com.enjin.ecmp.spigot.BasePlugin;
+import com.enjin.ecmp.spigot.EcmpPlugin;
+import com.enjin.ecmp.spigot.EcmpSpigot;
 import com.enjin.ecmp.spigot.player.PlayerManager;
 import com.enjin.enjincoin.sdk.model.service.notifications.Event;
 import com.enjin.enjincoin.sdk.model.service.notifications.EventData;
@@ -13,9 +14,9 @@ import org.bukkit.Bukkit;
 
 public class NotificationListener implements com.enjin.enjincoin.sdk.service.notifications.NotificationListener {
 
-    private BasePlugin plugin;
+    private EcmpPlugin plugin;
 
-    public NotificationListener(BasePlugin plugin) {
+    public NotificationListener(EcmpPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -23,7 +24,7 @@ public class NotificationListener implements com.enjin.enjincoin.sdk.service.not
     public void notificationReceived(NotificationEvent event) {
         try {
             NotificationType eventType = event.getType();
-            plugin.getBootstrap().debug(String.format("Received event type %s on channel %s.", eventType, event.getChannel()));
+            plugin.bootstrap().debug(String.format("Received event type %s on channel %s.", eventType, event.getChannel()));
 
             if (eventType == null) return;
 
@@ -68,7 +69,7 @@ public class NotificationListener implements com.enjin.enjincoin.sdk.service.not
         EventData data = event.getData();
 
         if (data.getId() != null) {
-            PlayerManager playerManager = this.plugin.getBootstrap().getPlayerManager();
+            PlayerManager playerManager = EcmpSpigot.bootstrap().getPlayerManager();
             EnjinCoinPlayer mcPlayer = playerManager.getPlayer(data.getId());
 
             if (mcPlayer != null) {
@@ -81,14 +82,14 @@ public class NotificationListener implements com.enjin.enjincoin.sdk.service.not
         String requestId = data.getTransactionId();
         String tradeId = data.getParam1();
         if (StringUtils.isEmpty(requestId) || StringUtils.isEmpty(tradeId)) return;
-        TradeManager manager = this.plugin.getBootstrap().getTradeManager();
+        TradeManager manager = EcmpSpigot.bootstrap().getTradeManager();
         manager.submitCompleteTrade(requestId, tradeId);
     }
 
     private void onCompleteTrade(EventData data) {
         String requestId = data.getTransactionId();
         if (StringUtils.isEmpty(requestId)) return;
-        TradeManager manager = this.plugin.getBootstrap().getTradeManager();
+        TradeManager manager = EcmpSpigot.bootstrap().getTradeManager();
         manager.completeTrade(requestId);
     }
 
@@ -100,7 +101,7 @@ public class NotificationListener implements com.enjin.enjincoin.sdk.service.not
 
         String amount = data.getParam4();
 
-        PlayerManager playerManager = this.plugin.getBootstrap().getPlayerManager();
+        PlayerManager playerManager = EcmpSpigot.bootstrap().getPlayerManager();
         EnjinCoinPlayer fromMcPlayer = playerManager.getPlayer(fromEthAddr);
         EnjinCoinPlayer toMcPlayer = playerManager.getPlayer(toEthAddr);
 

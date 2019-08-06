@@ -1,6 +1,7 @@
 package com.enjin.ecmp.spigot.commands.subcommands;
 
-import com.enjin.ecmp.spigot.BasePlugin;
+import com.enjin.ecmp.spigot.EcmpPlugin;
+import com.enjin.ecmp.spigot.EcmpSpigot;
 import com.enjin.ecmp.spigot.player.PlayerManager;
 import com.enjin.ecmp.spigot.wallet.MutableBalance;
 import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
@@ -26,14 +27,14 @@ import java.util.List;
 
 public class SendCommand {
 
-    private BasePlugin plugin;
+    private EcmpPlugin plugin;
 
-    public SendCommand(BasePlugin plugin) {
+    public SendCommand(EcmpPlugin plugin) {
         this.plugin = plugin;
     }
 
     public void execute(Player sender, String[] args) {
-        PlayerManager playerManager = this.plugin.getBootstrap().getPlayerManager();
+        PlayerManager playerManager = EcmpSpigot.bootstrap().getPlayerManager();
         EnjinCoinPlayer senderMP = playerManager.getPlayer(sender.getUniqueId());
 
         if (args.length > 0) {
@@ -62,7 +63,7 @@ public class SendCommand {
                         balance.deposit(is.getAmount());
                         sender.getInventory().clear(sender.getInventory().getHeldItemSlot());
 
-                        IdentitiesService service = plugin.getBootstrap().getTrustedPlatformClient().getIdentitiesService();
+                        IdentitiesService service = EcmpSpigot.bootstrap().getTrustedPlatformClient().getIdentitiesService();
                         service.getIdentitiesAsync(new GetIdentities().identityId(senderMP.getIdentityId()), response -> {
                             if (response.isSuccess()) {
                                 GraphQLResponse<List<Identity>> body = response.body();
@@ -89,7 +90,7 @@ public class SendCommand {
     }
 
     private void send(Player sender, int senderId, int targetId, String tokenId, int amount) {
-        RequestsService service = this.plugin.getBootstrap().getTrustedPlatformClient().getRequestsService();
+        RequestsService service = EcmpSpigot.bootstrap().getTrustedPlatformClient().getRequestsService();
         try {
             HttpResponse<GraphQLResponse<Transaction>> result = service.createRequestSync(new CreateRequest()
                     .identityId(senderId)

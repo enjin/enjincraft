@@ -1,6 +1,7 @@
 package com.enjin.ecmp.spigot.commands.subcommands;
 
-import com.enjin.ecmp.spigot.BasePlugin;
+import com.enjin.ecmp.spigot.EcmpPlugin;
+import com.enjin.ecmp.spigot.EcmpSpigot;
 import com.enjin.ecmp.spigot.player.PlayerManager;
 import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
 import com.enjin.enjincoin.sdk.model.service.identities.GetIdentities;
@@ -21,11 +22,11 @@ import java.util.List;
 
 public class TradeCommand {
 
-    private BasePlugin plugin;
+    private EcmpPlugin plugin;
 
     private final TextComponent newline = TextComponent.of("");
 
-    public TradeCommand(BasePlugin plugin) {
+    public TradeCommand(EcmpPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -48,7 +49,7 @@ public class TradeCommand {
             Player target = Bukkit.getPlayer(args[0]);
             if (target != null) {
                 if (target != sender) {
-                    PlayerManager playerManager = this.plugin.getBootstrap().getPlayerManager();
+                    PlayerManager playerManager = EcmpSpigot.bootstrap().getPlayerManager();
                     EnjinCoinPlayer senderMP = playerManager.getPlayer(sender.getUniqueId());
 
                     if (!senderMP.isLinked()) {
@@ -68,7 +69,7 @@ public class TradeCommand {
                         return;
                     }
 
-                    IdentitiesService service = plugin.getBootstrap().getTrustedPlatformClient().getIdentitiesService();
+                    IdentitiesService service = EcmpSpigot.bootstrap().getTrustedPlatformClient().getIdentitiesService();
                     service.getIdentitiesAsync(new GetIdentities().identityId(senderMP.getIdentityId()), response -> {
                         if (response.isSuccess()) {
                             GraphQLResponse<List<Identity>> body = response.body();
@@ -98,7 +99,7 @@ public class TradeCommand {
     }
 
     private void invite(EnjinCoinPlayer sender, EnjinCoinPlayer target) {
-        TradeManager tradeManager = this.plugin.getBootstrap().getTradeManager();
+        TradeManager tradeManager = EcmpSpigot.bootstrap().getTradeManager();
         boolean result = tradeManager.addInvite(sender, target);
 
         if (result) {
@@ -136,8 +137,8 @@ public class TradeCommand {
         if (args.length > 0) {
             Player target = Bukkit.getPlayer(args[0]);
             if (target != null) {
-                PlayerManager playerManager = this.plugin.getBootstrap().getPlayerManager();
-                TradeManager tradeManager = this.plugin.getBootstrap().getTradeManager();
+                PlayerManager playerManager = EcmpSpigot.bootstrap().getPlayerManager();
+                TradeManager tradeManager = EcmpSpigot.bootstrap().getTradeManager();
                 EnjinCoinPlayer senderMP = playerManager.getPlayer(target.getUniqueId());
                 EnjinCoinPlayer targetMP = playerManager.getPlayer(sender.getUniqueId());
 
@@ -155,8 +156,8 @@ public class TradeCommand {
             Player target = Bukkit.getPlayer(args[0]);
 
             if (target != null) {
-                PlayerManager playerManager = this.plugin.getBootstrap().getPlayerManager();
-                TradeManager tradeManager = this.plugin.getBootstrap().getTradeManager();
+                PlayerManager playerManager = EcmpSpigot.bootstrap().getPlayerManager();
+                TradeManager tradeManager = EcmpSpigot.bootstrap().getTradeManager();
                 EnjinCoinPlayer senderMP = playerManager.getPlayer(target.getUniqueId());
                 EnjinCoinPlayer targetMP = playerManager.getPlayer(sender.getUniqueId());
 

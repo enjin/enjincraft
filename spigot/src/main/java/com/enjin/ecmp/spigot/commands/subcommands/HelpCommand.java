@@ -1,6 +1,6 @@
 package com.enjin.ecmp.spigot.commands.subcommands;
 
-import com.enjin.ecmp.spigot.BasePlugin;
+import com.enjin.ecmp.spigot.EcmpPlugin;
 import com.enjin.ecmp.spigot.util.MessageUtils;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
@@ -9,9 +9,9 @@ import org.bukkit.command.CommandSender;
 
 public class HelpCommand {
 
-    private BasePlugin plugin;
+    private EcmpPlugin plugin;
 
-    public HelpCommand(BasePlugin plugin) {
+    public HelpCommand(EcmpPlugin plugin) {
         this.plugin = plugin;
     }
 

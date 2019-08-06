@@ -1,6 +1,6 @@
 package com.enjin.ecmp.spigot.util;
 
-import com.enjin.ecmp.spigot.TokenDefinition;
+import com.enjin.ecmp.spigot.configuration.TokenDefinition;
 import com.enjin.minecraft_commons.spigot.nbt.NBTItem;
 import org.bukkit.inventory.ItemStack;
 

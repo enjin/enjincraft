@@ -1,7 +1,8 @@
 package com.enjin.ecmp.spigot.wallet;
 
-import com.enjin.ecmp.spigot.BasePlugin;
-import com.enjin.ecmp.spigot.TokenDefinition;
+import com.enjin.ecmp.spigot.EcmpPlugin;
+import com.enjin.ecmp.spigot.EcmpSpigot;
+import com.enjin.ecmp.spigot.configuration.TokenDefinition;
 import com.enjin.ecmp.spigot.player.EnjinCoinPlayer;
 import com.enjin.ecmp.spigot.util.TokenUtils;
 import com.enjin.java_commons.StringUtils;
@@ -27,11 +28,11 @@ public class TokenWalletView extends ChestMenu {
 
     public static final String WALLET_VIEW_NAME = "Enjin Wallet";
 
-    private BasePlugin plugin;
+    private EcmpPlugin plugin;
     private EnjinCoinPlayer owner;
     private SimpleMenuComponent component;
 
-    public TokenWalletView(BasePlugin plugin, EnjinCoinPlayer owner) {
+    public TokenWalletView(EcmpPlugin plugin, EnjinCoinPlayer owner) {
         super(ChatColor.DARK_PURPLE + WALLET_VIEW_NAME, 6);
         this.plugin = plugin;
         this.owner = owner;
@@ -53,7 +54,7 @@ public class TokenWalletView extends ChestMenu {
             if (index == component.size()) break;
             if (balance.amountAvailableForWithdrawal() == 0) continue;
 
-            TokenDefinition def = plugin.getBootstrap().getConfig().getTokens().get(balance.id());
+            TokenDefinition def = EcmpSpigot.bootstrap().getConfig().getTokens().get(balance.id());
             if (def == null) continue;
             ItemStack is = def.getItemStackInstance();
             is.setAmount(balance.amountAvailableForWithdrawal());
@@ -105,7 +106,7 @@ public class TokenWalletView extends ChestMenu {
             if (current != null) {
                 String id = TokenUtils.getTokenID(current);
                 if (!StringUtils.isEmpty(id)) {
-                    EnjinCoinPlayer player = plugin.getBootstrap().getPlayerManager()
+                    EnjinCoinPlayer player = EcmpSpigot.bootstrap().getPlayerManager()
                             .getPlayer(event.getWhoClicked().getUniqueId());
                     MutableBalance balance = player.getTokenWallet().getBalance(id);
                     balance.deposit(current.getAmount());

@@ -1,6 +1,6 @@
 package com.enjin.ecmp.spigot.commands;
 
-import com.enjin.ecmp.spigot.BasePlugin;
+import com.enjin.ecmp.spigot.EcmpPlugin;
 import com.enjin.ecmp.spigot.commands.subcommands.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class RootCommand implements CommandExecutor {
 
-    private final BasePlugin plugin;
+    private final EcmpPlugin plugin;
 
     private final LinkCommand link;
 
@@ -33,7 +33,7 @@ public class RootCommand implements CommandExecutor {
 
     private static Map<String, String> commands;
 
-    public RootCommand(BasePlugin plugin) {
+    public RootCommand(EcmpPlugin plugin) {
         this.commands = new HashMap<>();
         this.plugin = plugin;
 
