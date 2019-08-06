@@ -1,6 +1,6 @@
 package com.enjin.ecmp.spigot.player;
 
-import com.enjin.ecmp.spigot.BasePlugin;
+import com.enjin.ecmp.spigot.EcmpPlugin;
 import com.enjin.ecmp.spigot.events.EnjinCoinPlayerQuitEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -17,10 +17,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class PlayerManager implements Listener {
 
-    private BasePlugin plugin;
+    private EcmpPlugin plugin;
     private Map<UUID, EnjinCoinPlayer> players = new ConcurrentHashMap<>();
 
-    public PlayerManager(BasePlugin plugin) {
+    public PlayerManager(EcmpPlugin plugin) {
         this.plugin = plugin;
     }
 

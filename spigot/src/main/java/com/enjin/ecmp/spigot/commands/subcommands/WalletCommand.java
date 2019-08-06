@@ -1,6 +1,7 @@
 package com.enjin.ecmp.spigot.commands.subcommands;
 
-import com.enjin.ecmp.spigot.BasePlugin;
+import com.enjin.ecmp.spigot.EcmpPlugin;
+import com.enjin.ecmp.spigot.EcmpSpigot;
 import com.enjin.ecmp.spigot.player.PlayerManager;
 import com.enjin.ecmp.spigot.player.EnjinCoinPlayer;
 import com.enjin.ecmp.spigot.util.MessageUtils;
@@ -13,9 +14,9 @@ import org.bukkit.entity.Player;
 
 public class WalletCommand {
 
-    private BasePlugin plugin;
+    private EcmpPlugin plugin;
 
-    public WalletCommand(BasePlugin plugin) {
+    public WalletCommand(EcmpPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -24,7 +25,7 @@ public class WalletCommand {
             Player player = (Player) sender;
 
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                PlayerManager playerManager = this.plugin.getBootstrap().getPlayerManager();
+                PlayerManager playerManager = EcmpSpigot.bootstrap().getPlayerManager();
                 EnjinCoinPlayer enjinCoinPlayer = playerManager.getPlayer(player.getUniqueId());
 
                 if (!enjinCoinPlayer.isLinked()) {

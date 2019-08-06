@@ -1,6 +1,8 @@
 package com.enjin.ecmp.spigot.player;
 
-import com.enjin.ecmp.spigot.BasePlugin;
+import com.enjin.ecmp.spigot.EcmpPlugin;
+import com.enjin.ecmp.spigot.EcmpSpigot;
+import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.util.TokenUtils;
 import com.enjin.ecmp.spigot.wallet.MutableBalance;
 import com.enjin.ecmp.spigot.wallet.TokenWallet;
@@ -35,7 +37,7 @@ import java.util.Optional;
 public class EnjinCoinPlayer {
 
     // Bukkit Fields
-    private BasePlugin plugin;
+    private EcmpPlugin plugin;
     private Player bukkitPlayer;
 
     // User Data
@@ -59,7 +61,7 @@ public class EnjinCoinPlayer {
     private List<EnjinCoinPlayer> receivedTradeInvites = new ArrayList<>();
     private TradeView activeTradeView;
 
-    public EnjinCoinPlayer(BasePlugin plugin, Player player) {
+    public EnjinCoinPlayer(EcmpPlugin plugin, Player player) {
         this.plugin = plugin;
         this.bukkitPlayer = player;
     }
@@ -77,7 +79,7 @@ public class EnjinCoinPlayer {
             userLoaded = true;
 
             Optional<Identity> optionalIdentity = user.getIdentities().stream()
-                    .filter(identity -> identity.getAppId().intValue() == plugin.getBootstrap().getConfig().getAppId())
+                    .filter(identity -> identity.getAppId().intValue() == EcmpSpigot.bootstrap().getConfig().getAppId())
                     .findFirst();
             optionalIdentity.ifPresent(identity -> identityId = identity.getId());
         }
@@ -102,7 +104,7 @@ public class EnjinCoinPlayer {
             enjAllowance = identity.getEnjAllowance();
             identityLoaded = true;
 
-            NotificationsService service = plugin.getBootstrap().getNotificationsService();
+            NotificationsService service = EcmpSpigot.bootstrap().getNotificationsService();
             boolean listening = service.isSubscribedToIdentity(identityId);
 
             if (linkingCode != null && !listening) {
@@ -132,7 +134,7 @@ public class EnjinCoinPlayer {
         if (StringUtils.isEmpty(ethereumAddress)) return;
 
         // populate wallet;
-        TrustedPlatformClient client = plugin.getBootstrap().getTrustedPlatformClient();
+        TrustedPlatformClient client = EcmpSpigot.bootstrap().getTrustedPlatformClient();
         try {
             HttpResponse<GraphQLResponse<List<Balance>>> networkResponse = client.getBalancesService()
                     .getBalancesSync(new GetBalances().ethAddr(ethereumAddress));
@@ -140,7 +142,7 @@ public class EnjinCoinPlayer {
                 GraphQLResponse<List<Balance>> response = networkResponse.body();
                 if (response.isSuccess()) {
                     List<Balance> balances = response.getData();
-                    tokenWallet = new TokenWallet(plugin.getBootstrap(), balances);
+                    tokenWallet = new TokenWallet((SpigotBootstrap) EcmpSpigot.bootstrap(), balances);
                     PlayerInventory inventory = bukkitPlayer.getInventory();
                     for (int i = inventory.getSize() - 1; i >= 0; i--) {
                         ItemStack is = inventory.getItem(i);
@@ -168,7 +170,7 @@ public class EnjinCoinPlayer {
     }
 
     public void reloadUser() {
-        TrustedPlatformClient client = plugin.getBootstrap().getTrustedPlatformClient();
+        TrustedPlatformClient client = EcmpSpigot.bootstrap().getTrustedPlatformClient();
         // Fetch the User for the Player in question
         try {
             HttpResponse<GraphQLResponse<List<User>>> networkResponse = client.getUsersService()
@@ -192,7 +194,7 @@ public class EnjinCoinPlayer {
     }
 
     public void reloadIdentity() {
-        TrustedPlatformClient client = plugin.getBootstrap().getTrustedPlatformClient();
+        TrustedPlatformClient client = EcmpSpigot.bootstrap().getTrustedPlatformClient();
 
         try {
             HttpResponse<GraphQLResponse<List<Identity>>> networkResponse = client.getIdentitiesService()
@@ -233,7 +235,7 @@ public class EnjinCoinPlayer {
 
     protected void cleanUp() {
         PlayerInitializationTask.cleanUp(bukkitPlayer.getUniqueId());
-        plugin.getBootstrap().getNotificationsService().unsubscribeToIdentity(identityId);
+        EcmpSpigot.bootstrap().getNotificationsService().unsubscribeToIdentity(identityId);
         bukkitPlayer = null;
     }
 

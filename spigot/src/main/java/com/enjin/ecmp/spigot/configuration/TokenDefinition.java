@@ -1,4 +1,4 @@
-package com.enjin.ecmp.spigot;
+package com.enjin.ecmp.spigot.configuration;
 
 import com.enjin.minecraft_commons.spigot.nbt.NBTItem;
 import com.google.gson.JsonArray;

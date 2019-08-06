@@ -1,6 +1,7 @@
 package com.enjin.ecmp.spigot.player;
 
-import com.enjin.ecmp.spigot.BasePlugin;
+import com.enjin.ecmp.spigot.EcmpPlugin;
+import com.enjin.ecmp.spigot.EcmpSpigot;
 import com.enjin.enjincoin.sdk.TrustedPlatformClient;
 import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
 import com.enjin.enjincoin.sdk.http.HttpResponse;
@@ -23,12 +24,12 @@ public class PlayerInitializationTask extends BukkitRunnable {
 
     private static final Map<UUID, PlayerInitializationTask> PLAYER_TASKS = new ConcurrentHashMap<>();
 
-    private BasePlugin plugin;
+    private EcmpPlugin plugin;
     private EnjinCoinPlayer enjinCoinPlayer;
 
     private boolean inProgress = false;
 
-    protected PlayerInitializationTask(BasePlugin plugin, EnjinCoinPlayer enjinCoinPlayer) {
+    protected PlayerInitializationTask(EcmpPlugin plugin, EnjinCoinPlayer enjinCoinPlayer) {
         this.plugin = plugin;
         this.enjinCoinPlayer = enjinCoinPlayer;
     }
@@ -85,7 +86,7 @@ public class PlayerInitializationTask extends BukkitRunnable {
     }
 
     private User fetchExistingUser(UUID playerUuid) throws IOException {
-        TrustedPlatformClient client = this.plugin.getBootstrap().getTrustedPlatformClient();
+        TrustedPlatformClient client = EcmpSpigot.bootstrap().getTrustedPlatformClient();
         // Fetch the User for the Player in question
         HttpResponse<GraphQLResponse<List<User>>> networkResponse = client.getUsersService()
                 .getUsersSync(new GetUsers().name(playerUuid.toString()));
@@ -106,7 +107,7 @@ public class PlayerInitializationTask extends BukkitRunnable {
     }
 
     private User createUser(UUID playerUuid) throws IOException {
-        TrustedPlatformClient client = this.plugin.getBootstrap().getTrustedPlatformClient();
+        TrustedPlatformClient client = EcmpSpigot.bootstrap().getTrustedPlatformClient();
         // Create the User for the Player in question
         HttpResponse<GraphQLResponse<User>> networkResponse = client.getUsersService()
                 .createUserSync(new CreateUser().name(playerUuid.toString()));
@@ -129,7 +130,7 @@ public class PlayerInitializationTask extends BukkitRunnable {
         if (enjinCoinPlayer.getIdentityId() == null) {
             identity = createIdentity();
         } else {
-            TrustedPlatformClient client = plugin.getBootstrap().getTrustedPlatformClient();
+            TrustedPlatformClient client = EcmpSpigot.bootstrap().getTrustedPlatformClient();
             HttpResponse<GraphQLResponse<List<Identity>>> networkResponse = client.getIdentitiesService()
                     .getIdentitiesSync(new GetIdentities().identityId(enjinCoinPlayer.getIdentityId()));
 
@@ -152,7 +153,7 @@ public class PlayerInitializationTask extends BukkitRunnable {
     }
 
     private Identity createIdentity() throws IOException {
-        TrustedPlatformClient client = this.plugin.getBootstrap().getTrustedPlatformClient();
+        TrustedPlatformClient client = EcmpSpigot.bootstrap().getTrustedPlatformClient();
         // Create the Identity for the App ID and Player in question
         HttpResponse<GraphQLResponse<Identity>> networkResponse = client.getIdentitiesService()
                 .createIdentitySync(new CreateIdentity().userId(this.enjinCoinPlayer.getUserId()));
@@ -169,7 +170,7 @@ public class PlayerInitializationTask extends BukkitRunnable {
         return identity;
     }
 
-    public static void create(BasePlugin plugin, EnjinCoinPlayer enjinCoinPlayer) {
+    public static void create(EcmpPlugin plugin, EnjinCoinPlayer enjinCoinPlayer) {
         cleanUp(enjinCoinPlayer.getBukkitPlayer().getUniqueId());
 
         PlayerInitializationTask task = new PlayerInitializationTask(plugin, enjinCoinPlayer);

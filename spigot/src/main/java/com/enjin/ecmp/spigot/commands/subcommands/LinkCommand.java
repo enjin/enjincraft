@@ -1,6 +1,7 @@
 package com.enjin.ecmp.spigot.commands.subcommands;
 
-import com.enjin.ecmp.spigot.BasePlugin;
+import com.enjin.ecmp.spigot.EcmpPlugin;
+import com.enjin.ecmp.spigot.EcmpSpigot;
 import com.enjin.ecmp.spigot.player.EnjinCoinPlayer;
 import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.ecmp.spigot.util.UuidUtils;
@@ -14,7 +15,7 @@ import java.util.UUID;
 
 public class LinkCommand {
 
-    private BasePlugin plugin;
+    private EcmpPlugin plugin;
 
     /**
      * <p>Empty line helper for MessageUtils.sendMessage</p>
@@ -26,7 +27,7 @@ public class LinkCommand {
      *
      * @param plugin the Spigot plugin
      */
-    public LinkCommand(BasePlugin plugin) {
+    public LinkCommand(EcmpPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -58,7 +59,7 @@ public class LinkCommand {
         }
 
         if (uuid != null) {
-            EnjinCoinPlayer enjinCoinPlayer = this.plugin.getBootstrap().getPlayerManager().getPlayer(uuid);
+            EnjinCoinPlayer enjinCoinPlayer = EcmpSpigot.bootstrap().getPlayerManager().getPlayer(uuid);
             if (enjinCoinPlayer != null) {
                 if (enjinCoinPlayer.isLoaded()) {
                     if (StringUtils.isEmpty(enjinCoinPlayer.getLinkingCode()))

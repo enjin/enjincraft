@@ -1,6 +1,7 @@
 package com.enjin.ecmp.spigot.commands.subcommands;
 
-import com.enjin.ecmp.spigot.BasePlugin;
+import com.enjin.ecmp.spigot.EcmpPlugin;
+import com.enjin.ecmp.spigot.EcmpSpigot;
 import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
 import com.enjin.enjincoin.sdk.http.HttpResponse;
 import com.enjin.enjincoin.sdk.model.service.identities.DeleteIdentity;
@@ -23,11 +24,11 @@ import java.util.UUID;
 
 public class UnlinkCommand {
 
-    private BasePlugin plugin;
+    private EcmpPlugin plugin;
 
     private final TextComponent newline = TextComponent.of("");
 
-    public UnlinkCommand(BasePlugin plugin) {
+    public UnlinkCommand(EcmpPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -52,7 +53,7 @@ public class UnlinkCommand {
         }
 
         if (uuid != null) {
-            EnjinCoinPlayer enjinCoinPlayer = this.plugin.getBootstrap().getPlayerManager().getPlayer(uuid);
+            EnjinCoinPlayer enjinCoinPlayer = EcmpSpigot.bootstrap().getPlayerManager().getPlayer(uuid);
             if (enjinCoinPlayer != null) {
                 if (enjinCoinPlayer.isLoaded()) {
                     if (!enjinCoinPlayer.isLinked()) {
@@ -92,7 +93,7 @@ public class UnlinkCommand {
     }
 
     private void handleUnlinking(CommandSender sender, int id) throws IOException {
-        IdentitiesService service = this.plugin.getBootstrap().getTrustedPlatformClient().getIdentitiesService();
+        IdentitiesService service = EcmpSpigot.bootstrap().getTrustedPlatformClient().getIdentitiesService();
         HttpResponse<GraphQLResponse<Identity>> response = service.deleteIdentitySync(DeleteIdentity.unlink(id));
 
         final TextComponent notice = TextComponent.of("Wallet successfully unlinked. To re-link use the /enj link command to generate a new Linking Code.")

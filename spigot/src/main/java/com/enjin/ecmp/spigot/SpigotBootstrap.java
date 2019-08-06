@@ -20,6 +20,7 @@ import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -28,9 +29,9 @@ import java.util.logging.Logger;
 import static okhttp3.logging.HttpLoggingInterceptor.Level.BODY;
 import static okhttp3.logging.HttpLoggingInterceptor.Level.NONE;
 
-public class SpigotBootstrap extends PluginBootstrap {
+public class SpigotBootstrap implements Bootstrap, Module {
 
-    private final BasePlugin plugin;
+    private final EcmpPlugin plugin;
     private EcmpConfig config;
 
     private TrustedPlatformClient trustedPlatformClient;
@@ -38,11 +39,11 @@ public class SpigotBootstrap extends PluginBootstrap {
     private PlayerManager playerManager;
     private TradeManager tradeManager;
 
-    public SpigotBootstrap(BasePlugin plugin) {
+    public SpigotBootstrap(EcmpPlugin plugin) {
         this.plugin = plugin;
     }
 
-    public BasePlugin getPlugin() {
+    public EcmpPlugin getPlugin() {
         return plugin;
     }
 
@@ -148,20 +149,6 @@ public class SpigotBootstrap extends PluginBootstrap {
         }
     }
 
-    private boolean validateConfig() {
-        boolean validUrl = !StringUtils.isEmpty(config.getPlatformBaseUrl());
-        boolean validAppId = config.getAppId() >= 0;
-        boolean validSecret = !StringUtils.isEmpty(config.getAppSecret());
-        boolean validIdentityId = config.getDevIdentityId() >= 0;
-
-        if (!validUrl) plugin.getLogger().warning("Invalid platform url specified in config.");
-        if (!validAppId) plugin.getLogger().warning("Invalid app id specified in config.");
-        if (!validSecret) plugin.getLogger().warning("Invalid app secret specified in config.");
-        if (!validIdentityId) plugin.getLogger().warning("Invalid dev identity id specified in config.");
-
-        return validUrl && validAppId && validSecret && validIdentityId;
-    }
-
     @Override
     public void tearDown() {
         if (trustedPlatformClient != null) {
@@ -198,14 +185,30 @@ public class SpigotBootstrap extends PluginBootstrap {
         return config;
     }
 
-    @Override
+    public Plugin plugin() {
+        return plugin;
+    }
+
+    private boolean validateConfig() {
+        boolean validUrl = !StringUtils.isEmpty(config.getPlatformBaseUrl());
+        boolean validAppId = config.getAppId() >= 0;
+        boolean validSecret = !StringUtils.isEmpty(config.getAppSecret());
+        boolean validIdentityId = config.getDevIdentityId() >= 0;
+
+        if (!validUrl) plugin.getLogger().warning("Invalid platform url specified in config.");
+        if (!validAppId) plugin.getLogger().warning("Invalid app id specified in config.");
+        if (!validSecret) plugin.getLogger().warning("Invalid app secret specified in config.");
+        if (!validIdentityId) plugin.getLogger().warning("Invalid dev identity id specified in config.");
+
+        return validUrl && validAppId && validSecret && validIdentityId;
+    }
+
     public void debug(String log) {
         if (config.isPluginDebugging()) {
             getLogger().info(log);
         }
     }
 
-    @Override
     public Logger getLogger() {
         return plugin.getLogger();
     }

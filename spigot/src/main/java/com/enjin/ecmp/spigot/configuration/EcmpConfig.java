@@ -1,6 +1,5 @@
 package com.enjin.ecmp.spigot.configuration;
 
-import com.enjin.ecmp.spigot.TokenDefinition;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;

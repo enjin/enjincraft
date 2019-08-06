@@ -1,7 +1,8 @@
 package com.enjin.ecmp.spigot.commands.subcommands;
 
-import com.enjin.ecmp.spigot.BasePlugin;
-import com.enjin.ecmp.spigot.TokenDefinition;
+import com.enjin.ecmp.spigot.EcmpPlugin;
+import com.enjin.ecmp.spigot.EcmpSpigot;
+import com.enjin.ecmp.spigot.configuration.TokenDefinition;
 import com.enjin.ecmp.spigot.wallet.MutableBalance;
 import com.enjin.ecmp.spigot.player.EnjinCoinPlayer;
 import com.enjin.ecmp.spigot.util.MessageUtils;
@@ -18,9 +19,9 @@ import java.util.List;
 
 public class BalanceCommand {
 
-    private BasePlugin plugin;
+    private EcmpPlugin plugin;
 
-    public BalanceCommand(BasePlugin plugin) {
+    public BalanceCommand(EcmpPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -28,7 +29,7 @@ public class BalanceCommand {
         if (sender instanceof Player) {
             Player player = (Player) sender;
 
-            EnjinCoinPlayer mcPlayer = this.plugin.getBootstrap().getPlayerManager().getPlayer(player.getUniqueId());
+            EnjinCoinPlayer mcPlayer = EcmpSpigot.bootstrap().getPlayerManager().getPlayer(player.getUniqueId());
             // reload/refresh user info
 
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
@@ -63,7 +64,7 @@ public class BalanceCommand {
                     if (mcPlayer.isLinked()) {
                         List<MutableBalance> balances = mcPlayer.getTokenWallet().getBalances();
                         for (MutableBalance balance : balances) {
-                            TokenDefinition def = plugin.getBootstrap().getConfig().getTokens().get(balance.id());
+                            TokenDefinition def = EcmpSpigot.bootstrap().getConfig().getTokens().get(balance.id());
                             if (def != null && balance != null && balance.balance() > 0) {
                                 itemCount++;
                                 listing.add(TextComponent.of(itemCount + ". ").color(TextColor.GOLD)
