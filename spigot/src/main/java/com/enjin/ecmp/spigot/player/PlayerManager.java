@@ -1,6 +1,6 @@
 package com.enjin.ecmp.spigot.player;
 
-import com.enjin.ecmp.spigot.EcmpPlugin;
+import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.events.EnjinCoinPlayerQuitEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -17,20 +17,20 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class PlayerManager implements Listener {
 
-    private EcmpPlugin plugin;
+    private SpigotBootstrap bootstrap;
     private Map<UUID, EnjinCoinPlayer> players = new ConcurrentHashMap<>();
 
-    public PlayerManager(EcmpPlugin plugin) {
-        this.plugin = plugin;
+    public PlayerManager(SpigotBootstrap bootstrap) {
+        this.bootstrap = bootstrap;
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerJoin(PlayerJoinEvent event) {
-        EnjinCoinPlayer enjinCoinPlayer = new EnjinCoinPlayer(this.plugin, event.getPlayer());
+        EnjinCoinPlayer enjinCoinPlayer = new EnjinCoinPlayer(bootstrap, event.getPlayer());
 
         addPlayer(enjinCoinPlayer);
         // Fetch or create a User and Identity associated with the joining Player
-        PlayerInitializationTask.create(this.plugin, enjinCoinPlayer);
+        PlayerInitializationTask.create(bootstrap, enjinCoinPlayer);
     }
 
     @EventHandler

@@ -1,7 +1,6 @@
 package com.enjin.ecmp.spigot.wallet;
 
-import com.enjin.ecmp.spigot.EcmpPlugin;
-import com.enjin.ecmp.spigot.EcmpSpigot;
+import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.configuration.TokenDefinition;
 import com.enjin.ecmp.spigot.player.EnjinCoinPlayer;
 import com.enjin.ecmp.spigot.util.TokenUtils;
@@ -28,13 +27,13 @@ public class TokenWalletView extends ChestMenu {
 
     public static final String WALLET_VIEW_NAME = "Enjin Wallet";
 
-    private EcmpPlugin plugin;
+    private SpigotBootstrap bootstrap;
     private EnjinCoinPlayer owner;
     private SimpleMenuComponent component;
 
-    public TokenWalletView(EcmpPlugin plugin, EnjinCoinPlayer owner) {
+    public TokenWalletView(SpigotBootstrap bootstrap, EnjinCoinPlayer owner) {
         super(ChatColor.DARK_PURPLE + WALLET_VIEW_NAME, 6);
-        this.plugin = plugin;
+        this.bootstrap = bootstrap;
         this.owner = owner;
         this.component = new SimpleMenuComponent(new Dimension(9, 6));
         init();
@@ -54,7 +53,7 @@ public class TokenWalletView extends ChestMenu {
             if (index == component.size()) break;
             if (balance.amountAvailableForWithdrawal() == 0) continue;
 
-            TokenDefinition def = EcmpSpigot.bootstrap().getConfig().getTokens().get(balance.id());
+            TokenDefinition def = bootstrap.getConfig().getTokens().get(balance.id());
             if (def == null) continue;
             ItemStack is = def.getItemStackInstance();
             is.setAmount(balance.amountAvailableForWithdrawal());
@@ -106,12 +105,12 @@ public class TokenWalletView extends ChestMenu {
             if (current != null) {
                 String id = TokenUtils.getTokenID(current);
                 if (!StringUtils.isEmpty(id)) {
-                    EnjinCoinPlayer player = EcmpSpigot.bootstrap().getPlayerManager()
+                    EnjinCoinPlayer player = bootstrap.getPlayerManager()
                             .getPlayer(event.getWhoClicked().getUniqueId());
                     MutableBalance balance = player.getTokenWallet().getBalance(id);
                     balance.deposit(current.getAmount());
                     current.setAmount(0);
-                    Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> repopulate((Player) event.getWhoClicked()));
+                    Bukkit.getScheduler().scheduleSyncDelayedTask(bootstrap.plugin(), () -> repopulate((Player) event.getWhoClicked()));
                 }
             }
         }

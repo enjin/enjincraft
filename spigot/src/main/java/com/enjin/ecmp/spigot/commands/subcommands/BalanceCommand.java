@@ -1,11 +1,10 @@
 package com.enjin.ecmp.spigot.commands.subcommands;
 
-import com.enjin.ecmp.spigot.EcmpPlugin;
-import com.enjin.ecmp.spigot.EcmpSpigot;
+import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.configuration.TokenDefinition;
-import com.enjin.ecmp.spigot.wallet.MutableBalance;
 import com.enjin.ecmp.spigot.player.EnjinCoinPlayer;
 import com.enjin.ecmp.spigot.util.MessageUtils;
+import com.enjin.ecmp.spigot.wallet.MutableBalance;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
 import org.bukkit.Bukkit;
@@ -19,20 +18,20 @@ import java.util.List;
 
 public class BalanceCommand {
 
-    private EcmpPlugin plugin;
+    private SpigotBootstrap bootstrap;
 
-    public BalanceCommand(EcmpPlugin plugin) {
-        this.plugin = plugin;
+    public BalanceCommand(SpigotBootstrap bootstrap) {
+        this.bootstrap = bootstrap;
     }
 
     public void execute(CommandSender sender, String[] args) {
         if (sender instanceof Player) {
             Player player = (Player) sender;
 
-            EnjinCoinPlayer mcPlayer = EcmpSpigot.bootstrap().getPlayerManager().getPlayer(player.getUniqueId());
+            EnjinCoinPlayer mcPlayer = bootstrap.getPlayerManager().getPlayer(player.getUniqueId());
             // reload/refresh user info
 
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            Bukkit.getScheduler().runTaskAsynchronously(bootstrap.plugin(), () -> {
                 mcPlayer.reloadUser();
 
                 if (!mcPlayer.isLinked()) {
@@ -64,7 +63,7 @@ public class BalanceCommand {
                     if (mcPlayer.isLinked()) {
                         List<MutableBalance> balances = mcPlayer.getTokenWallet().getBalances();
                         for (MutableBalance balance : balances) {
-                            TokenDefinition def = EcmpSpigot.bootstrap().getConfig().getTokens().get(balance.id());
+                            TokenDefinition def = bootstrap.getConfig().getTokens().get(balance.id());
                             if (def != null && balance != null && balance.balance() > 0) {
                                 itemCount++;
                                 listing.add(TextComponent.of(itemCount + ". ").color(TextColor.GOLD)

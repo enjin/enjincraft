@@ -6,8 +6,6 @@ import com.enjin.ecmp.spigot.trade.TradeManager;
 import com.enjin.enjincoin.sdk.TrustedPlatformClient;
 import com.enjin.enjincoin.sdk.service.notifications.NotificationsService;
 
-import java.util.logging.Logger;
-
 public interface Bootstrap {
 
     TrustedPlatformClient getTrustedPlatformClient();

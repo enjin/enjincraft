@@ -1,16 +1,15 @@
 package com.enjin.ecmp.spigot.commands.subcommands;
 
-import com.enjin.ecmp.spigot.EcmpPlugin;
-import com.enjin.ecmp.spigot.EcmpSpigot;
+import com.enjin.ecmp.spigot.SpigotBootstrap;
+import com.enjin.ecmp.spigot.player.EnjinCoinPlayer;
+import com.enjin.ecmp.spigot.util.MessageUtils;
+import com.enjin.ecmp.spigot.util.TokenUtils;
+import com.enjin.ecmp.spigot.util.UuidUtils;
 import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
 import com.enjin.enjincoin.sdk.http.HttpResponse;
 import com.enjin.enjincoin.sdk.model.service.identities.DeleteIdentity;
 import com.enjin.enjincoin.sdk.model.service.identities.Identity;
 import com.enjin.enjincoin.sdk.service.identities.IdentitiesService;
-import com.enjin.ecmp.spigot.player.EnjinCoinPlayer;
-import com.enjin.ecmp.spigot.util.MessageUtils;
-import com.enjin.ecmp.spigot.util.TokenUtils;
-import com.enjin.ecmp.spigot.util.UuidUtils;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
 import org.bukkit.Bukkit;
@@ -24,12 +23,12 @@ import java.util.UUID;
 
 public class UnlinkCommand {
 
-    private EcmpPlugin plugin;
+    private SpigotBootstrap bootstrap;
 
     private final TextComponent newline = TextComponent.of("");
 
-    public UnlinkCommand(EcmpPlugin plugin) {
-        this.plugin = plugin;
+    public UnlinkCommand(SpigotBootstrap bootstrap) {
+        this.bootstrap = bootstrap;
     }
 
     public void execute(CommandSender sender, String[] args) {
@@ -53,15 +52,15 @@ public class UnlinkCommand {
         }
 
         if (uuid != null) {
-            EnjinCoinPlayer enjinCoinPlayer = EcmpSpigot.bootstrap().getPlayerManager().getPlayer(uuid);
+            EnjinCoinPlayer enjinCoinPlayer = bootstrap.getPlayerManager().getPlayer(uuid);
             if (enjinCoinPlayer != null) {
                 if (enjinCoinPlayer.isLoaded()) {
                     if (!enjinCoinPlayer.isLinked()) {
                         if (enjinCoinPlayer.getLinkingCode() != null)
-                            Bukkit.getScheduler().runTask(plugin, () -> handleUnlinked(sender, enjinCoinPlayer.getLinkingCode()));
+                            Bukkit.getScheduler().runTask(bootstrap.plugin(), () -> handleUnlinked(sender, enjinCoinPlayer.getLinkingCode()));
                     } else {
                         // reload the identity for the existing user post unlink.
-                        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                        Bukkit.getScheduler().runTaskAsynchronously(bootstrap.plugin(), () -> {
                             try {
                                 handleUnlinking(sender, enjinCoinPlayer.getIdentityId());
                                 enjinCoinPlayer.reloadIdentity();
@@ -93,7 +92,7 @@ public class UnlinkCommand {
     }
 
     private void handleUnlinking(CommandSender sender, int id) throws IOException {
-        IdentitiesService service = EcmpSpigot.bootstrap().getTrustedPlatformClient().getIdentitiesService();
+        IdentitiesService service = bootstrap.getTrustedPlatformClient().getIdentitiesService();
         HttpResponse<GraphQLResponse<Identity>> response = service.deleteIdentitySync(DeleteIdentity.unlink(id));
 
         final TextComponent notice = TextComponent.of("Wallet successfully unlinked. To re-link use the /enj link command to generate a new Linking Code.")
@@ -101,7 +100,7 @@ public class UnlinkCommand {
 
         MessageUtils.sendComponent(sender, notice);
 
-        Bukkit.getScheduler().runTask(plugin, () -> {
+        Bukkit.getScheduler().runTask(bootstrap.plugin(), () -> {
            Player player = (Player) sender;
            Inventory inventory = player.getInventory();
 

@@ -1,9 +1,8 @@
 package com.enjin.ecmp.spigot.commands.subcommands;
 
-import com.enjin.ecmp.spigot.EcmpPlugin;
-import com.enjin.ecmp.spigot.EcmpSpigot;
-import com.enjin.ecmp.spigot.player.PlayerManager;
+import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.player.EnjinCoinPlayer;
+import com.enjin.ecmp.spigot.player.PlayerManager;
 import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.ecmp.spigot.wallet.TokenWalletView;
 import net.kyori.text.TextComponent;
@@ -14,18 +13,18 @@ import org.bukkit.entity.Player;
 
 public class WalletCommand {
 
-    private EcmpPlugin plugin;
+    private SpigotBootstrap bootstrap;
 
-    public WalletCommand(EcmpPlugin plugin) {
-        this.plugin = plugin;
+    public WalletCommand(SpigotBootstrap bootstrap) {
+        this.bootstrap = bootstrap;
     }
 
     public void execute(CommandSender sender, String[] args) {
         if (sender instanceof Player) {
             Player player = (Player) sender;
 
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                PlayerManager playerManager = EcmpSpigot.bootstrap().getPlayerManager();
+            Bukkit.getScheduler().runTaskAsynchronously(bootstrap.plugin(), () -> {
+                PlayerManager playerManager = bootstrap.getPlayerManager();
                 EnjinCoinPlayer enjinCoinPlayer = playerManager.getPlayer(player.getUniqueId());
 
                 if (!enjinCoinPlayer.isLinked()) {
@@ -56,7 +55,7 @@ public class WalletCommand {
 //                    Inventory inventory = LegacyWalletInventory.create(plugin, player, tokens);
 //                    player.openInventory(inventory);
 
-                    TokenWalletView view = new TokenWalletView(plugin, enjinCoinPlayer);
+                    TokenWalletView view = new TokenWalletView(bootstrap, enjinCoinPlayer);
                     view.open(player);
                 } else {
                     TextComponent text = TextComponent.of("You have not linked a wallet to your account.")

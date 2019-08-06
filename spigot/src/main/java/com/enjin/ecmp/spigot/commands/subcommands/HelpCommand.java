@@ -1,19 +1,9 @@
 package com.enjin.ecmp.spigot.commands.subcommands;
 
-import com.enjin.ecmp.spigot.EcmpPlugin;
-import com.enjin.ecmp.spigot.util.MessageUtils;
-import net.kyori.text.TextComponent;
-import net.kyori.text.format.TextColor;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
 public class HelpCommand {
-
-    private EcmpPlugin plugin;
-
-    public HelpCommand(EcmpPlugin plugin) {
-        this.plugin = plugin;
-    }
 
     public void execute(CommandSender sender) {
         sender.sendMessage("Usage:");
@@ -26,12 +16,6 @@ public class HelpCommand {
         sender.sendMessage(ChatColor.GOLD + "/enj send <player>: " + ChatColor.WHITE + "Sends the held token to another player.");
         sender.sendMessage(ChatColor.GOLD + "/enj trade invite <player>: " + ChatColor.WHITE + "Send a trade invite to another player.");
         sender.sendMessage(ChatColor.GOLD + "/enj scoreboard: " + ChatColor.WHITE + "Displays/hides the ENJ Scoreboard.");
-    }
-
-    private void sendMsg(CommandSender sender, String msg) {
-        TextComponent text = TextComponent.of(msg)
-                .color(TextColor.GOLD);
-        MessageUtils.sendComponent(sender, text);
     }
 
 }

@@ -1,9 +1,10 @@
 package com.enjin.ecmp.spigot.trade;
 
-import com.enjin.ecmp.spigot.EcmpPlugin;
-import com.enjin.ecmp.spigot.EcmpSpigot;
+import com.enjin.ecmp.spigot.SpigotBootstrap;
+import com.enjin.ecmp.spigot.events.EnjinCoinPlayerQuitEvent;
 import com.enjin.ecmp.spigot.player.EnjinCoinPlayer;
 import com.enjin.ecmp.spigot.player.PlayerManager;
+import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.enjincoin.sdk.TrustedPlatformClient;
 import com.enjin.enjincoin.sdk.graphql.GraphQLError;
 import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
@@ -13,8 +14,6 @@ import com.enjin.enjincoin.sdk.model.service.requests.data.CompleteTradeData;
 import com.enjin.enjincoin.sdk.model.service.requests.data.CreateTradeData;
 import com.enjin.enjincoin.sdk.model.service.requests.data.TokenValueData;
 import com.enjin.enjincoin.sdk.service.requests.RequestsService;
-import com.enjin.ecmp.spigot.events.EnjinCoinPlayerQuitEvent;
-import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.minecraft_commons.spigot.nbt.NBTItem;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
@@ -30,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class TradeManager implements Listener {
 
-    private EcmpPlugin plugin;
+    private SpigotBootstrap bootstrap;
     private Map<String, Trade> tradesPendingCompletion = new ConcurrentHashMap<>();
 
     TextComponent action = TextComponent.builder()
@@ -42,8 +41,8 @@ public class TradeManager implements Listener {
             .color(TextColor.GRAY)
             .build();
 
-    public TradeManager(EcmpPlugin plugin) {
-        this.plugin = plugin;
+    public TradeManager(SpigotBootstrap bootstrap) {
+        this.bootstrap = bootstrap;
     }
 
     public boolean inviteExists(EnjinCoinPlayer sender, EnjinCoinPlayer target) {
@@ -68,8 +67,8 @@ public class TradeManager implements Listener {
             sender.getSentTradeInvites().remove(target);
             target.getReceivedTradeInvites().remove(target);
 
-            sender.setActiveTradeView(new TradeView(this.plugin, sender, target));
-            target.setActiveTradeView(new TradeView(this.plugin, target, sender));
+            sender.setActiveTradeView(new TradeView(bootstrap, sender, target));
+            target.setActiveTradeView(new TradeView(bootstrap, target, sender));
 
             sender.getActiveTradeView().open();
             target.getActiveTradeView().open();
@@ -86,7 +85,7 @@ public class TradeManager implements Listener {
     public void completeTrade(String requestId) {
         Trade trade = tradesPendingCompletion.remove(requestId);
         if (trade != null) {
-            PlayerManager playerManager = EcmpSpigot.bootstrap().getPlayerManager();
+            PlayerManager playerManager = bootstrap.getPlayerManager();
             EnjinCoinPlayer playerOne = playerManager.getPlayer(trade.getPlayerOneUuid());
             EnjinCoinPlayer playerTwo = playerManager.getPlayer(trade.getPlayerTwoUuid());
 
@@ -120,13 +119,13 @@ public class TradeManager implements Listener {
 
         trade.setTradeId(tradeId);
 
-        PlayerManager playerManager = EcmpSpigot.bootstrap().getPlayerManager();
+        PlayerManager playerManager = bootstrap.getPlayerManager();
         EnjinCoinPlayer playerOne = playerManager.getPlayer(trade.getPlayerOneUuid());
         EnjinCoinPlayer playerTwo = playerManager.getPlayer(trade.getPlayerTwoUuid());
 
         if (playerOne != null && playerTwo != null) {
             if (playerOne.isIdentityLoaded() && playerTwo.isIdentityLoaded()) {
-                TrustedPlatformClient client = EcmpSpigot.bootstrap().getTrustedPlatformClient();
+                TrustedPlatformClient client = bootstrap.getTrustedPlatformClient();
                 RequestsService service = client.getRequestsService();
                 Player bukkitPlayerOne = playerOne.getBukkitPlayer();
                 Player bukkitPlayerTwo = playerTwo.getBukkitPlayer();
@@ -189,13 +188,13 @@ public class TradeManager implements Listener {
     }
 
     public void submitCreateTrade(Trade trade) {
-        PlayerManager playerManager = EcmpSpigot.bootstrap().getPlayerManager();
+        PlayerManager playerManager = bootstrap.getPlayerManager();
         EnjinCoinPlayer playerOne = playerManager.getPlayer(trade.getPlayerOneUuid());
         EnjinCoinPlayer playerTwo = playerManager.getPlayer(trade.getPlayerTwoUuid());
 
         if (playerOne != null && playerTwo != null) {
             if (playerOne.isIdentityLoaded() && playerTwo.isIdentityLoaded()) {
-                TrustedPlatformClient client = EcmpSpigot.bootstrap().getTrustedPlatformClient();
+                TrustedPlatformClient client = bootstrap.getTrustedPlatformClient();
                 RequestsService service = client.getRequestsService();
                 Player bukkitPlayerOne = playerOne.getBukkitPlayer();
                 Player bukkitPlayerTwo = playerTwo.getBukkitPlayer();
