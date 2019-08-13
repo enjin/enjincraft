@@ -129,7 +129,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
         Bukkit.getPluginManager().registerEvents(new TokenItemListener(this), plugin);
 
         // Register Commands
-        plugin.getCommand("enj").setExecutor(new CmdEnj());
+        plugin.getCommand("enj").setExecutor(new CmdEnj(this));
 
         if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null){
             MessageUtils.sendComponent(Bukkit.getConsoleSender(), TextComponent.of("[ECMP] Registering PlaceholderAPI Expansion")
