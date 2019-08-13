@@ -1,5 +1,6 @@
 package com.enjin.ecmp.spigot.cmd;
 
+import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.player.EnjPlayer;
 import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.java_commons.StringUtils;
@@ -9,9 +10,11 @@ import org.bukkit.command.CommandSender;
 
 public class CmdLink extends EnjCommand {
 
-    public CmdLink() {
-        super();
+    private SpigotBootstrap bootstrap;
 
+    public CmdLink(SpigotBootstrap bootstrap) {
+        super();
+        this.bootstrap = bootstrap;
         this.aliases.add("link");
     }
 
