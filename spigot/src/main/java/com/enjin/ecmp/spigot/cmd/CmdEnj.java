@@ -11,12 +11,14 @@ import java.util.Arrays;
 public class CmdEnj extends EnjCommand implements CommandExecutor {
 
     private SpigotBootstrap bootstrap;
+    private CmdHelp cmdHelp;
     private CmdLink cmdLink;
     private CmdUnlink cmdUnlink;
 
     public CmdEnj(SpigotBootstrap bootstrap) {
         super();
         this.bootstrap = bootstrap;
+        this.addSubCommand(cmdHelp = new CmdHelp(bootstrap));
         this.addSubCommand(cmdLink = new CmdLink(bootstrap));
         this.addSubCommand(cmdUnlink = new CmdUnlink(bootstrap));
     }
@@ -29,6 +31,7 @@ public class CmdEnj extends EnjCommand implements CommandExecutor {
 
     @Override
     public void execute(CommandContext context) {
+        cmdHelp.execute(context);
     }
 
 }
