@@ -2,7 +2,7 @@ package com.enjin.ecmp.spigot.trade;
 
 import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.events.EnjinCoinPlayerQuitEvent;
-import com.enjin.ecmp.spigot.player.ECPlayer;
+import com.enjin.ecmp.spigot.player.EnjPlayer;
 import com.enjin.ecmp.spigot.player.PlayerManager;
 import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.enjincoin.sdk.TrustedPlatformClient;
@@ -45,11 +45,11 @@ public class TradeManager implements Listener {
         this.bootstrap = bootstrap;
     }
 
-    public boolean inviteExists(ECPlayer sender, ECPlayer target) {
+    public boolean inviteExists(EnjPlayer sender, EnjPlayer target) {
         return sender.getSentTradeInvites().contains(target);
     }
 
-    public boolean addInvite(ECPlayer sender, ECPlayer target) {
+    public boolean addInvite(EnjPlayer sender, EnjPlayer target) {
         boolean result = !inviteExists(sender, target);
 
         if (result) {
@@ -60,7 +60,7 @@ public class TradeManager implements Listener {
         return result;
     }
 
-    public boolean acceptInvite(ECPlayer sender, ECPlayer target) {
+    public boolean acceptInvite(EnjPlayer sender, EnjPlayer target) {
         boolean result = inviteExists(sender, target);
 
         if (result) {
@@ -77,7 +77,7 @@ public class TradeManager implements Listener {
         return result;
     }
 
-    public boolean declineInvite(ECPlayer sender, ECPlayer target) {
+    public boolean declineInvite(EnjPlayer sender, EnjPlayer target) {
         sender.getSentTradeInvites().remove(target);
         return target.getReceivedTradeInvites().remove(sender);
     }
@@ -86,8 +86,8 @@ public class TradeManager implements Listener {
         Trade trade = tradesPendingCompletion.remove(requestId);
         if (trade != null) {
             PlayerManager playerManager = bootstrap.getPlayerManager();
-            ECPlayer playerOne = playerManager.getPlayer(trade.getPlayerOneUuid());
-            ECPlayer playerTwo = playerManager.getPlayer(trade.getPlayerTwoUuid());
+            EnjPlayer playerOne = playerManager.getPlayer(trade.getPlayerOneUuid());
+            EnjPlayer playerTwo = playerManager.getPlayer(trade.getPlayerTwoUuid());
 
             if (playerOne != null && playerTwo != null) {
                 Player bukkitPlayerOne = playerOne.getBukkitPlayer();
@@ -120,8 +120,8 @@ public class TradeManager implements Listener {
         trade.setTradeId(tradeId);
 
         PlayerManager playerManager = bootstrap.getPlayerManager();
-        ECPlayer playerOne = playerManager.getPlayer(trade.getPlayerOneUuid());
-        ECPlayer playerTwo = playerManager.getPlayer(trade.getPlayerTwoUuid());
+        EnjPlayer playerOne = playerManager.getPlayer(trade.getPlayerOneUuid());
+        EnjPlayer playerTwo = playerManager.getPlayer(trade.getPlayerTwoUuid());
 
         if (playerOne != null && playerTwo != null) {
             if (playerOne.isIdentityLoaded() && playerTwo.isIdentityLoaded()) {
@@ -189,8 +189,8 @@ public class TradeManager implements Listener {
 
     public void submitCreateTrade(Trade trade) {
         PlayerManager playerManager = bootstrap.getPlayerManager();
-        ECPlayer playerOne = playerManager.getPlayer(trade.getPlayerOneUuid());
-        ECPlayer playerTwo = playerManager.getPlayer(trade.getPlayerTwoUuid());
+        EnjPlayer playerOne = playerManager.getPlayer(trade.getPlayerOneUuid());
+        EnjPlayer playerTwo = playerManager.getPlayer(trade.getPlayerTwoUuid());
 
         if (playerOne != null && playerTwo != null) {
             if (playerOne.isIdentityLoaded() && playerTwo.isIdentityLoaded()) {
@@ -281,7 +281,7 @@ public class TradeManager implements Listener {
 
     @EventHandler
     public void onEnjinCoinPlayerQuit(EnjinCoinPlayerQuitEvent event) {
-        ECPlayer player = event.getPlayer();
+        EnjPlayer player = event.getPlayer();
 
         player.getSentTradeInvites().forEach(other -> other.getReceivedTradeInvites().remove(player));
         player.getReceivedTradeInvites().forEach(other -> other.getSentTradeInvites().remove(player));

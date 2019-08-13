@@ -26,11 +26,11 @@ public class PlayerInitializationTask extends BukkitRunnable {
     private static final Map<UUID, PlayerInitializationTask> PLAYER_TASKS = new ConcurrentHashMap<>();
 
     private SpigotBootstrap bootstrap;
-    private ECPlayer player;
+    private EnjPlayer player;
 
     private boolean inProgress = false;
 
-    protected PlayerInitializationTask(SpigotBootstrap bootstrap, ECPlayer player) {
+    protected PlayerInitializationTask(SpigotBootstrap bootstrap, EnjPlayer player) {
         this.bootstrap = bootstrap;
         this.player = player;
     }
@@ -171,7 +171,7 @@ public class PlayerInitializationTask extends BukkitRunnable {
         return identity;
     }
 
-    public static void create(SpigotBootstrap bootstrap, ECPlayer player) {
+    public static void create(SpigotBootstrap bootstrap, EnjPlayer player) {
         cleanUp(player.getBukkitPlayer().getUniqueId());
 
         PlayerInitializationTask task = new PlayerInitializationTask(bootstrap, player);

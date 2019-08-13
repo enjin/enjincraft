@@ -1,7 +1,7 @@
 package com.enjin.ecmp.spigot.commands.subcommands;
 
 import com.enjin.ecmp.spigot.SpigotBootstrap;
-import com.enjin.ecmp.spigot.player.ECPlayer;
+import com.enjin.ecmp.spigot.player.EnjPlayer;
 import com.enjin.ecmp.spigot.player.PlayerManager;
 import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.ecmp.spigot.util.TokenUtils;
@@ -34,18 +34,18 @@ public class SendCommand {
 
     public void execute(Player sender, String[] args) {
         PlayerManager playerManager = bootstrap.getPlayerManager();
-        ECPlayer senderEcPlayer = playerManager.getPlayer(sender);
+        EnjPlayer senderEnjPlayer = playerManager.getPlayer(sender);
 
         if (args.length > 0) {
-            if (!senderEcPlayer.isLinked()) {
+            if (!senderEnjPlayer.isLinked()) {
                 MessageUtils.sendComponent(sender, TextComponent.of("You must link your wallet before using this command."));
                 return;
             }
 
             Player target = Bukkit.getPlayer(args[0]);
             if (target != null && target != sender) {
-                ECPlayer targetEcPlayer = playerManager.getPlayer(target);
-                if (!targetEcPlayer.isLinked()) {
+                EnjPlayer targetEnjPlayer = playerManager.getPlayer(target);
+                if (!targetEnjPlayer.isLinked()) {
                     MessageUtils.sendComponent(sender, TextComponent.of("That player has not linked a wallet."));
                     return;
                 }
@@ -58,12 +58,12 @@ public class SendCommand {
                     if (tokenId == null) {
                         MessageUtils.sendComponent(sender, TextComponent.of("You must be holding an Enjin Coin token item."));
                     } else {
-                        MutableBalance balance = senderEcPlayer.getTokenWallet().getBalance(tokenId);
+                        MutableBalance balance = senderEnjPlayer.getTokenWallet().getBalance(tokenId);
                         balance.deposit(is.getAmount());
                         sender.getInventory().clear(sender.getInventory().getHeldItemSlot());
 
                         IdentitiesService service = bootstrap.getTrustedPlatformClient().getIdentitiesService();
-                        service.getIdentitiesAsync(new GetIdentities().identityId(senderEcPlayer.getIdentityId()), response -> {
+                        service.getIdentitiesAsync(new GetIdentities().identityId(senderEnjPlayer.getIdentityId()), response -> {
                             if (response.isSuccess()) {
                                 GraphQLResponse<List<Identity>> body = response.body();
                                 if (body.isSuccess()) {
@@ -75,7 +75,7 @@ public class SendCommand {
                                         if (allowance == null || allowance.equals(BigInteger.ZERO)) {
                                             MessageUtils.sendComponent(sender, TextComponent.of("Your allowance is not set. Please confirm the request in your wallet app."));
                                         } else {
-                                            send(sender, senderEcPlayer.getIdentityId(), targetEcPlayer.getIdentityId(),
+                                            send(sender, senderEnjPlayer.getIdentityId(), targetEnjPlayer.getIdentityId(),
                                                     tokenId, is.getAmount());
                                         }
                                     }
