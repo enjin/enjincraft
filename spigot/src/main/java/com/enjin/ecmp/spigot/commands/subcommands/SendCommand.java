@@ -34,7 +34,7 @@ public class SendCommand {
 
     public void execute(Player sender, String[] args) {
         PlayerManager playerManager = bootstrap.getPlayerManager();
-        ECPlayer senderEcPlayer = playerManager.getPlayer(sender.getUniqueId());
+        ECPlayer senderEcPlayer = playerManager.getPlayer(sender);
 
         if (args.length > 0) {
             if (!senderEcPlayer.isLinked()) {
@@ -44,7 +44,7 @@ public class SendCommand {
 
             Player target = Bukkit.getPlayer(args[0]);
             if (target != null && target != sender) {
-                ECPlayer targetEcPlayer = playerManager.getPlayer(target.getUniqueId());
+                ECPlayer targetEcPlayer = playerManager.getPlayer(target);
                 if (!targetEcPlayer.isLinked()) {
                     MessageUtils.sendComponent(sender, TextComponent.of("That player has not linked a wallet."));
                     return;

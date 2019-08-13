@@ -29,7 +29,7 @@ public class TokenItemListener implements Listener {
     public void onPlayerDeath(PlayerDeathEvent event) {
         if (!event.getKeepInventory()) {
             List<ItemStack> drops = event.getDrops();
-            ECPlayer player = bootstrap.getPlayerManager().getPlayer(event.getEntity().getUniqueId());
+            ECPlayer player = bootstrap.getPlayerManager().getPlayer(event.getEntity());
             TokenWallet wallet = player.getTokenWallet();
 
             for (int i = drops.size() - 1; i >= 0; i--) {

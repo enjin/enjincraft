@@ -25,7 +25,7 @@ public class WalletCommand {
 
             Bukkit.getScheduler().runTaskAsynchronously(bootstrap.plugin(), () -> {
                 PlayerManager playerManager = bootstrap.getPlayerManager();
-                ECPlayer enjinCoinPlayer = playerManager.getPlayer(player.getUniqueId());
+                ECPlayer enjinCoinPlayer = playerManager.getPlayer(player);
 
                 if (!enjinCoinPlayer.isLinked()) {
                     TextComponent text = TextComponent.of("You have not linked a wallet to your account.").color(TextColor.RED);

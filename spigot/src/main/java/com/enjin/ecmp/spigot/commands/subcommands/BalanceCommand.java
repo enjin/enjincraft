@@ -27,7 +27,7 @@ public class BalanceCommand {
     public void execute(CommandSender sender, String[] args) {
         if (sender instanceof Player) {
             Player player = (Player) sender;
-            ECPlayer ecPlayer = bootstrap.getPlayerManager().getPlayer(player.getUniqueId());
+            ECPlayer ecPlayer = bootstrap.getPlayerManager().getPlayer(player);
 
             Bukkit.getScheduler().runTaskAsynchronously(bootstrap.plugin(), () -> {
                 ecPlayer.reloadUser();

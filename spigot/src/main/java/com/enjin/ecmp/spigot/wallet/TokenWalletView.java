@@ -106,7 +106,7 @@ public class TokenWalletView extends ChestMenu {
                 String id = TokenUtils.getTokenID(current);
                 if (!StringUtils.isEmpty(id)) {
                     ECPlayer player = bootstrap.getPlayerManager()
-                            .getPlayer(event.getWhoClicked().getUniqueId());
+                            .getPlayer((Player) event.getWhoClicked());
                     MutableBalance balance = player.getTokenWallet().getBalance(id);
                     balance.deposit(current.getAmount());
                     current.setAmount(0);
