@@ -11,6 +11,7 @@ import java.util.Arrays;
 public class CmdEnj extends EnjCommand implements CommandExecutor {
 
     private SpigotBootstrap bootstrap;
+    private CmdBalance cmdBalance;
     private CmdHelp cmdHelp;
     private CmdLink cmdLink;
     private CmdMenu cmdMenu;
@@ -19,6 +20,7 @@ public class CmdEnj extends EnjCommand implements CommandExecutor {
     public CmdEnj(SpigotBootstrap bootstrap) {
         super();
         this.bootstrap = bootstrap;
+        this.addSubCommand(cmdBalance = new CmdBalance(bootstrap));
         this.addSubCommand(cmdHelp = new CmdHelp(bootstrap));
         this.addSubCommand(cmdLink = new CmdLink(bootstrap));
         this.addSubCommand(cmdMenu = new CmdMenu(bootstrap));
