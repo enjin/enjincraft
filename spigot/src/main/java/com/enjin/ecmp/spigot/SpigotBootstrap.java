@@ -1,6 +1,6 @@
 package com.enjin.ecmp.spigot;
 
-import com.enjin.ecmp.spigot.commands.RootCommand;
+import com.enjin.ecmp.spigot.cmd.CmdEnj;
 import com.enjin.ecmp.spigot.configuration.EcmpConfig;
 import com.enjin.ecmp.spigot.hooks.PlaceholderApiExpansion;
 import com.enjin.ecmp.spigot.listeners.NotificationListener;
@@ -129,7 +129,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
         Bukkit.getPluginManager().registerEvents(new TokenItemListener(this), plugin);
 
         // Register Commands
-        plugin.getCommand("enj").setExecutor(new RootCommand(this));
+        plugin.getCommand("enj").setExecutor(new CmdEnj());
 
         if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null){
             MessageUtils.sendComponent(Bukkit.getConsoleSender(), TextComponent.of("[ECMP] Registering PlaceholderAPI Expansion")

@@ -5,7 +5,7 @@ public class EcmpSpigot {
     private static SpigotBootstrap bootstrap;
 
     protected static void register(SpigotBootstrap bootstrap) {
-        bootstrap = bootstrap;
+        EcmpSpigot.bootstrap = bootstrap;
     }
 
     protected static void unregister() {

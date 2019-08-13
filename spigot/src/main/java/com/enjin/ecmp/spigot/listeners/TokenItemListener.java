@@ -1,7 +1,7 @@
 package com.enjin.ecmp.spigot.listeners;
 
 import com.enjin.ecmp.spigot.SpigotBootstrap;
-import com.enjin.ecmp.spigot.player.ECPlayer;
+import com.enjin.ecmp.spigot.player.EnjPlayer;
 import com.enjin.ecmp.spigot.util.TokenUtils;
 import com.enjin.ecmp.spigot.wallet.MutableBalance;
 import com.enjin.ecmp.spigot.wallet.TokenWallet;
@@ -29,7 +29,7 @@ public class TokenItemListener implements Listener {
     public void onPlayerDeath(PlayerDeathEvent event) {
         if (!event.getKeepInventory()) {
             List<ItemStack> drops = event.getDrops();
-            ECPlayer player = bootstrap.getPlayerManager().getPlayer(event.getEntity());
+            EnjPlayer player = bootstrap.getPlayerManager().getPlayer(event.getEntity());
             TokenWallet wallet = player.getTokenWallet();
 
             for (int i = drops.size() - 1; i >= 0; i--) {

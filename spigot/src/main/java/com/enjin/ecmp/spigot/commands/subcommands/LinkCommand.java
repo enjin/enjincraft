@@ -1,7 +1,7 @@
 package com.enjin.ecmp.spigot.commands.subcommands;
 
 import com.enjin.ecmp.spigot.SpigotBootstrap;
-import com.enjin.ecmp.spigot.player.ECPlayer;
+import com.enjin.ecmp.spigot.player.EnjPlayer;
 import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.ecmp.spigot.util.UuidUtils;
 import com.enjin.java_commons.StringUtils;
@@ -42,13 +42,13 @@ public class LinkCommand {
         }
 
         if (uuid != null) {
-            ECPlayer ecPlayer = bootstrap.getPlayerManager().getPlayer(uuid);
-            if (ecPlayer != null) {
-                if (ecPlayer.isLoaded()) {
-                    if (StringUtils.isEmpty(ecPlayer.getLinkingCode()))
-                        handleAddress(sender, ecPlayer.getEthereumAddress());
+            EnjPlayer enjPlayer = bootstrap.getPlayerManager().getPlayer(uuid);
+            if (enjPlayer != null) {
+                if (enjPlayer.isLoaded()) {
+                    if (StringUtils.isEmpty(enjPlayer.getLinkingCode()))
+                        handleAddress(sender, enjPlayer.getEthereumAddress());
                     else
-                        handleCode(sender, ecPlayer.getLinkingCode());
+                        handleCode(sender, enjPlayer.getLinkingCode());
                 }
             }
         } else {
