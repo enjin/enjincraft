@@ -47,14 +47,14 @@ public class TradeCommand {
             if (target != null) {
                 if (target != sender) {
                     PlayerManager playerManager = bootstrap.getPlayerManager();
-                    ECPlayer senderEcPlayer = playerManager.getPlayer(sender.getUniqueId());
+                    ECPlayer senderEcPlayer = playerManager.getPlayer(sender);
 
                     if (!senderEcPlayer.isLinked()) {
                         MessageUtils.sendComponent(sender, TextComponent.of("You must link your wallet before using this command."));
                         return;
                     }
 
-                    ECPlayer targetEcPlayer = playerManager.getPlayer(target.getUniqueId());
+                    ECPlayer targetEcPlayer = playerManager.getPlayer(target);
 
                     if (targetEcPlayer == null || !targetEcPlayer.isLinked()) {
                         MessageUtils.sendComponent(sender, TextComponent
@@ -134,8 +134,8 @@ public class TradeCommand {
         if (args.length > 0) {
             Player target = Bukkit.getPlayer(args[0]);
             if (target != null) {
-                ECPlayer senderEcPlayer = bootstrap.getPlayerManager().getPlayer(target.getUniqueId());
-                ECPlayer targetEcPlayer = bootstrap.getPlayerManager().getPlayer(sender.getUniqueId());
+                ECPlayer senderEcPlayer = bootstrap.getPlayerManager().getPlayer(target);
+                ECPlayer targetEcPlayer = bootstrap.getPlayerManager().getPlayer(sender);
 
                 boolean result = bootstrap.getTradeManager().acceptInvite(senderEcPlayer, targetEcPlayer);
 
@@ -151,8 +151,8 @@ public class TradeCommand {
             Player target = Bukkit.getPlayer(args[0]);
 
             if (target != null) {
-                ECPlayer senderEcPlayer = bootstrap.getPlayerManager().getPlayer(target.getUniqueId());
-                ECPlayer targetEcPlayer = bootstrap.getPlayerManager().getPlayer(sender.getUniqueId());
+                ECPlayer senderEcPlayer = bootstrap.getPlayerManager().getPlayer(target);
+                ECPlayer targetEcPlayer = bootstrap.getPlayerManager().getPlayer(sender);
 
                 boolean result = bootstrap.getTradeManager().declineInvite(senderEcPlayer, targetEcPlayer);
 

@@ -55,7 +55,7 @@ public class PlaceholderApiExpansion extends PlaceholderExpansion {
             return "";
         }
 
-        ECPlayer ecPlayer = bootstrap.getPlayerManager().getPlayer(player.getUniqueId());
+        ECPlayer ecPlayer = bootstrap.getPlayerManager().getPlayer(player);
 
         if (identifier.equals(ENJ_BALANCE)) {
             return ecPlayer.getEnjAllowance() == null ? "0" : ecPlayer.getEnjAllowance().toString();

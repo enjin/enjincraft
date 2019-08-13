@@ -46,6 +46,11 @@ public class PlayerManager implements Listener {
         return new HashMap<>(this.players);
     }
 
+    public ECPlayer getPlayer(Player player) {
+        if (player == null) throw new NullPointerException("player must not be null");
+        return getPlayer(player);
+    }
+
     public ECPlayer getPlayer(UUID uuid) {
         if (uuid == null) throw new NullPointerException("uuid must not be null");
         return this.players.get(uuid);
