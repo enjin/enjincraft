@@ -16,6 +16,7 @@ public class CmdEnj extends EnjCommand implements CommandExecutor {
     private CmdLink cmdLink;
     private CmdMenu cmdMenu;
     private CmdUnlink cmdUnlink;
+    private CmdWallet cmdWallet;
 
     public CmdEnj(SpigotBootstrap bootstrap) {
         super();
@@ -25,6 +26,7 @@ public class CmdEnj extends EnjCommand implements CommandExecutor {
         this.addSubCommand(cmdLink = new CmdLink(bootstrap));
         this.addSubCommand(cmdMenu = new CmdMenu(bootstrap));
         this.addSubCommand(cmdUnlink = new CmdUnlink(bootstrap));
+        this.addSubCommand(cmdWallet = new CmdWallet(bootstrap));
     }
 
     @Override
