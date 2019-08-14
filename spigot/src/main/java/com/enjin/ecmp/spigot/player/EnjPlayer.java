@@ -140,30 +140,35 @@ public class EnjPlayer {
                 GraphQLResponse<List<Balance>> response = networkResponse.body();
                 if (response.isSuccess()) {
                     List<Balance> balances = response.getData();
-                    tokenWallet = new TokenWallet((SpigotBootstrap) bootstrap, balances);
-                    PlayerInventory inventory = bukkitPlayer.getInventory();
-                    for (int i = inventory.getSize() - 1; i >= 0; i--) {
-                        ItemStack is = inventory.getItem(i);
-                        String id = TokenUtils.getTokenID(is);
-                        if (!StringUtils.isEmpty(id)) {
-                            MutableBalance balance = tokenWallet.getBalance(id);
-                            if (balance != null) {
-                                if (balance.amountAvailableForWithdrawal() == 0) {
-                                    inventory.clear(i);
-                                } else {
-                                    if (balance.amountAvailableForWithdrawal() < is.getAmount()) {
-                                        is.setAmount(balance.amountAvailableForWithdrawal());
-                                    }
-
-                                    balance.withdraw(is.getAmount());
-                                }
-                            }
-                        }
-                    }
+                    tokenWallet = new TokenWallet(bootstrap, balances);
+                    validateInventory();
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void validateInventory() {
+        tokenWallet.getBalances().forEach(MutableBalance::reset);
+        PlayerInventory inventory = bukkitPlayer.getInventory();
+        for (int i = inventory.getSize() - 1; i >= 0; i--) {
+            ItemStack is = inventory.getItem(i);
+            String id = TokenUtils.getTokenID(is);
+            if (!StringUtils.isEmpty(id)) {
+                MutableBalance balance = tokenWallet.getBalance(id);
+                if (balance != null) {
+                    if (balance.amountAvailableForWithdrawal() == 0) {
+                        inventory.clear(i);
+                    } else {
+                        if (balance.amountAvailableForWithdrawal() < is.getAmount()) {
+                            is.setAmount(balance.amountAvailableForWithdrawal());
+                        }
+
+                        balance.withdraw(is.getAmount());
+                    }
+                }
+            }
         }
     }
 
