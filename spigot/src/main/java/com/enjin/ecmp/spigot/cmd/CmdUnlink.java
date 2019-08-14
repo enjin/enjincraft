@@ -29,21 +29,19 @@ public class CmdUnlink extends EnjCommand {
     public void execute(CommandContext context) {
         EnjPlayer enjPlayer = context.enjPlayer;
 
-        if (enjPlayer == null) return;
+        if (enjPlayer == null || !enjPlayer.isLoaded()) return;
 
-        if (enjPlayer.isLoaded()) {
-            if (enjPlayer.isLinked()) {
-                Bukkit.getScheduler().runTaskAsynchronously(bootstrap.plugin(), () -> {
-                    try {
-                        handleUnlinking(context.sender, enjPlayer.getIdentityId());
-                        enjPlayer.reloadIdentity();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                });
-            } else {
-                handleUnlinked(context.sender, enjPlayer.getEthereumAddress());
-            }
+        if (enjPlayer.isLinked()) {
+            Bukkit.getScheduler().runTaskAsynchronously(bootstrap.plugin(), () -> {
+                try {
+                    handleUnlinking(context.sender, enjPlayer.getIdentityId());
+                    enjPlayer.reloadIdentity();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+        } else {
+            handleUnlinked(context.sender, enjPlayer.getEthereumAddress());
         }
     }
 
