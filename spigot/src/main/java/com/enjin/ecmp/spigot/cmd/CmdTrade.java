@@ -30,159 +30,156 @@ public class CmdTrade extends EnjCommand {
     @Override
     public void execute(CommandContext context) {
         if (context.enjPlayer == null) return;
-
-        if (context.args.size() > 0) {
-            String sub = context.args.get(0);
-            context.args.remove(0);
-            if (sub.equalsIgnoreCase("invite")) {
-                invite(context);
-            } else if (sub.equalsIgnoreCase("accept")) {
-                inviteAccept(context);
-            } else if (sub.equalsIgnoreCase("decline")) {
-                inviteDecline(context);
-            }
+        if (context.args.size() == 0) return;
+        String sub = context.args.get(0);
+        context.args.remove(0);
+        // TODO refactor into subcommands
+        if (sub.equalsIgnoreCase("invite")) {
+            invite(context);
+        } else if (sub.equalsIgnoreCase("accept")) {
+            inviteAccept(context);
+        } else if (sub.equalsIgnoreCase("decline")) {
+            inviteDecline(context);
         }
     }
 
     private void invite(CommandContext context) {
-        if (context.args.size() > 0) {
-            Player target = Bukkit.getPlayer(context.args.get(0));
-            if (target != null) {
-                if (target != context.sender) {
-                    PlayerManager playerManager = bootstrap.getPlayerManager();
-                    EnjPlayer senderEnjPlayer = context.enjPlayer;
+        if (context.args.size() == 0) return;
 
-                    if (!senderEnjPlayer.isLinked()) {
-                        MessageUtils.sendComponent(context.sender, TextComponent.of("You must link your wallet before using this command."));
-                        return;
-                    }
+        Player target = Bukkit.getPlayer(context.args.get(0));
+        if (target == null) return;
+        if (target == context.sender) return;
 
-                    EnjPlayer targetEnjPlayer = playerManager.getPlayer(target);
+        PlayerManager playerManager = bootstrap.getPlayerManager();
+        EnjPlayer senderEnjPlayer = context.enjPlayer;
 
-                    if (targetEnjPlayer == null || !targetEnjPlayer.isLinked()) {
+        if (!senderEnjPlayer.isLinked()) {
+            MessageUtils.sendComponent(context.sender, TextComponent.of("You must link your wallet before using this command."));
+            return;
+        }
+
+        EnjPlayer targetEnjPlayer = playerManager.getPlayer(target);
+        if (targetEnjPlayer == null) return;
+        if (!targetEnjPlayer.isLinked()) {
+            MessageUtils.sendComponent(context.sender, TextComponent
+                    .of(String.format("%s has not linked their wallet yet, a request has been sent.",
+                            target.getName())));
+            MessageUtils.sendComponent(target, TextComponent
+                    .of(String.format("%s wants to trade with you. Please link your wallet to begin trading",
+                            context.sender.getName())));
+            return;
+        }
+
+        bootstrap.getTrustedPlatformClient().getIdentitiesService()
+                .getIdentitiesAsync(new GetIdentities().identityId(senderEnjPlayer.getIdentityId()), networkResponse -> {
+                    if (!networkResponse.isSuccess()) return;
+
+                    GraphQLResponse<List<Identity>> graphQLResponse = networkResponse.body();
+                    if (!graphQLResponse.isSuccess()) return;
+
+                    List<Identity> data = graphQLResponse.getData();
+                    if (data == null || data.isEmpty()) return;
+
+                    Identity identity = data.get(0);
+                    BigInteger allowance = identity.getEnjAllowance();
+
+                    if (allowance == null || allowance.equals(BigInteger.ZERO)) {
                         MessageUtils.sendComponent(context.sender, TextComponent
-                                .of(String.format("%s has not linked their wallet yet, a request has been sent.",
+                                .of(String.format("%s has not approved the wallet allowance yet, a request has been sent.",
                                         target.getName())));
                         MessageUtils.sendComponent(target, TextComponent
-                                .of(String.format("%s wants to trade with you. Please link your wallet to begin trading",
+                                .of(String.format("%s wants to trade with you. Please confirm the balance approval notification in your wallet.",
                                         context.sender.getName())));
                         return;
                     }
 
-                    bootstrap.getTrustedPlatformClient().getIdentitiesService()
-                            .getIdentitiesAsync(new GetIdentities().identityId(senderEnjPlayer.getIdentityId()), response -> {
-                                if (response.isSuccess()) {
-                                    GraphQLResponse<List<Identity>> body = response.body();
-                                    if (body.isSuccess()) {
-                                        List<Identity> data = body.getData();
-                                        if (data != null && !data.isEmpty()) {
-                                            Identity identity = data.get(0);
-                                            BigInteger allowance = identity.getEnjAllowance();
-
-                                            if (allowance == null || allowance.equals(BigInteger.ZERO)) {
-                                                MessageUtils.sendComponent(context.sender, TextComponent
-                                                        .of(String.format("%s has not approved the wallet allowance yet, a request has been sent.",
-                                                                target.getName())));
-                                                MessageUtils.sendComponent(target, TextComponent
-                                                        .of(String.format("%s wants to trade with you. Please confirm the balance approval notification in your wallet.",
-                                                                context.sender.getName())));
-                                            } else {
-                                                invite(senderEnjPlayer, targetEnjPlayer);
-                                            }
-                                        }
-                                    }
-                                }
-                            });
-                }
-            }
-        }
+                    invite(senderEnjPlayer, targetEnjPlayer);
+                });
     }
 
     private void invite(EnjPlayer sender, EnjPlayer target) {
         TradeManager tradeManager = bootstrap.getTradeManager();
         boolean result = tradeManager.addInvite(sender, target);
 
-        if (result) {
-            MessageUtils.sendComponent(sender.getBukkitPlayer(), TextComponent.builder()
-                    .content(String.format("Trade invite with %s has been sent!", target.getBukkitPlayer().getName()))
-                    .color(TextColor.GREEN)
-                    .build());
-            final TextComponent.Builder inviteMessageBuilder = TextComponent.builder("")
-                    .color(TextColor.GRAY)
-                    .append(TextComponent.builder(String.format("%s", sender.getBukkitPlayer().getName()))
-                            .color(TextColor.GOLD)
-                            .build())
-                    .append(TextComponent.of(" has invited you to trade. "))
-                    .append(TextComponent.builder("Accept")
-                            .color(TextColor.GREEN)
-                            .clickEvent(ClickEvent.of(ClickEvent.Action.RUN_COMMAND,
-                                    String.format("/enj trade accept %s", sender.getBukkitPlayer().getName())))
-                            .build())
-                    .append(TextComponent.of(" | "))
-                    .append(TextComponent.builder("Decline")
-                            .color(TextColor.RED)
-                            .clickEvent(ClickEvent.of(ClickEvent.Action.RUN_COMMAND,
-                                    String.format("/enj trade decline %s", sender.getBukkitPlayer().getName())))
-                            .build());
-            MessageUtils.sendComponent(target.getBukkitPlayer(), inviteMessageBuilder.build());
-        } else {
+        if (!result) {
             MessageUtils.sendComponent(sender.getBukkitPlayer(), TextComponent.builder()
                     .content(String.format("You have already invited %s to trade.", target.getBukkitPlayer().getName()))
                     .color(TextColor.RED)
                     .build());
         }
+
+        MessageUtils.sendComponent(sender.getBukkitPlayer(), TextComponent.builder()
+                .content(String.format("Trade invite with %s has been sent!", target.getBukkitPlayer().getName()))
+                .color(TextColor.GREEN)
+                .build());
+        TextComponent.Builder inviteMessageBuilder = TextComponent.builder("")
+                .color(TextColor.GRAY)
+                .append(TextComponent.builder(String.format("%s", sender.getBukkitPlayer().getName()))
+                        .color(TextColor.GOLD)
+                        .build())
+                .append(TextComponent.of(" has invited you to trade. "))
+                .append(TextComponent.builder("Accept")
+                        .color(TextColor.GREEN)
+                        .clickEvent(ClickEvent.of(ClickEvent.Action.RUN_COMMAND,
+                                String.format("/enj trade accept %s", sender.getBukkitPlayer().getName())))
+                        .build())
+                .append(TextComponent.of(" | "))
+                .append(TextComponent.builder("Decline")
+                        .color(TextColor.RED)
+                        .clickEvent(ClickEvent.of(ClickEvent.Action.RUN_COMMAND,
+                                String.format("/enj trade decline %s", sender.getBukkitPlayer().getName())))
+                        .build());
+        MessageUtils.sendComponent(target.getBukkitPlayer(), inviteMessageBuilder.build());
     }
 
     private void inviteAccept(CommandContext context) {
-        if (context.args.size() > 0) {
-            Player target = Bukkit.getPlayer(context.args.get(0));
-            if (target != null) {
-                EnjPlayer senderEnjPlayer = bootstrap.getPlayerManager().getPlayer(target);
-                EnjPlayer targetEnjPlayer = context.enjPlayer;
+        if (context.args.size() == 0) return;
 
-                boolean result = bootstrap.getTradeManager().acceptInvite(senderEnjPlayer, targetEnjPlayer);
+        Player target = Bukkit.getPlayer(context.args.get(0));
+        if (target == null) return;
 
-                if (!result) {
-                    // TODO: No open invite or player is already in a trade
-                }
-            }
+        EnjPlayer senderEnjPlayer = bootstrap.getPlayerManager().getPlayer(target);
+        EnjPlayer targetEnjPlayer = context.enjPlayer;
+
+        boolean result = bootstrap.getTradeManager().acceptInvite(senderEnjPlayer, targetEnjPlayer);
+        if (!result) {
+            // TODO: No open invite or player is already in a trade
         }
     }
 
     private void inviteDecline(CommandContext context) {
-        if (context.args.size() > 0) {
-            Player target = Bukkit.getPlayer(context.args.get(0));
+        if (context.args.size() == 0) return;
 
-            if (target != null) {
-                EnjPlayer senderEnjPlayer = bootstrap.getPlayerManager().getPlayer(target);
-                EnjPlayer targetEnjPlayer = context.enjPlayer;
+        Player target = Bukkit.getPlayer(context.args.get(0));
+        if (target == null) return;
 
-                boolean result = bootstrap.getTradeManager().declineInvite(senderEnjPlayer, targetEnjPlayer);
+        EnjPlayer senderEnjPlayer = bootstrap.getPlayerManager().getPlayer(target);
+        EnjPlayer targetEnjPlayer = context.enjPlayer;
 
-                if (result) {
-                    TextComponent inviteTargetText = TextComponent.builder()
-                            .content("You have declined ")
-                            .color(TextColor.GRAY)
-                            .append(TextComponent.builder()
-                                    .content(target.getName())
-                                    .color(TextColor.GOLD)
-                                    .build())
-                            .append(TextComponent.of("'s trade invite."))
-                            .build();
-                    MessageUtils.sendComponent(context.sender, inviteTargetText);
+        boolean result = bootstrap.getTradeManager().declineInvite(senderEnjPlayer, targetEnjPlayer);
 
-                    TextComponent inviteSenderText = TextComponent.builder()
-                            .content("")
-                            .color(TextColor.GRAY)
-                            .append(TextComponent.builder()
-                                    .content(target.getName())
-                                    .color(TextColor.GOLD)
-                                    .build())
-                            .append(TextComponent.of(" has declined your trade invite."))
-                            .build();
-                    MessageUtils.sendComponent(target, inviteSenderText);
-                }
-            }
+        if (result) {
+            TextComponent inviteTargetText = TextComponent.builder()
+                    .content("You have declined ")
+                    .color(TextColor.GRAY)
+                    .append(TextComponent.builder()
+                            .content(target.getName())
+                            .color(TextColor.GOLD)
+                            .build())
+                    .append(TextComponent.of("'s trade invite."))
+                    .build();
+            MessageUtils.sendComponent(context.sender, inviteTargetText);
+
+            TextComponent inviteSenderText = TextComponent.builder()
+                    .content("")
+                    .color(TextColor.GRAY)
+                    .append(TextComponent.builder()
+                            .content(target.getName())
+                            .color(TextColor.GOLD)
+                            .build())
+                    .append(TextComponent.of(" has declined your trade invite."))
+                    .build();
+            MessageUtils.sendComponent(target, inviteSenderText);
         }
     }
 

@@ -22,20 +22,17 @@ public class CmdWallet extends EnjCommand {
     @Override
     public void execute(CommandContext context) {
         EnjPlayer enjPlayer = context.enjPlayer;
-
         if (enjPlayer == null) return;
-
-        CommandSender sender = context.sender;
-
-        if (enjPlayer.isLinked()) {
-            TokenWalletView view = new TokenWalletView(bootstrap, enjPlayer);
-            view.open(context.player);
-        } else {
+        if (!enjPlayer.isLinked()) {
             TextComponent text = TextComponent.of("You have not linked a wallet to your account.").color(TextColor.RED);
-            MessageUtils.sendComponent(sender, text);
+            MessageUtils.sendComponent(context.sender, text);
             text = TextComponent.of("Please type '/enj link' to link your account to your Enjin Wallet.").color(TextColor.RED);
-            MessageUtils.sendComponent(sender, text);
+            MessageUtils.sendComponent(context.sender, text);
+            return;
         }
+
+        TokenWalletView view = new TokenWalletView(bootstrap, enjPlayer);
+        view.open(context.player);
     }
 
 }
