@@ -2,20 +2,20 @@ package com.enjin.ecmp.spigot;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class EcmpPlugin extends JavaPlugin {
+public class EnjPlugin extends JavaPlugin {
 
     private SpigotBootstrap bootstrap;
 
     @Override
     public void onEnable() {
-        EcmpSpigot.register(bootstrap = new SpigotBootstrap(this));
+        EnjSpigot.register(bootstrap = new SpigotBootstrap(this));
         bootstrap.setUp();
     }
 
     @Override
     public void onDisable() {
         bootstrap.tearDown();
-        EcmpSpigot.unregister();
+        EnjSpigot.unregister();
     }
 
     public SpigotBootstrap bootstrap() {

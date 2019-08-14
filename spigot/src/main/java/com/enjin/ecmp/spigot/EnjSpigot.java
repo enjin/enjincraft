@@ -1,11 +1,11 @@
 package com.enjin.ecmp.spigot;
 
-public class EcmpSpigot {
+public class EnjSpigot {
 
     private static SpigotBootstrap bootstrap;
 
     protected static void register(SpigotBootstrap bootstrap) {
-        EcmpSpigot.bootstrap = bootstrap;
+        EnjSpigot.bootstrap = bootstrap;
     }
 
     protected static void unregister() {

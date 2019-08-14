@@ -1,7 +1,7 @@
 package com.enjin.ecmp.spigot;
 
 import com.enjin.ecmp.spigot.cmd.CmdEnj;
-import com.enjin.ecmp.spigot.configuration.EcmpConfig;
+import com.enjin.ecmp.spigot.configuration.EnjConfig;
 import com.enjin.ecmp.spigot.hooks.PlaceholderApiExpansion;
 import com.enjin.ecmp.spigot.listeners.NotificationListener;
 import com.enjin.ecmp.spigot.listeners.TokenItemListener;
@@ -31,22 +31,22 @@ import static okhttp3.logging.HttpLoggingInterceptor.Level.NONE;
 
 public class SpigotBootstrap implements Bootstrap, Module {
 
-    private final EcmpPlugin plugin;
-    private EcmpConfig config;
+    private final EnjPlugin plugin;
+    private EnjConfig config;
 
     private TrustedPlatformClient trustedPlatformClient;
     private NotificationsService notificationsService;
     private PlayerManager playerManager;
     private TradeManager tradeManager;
 
-    public SpigotBootstrap(EcmpPlugin plugin) {
+    public SpigotBootstrap(EnjPlugin plugin) {
         this.plugin = plugin;
     }
 
     @Override
     public void setUp() {
         // Init and load configuration file
-        config = new EcmpConfig(plugin);
+        config = new EnjConfig(plugin);
         config.load();
 
         // Validate that the required config values are valid
@@ -178,7 +178,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
     }
 
     @Override
-    public EcmpConfig getConfig() {
+    public EnjConfig getConfig() {
         return config;
     }
 

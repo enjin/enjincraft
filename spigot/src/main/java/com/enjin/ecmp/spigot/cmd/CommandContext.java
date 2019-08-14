@@ -1,6 +1,6 @@
 package com.enjin.ecmp.spigot.cmd;
 
-import com.enjin.ecmp.spigot.EcmpSpigot;
+import com.enjin.ecmp.spigot.EnjSpigot;
 import com.enjin.ecmp.spigot.player.EnjPlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -25,7 +25,7 @@ public class CommandContext {
 
         if (sender instanceof Player) {
             player = (Player) sender;
-            enjPlayer = EcmpSpigot.bootstrap()
+            enjPlayer = EnjSpigot.bootstrap()
                     .getPlayerManager()
                     .getPlayer(player);
         }

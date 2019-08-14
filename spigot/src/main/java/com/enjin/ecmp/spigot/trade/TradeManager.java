@@ -1,7 +1,7 @@
 package com.enjin.ecmp.spigot.trade;
 
 import com.enjin.ecmp.spigot.SpigotBootstrap;
-import com.enjin.ecmp.spigot.events.EnjinCoinPlayerQuitEvent;
+import com.enjin.ecmp.spigot.events.EnjPlayerQuitEvent;
 import com.enjin.ecmp.spigot.player.EnjPlayer;
 import com.enjin.ecmp.spigot.player.PlayerManager;
 import com.enjin.ecmp.spigot.util.MessageUtils;
@@ -280,7 +280,7 @@ public class TradeManager implements Listener {
     }
 
     @EventHandler
-    public void onEnjinCoinPlayerQuit(EnjinCoinPlayerQuitEvent event) {
+    public void onEnjinCoinPlayerQuit(EnjPlayerQuitEvent event) {
         EnjPlayer player = event.getPlayer();
 
         player.getSentTradeInvites().forEach(other -> other.getReceivedTradeInvites().remove(player));

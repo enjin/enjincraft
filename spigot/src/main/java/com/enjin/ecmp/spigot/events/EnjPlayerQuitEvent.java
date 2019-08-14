@@ -4,13 +4,13 @@ import com.enjin.ecmp.spigot.player.EnjPlayer;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-public class EnjinCoinPlayerQuitEvent extends Event {
+public class EnjPlayerQuitEvent extends Event {
 
     private static HandlerList handlers = new HandlerList();
 
     private final EnjPlayer player;
 
-    public EnjinCoinPlayerQuitEvent(EnjPlayer player) {
+    public EnjPlayerQuitEvent(EnjPlayer player) {
         this.player = player;
     }
 
