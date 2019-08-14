@@ -15,6 +15,7 @@ public class CmdEnj extends EnjCommand implements CommandExecutor {
     private CmdHelp cmdHelp;
     private CmdLink cmdLink;
     private CmdMenu cmdMenu;
+    private CmdTrade cmdTrade;
     private CmdUnlink cmdUnlink;
     private CmdWallet cmdWallet;
 
@@ -25,6 +26,7 @@ public class CmdEnj extends EnjCommand implements CommandExecutor {
         this.addSubCommand(cmdHelp = new CmdHelp(bootstrap));
         this.addSubCommand(cmdLink = new CmdLink(bootstrap));
         this.addSubCommand(cmdMenu = new CmdMenu(bootstrap));
+        this.addSubCommand(cmdTrade = new CmdTrade(bootstrap));
         this.addSubCommand(cmdUnlink = new CmdUnlink(bootstrap));
         this.addSubCommand(cmdWallet = new CmdWallet(bootstrap));
     }
