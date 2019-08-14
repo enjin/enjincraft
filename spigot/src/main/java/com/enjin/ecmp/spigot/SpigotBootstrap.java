@@ -35,6 +35,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
     private EnjConfig config;
 
     private TrustedPlatformClient trustedPlatformClient;
+    private PlatformDetails platformDetails;
     private NotificationsService notificationsService;
     private PlayerManager playerManager;
     private TradeManager tradeManager;
@@ -45,6 +46,52 @@ public class SpigotBootstrap implements Bootstrap, Module {
 
     @Override
     public void setUp() {
+        try {
+            if (!initConfig()) return;
+
+            // Create the trusted platform client
+            trustedPlatformClient = new TrustedPlatformClient.Builder()
+                    .httpLogLevel(config.isSdkDebugging() ? BODY : NONE)
+                    .baseUrl(config.getPlatformBaseUrl())
+                    .readTimeout(1, TimeUnit.MINUTES)
+                    .build();
+
+            authenticateTPClient();
+            fetchPlatformDetails();
+            startNotificationService();
+
+            // Init Managers
+            playerManager = new PlayerManager(this);
+            tradeManager = new TradeManager(this);
+
+            // Register Listeners
+            Bukkit.getPluginManager().registerEvents(playerManager, plugin);
+            Bukkit.getPluginManager().registerEvents(tradeManager, plugin);
+            Bukkit.getPluginManager().registerEvents(new TokenItemListener(this), plugin);
+
+            // Register Commands
+            plugin.getCommand("enj").setExecutor(new CmdEnj(this));
+
+            if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+                MessageUtils.sendComponent(Bukkit.getConsoleSender(), TextComponent.of("[ECMP] Registering PlaceholderAPI Expansion")
+                        .color(TextColor.GOLD));
+                PlaceholderExpansion expansion = new PlaceholderApiExpansion(this);
+                boolean registered = expansion.register();
+                if (registered) {
+                    MessageUtils.sendComponent(Bukkit.getConsoleSender(), TextComponent.of("[ECMP] Registered PlaceholderAPI Expansion")
+                            .color(TextColor.GREEN));
+                } else {
+                    MessageUtils.sendComponent(Bukkit.getConsoleSender(), TextComponent.of("[ECMP] Could not register PlaceholderAPI Expansion")
+                            .color(TextColor.RED));
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            Bukkit.getPluginManager().disablePlugin(plugin);
+        }
+    }
+
+    private boolean initConfig() {
         // Init and load configuration file
         config = new EnjConfig(plugin);
         config.load();
@@ -52,97 +99,60 @@ public class SpigotBootstrap implements Bootstrap, Module {
         // Validate that the required config values are valid
         if (!validateConfig()) {
             Bukkit.getPluginManager().disablePlugin(plugin);
-            return;
+            return false;
         }
 
-        // Create the trusted platform client
-        trustedPlatformClient = new TrustedPlatformClient.Builder()
-                .httpLogLevel(config.isSdkDebugging() ? BODY : NONE)
-                .baseUrl(config.getPlatformBaseUrl())
-                .readTimeout(1, TimeUnit.MINUTES)
-                .build();
+        return true;
+    }
 
-        HttpResponse<AuthResult> authResult;
-
+    private void authenticateTPClient() throws AuthenticationException {
         try {
             // Attempt to authenticate the client using an app secret
-            authResult = trustedPlatformClient.authAppSync(config.getAppId(), config.getAppSecret());
+            HttpResponse<AuthResult> networkResponse = trustedPlatformClient.authAppSync(
+                    config.getAppId(),
+                    config.getAppSecret()
+            );
 
             // Could not authenticate the client
-            if (!authResult.isSuccess()) {
-                getLogger().warning(String.format("%s: Authentication Failed", authResult.code()));
-                Bukkit.getPluginManager().disablePlugin(plugin);
-                return;
+            if (!networkResponse.isSuccess()) {
+                throw new AuthenticationException(networkResponse.code());
             }
         } catch (IOException ex) {
-            // An exception was caught while attempting authenticating the client
-            getLogger().warning("Exception occurred when authenticating the trusted platform client.");
-            ex.printStackTrace();
-            Bukkit.getPluginManager().disablePlugin(plugin);
-            return;
+            throw new AuthenticationException(ex);
         }
+    }
 
-        HttpResponse<GraphQLResponse<PlatformDetails>> platformResponse;
-
+    private void fetchPlatformDetails() throws NetworkException, GraphQLException {
         try {
             // Fetch the platform details
-            platformResponse = trustedPlatformClient.getPlatformService().getPlatformSync();
+            HttpResponse<GraphQLResponse<PlatformDetails>> networkResponse = trustedPlatformClient.getPlatformService()
+                    .getPlatformSync();
 
-            // Could not fetch the platform details
-            if (!(platformResponse.isSuccess() && platformResponse.body().isSuccess())) {
-                getLogger().warning(String.format("%s: Unable to fetch platform details.", authResult.code()));
-                Bukkit.getPluginManager().disablePlugin(plugin);
-                return;
+            if (!networkResponse.isSuccess()) {
+                throw new NetworkException(networkResponse.code());
             }
 
-            // Init the notification service with the fetched platform details
-            PlatformDetails details = platformResponse.body().getData();
-            notificationsService = new PusherNotificationService(details);
-        } catch (IOException ex) {
-            // An exception was caught while fetching the platform details
-            getLogger().warning("Exception occurred when fetching platform details.");
-            ex.printStackTrace();
-            Bukkit.getPluginManager().disablePlugin(plugin);
-            return;
-        }
+            GraphQLResponse<PlatformDetails> graphQLResponse = networkResponse.body();
 
+            if (!graphQLResponse.isSuccess()) {
+                throw new GraphQLException(graphQLResponse.getErrors());
+            }
+
+            platformDetails = graphQLResponse.getData();
+        } catch (IOException ex) {
+            throw new NetworkException(ex);
+        }
+    }
+
+    private void startNotificationService() {
         try {
             // Start the notification service and register a listener
+            notificationsService = new PusherNotificationService(platformDetails);
             notificationsService.start();
             notificationsService.registerListener(new NotificationListener(this));
             notificationsService.subscribeToApp(config.getAppId());
         } catch (Exception ex) {
-            // An exception occurred while starting the notification service
-            getLogger().warning("Exception occurred when starting the notification service.");
-            ex.printStackTrace();
-            Bukkit.getPluginManager().disablePlugin(plugin);
-            return;
-        }
-
-        // Init Managers
-        playerManager = new PlayerManager(this);
-        tradeManager = new TradeManager(this);
-
-        // Register Listeners
-        Bukkit.getPluginManager().registerEvents(playerManager, plugin);
-        Bukkit.getPluginManager().registerEvents(tradeManager, plugin);
-        Bukkit.getPluginManager().registerEvents(new TokenItemListener(this), plugin);
-
-        // Register Commands
-        plugin.getCommand("enj").setExecutor(new CmdEnj(this));
-
-        if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null){
-            MessageUtils.sendComponent(Bukkit.getConsoleSender(), TextComponent.of("[ECMP] Registering PlaceholderAPI Expansion")
-                    .color(TextColor.GOLD));
-            PlaceholderExpansion expansion = new PlaceholderApiExpansion(this);
-            boolean registered = expansion.register();
-            if (registered) {
-                MessageUtils.sendComponent(Bukkit.getConsoleSender(), TextComponent.of("[ECMP] Registered PlaceholderAPI Expansion")
-                        .color(TextColor.GREEN));
-            } else {
-                MessageUtils.sendComponent(Bukkit.getConsoleSender(), TextComponent.of("[ECMP] Could not register PlaceholderAPI Expansion")
-                        .color(TextColor.RED));
-            }
+            throw new NotificationServiceException(ex);
         }
     }
 
