@@ -1,7 +1,7 @@
 package com.enjin.ecmp.spigot.player;
 
 import com.enjin.ecmp.spigot.SpigotBootstrap;
-import com.enjin.ecmp.spigot.events.EnjinCoinPlayerQuitEvent;
+import com.enjin.ecmp.spigot.events.EnjPlayerQuitEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -37,7 +37,7 @@ public class PlayerManager implements Listener {
         EnjPlayer player = removePlayer(event.getPlayer());
 
         if (player != null) {
-            Bukkit.getPluginManager().callEvent(new EnjinCoinPlayerQuitEvent(player));
+            Bukkit.getPluginManager().callEvent(new EnjPlayerQuitEvent(player));
             player.cleanUp();
         }
     }

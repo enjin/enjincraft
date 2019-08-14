@@ -12,7 +12,7 @@ import java.util.Map;
 
 import static com.enjin.ecmp.spigot.configuration.ConfigKeys.*;
 
-public class EcmpConfig {
+public class EnjConfig {
 
     public static final String FILE_NAME = "config.json";
 
@@ -29,7 +29,7 @@ public class EcmpConfig {
     private boolean pluginDebugging;
     private Map<String, TokenDefinition> tokens;
 
-    public EcmpConfig(Plugin plugin) {
+    public EnjConfig(Plugin plugin) {
         this.plugin = plugin;
         this.file = new File(plugin.getDataFolder(), FILE_NAME);
         this.appId = -1;

@@ -1,6 +1,6 @@
 package com.enjin.ecmp.spigot;
 
-import com.enjin.ecmp.spigot.configuration.EcmpConfig;
+import com.enjin.ecmp.spigot.configuration.EnjConfig;
 import com.enjin.ecmp.spigot.player.PlayerManager;
 import com.enjin.ecmp.spigot.trade.TradeManager;
 import com.enjin.enjincoin.sdk.TrustedPlatformClient;
@@ -16,6 +16,6 @@ public interface Bootstrap {
 
     TradeManager getTradeManager();
 
-    EcmpConfig getConfig();
+    EnjConfig getConfig();
 
 }
