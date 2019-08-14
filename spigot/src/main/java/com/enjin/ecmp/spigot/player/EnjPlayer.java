@@ -93,26 +93,27 @@ public class EnjPlayer {
             enjBalance = null;
             enjAllowance = null;
             tokenWallet = null;
-        } else {
-            identityId = identity.getId();
-            ethereumAddress = identity.getEthereumAddress();
-            linkingCode = identity.getLinkingCode();
-            ethBalance = identity.getEthBalance();
-            enjBalance = identity.getEnjBalance();
-            enjAllowance = identity.getEnjAllowance();
-            identityLoaded = true;
-
-            NotificationsService service = bootstrap.getNotificationsService();
-            boolean listening = service.isSubscribedToIdentity(identityId);
-
-            if (linkingCode != null && !listening) {
-                service.subscribeToIdentity(identityId);
-            } else if (linkingCode == null && listening) {
-                service.unsubscribeToIdentity(identityId);
-            }
-
-            Bukkit.getPluginManager().callEvent(new IdentityLoadedEvent(this));
+            return;
         }
+
+        identityId = identity.getId();
+        ethereumAddress = identity.getEthereumAddress();
+        linkingCode = identity.getLinkingCode();
+        ethBalance = identity.getEthBalance();
+        enjBalance = identity.getEnjBalance();
+        enjAllowance = identity.getEnjAllowance();
+        identityLoaded = true;
+
+        NotificationsService service = bootstrap.getNotificationsService();
+        boolean listening = service.isSubscribedToIdentity(identityId);
+
+        if (linkingCode != null && !listening) {
+            service.subscribeToIdentity(identityId);
+        } else if (linkingCode == null && listening) {
+            service.unsubscribeToIdentity(identityId);
+        }
+
+        Bukkit.getPluginManager().callEvent(new IdentityLoadedEvent(this));
 
         if (isLinked()) {
             if (identity.getEnjAllowance() == null || identity.getEnjAllowance().doubleValue() <= 0.0) {
