@@ -111,26 +111,4 @@ public class NotificationListener implements com.enjin.enjincoin.sdk.service.not
         manager.completeTrade(requestId);
     }
 
-//    private void onTransfer(EventData data) {
-//        String fromEthAddr = data.getParam1();
-//        String toEthAddr = data.getParam2();
-//
-//        if (StringUtils.isEmpty(fromEthAddr) || StringUtils.isEmpty(toEthAddr)) return;
-//
-//        String amount = data.getParam4();
-//
-//        EnjPlayer fromEnjPlayer = bootstrap.getPlayerManager().getPlayer(fromEthAddr);
-//        EnjPlayer toEnjPlayer = bootstrap.getPlayerManager().getPlayer(toEthAddr);
-//
-//        if (fromEnjPlayer != null) {
-//            Bukkit.getScheduler().runTaskAsynchronously(bootstrap.plugin(), () -> fromEnjPlayer.reloadIdentity());
-//            Messages.tokenSent(fromEnjPlayer.getBukkitPlayer(), amount, "?"); // TODO
-//        }
-//
-//        if (toEnjPlayer != null) {
-//            Bukkit.getScheduler().runTaskAsynchronously(bootstrap.plugin(), () -> toEnjPlayer.reloadIdentity());
-//            Messages.tokenReceived(toEnjPlayer.getBukkitPlayer(), amount, "?"); // TODO
-//        }
-//    }
-
 }

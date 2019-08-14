@@ -70,9 +70,6 @@ public class PlayerInitializationTask extends BukkitRunnable {
             }
         }
 
-//        if (this.minecraftPlayer.getWallet() != null)
-//            this.minecraftPlayer.getWallet().getCheckoutManager().populate(this.plugin, minecraftPlayer.getBukkitPlayer(), this.minecraftPlayer.getWallet());
-
         this.inProgress = false;
     }
 
