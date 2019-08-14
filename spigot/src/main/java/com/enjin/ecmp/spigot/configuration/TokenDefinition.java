@@ -32,7 +32,7 @@ public class TokenDefinition {
 
     protected void setItemStack(JsonObject json) {
         if (!json.has(ITEM_MATERIAL))
-            throw new RuntimeException("Token definition is missing the material field.");
+            throw new TokenConfigurationException(id, ITEM_MATERIAL);
 
         String mat = json.get(ITEM_MATERIAL).getAsString();
         Material material = Material.getMaterial(mat);
