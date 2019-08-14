@@ -73,6 +73,17 @@ public class MutableBalance {
         }
     }
 
+    public void set(Integer amount) {
+        synchronized (this.balance) {
+            this.balance = amount;
+            synchronized (this.withdrawn) {
+                if (this.withdrawn > this.balance) {
+                    this.withdrawn = this.balance;
+                }
+            }
+        }
+    }
+
     public boolean withdraw(Integer amount) {
         synchronized (this.withdrawn) {
             if (amountAvailableForWithdrawal().compareTo(amount) != -1) {
@@ -88,6 +99,12 @@ public class MutableBalance {
         synchronized (this.withdrawn) {
             this.withdrawn -= amount;
             if (this.withdrawn < 0) this.withdrawn = 0;
+        }
+    }
+
+    public void reset() {
+        synchronized (this.withdrawn) {
+            this.withdrawn = 0;
         }
     }
 }

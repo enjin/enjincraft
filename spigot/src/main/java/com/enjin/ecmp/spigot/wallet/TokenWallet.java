@@ -22,15 +22,20 @@ public class TokenWallet {
     }
 
     public MutableBalance removeBalance(String id) {
-        return this.balances.remove(id);
+        return balances.remove(id);
     }
 
     public MutableBalance getBalance(String id) {
-        return this.balances.get(id);
+        return balances.get(id);
     }
 
     public List<MutableBalance> getBalances() {
         return new ArrayList<>(balances.values());
+    }
+
+    public void setBalance(MutableBalance balance) {
+        if (balance == null) return;
+        balances.put(balance.id(), balance);
     }
 
     public Map<String, MutableBalance> getBalancesMap() {
@@ -38,6 +43,6 @@ public class TokenWallet {
     }
 
     public boolean isEmpty() {
-        return this.balances.isEmpty();
+        return balances.isEmpty();
     }
 }
