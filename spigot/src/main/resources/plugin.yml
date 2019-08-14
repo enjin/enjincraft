@@ -3,7 +3,7 @@ description: Spigot plugin for the Enjin Coin Minecraft Framework, a platform fo
 version: @version@-spigot
 authors: [Evan "Favorlock" Lindsay, Damien Gallagher, Tobias Drewry, Enjin Coin Team]
 website: https://enjincoin.io
-main: com.enjin.ecmp.spigot.EcmpPlugin
+main: com.enjin.ecmp.spigot.EnjPlugin
 softdepend: [Vault, PlaceholderAPI]
 api-version: 1.13
 commands:
