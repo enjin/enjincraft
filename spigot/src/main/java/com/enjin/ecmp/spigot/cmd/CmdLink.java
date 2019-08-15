@@ -10,11 +10,9 @@ import org.bukkit.command.CommandSender;
 
 public class CmdLink extends EnjCommand {
 
-    private SpigotBootstrap bootstrap;
-
     public CmdLink(SpigotBootstrap bootstrap) {
-        super();
-        this.bootstrap = bootstrap;
+        super(bootstrap);
+        setAllowedSenderTypes(SenderType.PLAYER);
         this.aliases.add("link");
     }
 

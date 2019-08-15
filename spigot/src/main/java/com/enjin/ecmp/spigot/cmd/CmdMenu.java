@@ -8,11 +8,9 @@ import net.kyori.text.format.TextColor;
 
 public class CmdMenu extends EnjCommand {
 
-    private SpigotBootstrap bootstrap;
-
     public CmdMenu(SpigotBootstrap bootstrap) {
-        super();
-        this.bootstrap = bootstrap;
+        super(bootstrap);
+        setAllowedSenderTypes(SenderType.PLAYER);
         this.aliases.add("menu");
     }
 

@@ -16,11 +16,9 @@ import java.util.List;
 
 public class CmdBalance extends EnjCommand {
 
-    private SpigotBootstrap bootstrap;
-
     public CmdBalance(SpigotBootstrap bootstrap) {
-        super();
-        this.bootstrap = bootstrap;
+        super(bootstrap);
+        setAllowedSenderTypes(SenderType.PLAYER);
         this.aliases.add("balance");
         this.aliases.add("bal");
     }

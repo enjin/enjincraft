@@ -10,11 +10,9 @@ import org.bukkit.command.CommandSender;
 
 public class CmdWallet extends EnjCommand {
 
-    private SpigotBootstrap bootstrap;
-
     public CmdWallet(SpigotBootstrap bootstrap) {
-        super();
-        this.bootstrap = bootstrap;
+        super(bootstrap);
+        setAllowedSenderTypes(SenderType.PLAYER);
         this.aliases.add("wallet");
         this.aliases.add("wal");
     }
