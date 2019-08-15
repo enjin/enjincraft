@@ -17,10 +17,6 @@ public enum SenderType {
         this.instanceSuperClass = instanceSuperClass;
     }
 
-    SenderType() {
-        this(null);
-    }
-
     public static SenderType type(CommandSender sender) {
         for (SenderType type : values()) {
             if (type.instanceSuperClass.isInstance(sender)) return type;

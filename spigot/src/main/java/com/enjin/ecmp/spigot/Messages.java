@@ -7,18 +7,29 @@ import org.bukkit.command.CommandSender;
 
 public class Messages {
 
-    public static void tokenSent(CommandSender target, String amount, String name) {
-        TextComponent text = TextComponent.of("You have sent ").color(TextColor.GOLD)
-                .append(TextComponent.of(amount + "x ").color(TextColor.GREEN))
-                .append(TextComponent.of(name).color(TextColor.DARK_PURPLE));
-        MessageUtils.sendComponent(target, text);
+    public static void identityNotLoaded(CommandSender target) {
+        MessageUtils.sendString(target, "&cYour player data is loading. Try again momentarily.");
     }
 
-    public static void tokenReceived(CommandSender target, String amount, String name) {
-        TextComponent text = TextComponent.of("You have received ").color(TextColor.GOLD)
-                .append(TextComponent.of(amount + "x ").color(TextColor.GREEN))
-                .append(TextComponent.of(name).color(TextColor.DARK_PURPLE));
-        MessageUtils.sendComponent(target, text);
+    public static void identityNotLinked(CommandSender target) {
+        MessageUtils.sendString(target, "&cYou have not linked an Enjin Wallet to your account.");
+        linkInstructions(target);
+    }
+
+    public static void linkInstructions(CommandSender target) {
+        MessageUtils.sendString(target, "&cType '/enj link' for instructions on how to link your Enjin Wallet.");
+    }
+
+    public static void allowanceNotSet(CommandSender target) {
+        MessageUtils.sendString(target, "&cYou must approve the allowance request in your wallet before you can send or trade tokens.");
+    }
+
+    public static void error(CommandSender target, Exception ex) {
+        MessageUtils.sendString(target, String.format("&cError: %s", ex.getMessage()));
+    }
+
+    public static void newLine(CommandSender target) {
+        MessageUtils.sendString(target, "");
     }
 
 }

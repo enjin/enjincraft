@@ -1,5 +1,7 @@
 package com.enjin.ecmp.spigot.player;
 
+import com.enjin.ecmp.spigot.GraphQLException;
+import com.enjin.ecmp.spigot.NetworkException;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.enjincoin.sdk.TrustedPlatformClient;
 import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
@@ -37,9 +39,7 @@ public class PlayerInitializationTask extends BukkitRunnable {
 
     @Override
     public void run() {
-        if (this.inProgress || isCancelled()) {
-            return;
-        }
+        if (this.inProgress || isCancelled()) return;
 
         this.inProgress = true;
 
@@ -65,8 +65,8 @@ public class PlayerInitializationTask extends BukkitRunnable {
                 } else if (this.player.isLoaded() && !isCancelled()) {
                     cancel();
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (IOException ex) {
+                ex.printStackTrace();
             }
         }
 
@@ -84,39 +84,44 @@ public class PlayerInitializationTask extends BukkitRunnable {
     }
 
     private User fetchExistingUser(UUID playerUuid) throws IOException {
-        TrustedPlatformClient client = bootstrap.getTrustedPlatformClient();
         // Fetch the User for the Player in question
-        HttpResponse<GraphQLResponse<List<User>>> networkResponse = client.getUsersService()
-                .getUsersSync(new GetUsers().name(playerUuid.toString()));
+        HttpResponse<GraphQLResponse<List<User>>> networkResponse = bootstrap.getTrustedPlatformClient()
+                .getUsersService().getUsersSync(new GetUsers()
+                        .name(playerUuid.toString()));
 
         User user = null;
 
-        if (networkResponse.body() != null) {
-            GraphQLResponse<List<User>> response = networkResponse.body();
-            if (!response.isEmpty()) {
-                List<User> data = response.getData();
-                if (data != null && !data.isEmpty()) {
-                    user = data.get(0);
-                }
+        if (networkResponse.isSuccess()) {
+            GraphQLResponse<List<User>> graphQLResponse = networkResponse.body();
+            if (graphQLResponse.isSuccess() && graphQLResponse.getData().size() > 0) {
+                user = graphQLResponse.getData().get(0);
+            } else {
+                throw new GraphQLException(graphQLResponse.getErrors());
             }
+        } else {
+            throw new NetworkException(networkResponse.code());
         }
 
         return user;
     }
 
     private User createUser(UUID playerUuid) throws IOException {
-        TrustedPlatformClient client = bootstrap.getTrustedPlatformClient();
         // Create the User for the Player in question
-        HttpResponse<GraphQLResponse<User>> networkResponse = client.getUsersService()
-                .createUserSync(new CreateUser().name(playerUuid.toString()));
+        HttpResponse<GraphQLResponse<User>> networkResponse = bootstrap.getTrustedPlatformClient()
+                .getUsersService().createUserSync(new CreateUser()
+                        .name(playerUuid.toString()));
 
         User user = null;
 
-        if (networkResponse.body() != null) {
-            GraphQLResponse<User> response = networkResponse.body();
-            if (!response.isEmpty()) {
-                user = response.getData();
+        if (networkResponse.isSuccess()) {
+            GraphQLResponse<User> graphQLResponse = networkResponse.body();
+            if (graphQLResponse.isSuccess()) {
+                user = graphQLResponse.getData();
+            } else {
+                throw new GraphQLException(graphQLResponse.getErrors());
             }
+        } else {
+            throw new NetworkException(networkResponse.code());
         }
 
         return user;
@@ -128,22 +133,19 @@ public class PlayerInitializationTask extends BukkitRunnable {
         if (player.getIdentityId() == null) {
             identity = createIdentity();
         } else {
-            TrustedPlatformClient client = bootstrap.getTrustedPlatformClient();
-            HttpResponse<GraphQLResponse<List<Identity>>> networkResponse = client.getIdentitiesService()
-                    .getIdentitiesSync(new GetIdentities().identityId(player.getIdentityId()));
+            HttpResponse<GraphQLResponse<List<Identity>>> networkResponse = bootstrap.getTrustedPlatformClient()
+                    .getIdentitiesService().getIdentitiesSync(new GetIdentities()
+                            .identityId(player.getIdentityId()));
 
             if (networkResponse.isSuccess()) {
-                GraphQLResponse<List<Identity>> response = networkResponse.body();
-                if (response.isSuccess()) {
-                    List<Identity> identities = response.getData();
-                    if (identities.size() > 0) {
-                        identity = identities.get(0);
-                    }
+                GraphQLResponse<List<Identity>> graphQLResponse = networkResponse.body();
+                if (graphQLResponse.isSuccess() && graphQLResponse.getData().size() > 0) {
+                    identity = graphQLResponse.getData().get(0);
                 } else {
-                    identity = null;
+                    throw new GraphQLException(graphQLResponse.getErrors());
                 }
             } else {
-                identity = null;
+                throw new NetworkException(networkResponse.code());
             }
         }
 
@@ -158,11 +160,15 @@ public class PlayerInitializationTask extends BukkitRunnable {
 
         Identity identity = null;
 
-        if (networkResponse.body() != null) {
-            GraphQLResponse<Identity> response = networkResponse.body();
-            if (!response.isEmpty()) {
-                identity = response.getData();
+        if (networkResponse.isSuccess()) {
+            GraphQLResponse<Identity> graphQLResponse = networkResponse.body();
+            if (graphQLResponse.isSuccess()) {
+                identity = graphQLResponse.getData();
+            } else {
+                throw new GraphQLException(graphQLResponse.getErrors());
             }
+        } else {
+            throw new NetworkException(networkResponse.code());
         }
 
         return identity;
@@ -178,9 +184,7 @@ public class PlayerInitializationTask extends BukkitRunnable {
 
     public static void cleanUp(UUID playerUuid) {
         PlayerInitializationTask task = PLAYER_TASKS.remove(playerUuid);
-        if (task != null && !task.isCancelled()) {
-            task.cancel();
-        }
+        if (task != null && !task.isCancelled()) task.cancel();
     }
 
 }

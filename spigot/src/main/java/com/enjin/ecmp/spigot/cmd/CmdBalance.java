@@ -1,5 +1,6 @@
 package com.enjin.ecmp.spigot.cmd;
 
+import com.enjin.ecmp.spigot.Messages;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.configuration.TokenDefinition;
 import com.enjin.ecmp.spigot.player.EnjPlayer;
@@ -9,6 +10,7 @@ import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -25,15 +27,11 @@ public class CmdBalance extends EnjCommand {
 
     @Override
     public void execute(CommandContext context) {
-        CommandSender sender = context.sender;
+        Player sender = context.player;
         EnjPlayer enjPlayer = context.enjPlayer;
 
-        if (enjPlayer == null) return;
         if (!enjPlayer.isLinked()) {
-            TextComponent text = TextComponent.of("You have not linked a wallet to your account.").color(TextColor.RED);
-            MessageUtils.sendComponent(sender, text);
-            text = TextComponent.of("Please type '/enj link' to link your account to your Enjin Wallet.").color(TextColor.RED);
-            MessageUtils.sendComponent(sender, text);
+            Messages.identityNotLinked(sender);
             return;
         }
 
@@ -44,40 +42,31 @@ public class CmdBalance extends EnjCommand {
                 ? BigDecimal.ZERO
                 : enjPlayer.getEnjBalance();
 
-        sendMsg(sender, "EthAdr: " + ChatColor.LIGHT_PURPLE + enjPlayer.getEthereumAddress());
-        sendMsg(sender, "ID: " + enjPlayer.getIdentityId() + "   ");
+        MessageUtils.sendString(sender, String.format("&6Wallet Address: &d%s", enjPlayer.getEthereumAddress()));
+        MessageUtils.sendString(sender, String.format("&6Identity ID: &d%s", enjPlayer.getIdentityId()));
 
         if (enjBalance != null)
-            sendMsg(sender, ChatColor.GREEN + "[ " + enjBalance + " ENJ ] ");
-        if (ethBalance != null)
-            sendMsg(sender, ChatColor.GREEN + "[ " + ethBalance + " ETH ]");
+            MessageUtils.sendString(sender, String.format("&a[ %s ENJ ]", enjBalance));
+        if (enjBalance != null)
+            MessageUtils.sendString(sender, String.format("&a[ %s ETH ]", ethBalance));
 
         int itemCount = 0;
-        List<TextComponent> listing = new ArrayList<>();
-        List<MutableBalance> balances = enjPlayer.getTokenWallet().getBalances();
-        for (MutableBalance balance : balances) {
+        List<String> tokenDisplays = new ArrayList<>();
+        for (MutableBalance balance : enjPlayer.getTokenWallet().getBalances()) {
             if (balance == null || balance.balance() == 0) continue;
             TokenDefinition def = bootstrap.getConfig().getTokens().get(balance.id());
             if (def == null) continue;
             itemCount++;
-            listing.add(TextComponent.of(itemCount + ". ").color(TextColor.GOLD)
-                    .append(TextComponent.of(def.getDisplayName()).color(TextColor.DARK_PURPLE))
-                    .append(TextComponent.of(" (qty. " + balance.balance() + ")").color(TextColor.GREEN)));
+            tokenDisplays.add(String.format("&6%s. &5%s &a(qty. %s)", itemCount, def.getDisplayName(), balance.balance()));
         }
 
-        sendMsg(sender, "");
+        Messages.newLine(sender);
         if (itemCount == 0)
-            sendMsg(sender, ChatColor.BOLD + "" + ChatColor.GOLD + "No CryptoItems found in your Enjin Wallet.");
+            MessageUtils.sendString(sender, "&l&6No tokens found in your Enjin Wallet.");
         else
-            sendMsg(sender, ChatColor.BOLD + "" + ChatColor.GOLD + "Found " + itemCount + " CryptoItems in your Wallet: ");
+            MessageUtils.sendString(sender, String.format("&l&6Found %s tokens in your Wallet:", itemCount));
 
-        listing.forEach(l -> MessageUtils.sendComponent(sender, l));
-    }
-
-    private void sendMsg(CommandSender sender, String msg) {
-        TextComponent text = TextComponent.of(msg)
-                .color(TextColor.GOLD);
-        MessageUtils.sendComponent(sender, text);
+        tokenDisplays.forEach(l -> MessageUtils.sendString(sender, l));
     }
 
 }
