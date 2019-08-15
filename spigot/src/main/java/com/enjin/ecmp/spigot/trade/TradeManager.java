@@ -1,5 +1,7 @@
 package com.enjin.ecmp.spigot.trade;
 
+import com.enjin.ecmp.spigot.GraphQLException;
+import com.enjin.ecmp.spigot.NetworkException;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.events.EnjPlayerQuitEvent;
 import com.enjin.ecmp.spigot.player.EnjPlayer;
@@ -84,32 +86,27 @@ public class TradeManager implements Listener {
 
     public void completeTrade(String requestId) {
         Trade trade = tradesPendingCompletion.remove(requestId);
-        if (trade != null) {
-            PlayerManager playerManager = bootstrap.getPlayerManager();
-            EnjPlayer playerOne = playerManager.getPlayer(trade.getPlayerOneUuid());
-            EnjPlayer playerTwo = playerManager.getPlayer(trade.getPlayerTwoUuid());
 
-            if (playerOne != null && playerTwo != null) {
-                Player bukkitPlayerOne = playerOne.getBukkitPlayer();
-                Player bukkitPlayerTwo = playerTwo.getBukkitPlayer();
+        if (trade == null) return;
 
-                bukkitPlayerOne.getInventory().addItem(trade.getPlayerTwoOffer().toArray(new ItemStack[0]));
-                bukkitPlayerTwo.getInventory().addItem(trade.getPlayerOneOffer().toArray(new ItemStack[0]));
+        EnjPlayer playerOne = bootstrap.getPlayerManager().getPlayer(trade.getPlayerOneUuid());
+        EnjPlayer playerTwo = bootstrap.getPlayerManager().getPlayer(trade.getPlayerTwoUuid());
 
-                TextComponent text = TextComponent.builder()
-                        .content("Your trade is complete!")
-                        .color(TextColor.GRAY)
-                        .build();
+        if (playerOne == null || playerTwo == null) return;
 
-                if (bukkitPlayerOne != null && bukkitPlayerOne.isOnline()) {
-                    MessageUtils.sendComponent(bukkitPlayerOne, text);
-                }
+        Player bukkitPlayerOne = playerOne.getBukkitPlayer();
+        Player bukkitPlayerTwo = playerTwo.getBukkitPlayer();
 
-                if (bukkitPlayerTwo != null && bukkitPlayerTwo.isOnline()) {
-                    MessageUtils.sendComponent(bukkitPlayerTwo, text);
-                }
-            }
-        }
+        bukkitPlayerOne.getInventory().addItem(trade.getPlayerTwoOffer().toArray(new ItemStack[0]));
+        bukkitPlayerTwo.getInventory().addItem(trade.getPlayerOneOffer().toArray(new ItemStack[0]));
+
+        TextComponent text = TextComponent.builder()
+                .content("Your trade is complete!")
+                .color(TextColor.GRAY)
+                .build();
+
+        MessageUtils.sendComponent(bukkitPlayerOne, text);
+        MessageUtils.sendComponent(bukkitPlayerTwo, text);
     }
 
     public void submitCompleteTrade(String requestId, String tradeId) {
@@ -119,146 +116,72 @@ public class TradeManager implements Listener {
 
         trade.setTradeId(tradeId);
 
-        PlayerManager playerManager = bootstrap.getPlayerManager();
-        EnjPlayer playerOne = playerManager.getPlayer(trade.getPlayerOneUuid());
-        EnjPlayer playerTwo = playerManager.getPlayer(trade.getPlayerTwoUuid());
+        EnjPlayer playerOne = bootstrap.getPlayerManager().getPlayer(trade.getPlayerOneUuid());
+        EnjPlayer playerTwo = bootstrap.getPlayerManager().getPlayer(trade.getPlayerTwoUuid());
 
-        if (playerOne != null && playerTwo != null) {
-            if (playerOne.isIdentityLoaded() && playerTwo.isIdentityLoaded()) {
-                TrustedPlatformClient client = bootstrap.getTrustedPlatformClient();
-                RequestsService service = client.getRequestsService();
-                Player bukkitPlayerOne = playerOne.getBukkitPlayer();
-                Player bukkitPlayerTwo = playerTwo.getBukkitPlayer();
+        if (playerOne == null || playerTwo == null) return;
+        if (!playerOne.isLinked() || !playerTwo.isLinked()) return;
 
-                service.createRequestAsync(
-                        new CreateRequest().identityId(playerTwo.getIdentityId())
-                                .completeTrade(CompleteTradeData.builder()
-                                        .tradeId(trade.getTradeId())
-                                        .build()),
-                        response -> {
-                            if (response.body() != null) {
-                                if (response.body() != null) {
-                                    GraphQLResponse<Transaction> body = response.body();
+        Player bukkitPlayerOne = playerOne.getBukkitPlayer();
+        Player bukkitPlayerTwo = playerTwo.getBukkitPlayer();
 
-                                    if (body.getData() != null) {
-                                        Transaction dataIn = body.getData();
+        bootstrap.getTrustedPlatformClient()
+                .getRequestsService().createRequestAsync(new CreateRequest()
+                        .identityId(playerTwo.getIdentityId())
+                        .completeTrade(CompleteTradeData.builder()
+                                .tradeId(trade.getTradeId())
+                                .build()),
+                networkResponse -> {
+                    if (!networkResponse.isSuccess()) throw new NetworkException(networkResponse.code());
 
-                                        if (bukkitPlayerOne != null && bukkitPlayerOne.isOnline()) {
-                                            MessageUtils.sendComponent(bukkitPlayerOne, wait);
-                                        }
+                    GraphQLResponse<Transaction> graphQLResponse = networkResponse.body();
+                    if (!graphQLResponse.isSuccess()) throw new GraphQLException(graphQLResponse.getErrors());
 
-                                        if (bukkitPlayerTwo != null && bukkitPlayerTwo.isOnline()) {
-                                            MessageUtils.sendComponent(bukkitPlayerTwo, action);
-                                        }
+                    Transaction dataIn = graphQLResponse.getData();
+                    MessageUtils.sendComponent(bukkitPlayerOne, wait);
+                    MessageUtils.sendComponent(bukkitPlayerTwo, action);
 
-                                        String key = dataIn.getId().toString();
-                                        tradesPendingCompletion.put(key, trade);
-                                    }
-                                }
-                            } else {
-                                TextComponent text = TextComponent.builder()
-                                        .content("An error occurred when completing your trade.")
-                                        .color(TextColor.RED)
-                                        .build();
-
-                                if (bukkitPlayerOne != null && bukkitPlayerOne.isOnline()) {
-                                    MessageUtils.sendComponent(bukkitPlayerOne, text);
-                                }
-
-                                if (bukkitPlayerTwo != null && bukkitPlayerTwo.isOnline()) {
-                                    MessageUtils.sendComponent(bukkitPlayerTwo, text);
-
-                                    if (!(response.isSuccess() || response.isEmpty())) {
-                                        GraphQLResponse<?> body = response.body();
-                                        if (body.getErrors() != null) {
-                                            for (GraphQLError error : body.getErrors()) {
-                                                MessageUtils.sendComponent(bukkitPlayerOne, TextComponent.builder()
-                                                        .content(error.getMessage())
-                                                        .color(TextColor.RED)
-                                                        .build());
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                );
-            }
-        }
+                    String key = dataIn.getId().toString();
+                    tradesPendingCompletion.put(key, trade);
+                }
+        );
     }
 
     public void submitCreateTrade(Trade trade) {
-        PlayerManager playerManager = bootstrap.getPlayerManager();
-        EnjPlayer playerOne = playerManager.getPlayer(trade.getPlayerOneUuid());
-        EnjPlayer playerTwo = playerManager.getPlayer(trade.getPlayerTwoUuid());
+        EnjPlayer playerOne = bootstrap.getPlayerManager().getPlayer(trade.getPlayerOneUuid());
+        EnjPlayer playerTwo = bootstrap.getPlayerManager().getPlayer(trade.getPlayerTwoUuid());
 
-        if (playerOne != null && playerTwo != null) {
-            if (playerOne.isIdentityLoaded() && playerTwo.isIdentityLoaded()) {
-                TrustedPlatformClient client = bootstrap.getTrustedPlatformClient();
-                RequestsService service = client.getRequestsService();
-                Player bukkitPlayerOne = playerOne.getBukkitPlayer();
-                Player bukkitPlayerTwo = playerTwo.getBukkitPlayer();
+        if (playerOne == null || playerTwo == null) return;
+        if (!playerOne.isLinked() || !playerTwo.isLinked()) return;
 
-                List<TokenValueData> playerOneTokens = extractTokens(trade.getPlayerOneOffer());
-                List<TokenValueData> playerTwoTokens = extractTokens(trade.getPlayerTwoOffer());
+        Player bukkitPlayerOne = playerOne.getBukkitPlayer();
+        Player bukkitPlayerTwo = playerTwo.getBukkitPlayer();
 
-                service.createRequestAsync(
-                        new CreateRequest().identityId(playerOne.getIdentityId())
-                                .createTrade(CreateTradeData.builder()
-                                        .offeringTokens(playerOneTokens)
-                                        .askingTokens(playerTwoTokens)
-                                        .secondPartyIdentityId(playerTwo.getIdentityId())
-                                        .build()),
-                        response -> {
-                            if (response.body() != null) {
-                                if (response.body() != null) {
-                                    GraphQLResponse<Transaction> body = response.body();
+        List<TokenValueData> playerOneTokens = extractTokens(trade.getPlayerOneOffer());
+        List<TokenValueData> playerTwoTokens = extractTokens(trade.getPlayerTwoOffer());
 
-                                    if (body.getData() != null) {
-                                        Transaction dataIn = body.getData();
+        bootstrap.getTrustedPlatformClient()
+                .getRequestsService().createRequestAsync(new CreateRequest()
+                        .identityId(playerOne.getIdentityId())
+                        .createTrade(CreateTradeData.builder()
+                                .offeringTokens(playerOneTokens)
+                                .askingTokens(playerTwoTokens)
+                                .secondPartyIdentityId(playerTwo.getIdentityId())
+                                .build()),
+                networkResponse -> {
+                    if (!networkResponse.isSuccess()) throw new NetworkException(networkResponse.code());
 
-                                        if (bukkitPlayerOne != null && bukkitPlayerOne.isOnline()) {
-                                            MessageUtils.sendComponent(bukkitPlayerOne, action);
-                                        }
+                    GraphQLResponse<Transaction> graphQLResponse = networkResponse.body();
+                    if (!graphQLResponse.isSuccess()) throw new GraphQLException(graphQLResponse.getErrors());
 
-                                        if (bukkitPlayerTwo != null && bukkitPlayerTwo.isOnline()) {
-                                            MessageUtils.sendComponent(bukkitPlayerTwo, wait);
-                                        }
+                    Transaction dataIn = graphQLResponse.getData();
+                    MessageUtils.sendComponent(bukkitPlayerOne, action);
+                    MessageUtils.sendComponent(bukkitPlayerTwo, wait);
 
-                                        String key = dataIn.getId().toString();
-                                        tradesPendingCompletion.put(key, trade);
-                                    }
-                                }
-                            } else {
-                                TextComponent text = TextComponent.builder()
-                                        .content("An error occurred when creating your trade.")
-                                        .color(TextColor.RED)
-                                        .build();
-
-                                if (bukkitPlayerOne != null && bukkitPlayerOne.isOnline()) {
-                                    MessageUtils.sendComponent(bukkitPlayerOne, text);
-
-                                    if (!(response.isSuccess() || response.isEmpty())) {
-                                        GraphQLResponse<?> body = response.body();
-                                        if (body.getErrors() != null) {
-                                            for (GraphQLError error : body.getErrors()) {
-                                                MessageUtils.sendComponent(bukkitPlayerOne, TextComponent.builder()
-                                                        .content(error.getMessage())
-                                                        .color(TextColor.RED)
-                                                        .build());
-                                            }
-                                        }
-                                    }
-                                }
-
-                                if (bukkitPlayerTwo != null && bukkitPlayerTwo.isOnline()) {
-                                    MessageUtils.sendComponent(bukkitPlayerTwo, text);
-                                }
-                            }
-                        }
-                );
-            }
-        }
+                    String key = dataIn.getId().toString();
+                    tradesPendingCompletion.put(key, trade);
+                }
+        );
     }
 
     private List<TokenValueData> extractTokens(List<ItemStack> offeredItems) {
@@ -266,14 +189,12 @@ public class TradeManager implements Listener {
 
         for (ItemStack item : offeredItems) {
             NBTItem nbtItem = new NBTItem(item);
-            if (nbtItem.hasKey("tokenID")) {
-                String tokenId = nbtItem.getString("tokenID");
-
-                offers.add(TokenValueData.builder()
-                        .id(tokenId)
-                        .value(item.getAmount())
-                        .build());
-            }
+            if (!nbtItem.hasKey("tokenID")) continue;
+            String tokenId = nbtItem.getString("tokenID");
+            offers.add(TokenValueData.builder()
+                    .id(tokenId)
+                    .value(item.getAmount())
+                    .build());
         }
 
         return offers;
@@ -286,10 +207,7 @@ public class TradeManager implements Listener {
         player.getSentTradeInvites().forEach(other -> other.getReceivedTradeInvites().remove(player));
         player.getReceivedTradeInvites().forEach(other -> other.getSentTradeInvites().remove(player));
 
-        TradeView tradeView = player.getActiveTradeView();
-        if (tradeView != null && tradeView.getOther() != null) {
-            player.getBukkitPlayer().closeInventory();
-        }
+        player.getBukkitPlayer().closeInventory();
     }
 
 }

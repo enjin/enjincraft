@@ -35,11 +35,9 @@ public class PlayerManager implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         EnjPlayer player = removePlayer(event.getPlayer());
-
-        if (player != null) {
-            Bukkit.getPluginManager().callEvent(new EnjPlayerQuitEvent(player));
-            player.cleanUp();
-        }
+        if (player == null) return;
+        Bukkit.getPluginManager().callEvent(new EnjPlayerQuitEvent(player));
+        player.cleanUp();
     }
 
     public Map<UUID, EnjPlayer> getPlayers() {

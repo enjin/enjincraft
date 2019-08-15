@@ -1,5 +1,7 @@
 package com.enjin.ecmp.spigot.player;
 
+import com.enjin.ecmp.spigot.GraphQLException;
+import com.enjin.ecmp.spigot.NetworkException;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.events.IdentityLoadedEvent;
 import com.enjin.ecmp.spigot.trade.TradeView;
@@ -115,38 +117,40 @@ public class EnjPlayer {
 
         Bukkit.getPluginManager().callEvent(new IdentityLoadedEvent(this));
 
-        if (isLinked()) {
-            if (identity.getEnjAllowance() == null || identity.getEnjAllowance().doubleValue() <= 0.0) {
-                TextComponent text = TextComponent.builder()
-                        .content("Before you can send or trade items with other players you must approve the enj " +
-                                "request in your wallet app.")
-                        .color(TextColor.GOLD)
-                        .build();
-                MessageUtils.sendComponent(getBukkitPlayer(), text);
-            }
+        if (!isLinked()) return;
 
-            initWallet();
+        if (identity.getEnjAllowance() == null || identity.getEnjAllowance().doubleValue() <= 0.0) {
+            TextComponent text = TextComponent.builder()
+                    .content("Before you can send or trade items with other players you must approve the enj " +
+                            "request in your wallet app.")
+                    .color(TextColor.GOLD)
+                    .build();
+            MessageUtils.sendComponent(getBukkitPlayer(), text);
         }
+
+        initWallet();
     }
 
     public void initWallet() {
         if (StringUtils.isEmpty(ethereumAddress)) return;
 
-        // populate wallet;
-        TrustedPlatformClient client = bootstrap.getTrustedPlatformClient();
         try {
-            HttpResponse<GraphQLResponse<List<Balance>>> networkResponse = client.getBalancesService()
-                    .getBalancesSync(new GetBalances().ethAddr(ethereumAddress));
+            HttpResponse<GraphQLResponse<List<Balance>>> networkResponse = bootstrap.getTrustedPlatformClient()
+                    .getBalancesService().getBalancesSync(new GetBalances()
+                            .ethAddr(ethereumAddress));
             if (networkResponse.isSuccess()) {
-                GraphQLResponse<List<Balance>> response = networkResponse.body();
-                if (response.isSuccess()) {
-                    List<Balance> balances = response.getData();
-                    tokenWallet = new TokenWallet(bootstrap, balances);
+                GraphQLResponse<List<Balance>> graphQLResponse = networkResponse.body();
+                if (graphQLResponse.isSuccess()) {
+                    tokenWallet = new TokenWallet(bootstrap, graphQLResponse.getData());
                     validateInventory();
+                } else {
+                    throw new GraphQLException(graphQLResponse.getErrors());
                 }
+            } else {
+                throw new NetworkException(networkResponse.code());
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
     }
 
@@ -156,68 +160,68 @@ public class EnjPlayer {
         for (int i = inventory.getSize() - 1; i >= 0; i--) {
             ItemStack is = inventory.getItem(i);
             String id = TokenUtils.getTokenID(is);
-            if (!StringUtils.isEmpty(id)) {
-                MutableBalance balance = tokenWallet.getBalance(id);
-                if (balance != null) {
-                    if (balance.amountAvailableForWithdrawal() == 0) {
-                        inventory.clear(i);
-                    } else {
-                        if (balance.amountAvailableForWithdrawal() < is.getAmount()) {
-                            is.setAmount(balance.amountAvailableForWithdrawal());
-                        }
+            if (StringUtils.isEmpty(id)) continue;
 
-                        balance.withdraw(is.getAmount());
-                    }
+            MutableBalance balance = tokenWallet.getBalance(id);
+            if (balance == null) continue;
+
+            if (balance.amountAvailableForWithdrawal() == 0) {
+                inventory.clear(i);
+            } else {
+                if (balance.amountAvailableForWithdrawal() < is.getAmount()) {
+                    is.setAmount(balance.amountAvailableForWithdrawal());
                 }
+
+                balance.withdraw(is.getAmount());
             }
         }
     }
 
     public void reloadUser() {
-        TrustedPlatformClient client = bootstrap.getTrustedPlatformClient();
-        // Fetch the User for the Player in question
         try {
-            HttpResponse<GraphQLResponse<List<User>>> networkResponse = client.getUsersService()
-                    .getUsersSync(new GetUsers().name(bukkitPlayer.getUniqueId().toString()));
+            HttpResponse<GraphQLResponse<List<User>>> networkResponse = bootstrap.getTrustedPlatformClient()
+                    .getUsersService().getUsersSync(new GetUsers()
+                            .name(bukkitPlayer.getUniqueId().toString()));
 
-            User user = null;
-            if (networkResponse.body() != null) {
-                GraphQLResponse<List<User>> response = networkResponse.body();
-                if (!response.isEmpty()) {
-                    List<User> data = response.getData();
-                    if (data != null && !data.isEmpty()) {
-                        user = data.get(0);
-                    }
+            User user;
+            if (networkResponse.isSuccess()) {
+                GraphQLResponse<List<User>> graphQLResponse = networkResponse.body();
+                if (graphQLResponse.isSuccess() && !graphQLResponse.getData().isEmpty()) {
+                    user = graphQLResponse.getData().get(0);
+                } else {
+                    throw new GraphQLException(graphQLResponse.getErrors());
                 }
+            } else {
+                throw new NetworkException(networkResponse.code());
             }
 
             loadUser(user);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 
     public void reloadIdentity() {
-        TrustedPlatformClient client = bootstrap.getTrustedPlatformClient();
-
         try {
-            HttpResponse<GraphQLResponse<List<Identity>>> networkResponse = client.getIdentitiesService()
-                    .getIdentitiesSync(new GetIdentities().identityId(identityId));
+            HttpResponse<GraphQLResponse<List<Identity>>> networkResponse = bootstrap.getTrustedPlatformClient()
+                    .getIdentitiesService().getIdentitiesSync(new GetIdentities()
+                            .identityId(identityId));
 
-            Identity identity = null;
+            Identity identity;
             if (networkResponse.isSuccess()) {
-                GraphQLResponse<List<Identity>> response = networkResponse.body();
-                if (response.isSuccess()) {
-                    List<Identity> data = response.getData();
-                    if (!data.isEmpty()) {
-                        identity = data.get(0);
-                    }
+                GraphQLResponse<List<Identity>> graphQLResponse = networkResponse.body();
+                if (graphQLResponse.isSuccess() && !graphQLResponse.getData().isEmpty()) {
+                    identity = graphQLResponse.getData().get(0);
+                } else {
+                    throw new GraphQLException(graphQLResponse.getErrors());
                 }
+            } else {
+                throw new NetworkException(networkResponse.code());
             }
 
             loadIdentity(identity);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
     }
 

@@ -2,6 +2,7 @@ package com.enjin.ecmp.spigot.cmd;
 
 import com.enjin.ecmp.spigot.EnjSpigot;
 import com.enjin.ecmp.spigot.player.EnjPlayer;
+import com.enjin.ecmp.spigot.player.UnregisteredPlayerException;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -30,6 +31,10 @@ public class CommandContext {
             enjPlayer = EnjSpigot.bootstrap()
                     .getPlayerManager()
                     .getPlayer(player);
+
+            if (enjPlayer == null) {
+                throw new UnregisteredPlayerException(player);
+            }
         }
     }
 

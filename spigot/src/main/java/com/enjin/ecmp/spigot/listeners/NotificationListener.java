@@ -1,6 +1,6 @@
 package com.enjin.ecmp.spigot.listeners;
 
-import com.enjin.ecmp.spigot.Messages;
+import com.enjin.ecmp.spigot.NotificationServiceException;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.player.EnjPlayer;
 import com.enjin.ecmp.spigot.trade.TradeManager;
@@ -40,8 +40,8 @@ public class NotificationListener implements com.enjin.enjincoin.sdk.service.not
                 default:
                     break;
             }
-        } catch (Exception e) {
-            new Exception("An error occurred while processing an sdk event.", e).printStackTrace();
+        } catch (Exception ex) {
+            throw new NotificationServiceException(ex);
         }
     }
 
@@ -98,7 +98,6 @@ public class NotificationListener implements com.enjin.enjincoin.sdk.service.not
     private void onCreateTrade(EventData data) {
         String requestId = data.getId().toString();
         String tradeId = data.getParam1();
-
         if (StringUtils.isEmpty(requestId) || StringUtils.isEmpty(tradeId)) return;
         TradeManager manager = bootstrap.getTradeManager();
         manager.submitCompleteTrade(requestId, tradeId);

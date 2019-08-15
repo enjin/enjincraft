@@ -1,7 +1,10 @@
 package com.enjin.ecmp.spigot.cmd;
 
+import com.enjin.ecmp.spigot.Messages;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
+import com.enjin.ecmp.spigot.util.MessageUtils;
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
 
 public class CmdHelp extends EnjCommand {
 
@@ -13,16 +16,16 @@ public class CmdHelp extends EnjCommand {
 
     @Override
     public void execute(CommandContext context) {
-        context.sender.sendMessage("Usage:");
-        context.sender.sendMessage("/enj [command]");
-        context.sender.sendMessage("");
-        context.sender.sendMessage(ChatColor.GOLD + "/enj link: " + ChatColor.WHITE + "Display linking code or linked address if available.");
-        context.sender.sendMessage(ChatColor.GOLD + "/enj unlink: " + ChatColor.WHITE + "Removes the link to an Ethereum Wallet.");
-        context.sender.sendMessage(ChatColor.GOLD + "/enj balance: " + ChatColor.WHITE + "Display wallet Address, Ethereum and Enjin Coin balances, as well as a list of balance CryptoItems.");
-        context.sender.sendMessage(ChatColor.GOLD + "/enj wallet: " + ChatColor.WHITE + "Opens a wallet inventory panel which allows for checkout of balance CryptoItems.");
-        context.sender.sendMessage(ChatColor.GOLD + "/enj send <player>: " + ChatColor.WHITE + "Sends the held token to another player.");
-        context.sender.sendMessage(ChatColor.GOLD + "/enj trade invite <player>: " + ChatColor.WHITE + "Send a trade invite to another player.");
-        context.sender.sendMessage(ChatColor.GOLD + "/enj scoreboard: " + ChatColor.WHITE + "Displays/hides the ENJ Scoreboard.");
+        CommandSender sender = context.sender;
+        MessageUtils.sendString(sender, "Usage:");
+        MessageUtils.sendString(sender, "/enj [command]");
+        Messages.newLine(sender);
+        MessageUtils.sendString(sender, "&6/enj link: &fDisplay linking code or linked address if available.");
+        MessageUtils.sendString(sender, "&6/enj unlink: &fRemoves the link to an Ethereum Wallet.");
+        MessageUtils.sendString(sender, "&6/enj balance: &fDisplay wallet address, eth, enj, and token balances.");
+        MessageUtils.sendString(sender, "&6/enj wallet: &fOpens a wallet menu where tokens can be checked out.");
+        MessageUtils.sendString(sender, "&6/enj send <player>: &fSends the held token to another player.");
+        MessageUtils.sendString(sender, "&6/enj trade invite <player>: &fSend a trade invite to another player.");
     }
 
 }

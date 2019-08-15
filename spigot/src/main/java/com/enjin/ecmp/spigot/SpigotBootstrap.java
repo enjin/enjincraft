@@ -158,12 +158,11 @@ public class SpigotBootstrap implements Bootstrap, Module {
 
     @Override
     public void tearDown() {
-        if (trustedPlatformClient != null) {
-            try {
-                trustedPlatformClient.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        try {
+            if (trustedPlatformClient != null) trustedPlatformClient.close();
+            if (notificationsService != null) notificationsService.shutdown();
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 

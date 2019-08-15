@@ -52,8 +52,8 @@ public class EnjConfig {
                 init(root = element.getAsJsonObject());
                 result = true;
             }
-        } catch (Exception e) {
-            plugin.getLogger().warning("Unable to create or load config file.");
+        } catch (Exception ex) {
+            throw new ConfigurationException(ex);
         }
 
         return result;
@@ -95,8 +95,7 @@ public class EnjConfig {
                         try {
                             this.tokens.put(id, new TokenDefinition(id, tokenDefElem.getAsJsonObject()));
                         } catch (Exception ex) {
-                            plugin.getLogger().warning(ex.getMessage());
-                            plugin.getLogger().warning("Invalid token def in configuration: " + id);
+                            throw new ConfigurationException(String.format("Invalid token definition: %s", id), ex);
                         }
                     }
                 }

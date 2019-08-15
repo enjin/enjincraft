@@ -1,5 +1,6 @@
 package com.enjin.ecmp.spigot.cmd;
 
+import com.enjin.ecmp.spigot.Messages;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.util.MessageUtils;
 
@@ -44,7 +45,7 @@ public abstract class EnjCommand {
             execute(context);
         } catch (Exception ex) {
             ex.printStackTrace();
-            MessageUtils.sendString(context.sender, String.format("&cError: %s", ex.getMessage()));
+            Messages.error(context.sender, ex);
         }
     }
 
