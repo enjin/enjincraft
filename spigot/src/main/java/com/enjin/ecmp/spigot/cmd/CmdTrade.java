@@ -19,11 +19,9 @@ import java.util.List;
 
 public class CmdTrade extends EnjCommand {
 
-    private SpigotBootstrap bootstrap;
-
     public CmdTrade(SpigotBootstrap bootstrap) {
-        super();
-        this.bootstrap = bootstrap;
+        super(bootstrap);
+        setAllowedSenderTypes(SenderType.PLAYER);
         this.aliases.add("trade");
     }
 

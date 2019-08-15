@@ -5,11 +5,8 @@ import org.bukkit.ChatColor;
 
 public class CmdHelp extends EnjCommand {
 
-    private SpigotBootstrap bootstrap;
-
     public CmdHelp(SpigotBootstrap bootstrap) {
-        super();
-        this.bootstrap = bootstrap;
+        super(bootstrap);
         this.aliases.add("help");
         this.aliases.add("h");
     }

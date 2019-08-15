@@ -26,11 +26,9 @@ import java.util.List;
 
 public class CmdSend extends EnjCommand {
 
-    private SpigotBootstrap bootstrap;
-
     public CmdSend(SpigotBootstrap bootstrap) {
-        super();
-        this.bootstrap = bootstrap;
+        super(bootstrap);
+        setAllowedSenderTypes(SenderType.PLAYER);
         this.aliases.add("send");
     }
 

@@ -11,6 +11,7 @@ import java.util.List;
 public class CommandContext {
 
     protected CommandSender sender;
+    protected SenderType senderType;
     protected Player player;
     protected EnjPlayer enjPlayer;
     protected List<String> args;
@@ -19,6 +20,7 @@ public class CommandContext {
 
     public CommandContext(CommandSender sender, List<String> args, String alias) {
         this.sender = sender;
+        this.senderType = SenderType.type(sender);
         this.args = args;
         this.alias = alias;
         this.commandStack = new ArrayList<>();
