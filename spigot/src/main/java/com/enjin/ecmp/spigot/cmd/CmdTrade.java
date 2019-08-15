@@ -106,6 +106,7 @@ public class CmdTrade extends EnjCommand {
                     .content(String.format("You have already invited %s to trade.", target.getBukkitPlayer().getName()))
                     .color(TextColor.RED)
                     .build());
+            return;
         }
 
         MessageUtils.sendComponent(sender.getBukkitPlayer(), TextComponent.builder()

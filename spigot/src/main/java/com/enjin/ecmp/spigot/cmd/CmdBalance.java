@@ -36,6 +36,7 @@ public class CmdBalance extends EnjCommand {
             MessageUtils.sendComponent(sender, text);
             text = TextComponent.of("Please type '/enj link' to link your account to your Enjin Wallet.").color(TextColor.RED);
             MessageUtils.sendComponent(sender, text);
+            return;
         }
 
         BigDecimal ethBalance = (enjPlayer.getEthBalance() == null)
