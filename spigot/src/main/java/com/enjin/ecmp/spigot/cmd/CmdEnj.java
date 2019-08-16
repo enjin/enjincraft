@@ -43,7 +43,8 @@ public class CmdEnj extends EnjCommand implements CommandExecutor {
 
     @Override
     public void execute(CommandContext context) {
-        cmdHelp.execute(context);
+        if (cmdHelp.requirements.areMet(context, false))
+            cmdHelp.execute(context);
     }
 
 }
