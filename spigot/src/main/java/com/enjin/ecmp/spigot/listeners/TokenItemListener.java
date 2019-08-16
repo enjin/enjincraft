@@ -34,11 +34,12 @@ public class TokenItemListener implements Listener {
 
             for (int i = drops.size() - 1; i >= 0; i--) {
                 String id = TokenUtils.getTokenID(drops.get(i));
-                if (id != null) {
-                    ItemStack is = drops.remove(i);
-                    MutableBalance balance = wallet.getBalance(id);
-                    balance.deposit(is.getAmount());
-                }
+
+                if (StringUtils.isEmpty(id)) continue;
+
+                ItemStack is = drops.remove(i);
+                MutableBalance balance = wallet.getBalance(id);
+                balance.deposit(is.getAmount());
             }
         }
     }
@@ -56,10 +57,11 @@ public class TokenItemListener implements Listener {
         for (int i = inventory.getSize() - 1; i >= 0; i--) {
             ItemStack is = inventory.getItem(i);
             String id = TokenUtils.getTokenID(is);
-            if (!StringUtils.isEmpty(id)) {
-                event.setCancelled(true);
-                return;
-            }
+
+            if (StringUtils.isEmpty(id)) continue;
+
+            event.setCancelled(true);
+            break;
         }
     }
 

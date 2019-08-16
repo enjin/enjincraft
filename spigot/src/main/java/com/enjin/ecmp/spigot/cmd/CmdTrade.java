@@ -134,7 +134,6 @@ public class CmdTrade extends EnjCommand {
         EnjPlayer targetEnjPlayer = context.enjPlayer;
 
         boolean result = bootstrap.getTradeManager().acceptInvite(senderEnjPlayer, targetEnjPlayer);
-
         if (!result) {
             MessageUtils.sendString(sender, String.format("&cNo open trade invites from &6%s.", target.getName()));
         }
@@ -155,11 +154,11 @@ public class CmdTrade extends EnjCommand {
             MessageUtils.sendString(sender, "&cYou must specify a player other than yourself.");
             return;
         }
+
         EnjPlayer senderEnjPlayer = bootstrap.getPlayerManager().getPlayer(target);
         EnjPlayer targetEnjPlayer = context.enjPlayer;
 
         boolean result = bootstrap.getTradeManager().declineInvite(senderEnjPlayer, targetEnjPlayer);
-
         if (result) {
             MessageUtils.sendString(sender, String.format("&aYou have declined &6%s's &atrade invite.", target.getName()));
             MessageUtils.sendString(target, String.format("&6%s &chas declined your trade invite.", sender.getName()));

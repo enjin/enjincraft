@@ -138,17 +138,15 @@ public class EnjPlayer {
             HttpResponse<GraphQLResponse<List<Balance>>> networkResponse = bootstrap.getTrustedPlatformClient()
                     .getBalancesService().getBalancesSync(new GetBalances()
                             .ethAddr(ethereumAddress));
-            if (networkResponse.isSuccess()) {
-                GraphQLResponse<List<Balance>> graphQLResponse = networkResponse.body();
-                if (graphQLResponse.isSuccess()) {
-                    tokenWallet = new TokenWallet(bootstrap, graphQLResponse.getData());
-                    validateInventory();
-                } else {
-                    throw new GraphQLException(graphQLResponse.getErrors());
-                }
-            } else {
+            if (!networkResponse.isSuccess())
                 throw new NetworkException(networkResponse.code());
-            }
+
+            GraphQLResponse<List<Balance>> graphQLResponse = networkResponse.body();
+            if (!graphQLResponse.isSuccess())
+                throw new GraphQLException(graphQLResponse.getErrors());
+
+            tokenWallet = new TokenWallet(bootstrap, graphQLResponse.getData());
+            validateInventory();
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -168,9 +166,8 @@ public class EnjPlayer {
             if (balance.amountAvailableForWithdrawal() == 0) {
                 inventory.clear(i);
             } else {
-                if (balance.amountAvailableForWithdrawal() < is.getAmount()) {
+                if (balance.amountAvailableForWithdrawal() < is.getAmount())
                     is.setAmount(balance.amountAvailableForWithdrawal());
-                }
 
                 balance.withdraw(is.getAmount());
             }
@@ -182,18 +179,16 @@ public class EnjPlayer {
             HttpResponse<GraphQLResponse<List<User>>> networkResponse = bootstrap.getTrustedPlatformClient()
                     .getUsersService().getUsersSync(new GetUsers()
                             .name(bukkitPlayer.getUniqueId().toString()));
-
-            User user;
-            if (networkResponse.isSuccess()) {
-                GraphQLResponse<List<User>> graphQLResponse = networkResponse.body();
-                if (graphQLResponse.isSuccess() && !graphQLResponse.getData().isEmpty()) {
-                    user = graphQLResponse.getData().get(0);
-                } else {
-                    throw new GraphQLException(graphQLResponse.getErrors());
-                }
-            } else {
+            if (!networkResponse.isSuccess())
                 throw new NetworkException(networkResponse.code());
-            }
+
+            GraphQLResponse<List<User>> graphQLResponse = networkResponse.body();
+            if (!graphQLResponse.isSuccess())
+                throw new GraphQLException(graphQLResponse.getErrors());
+
+            User user = null;
+            if (!graphQLResponse.getData().isEmpty())
+                user = graphQLResponse.getData().get(0);
 
             loadUser(user);
         } catch (Exception ex) {
@@ -206,18 +201,16 @@ public class EnjPlayer {
             HttpResponse<GraphQLResponse<List<Identity>>> networkResponse = bootstrap.getTrustedPlatformClient()
                     .getIdentitiesService().getIdentitiesSync(new GetIdentities()
                             .identityId(identityId));
-
-            Identity identity;
-            if (networkResponse.isSuccess()) {
-                GraphQLResponse<List<Identity>> graphQLResponse = networkResponse.body();
-                if (graphQLResponse.isSuccess() && !graphQLResponse.getData().isEmpty()) {
-                    identity = graphQLResponse.getData().get(0);
-                } else {
-                    throw new GraphQLException(graphQLResponse.getErrors());
-                }
-            } else {
+            if (!networkResponse.isSuccess())
                 throw new NetworkException(networkResponse.code());
-            }
+
+            GraphQLResponse<List<Identity>> graphQLResponse = networkResponse.body();
+            if (!graphQLResponse.isSuccess())
+                throw new GraphQLException(graphQLResponse.getErrors());
+
+            Identity identity = null;
+            if (!graphQLResponse.getData().isEmpty())
+                identity = graphQLResponse.getData().get(0);
 
             loadIdentity(identity);
         } catch (IOException ex) {
