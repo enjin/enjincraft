@@ -2,6 +2,7 @@ package com.enjin.ecmp.spigot.cmd;
 
 import com.enjin.ecmp.spigot.Messages;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
+import com.enjin.ecmp.spigot.enums.Permission;
 import com.enjin.ecmp.spigot.player.EnjPlayer;
 import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.ecmp.spigot.util.TokenUtils;
@@ -20,8 +21,11 @@ public class CmdUnlink extends EnjCommand {
 
     public CmdUnlink(SpigotBootstrap bootstrap) {
         super(bootstrap);
-        setAllowedSenderTypes(SenderType.PLAYER);
         this.aliases.add("unlink");
+        this.requirements = CommandRequirements.builder()
+                .withAllowedSenderTypes(SenderType.PLAYER)
+                .withPermission(Permission.CMD_UNLINK)
+                .build();
     }
 
     @Override

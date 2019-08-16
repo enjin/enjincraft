@@ -2,6 +2,7 @@ package com.enjin.ecmp.spigot.cmd;
 
 import com.enjin.ecmp.spigot.Messages;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
+import com.enjin.ecmp.spigot.enums.Permission;
 import com.enjin.ecmp.spigot.player.EnjPlayer;
 import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.java_commons.StringUtils;
@@ -14,8 +15,11 @@ public class CmdLink extends EnjCommand {
 
     public CmdLink(SpigotBootstrap bootstrap) {
         super(bootstrap);
-        setAllowedSenderTypes(SenderType.PLAYER);
         this.aliases.add("link");
+        this.requirements = CommandRequirements.builder()
+                .withAllowedSenderTypes(SenderType.PLAYER)
+                .withPermission(Permission.CMD_LINK)
+                .build();
     }
 
     @Override

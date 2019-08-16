@@ -2,6 +2,7 @@ package com.enjin.ecmp.spigot.cmd;
 
 import com.enjin.ecmp.spigot.Messages;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
+import com.enjin.ecmp.spigot.enums.Permission;
 import com.enjin.ecmp.spigot.util.MessageUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -12,6 +13,10 @@ public class CmdHelp extends EnjCommand {
         super(bootstrap);
         this.aliases.add("help");
         this.aliases.add("h");
+        this.requirements = CommandRequirements.builder()
+                .withAllowedSenderTypes(SenderType.ANY)
+                .withPermission(Permission.CMD_HELP)
+                .build();
     }
 
     @Override

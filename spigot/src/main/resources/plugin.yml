@@ -31,6 +31,19 @@ commands:
   enj scoreboard:
     description: Turns the sidebar on/off
 permissions:
-  ecmp.*:
-    default: op
-    description: Gives access to all ECMP commands
+  ecmp.enj:
+    default: true
+  ecmp.balance:
+    default: true
+  ecmp.help:
+    default: true
+  ecmp.link:
+    default: true
+  ecmp.send:
+    default: true
+  ecmp.trade:
+    default: true
+  ecmp.unlink:
+    default: true
+  ecmp.wallet:
+    default: true

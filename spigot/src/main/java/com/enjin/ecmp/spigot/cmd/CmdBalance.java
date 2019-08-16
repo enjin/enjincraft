@@ -3,6 +3,7 @@ package com.enjin.ecmp.spigot.cmd;
 import com.enjin.ecmp.spigot.Messages;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.configuration.TokenDefinition;
+import com.enjin.ecmp.spigot.enums.Permission;
 import com.enjin.ecmp.spigot.player.EnjPlayer;
 import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.ecmp.spigot.wallet.MutableBalance;
@@ -20,9 +21,12 @@ public class CmdBalance extends EnjCommand {
 
     public CmdBalance(SpigotBootstrap bootstrap) {
         super(bootstrap);
-        setAllowedSenderTypes(SenderType.PLAYER);
         this.aliases.add("balance");
         this.aliases.add("bal");
+        this.requirements = CommandRequirements.builder()
+                .withAllowedSenderTypes(SenderType.PLAYER)
+                .withPermission(Permission.CMD_BALANCE)
+                .build();
     }
 
     @Override
