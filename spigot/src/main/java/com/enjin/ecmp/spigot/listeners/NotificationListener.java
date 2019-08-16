@@ -65,14 +65,12 @@ public class NotificationListener implements com.enjin.enjincoin.sdk.service.not
 
     private void onIdentityUpdated(Event event) {
         EventData data = event.getData();
+        if (data.getId() == null) return;
 
-        if (data.getId() != null) {
-            EnjPlayer enjPlayer = bootstrap.getPlayerManager().getPlayer(data.getId());
+        EnjPlayer enjPlayer = bootstrap.getPlayerManager().getPlayer(data.getId());
+        if (enjPlayer == null) return;
 
-            if (enjPlayer != null) {
-                Bukkit.getScheduler().runTaskAsynchronously(bootstrap.plugin(), () -> enjPlayer.reloadIdentity());
-            }
-        }
+        Bukkit.getScheduler().runTaskAsynchronously(bootstrap.plugin(), () -> enjPlayer.reloadIdentity());
     }
 
     private void onBalanceUpdated(Event event) {
