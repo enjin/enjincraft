@@ -181,7 +181,6 @@ public class SpigotBootstrap implements Bootstrap, Module {
         return playerManager;
     }
 
-    @Override
     public TradeManager getTradeManager() {
         return tradeManager;
     }

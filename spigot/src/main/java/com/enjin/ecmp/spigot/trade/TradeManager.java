@@ -89,8 +89,8 @@ public class TradeManager implements Listener {
 
         if (trade == null) return;
 
-        EnjPlayer playerOne = bootstrap.getPlayerManager().getPlayer(trade.getPlayerOneUuid());
-        EnjPlayer playerTwo = bootstrap.getPlayerManager().getPlayer(trade.getPlayerTwoUuid());
+        EnjPlayer playerOne = bootstrap.getPlayerManager().getPlayer(trade.getPlayerOneUuid()).orElse(null);
+        EnjPlayer playerTwo = bootstrap.getPlayerManager().getPlayer(trade.getPlayerTwoUuid()).orElse(null);
 
         if (playerOne == null || playerTwo == null) return;
 
@@ -116,8 +116,8 @@ public class TradeManager implements Listener {
 
         trade.setTradeId(tradeId);
 
-        EnjPlayer playerOne = bootstrap.getPlayerManager().getPlayer(trade.getPlayerOneUuid());
-        EnjPlayer playerTwo = bootstrap.getPlayerManager().getPlayer(trade.getPlayerTwoUuid());
+        EnjPlayer playerOne = bootstrap.getPlayerManager().getPlayer(trade.getPlayerOneUuid()).orElse(null);
+        EnjPlayer playerTwo = bootstrap.getPlayerManager().getPlayer(trade.getPlayerTwoUuid()).orElse(null);
 
         if (playerOne == null || playerTwo == null) return;
         if (!playerOne.isLinked() || !playerTwo.isLinked()) return;
@@ -148,8 +148,8 @@ public class TradeManager implements Listener {
     }
 
     public void submitCreateTrade(Trade trade) {
-        EnjPlayer playerOne = bootstrap.getPlayerManager().getPlayer(trade.getPlayerOneUuid());
-        EnjPlayer playerTwo = bootstrap.getPlayerManager().getPlayer(trade.getPlayerTwoUuid());
+        EnjPlayer playerOne = bootstrap.getPlayerManager().getPlayer(trade.getPlayerOneUuid()).orElse(null);
+        EnjPlayer playerTwo = bootstrap.getPlayerManager().getPlayer(trade.getPlayerTwoUuid()).orElse(null);
 
         if (playerOne == null || playerTwo == null) return;
         if (!playerOne.isLinked() || !playerTwo.isLinked()) return;

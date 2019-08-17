@@ -69,7 +69,7 @@ public class CmdTrade extends EnjCommand {
             return;
         }
 
-        EnjPlayer targetEnjPlayer = bootstrap.getPlayerManager().getPlayer(target);
+        EnjPlayer targetEnjPlayer = bootstrap.getPlayerManager().getPlayer(target).orElse(null);
 
         if (!targetEnjPlayer.isLinked()) {
             MessageUtils.sendString(sender, String.format("&6%s &chas not linked a wallet and cannot trade.", target.getName()));
@@ -134,7 +134,7 @@ public class CmdTrade extends EnjCommand {
             return;
         }
 
-        EnjPlayer senderEnjPlayer = bootstrap.getPlayerManager().getPlayer(target);
+        EnjPlayer senderEnjPlayer = bootstrap.getPlayerManager().getPlayer(target).orElse(null);
         EnjPlayer targetEnjPlayer = context.enjPlayer;
 
         boolean result = bootstrap.getTradeManager().acceptInvite(senderEnjPlayer, targetEnjPlayer);
@@ -159,7 +159,7 @@ public class CmdTrade extends EnjCommand {
             return;
         }
 
-        EnjPlayer senderEnjPlayer = bootstrap.getPlayerManager().getPlayer(target);
+        EnjPlayer senderEnjPlayer = bootstrap.getPlayerManager().getPlayer(target).orElse(null);
         EnjPlayer targetEnjPlayer = context.enjPlayer;
 
         boolean result = bootstrap.getTradeManager().declineInvite(senderEnjPlayer, targetEnjPlayer);
