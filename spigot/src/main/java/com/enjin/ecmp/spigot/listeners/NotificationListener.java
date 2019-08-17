@@ -67,7 +67,7 @@ public class NotificationListener implements com.enjin.enjincoin.sdk.service.not
         EventData data = event.getData();
         if (data.getId() == null) return;
 
-        EnjPlayer enjPlayer = bootstrap.getPlayerManager().getPlayer(data.getId());
+        EnjPlayer enjPlayer = bootstrap.getPlayerManager().getPlayer(data.getId()).orElse(null);
         if (enjPlayer == null) return;
 
         Bukkit.getScheduler().runTaskAsynchronously(bootstrap.plugin(), () -> enjPlayer.reloadIdentity());
@@ -77,7 +77,7 @@ public class NotificationListener implements com.enjin.enjincoin.sdk.service.not
         String ethAddr = event.getData().getParam1();
         String tokenId = event.getData().getParam2();
         Integer balance = Integer.parseInt(event.getData().getParam4());
-        EnjPlayer enjPlayer = bootstrap.getPlayerManager().getPlayer(ethAddr);
+        EnjPlayer enjPlayer = bootstrap.getPlayerManager().getPlayer(ethAddr).orElse(null);
 
         if (enjPlayer == null) return;
 

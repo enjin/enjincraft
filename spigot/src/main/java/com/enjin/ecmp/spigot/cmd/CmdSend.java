@@ -64,7 +64,7 @@ public class CmdSend extends EnjCommand {
             return;
         }
 
-        EnjPlayer targetEnjPlayer = bootstrap.getPlayerManager().getPlayer(target);
+        EnjPlayer targetEnjPlayer = bootstrap.getPlayerManager().getPlayer(target).orElse(null);
 
         if (!targetEnjPlayer.isLinked()) {
             MessageUtils.sendString(sender, String.format("&6%s &chas not linked a wallet and cannot receive tokens.", target.getName()));

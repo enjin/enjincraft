@@ -29,9 +29,10 @@ public class CommandContext {
 
         if (sender instanceof Player) {
             player = (Player) sender;
-            enjPlayer = EnjSpigot.bootstrap()
+            enjPlayer = EnjSpigot.bootstrap().get()
                     .getPlayerManager()
-                    .getPlayer(player);
+                    .getPlayer(player)
+                    .orElse(null);
 
             if (enjPlayer == null) {
                 throw new UnregisteredPlayerException(player);

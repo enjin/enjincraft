@@ -1,26 +1,28 @@
 package com.enjin.ecmp.spigot;
 
+import java.util.Optional;
+
 public class EnjSpigot {
 
-    private static SpigotBootstrap bootstrap;
+    private static Optional<SpigotBootstrap> instance = Optional.empty();
 
-    protected static void register(SpigotBootstrap bootstrap) {
-        EnjSpigot.bootstrap = bootstrap;
+    protected static void register(SpigotBootstrap instance) {
+        EnjSpigot.instance = Optional.ofNullable(instance);
     }
 
     protected static void unregister() {
-        bootstrap = null;
+        instance = Optional.empty();
     }
 
     public static boolean isRegistered() {
-        return bootstrap != null;
+        return instance.isPresent();
     }
 
-    public static Bootstrap bootstrap() {
-        return bootstrap;
+    public static Optional<? extends Bootstrap> bootstrap() {
+        return instance;
     }
 
-    protected static Module module() {
-        return bootstrap;
+    protected static Optional<? extends Module> module() {
+        return instance;
     }
 }

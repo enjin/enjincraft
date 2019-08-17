@@ -12,10 +12,11 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class PlayerManager implements Listener {
+public class PlayerManager implements Listener, PlayerManagerApi {
 
     private SpigotBootstrap bootstrap;
     private Map<UUID, EnjPlayer> players = new ConcurrentHashMap<>();
@@ -40,34 +41,39 @@ public class PlayerManager implements Listener {
         player.cleanUp();
     }
 
+    @Override
     public Map<UUID, EnjPlayer> getPlayers() {
         return new HashMap<>(this.players);
     }
 
-    public EnjPlayer getPlayer(Player player) {
+    @Override
+    public Optional<EnjPlayer> getPlayer(Player player) {
         if (player == null) throw new NullPointerException("player must not be null");
         return getPlayer(player.getUniqueId());
     }
 
-    public EnjPlayer getPlayer(UUID uuid) {
+    @Override
+    public Optional<EnjPlayer> getPlayer(UUID uuid) {
         if (uuid == null) throw new NullPointerException("uuid must not be null");
-        return this.players.get(uuid);
+        return Optional.ofNullable(this.players.get(uuid));
     }
 
-    public EnjPlayer getPlayer(String ethAddr) {
+    @Override
+    public Optional<EnjPlayer> getPlayer(String ethAddr) {
         if (ethAddr == null) throw new NullPointerException("ethAddr must not be null");
         return this.players.values().stream()
                 .filter(player -> player.getEthereumAddress() != null
                         && ethAddr.equalsIgnoreCase(player.getEthereumAddress()))
-                .findFirst().orElse(null);
+                .findFirst();
     }
 
-    public EnjPlayer getPlayer(Integer identityId) {
+    @Override
+    public Optional<EnjPlayer> getPlayer(Integer identityId) {
         if (identityId == null) throw new NullPointerException("identityId must not be null");
         return this.players.values().stream()
                 .filter(player -> player.getIdentityId() != null
                         && identityId.equals(player.getIdentityId()))
-                .findFirst().orElse(null);
+                .findFirst();
     }
 
     public void addPlayer(EnjPlayer player) {
