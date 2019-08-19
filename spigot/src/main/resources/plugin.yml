@@ -7,31 +7,11 @@ main: com.enjin.ecmp.spigot.EnjPlugin
 softdepend: [Vault, PlaceholderAPI]
 api-version: 1.13
 commands:
-  enj:
-    description: Presents a list of ECMP commands
-    usage: /<command>
-  enj balance:
-    description: Display wallet address and Ethereum and Enjin Coin balances as well as a list of balance CrytoItems
-    usage: /<command> balance
-  enj link:
-    description: Display linking code or linked address if available
-    usage: /<command> link
-  enj unlink:
-    description: Unlink the wallet from your account
-    usage: /<command> unlink
-  enj wallet:
-    description: Opens a wallet inventory panel which allows for checkout of balance CrytoItems
-    usage: /<command> wallet
-  enj trade:
-    description: Trade tokens with another player
-    usage: /<command> trade invite <player>
-  enj send:
-    description: Send a token to another player
-    usage: /<command> send <player>
-  enj scoreboard:
-    description: Turns the sidebar on/off
+  ecmp:
+    description: Reference command for ECMP.
+    aliases: [enj]
 permissions:
-  ecmp.enj:
+  ecmp.root:
     default: true
   ecmp.balance:
     default: true

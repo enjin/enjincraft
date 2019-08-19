@@ -20,6 +20,7 @@ import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
 import org.bukkit.Bukkit;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.Plugin;
 
 import java.io.IOException;
@@ -70,7 +71,9 @@ public class SpigotBootstrap implements Bootstrap, Module {
             Bukkit.getPluginManager().registerEvents(new TokenItemListener(this), plugin);
 
             // Register Commands
-            plugin.getCommand("enj").setExecutor(new CmdEnj(this));
+            PluginCommand pluginCommand = plugin.getCommand("ecmp");
+            CmdEnj cmdEnj = new CmdEnj(this);
+            pluginCommand.setExecutor(cmdEnj);
 
             if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
                 MessageUtils.sendComponent(Bukkit.getConsoleSender(), TextComponent.of("[ECMP] Registering PlaceholderAPI Expansion")
