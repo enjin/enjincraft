@@ -19,6 +19,7 @@ public class CommandContext {
     protected List<String> args;
     protected String alias;
     protected Stack<EnjCommand> commandStack;
+    protected List<String> tabCompletionResult;
 
     public CommandContext(CommandSender sender, List<String> args, String alias) {
         this.sender = sender;
@@ -26,6 +27,7 @@ public class CommandContext {
         this.args = args;
         this.alias = alias;
         this.commandStack = new Stack<>();
+        this.tabCompletionResult = new ArrayList<>();
 
         if (sender instanceof Player) {
             player = (Player) sender;
