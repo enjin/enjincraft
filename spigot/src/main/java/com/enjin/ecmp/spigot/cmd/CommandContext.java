@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 public class CommandContext {
 
@@ -17,14 +18,14 @@ public class CommandContext {
     protected EnjPlayer enjPlayer;
     protected List<String> args;
     protected String alias;
-    protected List<EnjCommand> commandStack;
+    protected Stack<EnjCommand> commandStack;
 
     public CommandContext(CommandSender sender, List<String> args, String alias) {
         this.sender = sender;
         this.senderType = SenderType.type(sender);
         this.args = args;
         this.alias = alias;
-        this.commandStack = new ArrayList<>();
+        this.commandStack = new Stack<>();
 
         if (sender instanceof Player) {
             player = (Player) sender;
