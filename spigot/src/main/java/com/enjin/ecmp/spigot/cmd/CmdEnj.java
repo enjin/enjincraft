@@ -23,6 +23,7 @@ public class CmdEnj extends EnjCommand implements CommandExecutor, TabCompleter 
 
     public CmdEnj(SpigotBootstrap bootstrap) {
         super(bootstrap);
+        this.aliases.add("ecmp");
         this.aliases.add("enj");
         this.addSubCommand(cmdBalance = new CmdBalance(bootstrap));
         this.addSubCommand(cmdHelp = new CmdHelp(bootstrap));

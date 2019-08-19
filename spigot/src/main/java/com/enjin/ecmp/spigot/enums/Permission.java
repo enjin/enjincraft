@@ -4,7 +4,6 @@ import org.bukkit.command.CommandSender;
 
 public enum Permission {
 
-    CMD_ENJ("enj"),
     CMD_BALANCE("balance"),
     CMD_HELP("help"),
     CMD_LINK("link"),

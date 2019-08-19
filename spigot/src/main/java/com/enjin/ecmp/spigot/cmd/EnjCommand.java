@@ -14,7 +14,6 @@ public abstract class EnjCommand {
 
     public static final CommandRequirements DEFAULT_REQUIREMENTS = CommandRequirements.builder()
             .withAllowedSenderTypes(SenderType.ANY)
-            .withPermission(Permission.CMD_ENJ)
             .build();
 
     protected SpigotBootstrap bootstrap;
@@ -39,15 +38,15 @@ public abstract class EnjCommand {
         List<String> tabResults = new ArrayList<>();
 
         if (!subCommands.isEmpty()) {
-            if (context.args.isEmpty()) {
-                tabResults.addAll(subCommands.stream()
-                        .map(c -> c.aliases.get(0))
+            List<String> aliases = subCommands.stream()
+                    .filter(c -> c.requirements.areMet(context, false))
+                    .map(c -> c.aliases.get(0).toLowerCase())
+                    .collect(Collectors.toList());
+
+            if (!context.args.isEmpty()) {
+                tabResults.addAll(aliases.stream()
+                        .filter(a -> a.startsWith(context.args.get(0).toLowerCase()))
                         .collect(Collectors.toList()));
-            } else {
-                tabResults.addAll(subCommands.stream()
-                        .filter(c -> c.aliases.get(0).toLowerCase()
-                                .startsWith(context.args.get(0).toLowerCase()))
-                        .map(c -> c.aliases.get(0)).collect(Collectors.toList()));
             }
         } else {
             tabResults.addAll(tab(context));
