@@ -36,7 +36,7 @@ public abstract class EnjCommand {
                 for (EnjCommand subCommand : subCommands) {
                     if (subCommand.aliases.contains(context.args.get(0).toLowerCase())) {
                         context.args.remove(0);
-                        context.commandStack.add(this);
+                        context.commandStack.push(this);
                         subCommand.process(context);
                         return;
                     }
