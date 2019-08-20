@@ -1,6 +1,7 @@
 package com.enjin.ecmp.spigot.trade;
 
 import com.enjin.ecmp.spigot.SpigotBootstrap;
+import com.enjin.ecmp.spigot.enums.TargetPlayer;
 import com.enjin.ecmp.spigot.player.EnjPlayer;
 import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.ecmp.spigot.util.TokenUtils;
@@ -113,7 +114,7 @@ public class TradeView extends ChestMenu {
 
         //  Create the status region for the viewing player
         this.viewerStatusComponent = new SimpleMenuComponent(new Dimension(4, 1));
-        this.viewerStatusComponent.setItem(Position.of(0, 0), getPlayerHead(viewer.getBukkitPlayer(), true));
+        this.viewerStatusComponent.setItem(Position.of(0, 0), getPlayerHead(viewer.getBukkitPlayer(), TargetPlayer.SELF));
 
         this.viewerStatusComponent.setItem(Position.of(1, 0), readyItem);
         this.viewerStatusComponent.addAction(readyItem, (p) -> {
@@ -159,7 +160,7 @@ public class TradeView extends ChestMenu {
 
         // Create the status region for the other player
         this.otherStatusComponent = new SimpleMenuComponent(new Dimension(4, 1));
-        this.otherStatusComponent.setItem(Position.of(0, 0), getPlayerHead(other.getBukkitPlayer(), false));
+        this.otherStatusComponent.setItem(Position.of(0, 0), getPlayerHead(other.getBukkitPlayer(), TargetPlayer.OTHER));
         this.otherStatusComponent.setItem(Position.of(3, 0), unreadyPane);
 
         // Place the horizontal separator
@@ -231,11 +232,11 @@ public class TradeView extends ChestMenu {
         open(this.viewer.getBukkitPlayer());
     }
 
-    private ItemStack getPlayerHead(Player player, boolean self) {
+    private ItemStack getPlayerHead(Player player, TargetPlayer target) {
         ItemStack stack = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta meta = (SkullMeta) stack.getItemMeta();
         meta.setOwningPlayer(player);
-        meta.setDisplayName(self ? "You" : player.getName());
+        meta.setDisplayName(target == TargetPlayer.SELF ? "You" : player.getName());
         stack.setItemMeta(meta);
         return stack;
     }
