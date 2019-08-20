@@ -36,11 +36,6 @@ public class CmdEnj extends EnjCommand implements CommandExecutor, TabCompleter 
     }
 
     @Override
-    public String getUsage(CommandContext context) {
-        return super.getUsage(new CommandContext(context.sender, new ArrayList<>(), context.alias));
-    }
-
-    @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         try {
             process(new CommandContext(sender, new ArrayList<>(Arrays.asList(args)), label), CommandProcess.EXECUTE);
