@@ -4,6 +4,7 @@ import com.enjin.ecmp.spigot.GraphQLException;
 import com.enjin.ecmp.spigot.Messages;
 import com.enjin.ecmp.spigot.NetworkException;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
+import com.enjin.ecmp.spigot.cmd.arg.PlayerArgument;
 import com.enjin.ecmp.spigot.enums.Permission;
 import com.enjin.ecmp.spigot.player.EnjPlayer;
 import com.enjin.ecmp.spigot.util.MessageUtils;
@@ -37,6 +38,7 @@ public class CmdSend extends EnjCommand {
         this.requirements = CommandRequirements.builder()
                 .withAllowedSenderTypes(SenderType.PLAYER)
                 .withPermission(Permission.CMD_SEND)
+                .withArguments(PlayerArgument.REQUIRED)
                 .build();
     }
 
