@@ -4,30 +4,23 @@ import com.enjin.ecmp.spigot.GraphQLException;
 import com.enjin.ecmp.spigot.Messages;
 import com.enjin.ecmp.spigot.NetworkException;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
-import com.enjin.ecmp.spigot.cmd.arg.PlayerArgument;
+import com.enjin.ecmp.spigot.cmd.arg.PlayerArgumentProcessor;
 import com.enjin.ecmp.spigot.enums.Permission;
 import com.enjin.ecmp.spigot.player.EnjPlayer;
 import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.ecmp.spigot.util.TokenUtils;
 import com.enjin.ecmp.spigot.wallet.MutableBalance;
 import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
-import com.enjin.enjincoin.sdk.http.HttpCallback;
-import com.enjin.enjincoin.sdk.http.HttpResponse;
-import com.enjin.enjincoin.sdk.model.service.identities.GetIdentities;
-import com.enjin.enjincoin.sdk.model.service.identities.Identity;
 import com.enjin.enjincoin.sdk.model.service.requests.CreateRequest;
 import com.enjin.enjincoin.sdk.model.service.requests.Transaction;
 import com.enjin.enjincoin.sdk.model.service.requests.data.SendTokenData;
-import com.enjin.enjincoin.sdk.service.identities.IdentitiesService;
-import com.enjin.enjincoin.sdk.service.requests.RequestsService;
 import com.enjin.java_commons.StringUtils;
-import net.kyori.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.io.IOException;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CmdSend extends EnjCommand {
@@ -35,11 +28,22 @@ public class CmdSend extends EnjCommand {
     public CmdSend(SpigotBootstrap bootstrap) {
         super(bootstrap);
         this.aliases.add("send");
+        this.requiredArgs.add("player");
         this.requirements = CommandRequirements.builder()
                 .withAllowedSenderTypes(SenderType.PLAYER)
                 .withPermission(Permission.CMD_SEND)
-                .withArguments(PlayerArgument.REQUIRED)
                 .build();
+    }
+
+    @Override
+    public List<String> tab(CommandContext context) {
+        List<String> result = new ArrayList<>();
+
+        if (context.args.size() ==  1) {
+            result.addAll(PlayerArgumentProcessor.INSTANCE.tab());
+        }
+
+        return result;
     }
 
     @Override

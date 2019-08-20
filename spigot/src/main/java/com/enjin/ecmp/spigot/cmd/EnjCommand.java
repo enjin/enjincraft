@@ -15,12 +15,16 @@ public abstract class EnjCommand {
     protected SpigotBootstrap bootstrap;
     protected List<String> aliases;
     protected List<EnjCommand> subCommands;
+    protected List<String> requiredArgs;
+    protected List<String> optionalArgs;
     protected CommandRequirements requirements;
 
     public EnjCommand(SpigotBootstrap bootstrap) {
         this.bootstrap = bootstrap;
         this.aliases = new ArrayList<>();
         this.subCommands = new ArrayList<>();
+        this.requiredArgs = new ArrayList<>();
+        this.optionalArgs = new ArrayList<>();
         this.requirements = CommandRequirements.builder()
                 .withAllowedSenderTypes(SenderType.ANY)
                 .build();
@@ -29,16 +33,10 @@ public abstract class EnjCommand {
     public abstract void execute(CommandContext context);
 
     public List<String> tab(CommandContext context) {
-        List<String> result = new ArrayList<>();
-
-        if (context.args.size() > 0 && context.args.size() <= requirements.arguments.size()) {
-            result.addAll(requirements.arguments.get(context.args.size() - 1).tab());
-        }
-
-        return result;
+        return new ArrayList<>();
     }
 
-    protected List<String> tab0(CommandContext context) {
+    private List<String> tab0(CommandContext context) {
         List<String> tabResults = new ArrayList<>();
 
         if (!subCommands.isEmpty()) {
@@ -61,7 +59,7 @@ public abstract class EnjCommand {
 
     public void process(CommandContext context, boolean executing) {
         try {
-            if (!requirements.areMet(context, executing)) return;
+            if (!isValid(context, executing)) return;
 
             if (context.args.size() > 0) {
                 for (EnjCommand subCommand : subCommands) {
@@ -88,6 +86,14 @@ public abstract class EnjCommand {
 
     protected void addSubCommand(EnjCommand subCommand) {
         this.subCommands.add(subCommand);
+    }
+
+    private boolean isValid(CommandContext context, boolean ifNot) {
+        return requirements.areMet(context, ifNot) && validArgs(context);
+    }
+
+    private boolean validArgs(CommandContext context) {
+        return context.args.size() >= requiredArgs.size();
     }
 
 }

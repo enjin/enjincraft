@@ -1,6 +1,5 @@
 package com.enjin.ecmp.spigot.cmd;
 
-import com.enjin.ecmp.spigot.cmd.arg.Argument;
 import com.enjin.ecmp.spigot.enums.Permission;
 import com.enjin.ecmp.spigot.util.MessageUtils;
 
@@ -12,17 +11,14 @@ public class CommandRequirements {
 
     protected List<SenderType> allowedSenderTypes = new ArrayList<>();
     protected Permission permission;
-    protected List<Argument> arguments = new ArrayList<>();
 
     public boolean areMet(CommandContext context, boolean informIfNot) {
         boolean senderAllowed = isSenderAllowed(context);
         boolean hasPermission = hasPermission(context);
-        boolean validArgs = validArgs(context);
 
         if (informIfNot) {
             if (!senderAllowed) sendInvalidSenderTypeMessage(context);
             if (!hasPermission) sendNoPermissionMessage(context);
-            // TODO: if !validArgs print usage
         }
 
         return senderAllowed && hasPermission;
@@ -34,10 +30,6 @@ public class CommandRequirements {
 
     private boolean hasPermission(CommandContext context) {
         return permission == null || permission.hasPermission(context.sender);
-    }
-
-    private boolean validArgs(CommandContext context) {
-        return context.args.size() >= arguments.stream().filter(a -> a.isRequired()).count();
     }
 
     private void sendInvalidSenderTypeMessage(CommandContext context) {
@@ -70,13 +62,6 @@ public class CommandRequirements {
             requirements.allowedSenderTypes.clear();
             if (types != null && types.length != 0)
                 requirements.allowedSenderTypes.addAll(Arrays.asList(types));
-            return this;
-        }
-
-        public Builder withArguments(Argument... arguments) {
-            requirements.arguments.clear();
-            if (arguments != null && arguments.length != 0)
-                requirements.arguments.addAll(Arrays.asList(arguments));
             return this;
         }
 
