@@ -2,7 +2,9 @@ package com.enjin.ecmp.spigot.cmd;
 
 import com.enjin.ecmp.spigot.Messages;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
+import com.enjin.ecmp.spigot.enums.Bypass;
 import com.enjin.ecmp.spigot.enums.CommandProcess;
+import com.enjin.ecmp.spigot.enums.MessageAction;
 import com.enjin.ecmp.spigot.i18n.Translation;
 import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.ecmp.spigot.util.TextUtil;
@@ -52,7 +54,7 @@ public abstract class EnjCommand {
 
         if (!subCommands.isEmpty()) {
             List<String> aliases = subCommands.stream()
-                    .filter(c -> c.requirements.areMet(context, false))
+                    .filter(c -> c.requirements.areMet(context, MessageAction.OMIT))
                     .map(c -> c.aliases.get(0).toLowerCase())
                     .collect(Collectors.toList());
 
@@ -69,11 +71,11 @@ public abstract class EnjCommand {
     }
 
     public void showUsage(CommandSender sender) {
-        showUsage(sender, false);
+        showUsage(sender, Bypass.DENY, MessageAction.OMIT);
     }
 
-    public void showUsage(CommandSender sender, boolean bypass) {
-        if (bypass || requirements.areMet(sender, false)) {
+    public void showUsage(CommandSender sender, Bypass bypass, MessageAction action) {
+        if (bypass == Bypass.ALLOW || requirements.areMet(sender, action)) {
             String usage = getUsage();
             if (SenderType.type(sender) != SenderType.PLAYER)
                 usage = usage.replaceFirst("/", "");
@@ -114,11 +116,13 @@ public abstract class EnjCommand {
 
     public void process(CommandContext context, CommandProcess process) {
         try {
-            if (!isValid(context, process.showErrorMessages())) return;
+            if (!isValid(context, process.showErrorMessages() ? MessageAction.SEND : MessageAction.OMIT))
+                return;
 
             if (context.args.size() > 0) {
                 for (EnjCommand subCommand : subCommands) {
-                    if (!subCommand.aliases.contains(context.args.get(0).toLowerCase())) continue;
+                    if (!subCommand.aliases.contains(context.args.get(0).toLowerCase()))
+                        continue;
                     context.args.remove(0);
                     context.commandStack.push(this);
                     subCommand.process(context, process);
@@ -142,8 +146,8 @@ public abstract class EnjCommand {
         this.subCommands.add(subCommand);
     }
 
-    private boolean isValid(CommandContext context, boolean ifNot) {
-        return requirements.areMet(context, ifNot) && validArgs(context);
+    private boolean isValid(CommandContext context, MessageAction action) {
+        return requirements.areMet(context, action) && validArgs(context);
     }
 
     private boolean validArgs(CommandContext context) {
