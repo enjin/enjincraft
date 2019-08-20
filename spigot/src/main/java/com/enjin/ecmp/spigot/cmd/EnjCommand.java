@@ -3,12 +3,10 @@ package com.enjin.ecmp.spigot.cmd;
 import com.enjin.ecmp.spigot.Messages;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.enums.CommandProcess;
-import com.enjin.ecmp.spigot.enums.Permission;
+import com.enjin.ecmp.spigot.i18n.Translation;
 import com.enjin.ecmp.spigot.util.TextUtil;
-import org.bukkit.command.CommandSender;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -41,6 +39,8 @@ public abstract class EnjCommand {
 
     public abstract void execute(CommandContext context);
 
+    public abstract Translation getUsageTranslation();
+
     public List<String> tab(CommandContext context) {
         return new ArrayList<>();
     }
@@ -69,24 +69,30 @@ public abstract class EnjCommand {
     public String getUsage(CommandContext context) {
         StringBuilder builder = new StringBuilder();
 
-        builder.append("&7/");
+        builder.append("&6/");
 
         List<EnjCommand> commandStack = CommandContext.createCommandStackAsList(this);
         for (EnjCommand command : commandStack) {
             builder.append(TextUtil.concat(command.aliases, ",")).append(' ');
         }
 
-        builder.append("&8");
+        builder.append("&e");
 
-        builder.append(TextUtil.concat(requiredArgs.stream()
-                .map(s -> String.format("<%s>", s))
-                .collect(Collectors.toList()), " "))
-                .append(' ');
+        if (!requiredArgs.isEmpty()) {
+            builder.append(TextUtil.concat(requiredArgs.stream()
+                    .map(s -> String.format("<%s>", s))
+                    .collect(Collectors.toList()), " "))
+                    .append(' ');
+        }
 
-        builder.append(TextUtil.concat(optionalArgs.stream()
-                .map(s -> String.format("[%s]", s))
-                .collect(Collectors.toList()), " "))
-                .append(' ');
+        if (!optionalArgs.isEmpty()) {
+            builder.append(TextUtil.concat(optionalArgs.stream()
+                    .map(s -> String.format("[%s]", s))
+                    .collect(Collectors.toList()), " "))
+                    .append(' ');
+        }
+
+        builder.append("&f").append(getUsageTranslation().toString());
 
         return builder.toString();
     }

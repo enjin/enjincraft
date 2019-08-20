@@ -6,6 +6,7 @@ import com.enjin.ecmp.spigot.NetworkException;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.cmd.arg.PlayerArgumentProcessor;
 import com.enjin.ecmp.spigot.enums.Permission;
+import com.enjin.ecmp.spigot.i18n.Translation;
 import com.enjin.ecmp.spigot.player.EnjPlayer;
 import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.ecmp.spigot.util.TokenUtils;
@@ -129,6 +130,11 @@ public class CmdSend extends EnjCommand {
 
                     MessageUtils.sendString(sender, "&aSend request submitted successfully. Please confirm the request in the Enjin Wallet.");
                 });
+    }
+
+    @Override
+    public Translation getUsageTranslation() {
+        return Translation.COMMAND_SEND_DESCRIPTION;
     }
 
 }

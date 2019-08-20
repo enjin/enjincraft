@@ -3,6 +3,7 @@ package com.enjin.ecmp.spigot.cmd;
 import com.enjin.ecmp.spigot.Messages;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.enums.Permission;
+import com.enjin.ecmp.spigot.i18n.Translation;
 import com.enjin.ecmp.spigot.player.EnjPlayer;
 import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.java_commons.StringUtils;
@@ -58,6 +59,11 @@ public class CmdLink extends EnjCommand {
             MessageUtils.sendString(sender, "&7Enter the identity linking code shown below");
             MessageUtils.sendString(sender, String.format("&aIdentity Code: &6%s", code));
         }
+    }
+
+    @Override
+    public Translation getUsageTranslation() {
+        return Translation.COMMAND_LINK_DESCRIPTION;
     }
 
 }
