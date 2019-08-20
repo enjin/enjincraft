@@ -28,6 +28,7 @@ public class EnjConfig {
     private boolean sdkDebugging;
     private boolean pluginDebugging;
     private Map<String, TokenDefinition> tokens;
+    private String language;
 
     public EnjConfig(Plugin plugin) {
         this.plugin = plugin;
@@ -35,6 +36,7 @@ public class EnjConfig {
         this.appId = -1;
         this.devIdentityId = -1;
         this.tokens = new HashMap<>();
+        this.language = "en_US";
     }
 
     public boolean load() {
@@ -68,20 +70,28 @@ public class EnjConfig {
         this.allowVanillaItemsInTrades = false;
         this.sdkDebugging = false;
         this.pluginDebugging = false;
+        this.language = "en_US";
     }
 
     private void init(JsonObject root) {
-        if (root.has(BASE_URL)) platformBaseUrl = root.get(BASE_URL).getAsString();
-        if (root.has(APP_ID)) appId = root.get(APP_ID).getAsInt();
-        if (root.has(APP_SECRET)) appSecret = root.get(APP_SECRET).getAsString();
-        if (root.has(DEV_IDENT_ID)) devIdentityId = root.get(DEV_IDENT_ID).getAsInt();
-        if (root.has(VANILLA_ITEMS_TRADING)) allowVanillaItemsInTrades = root.get(VANILLA_ITEMS_TRADING).getAsBoolean();
+        if (root.has(BASE_URL))
+            platformBaseUrl = root.get(BASE_URL).getAsString();
+        if (root.has(APP_ID))
+            appId = root.get(APP_ID).getAsInt();
+        if (root.has(APP_SECRET))
+            appSecret = root.get(APP_SECRET).getAsString();
+        if (root.has(DEV_IDENT_ID))
+            devIdentityId = root.get(DEV_IDENT_ID).getAsInt();
+        if (root.has(VANILLA_ITEMS_TRADING))
+            allowVanillaItemsInTrades = root.get(VANILLA_ITEMS_TRADING).getAsBoolean();
         if (root.has(DEBUGGING)) {
             JsonElement element = root.get(DEBUGGING);
             if (element.isJsonObject()) {
                 JsonObject object = element.getAsJsonObject();
-                if (object.has(SDK_DEBUG)) this.sdkDebugging = object.get(SDK_DEBUG).getAsBoolean();
-                if (object.has(PLUGIN_DEBUG)) this.pluginDebugging = object.get(PLUGIN_DEBUG).getAsBoolean();
+                if (object.has(SDK_DEBUG))
+                    this.sdkDebugging = object.get(SDK_DEBUG).getAsBoolean();
+                if (object.has(PLUGIN_DEBUG))
+                    this.pluginDebugging = object.get(PLUGIN_DEBUG).getAsBoolean();
             }
         }
         if (root.has(TOKENS)) {
@@ -101,6 +111,8 @@ public class EnjConfig {
                 }
             }
         }
+        if (root.has(LANGUAGE))
+            this.language = root.get(LANGUAGE).getAsString();
     }
 
     public String getPlatformBaseUrl() {
@@ -133,6 +145,10 @@ public class EnjConfig {
 
     public Map<String, TokenDefinition> getTokens() {
         return tokens;
+    }
+
+    public String getLanguage() {
+        return language;
     }
 
     public JsonObject getRoot() {

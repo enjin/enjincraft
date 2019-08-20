@@ -1,0 +1,23 @@
+COMMAND:
+  ROOT:
+    DESCRIPTION: "Mostrar información sobre el complemento y los autores."
+  BALANCE:
+    DESCRIPTION: "Mostrar la dirección de la billetera, eth, enj y saldos de token."
+  HELP:
+    DESCRIPTION: "Mostrar lista de comandos con su uso."
+  LINK:
+    DESCRIPTION: "Mostrar código de enlace o dirección vinculada."
+  SEND:
+    DESCRIPTION: "Envía la ficha retenida a otro jugador."
+  TRADE:
+    DESCRIPTION: "Mostrar ayuda para subcomandos comerciales."
+    INVITE:
+      DESCRIPTION: "Invita a un jugador a intercambiar fichas."
+    ACCEPT:
+      DESCRIPTION: "Acepta la invitación comercial de otro jugador."
+    DECLINE:
+      DESCRIPTION: "Rechazar la invitación comercial de otro jugador."
+  UNLINK:
+    DESCRIPTION: "Elimina el enlace entre la billetera y la cuenta del jugador."
+  WALLET:
+    DESCRIPTION: "Abra su inventario de billetera para ver, retirar y devolver artículos."
