@@ -17,5 +17,6 @@
   "debugging": {
     "sdk": false,
     "plugin": false
-  }
+  },
+  "language": "en_US"
 }

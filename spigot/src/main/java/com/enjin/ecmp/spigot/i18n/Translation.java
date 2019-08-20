@@ -1,6 +1,7 @@
 package com.enjin.ecmp.spigot.i18n;
 
 import com.enjin.ecmp.spigot.util.TextUtil;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 public enum Translation {
 
@@ -23,6 +24,8 @@ public enum Translation {
 
     COMMAND_WALLET_DESCRIPTION("Open your wallet inventory to view, check out, and return items.");
 
+    private static YamlConfiguration LANG;
+
     private String path;
     private String translation;
 
@@ -34,7 +37,7 @@ public enum Translation {
     Translation(String translation) {
         this.path = this.name().replace('_', '.');
         if (this.path.startsWith("."))
-            this.path = "root" + path;
+            this.path = "ROOT" + path;
         this.translation = translation;
     }
 
@@ -42,12 +45,30 @@ public enum Translation {
         return path;
     }
 
-    public String translation() {
+    public String defaultTranslation() {
         return translation;
+    }
+
+    public String translation() {
+        return LANG.getString(path, defaultTranslation());
     }
 
     @Override
     public String toString() {
         return TextUtil.colorize(translation());
     }
+
+    public static void setFile(YamlConfiguration config) {
+        LANG = config;
+        setDefaults();
+    }
+
+    private static void setDefaults() {
+        if (LANG == null) return;
+        for (Translation translation : values()) {
+            if (!LANG.isSet(translation.path))
+                LANG.set(translation.path, translation.defaultTranslation());
+        }
+    }
+
 }

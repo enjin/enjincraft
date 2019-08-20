@@ -1,0 +1,23 @@
+COMMAND:
+  ROOT:
+    DESCRIPTION: "Show information about the plugin and authors."
+  BALANCE:
+    DESCRIPTION: "Show wallet address, eth, enj, and token balances."
+  HELP:
+    DESCRIPTION: "Show list of commands with their usage."
+  LINK:
+    DESCRIPTION: "Show linking code or linked address."
+  SEND:
+    DESCRIPTION: "Send the held token to another player."
+  TRADE:
+    DESCRIPTION: "Show help for trade sub-commands."
+    INVITE:
+      DESCRIPTION: "Invite a player to trade tokens."
+    ACCEPT:
+      DESCRIPTION: "Accept another player's trade invite."
+    DECLINE:
+      DESCRIPTION: "Decline another player's trade invite."
+  UNLINK:
+    DESCRIPTION: "Removes link between wallet and player account."
+  WALLET:
+    DESCRIPTION: "Open your wallet inventory to view, check out, and return items."
