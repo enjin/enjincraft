@@ -2,6 +2,7 @@ package com.enjin.ecmp.spigot.cmd;
 
 import com.enjin.ecmp.spigot.Messages;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
+import com.enjin.ecmp.spigot.enums.CommandProcess;
 import com.enjin.ecmp.spigot.enums.Permission;
 import org.bukkit.command.CommandSender;
 
@@ -57,21 +58,21 @@ public abstract class EnjCommand {
         return tabResults;
     }
 
-    public void process(CommandContext context, boolean executing) {
+    public void process(CommandContext context, CommandProcess process) {
         try {
-            if (!isValid(context, executing)) return;
+            if (!isValid(context, process.showErrorMessages())) return;
 
             if (context.args.size() > 0) {
                 for (EnjCommand subCommand : subCommands) {
                     if (!subCommand.aliases.contains(context.args.get(0).toLowerCase())) continue;
                     context.args.remove(0);
                     context.commandStack.push(this);
-                    subCommand.process(context, executing);
+                    subCommand.process(context, process);
                     return;
                 }
             }
 
-            if (executing) {
+            if (process == CommandProcess.EXECUTE) {
                 execute(context);
             } else {
                 context.tabCompletionResult = tab0(context);
