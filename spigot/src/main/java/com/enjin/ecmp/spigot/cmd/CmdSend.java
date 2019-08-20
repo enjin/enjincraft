@@ -25,8 +25,8 @@ import java.util.List;
 
 public class CmdSend extends EnjCommand {
 
-    public CmdSend(SpigotBootstrap bootstrap) {
-        super(bootstrap);
+    public CmdSend(SpigotBootstrap bootstrap, CmdEnj parent) {
+        super(bootstrap, parent);
         this.aliases.add("send");
         this.requiredArgs.add("player");
         this.requirements = CommandRequirements.builder()

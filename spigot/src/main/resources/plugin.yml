@@ -7,9 +7,8 @@ main: com.enjin.ecmp.spigot.EnjPlugin
 softdepend: [Vault, PlaceholderAPI]
 api-version: 1.13
 commands:
-  ecmp:
+  enj:
     description: Reference command for ECMP.
-    aliases: [enj]
 permissions:
   ecmp.root:
     default: true

@@ -18,28 +18,35 @@ import java.util.Optional;
 
 public class CmdTrade extends EnjCommand {
 
-    public CmdTrade(SpigotBootstrap bootstrap) {
-        super(bootstrap);
+    protected CmdInvite cmdInvite;
+    protected CmdAccept cmdAccept;
+    protected CmdDecline cmdDecline;
+
+    public CmdTrade(SpigotBootstrap bootstrap, CmdEnj parent) {
+        super(bootstrap, parent);
         this.aliases.add("trade");
         this.requirements = CommandRequirements.builder()
                 .withAllowedSenderTypes(SenderType.PLAYER)
                 .withPermission(Permission.CMD_TRADE)
                 .build();
-        this.addSubCommand(new CmdInvite());
-        this.addSubCommand(new CmdAccept());
-        this.addSubCommand(new CmdDecline());
+        this.addSubCommand(cmdInvite = new CmdInvite());
+        this.addSubCommand(cmdAccept = new CmdAccept());
+        this.addSubCommand(cmdDecline = new CmdDecline());
     }
 
     @Override
     public void execute(CommandContext context) {
-        // Show Usage
+        MessageUtils.sendString(context.sender, cmdInvite.getUsage(context));
+        MessageUtils.sendString(context.sender, cmdAccept.getUsage(context));
+        MessageUtils.sendString(context.sender, cmdDecline.getUsage(context));
     }
 
     public class CmdInvite extends EnjCommand {
 
         public CmdInvite() {
-            super(CmdTrade.this.bootstrap);
+            super(CmdTrade.this.bootstrap, CmdTrade.this);
             this.aliases.add("invite");
+            this.requiredArgs.add("player");
             this.requirements = new CommandRequirements.Builder()
                     .withAllowedSenderTypes(SenderType.PLAYER)
                     .build();
@@ -134,8 +141,9 @@ public class CmdTrade extends EnjCommand {
     public class CmdAccept extends EnjCommand {
 
         public CmdAccept() {
-            super(CmdTrade.this.bootstrap);
+            super(CmdTrade.this.bootstrap, CmdTrade.this);
             this.aliases.add("accept");
+            this.requiredArgs.add("player");
             this.requirements = new CommandRequirements.Builder()
                     .withAllowedSenderTypes(SenderType.PLAYER)
                     .build();
@@ -181,8 +189,9 @@ public class CmdTrade extends EnjCommand {
     public class CmdDecline extends EnjCommand {
 
         public CmdDecline() {
-            super(CmdTrade.this.bootstrap);
+            super(CmdTrade.this.bootstrap, CmdTrade.this);
             this.aliases.add("decline");
+            this.requiredArgs.add("player");
             this.requirements = new CommandRequirements.Builder()
                     .withAllowedSenderTypes(SenderType.PLAYER)
                     .build();

@@ -13,8 +13,8 @@ import org.bukkit.entity.Player;
 
 public class CmdLink extends EnjCommand {
 
-    public CmdLink(SpigotBootstrap bootstrap) {
-        super(bootstrap);
+    public CmdLink(SpigotBootstrap bootstrap, CmdEnj parent) {
+        super(bootstrap, parent);
         this.aliases.add("link");
         this.requirements = CommandRequirements.builder()
                 .withAllowedSenderTypes(SenderType.PLAYER)

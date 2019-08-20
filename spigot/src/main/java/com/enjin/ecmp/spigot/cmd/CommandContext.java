@@ -49,4 +49,17 @@ public class CommandContext {
         return PlayerArgumentProcessor.INSTANCE.parse(args.get(index));
     }
 
+    public static List<EnjCommand> createCommandStackAsList(EnjCommand top) {
+        List<EnjCommand> list = new ArrayList<>();
+
+        list.add(top);
+        Optional<EnjCommand> parent = top.parent;
+        while (parent.isPresent()) {
+            list.add(0, parent.get());
+            parent = parent.get().parent;
+        }
+
+        return list;
+    }
+
 }
