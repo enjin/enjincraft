@@ -2,7 +2,7 @@ package com.enjin.ecmp.spigot.cmd;
 
 import com.enjin.ecmp.spigot.Messages;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
-import com.enjin.ecmp.spigot.enums.Bypass;
+import com.enjin.ecmp.spigot.enums.VeryifyRequirements;
 import com.enjin.ecmp.spigot.enums.CommandProcess;
 import com.enjin.ecmp.spigot.enums.MessageAction;
 import com.enjin.ecmp.spigot.i18n.Translation;
@@ -71,11 +71,11 @@ public abstract class EnjCommand {
     }
 
     public void showUsage(CommandSender sender) {
-        showUsage(sender, Bypass.NO, MessageAction.OMIT);
+        showUsage(sender, VeryifyRequirements.YES, MessageAction.OMIT);
     }
 
-    public void showUsage(CommandSender sender, Bypass bypassRequirements, MessageAction action) {
-        if (bypassRequirements == Bypass.YES || requirements.areMet(sender, action)) {
+    public void showUsage(CommandSender sender, VeryifyRequirements verifyRequirements, MessageAction action) {
+        if (verifyRequirements == VeryifyRequirements.NO || requirements.areMet(sender, action)) {
             String usage = getUsage();
             if (SenderType.type(sender) != SenderType.PLAYER)
                 usage = usage.replaceFirst("/", "");
