@@ -2,6 +2,7 @@ package com.enjin.ecmp.spigot.cmd;
 
 import com.enjin.ecmp.spigot.Messages;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
+import com.enjin.ecmp.spigot.cmd.arg.PlayerArgument;
 import com.enjin.ecmp.spigot.enums.Permission;
 import com.enjin.ecmp.spigot.player.EnjPlayer;
 import com.enjin.ecmp.spigot.player.PlayerManager;
@@ -18,6 +19,7 @@ import org.bukkit.entity.Player;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Optional;
 
 public class CmdTrade extends EnjCommand {
 
@@ -43,6 +45,7 @@ public class CmdTrade extends EnjCommand {
         public CmdInvite() {
             super(CmdTrade.this.bootstrap);
             this.aliases.add("invite");
+            this.requirements.arguments.add(PlayerArgument.REQUIRED);
         }
 
         @Override
@@ -57,24 +60,24 @@ public class CmdTrade extends EnjCommand {
             }
 
             Player sender = context.player;
+            Optional<Player> target = PlayerArgument.REQUIRED.parse(context, context.args);
 
-            Player target = Bukkit.getPlayer(context.args.get(0));
-            if (target == null) {
+            if (!target.isPresent() || !target.get().isOnline()) {
                 MessageUtils.sendString(sender, String.format("&6%s &cis not online.", context.args.get(0)));
                 return;
             }
 
-            if (target == sender) {
+            if (sender == target.get()) {
                 MessageUtils.sendString(sender, "&cYou must specify a player other than yourself.");
                 return;
             }
 
-            EnjPlayer targetEnjPlayer = bootstrap.getPlayerManager().getPlayer(target).orElse(null);
+            EnjPlayer targetEnjPlayer = bootstrap.getPlayerManager().getPlayer(target.get()).orElse(null);
 
             if (!targetEnjPlayer.isLinked()) {
-                MessageUtils.sendString(sender, String.format("&6%s &chas not linked a wallet and cannot trade.", target.getName()));
-                MessageUtils.sendString(target, String.format("&6%s &awants to trade with you.", sender.getName()));
-                Messages.linkInstructions(target);
+                MessageUtils.sendString(sender, String.format("&6%s &chas not linked a wallet and cannot trade.", targetEnjPlayer.getBukkitPlayer().getName()));
+                MessageUtils.sendString(targetEnjPlayer.getBukkitPlayer(), String.format("&6%s &awants to trade with you.", sender.getName()));
+                Messages.linkInstructions(targetEnjPlayer.getBukkitPlayer());
                 return;
             }
 
