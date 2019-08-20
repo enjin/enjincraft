@@ -1,5 +1,6 @@
 package com.enjin.ecmp.spigot.cmd;
 
+import com.enjin.ecmp.spigot.enums.MessageAction;
 import com.enjin.ecmp.spigot.enums.Permission;
 import com.enjin.ecmp.spigot.util.MessageUtils;
 import org.bukkit.command.CommandSender;
@@ -13,19 +14,19 @@ public class CommandRequirements {
     protected List<SenderType> allowedSenderTypes = new ArrayList<>();
     protected Permission permission;
 
-    public boolean areMet(CommandSender sender, boolean informIfNot) {
+    public boolean areMet(CommandSender sender, MessageAction informIfNot) {
         return areMet(sender, SenderType.type(sender), informIfNot);
     }
 
-    public boolean areMet(CommandContext context, boolean informIfNot) {
+    public boolean areMet(CommandContext context, MessageAction informIfNot) {
         return areMet(context.sender, context.senderType, informIfNot);
     }
 
-    public boolean areMet(CommandSender sender, SenderType senderType, boolean informIfNot) {
+    public boolean areMet(CommandSender sender, SenderType senderType, MessageAction informIfNot) {
         boolean senderAllowed = isSenderAllowed(sender);
         boolean hasPermission = hasPermission(sender);
 
-        if (informIfNot) {
+        if (informIfNot == MessageAction.SEND) {
             if (!senderAllowed) sendInvalidSenderTypeMessage(sender, senderType);
             if (!hasPermission) sendNoPermissionMessage(sender);
         }
