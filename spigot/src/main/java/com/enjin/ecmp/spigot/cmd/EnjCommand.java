@@ -71,11 +71,11 @@ public abstract class EnjCommand {
     }
 
     public void showUsage(CommandSender sender) {
-        showUsage(sender, Bypass.DENY, MessageAction.OMIT);
+        showUsage(sender, Bypass.NO, MessageAction.OMIT);
     }
 
     public void showUsage(CommandSender sender, Bypass bypassRequirements, MessageAction action) {
-        if (bypassRequirements == Bypass.ALLOW || requirements.areMet(sender, action)) {
+        if (bypassRequirements == Bypass.YES || requirements.areMet(sender, action)) {
             String usage = getUsage();
             if (SenderType.type(sender) != SenderType.PLAYER)
                 usage = usage.replaceFirst("/", "");
