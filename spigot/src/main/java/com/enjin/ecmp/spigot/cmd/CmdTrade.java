@@ -37,9 +37,9 @@ public class CmdTrade extends EnjCommand {
 
     @Override
     public void execute(CommandContext context) {
-        MessageUtils.sendString(context.sender, cmdInvite.getUsage(context));
-        MessageUtils.sendString(context.sender, cmdAccept.getUsage(context));
-        MessageUtils.sendString(context.sender, cmdDecline.getUsage(context));
+        MessageUtils.sendString(context.sender, cmdInvite.getUsage());
+        MessageUtils.sendString(context.sender, cmdAccept.getUsage());
+        MessageUtils.sendString(context.sender, cmdDecline.getUsage());
     }
 
     @Override
@@ -55,6 +55,7 @@ public class CmdTrade extends EnjCommand {
             this.requiredArgs.add("player");
             this.requirements = new CommandRequirements.Builder()
                     .withAllowedSenderTypes(SenderType.PLAYER)
+                    .withPermission(Permission.CMD_TRADE_INVITE)
                     .build();
         }
 
@@ -157,6 +158,7 @@ public class CmdTrade extends EnjCommand {
             this.requiredArgs.add("player");
             this.requirements = new CommandRequirements.Builder()
                     .withAllowedSenderTypes(SenderType.PLAYER)
+                    .withPermission(Permission.CMD_TRADE_ACCEPT)
                     .build();
         }
 
@@ -210,6 +212,7 @@ public class CmdTrade extends EnjCommand {
             this.requiredArgs.add("player");
             this.requirements = new CommandRequirements.Builder()
                     .withAllowedSenderTypes(SenderType.PLAYER)
+                    .withPermission(Permission.CMD_TRADE_DECLINE)
                     .build();
         }
 

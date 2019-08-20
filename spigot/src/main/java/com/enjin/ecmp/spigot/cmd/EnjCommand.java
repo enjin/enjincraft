@@ -4,7 +4,9 @@ import com.enjin.ecmp.spigot.Messages;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.enums.CommandProcess;
 import com.enjin.ecmp.spigot.i18n.Translation;
+import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.ecmp.spigot.util.TextUtil;
+import org.bukkit.command.CommandSender;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +68,20 @@ public abstract class EnjCommand {
         return tabResults;
     }
 
-    public String getUsage(CommandContext context) {
+    public void showUsage(CommandSender sender) {
+        showUsage(sender, false);
+    }
+
+    public void showUsage(CommandSender sender, boolean bypass) {
+        if (bypass || requirements.areMet(sender, false)) {
+            String usage = getUsage();
+            if (SenderType.type(sender) != SenderType.PLAYER)
+                usage = usage.replaceFirst("/", "");
+            MessageUtils.sendString(sender, usage);
+        }
+    }
+
+    public String getUsage() {
         StringBuilder builder = new StringBuilder();
 
         builder.append("&6/");

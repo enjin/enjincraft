@@ -22,6 +22,10 @@ permissions:
     default: true
   ecmp.trade:
     default: true
+    children:
+      ecmp.trade.invite: true
+      ecmp.trade.accept: true
+      ecmp.trade.decline: true
   ecmp.unlink:
     default: true
   ecmp.wallet:

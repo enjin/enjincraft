@@ -9,6 +9,9 @@ public enum Permission {
     CMD_LINK("link"),
     CMD_SEND("send"),
     CMD_TRADE("trade"),
+    CMD_TRADE_INVITE("trade.invite"),
+    CMD_TRADE_ACCEPT("trade.accept"),
+    CMD_TRADE_DECLINE("trade.decline"),
     CMD_UNLINK("unlink"),
     CMD_WALLET("wallet");
 
