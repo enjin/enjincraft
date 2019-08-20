@@ -19,8 +19,8 @@ import java.util.List;
 
 public class CmdBalance extends EnjCommand {
 
-    public CmdBalance(SpigotBootstrap bootstrap) {
-        super(bootstrap);
+    public CmdBalance(SpigotBootstrap bootstrap, CmdEnj parent) {
+        super(bootstrap, parent);
         this.aliases.add("balance");
         this.aliases.add("bal");
         this.requirements = CommandRequirements.builder()

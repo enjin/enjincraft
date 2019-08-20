@@ -4,24 +4,28 @@ import com.enjin.ecmp.spigot.Messages;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.enums.CommandProcess;
 import com.enjin.ecmp.spigot.enums.Permission;
+import com.enjin.ecmp.spigot.util.TextUtil;
 import org.bukkit.command.CommandSender;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public abstract class EnjCommand {
 
     protected SpigotBootstrap bootstrap;
+    protected Optional<EnjCommand> parent;
     protected List<String> aliases;
     protected List<EnjCommand> subCommands;
     protected List<String> requiredArgs;
     protected List<String> optionalArgs;
     protected CommandRequirements requirements;
 
-    public EnjCommand(SpigotBootstrap bootstrap) {
+    public EnjCommand(SpigotBootstrap bootstrap, EnjCommand parent) {
         this.bootstrap = bootstrap;
+        this.parent = Optional.ofNullable(parent);
         this.aliases = new ArrayList<>();
         this.subCommands = new ArrayList<>();
         this.requiredArgs = new ArrayList<>();
@@ -29,6 +33,10 @@ public abstract class EnjCommand {
         this.requirements = CommandRequirements.builder()
                 .withAllowedSenderTypes(SenderType.ANY)
                 .build();
+    }
+
+    public EnjCommand(SpigotBootstrap bootstrap) {
+        this(bootstrap, null);
     }
 
     public abstract void execute(CommandContext context);
@@ -58,6 +66,31 @@ public abstract class EnjCommand {
         return tabResults;
     }
 
+    public String getUsage(CommandContext context) {
+        StringBuilder builder = new StringBuilder();
+
+        builder.append("&7/");
+
+        List<EnjCommand> commandStack = CommandContext.createCommandStackAsList(this);
+        for (EnjCommand command : commandStack) {
+            builder.append(TextUtil.concat(command.aliases, ",")).append(' ');
+        }
+
+        builder.append("&8");
+
+        builder.append(TextUtil.concat(requiredArgs.stream()
+                .map(s -> String.format("<%s>", s))
+                .collect(Collectors.toList()), " "))
+                .append(' ');
+
+        builder.append(TextUtil.concat(optionalArgs.stream()
+                .map(s -> String.format("[%s]", s))
+                .collect(Collectors.toList()), " "))
+                .append(' ');
+
+        return builder.toString();
+    }
+
     public void process(CommandContext context, CommandProcess process) {
         try {
             if (!isValid(context, process.showErrorMessages())) return;
@@ -77,8 +110,7 @@ public abstract class EnjCommand {
             } else {
                 context.tabCompletionResult = tab0(context);
             }
-        } catch (
-                Exception ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
             Messages.error(context.sender, ex);
         }

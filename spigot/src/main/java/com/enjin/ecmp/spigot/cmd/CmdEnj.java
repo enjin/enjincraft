@@ -14,25 +14,29 @@ import java.util.List;
 
 public class CmdEnj extends EnjCommand implements CommandExecutor, TabCompleter {
 
-    private CmdBalance cmdBalance;
-    private CmdHelp cmdHelp;
-    private CmdLink cmdLink;
-    private CmdSend cmdSend;
-    private CmdTrade cmdTrade;
-    private CmdUnlink cmdUnlink;
-    private CmdWallet cmdWallet;
+    protected CmdBalance cmdBalance;
+    protected CmdHelp cmdHelp;
+    protected CmdLink cmdLink;
+    protected CmdSend cmdSend;
+    protected CmdTrade cmdTrade;
+    protected CmdUnlink cmdUnlink;
+    protected CmdWallet cmdWallet;
 
     public CmdEnj(SpigotBootstrap bootstrap) {
         super(bootstrap);
-        this.aliases.add("ecmp");
         this.aliases.add("enj");
-        this.addSubCommand(cmdBalance = new CmdBalance(bootstrap));
-        this.addSubCommand(cmdHelp = new CmdHelp(bootstrap));
-        this.addSubCommand(cmdLink = new CmdLink(bootstrap));
-        this.addSubCommand(cmdSend = new CmdSend(bootstrap));
-        this.addSubCommand(cmdTrade = new CmdTrade(bootstrap));
-        this.addSubCommand(cmdUnlink = new CmdUnlink(bootstrap));
-        this.addSubCommand(cmdWallet = new CmdWallet(bootstrap));
+        this.addSubCommand(cmdBalance = new CmdBalance(bootstrap, this));
+        this.addSubCommand(cmdHelp = new CmdHelp(bootstrap, this));
+        this.addSubCommand(cmdLink = new CmdLink(bootstrap, this));
+        this.addSubCommand(cmdSend = new CmdSend(bootstrap, this));
+        this.addSubCommand(cmdTrade = new CmdTrade(bootstrap, this));
+        this.addSubCommand(cmdUnlink = new CmdUnlink(bootstrap, this));
+        this.addSubCommand(cmdWallet = new CmdWallet(bootstrap, this));
+    }
+
+    @Override
+    public String getUsage(CommandContext context) {
+        return super.getUsage(new CommandContext(context.sender, new ArrayList<>(), context.alias));
     }
 
     @Override

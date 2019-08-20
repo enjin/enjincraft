@@ -19,8 +19,8 @@ import java.io.IOException;
 
 public class CmdUnlink extends EnjCommand {
 
-    public CmdUnlink(SpigotBootstrap bootstrap) {
-        super(bootstrap);
+    public CmdUnlink(SpigotBootstrap bootstrap, CmdEnj parent) {
+        super(bootstrap, parent);
         this.aliases.add("unlink");
         this.requirements = CommandRequirements.builder()
                 .withAllowedSenderTypes(SenderType.PLAYER)

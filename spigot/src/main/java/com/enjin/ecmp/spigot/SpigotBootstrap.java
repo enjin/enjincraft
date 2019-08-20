@@ -71,7 +71,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
             Bukkit.getPluginManager().registerEvents(new TokenItemListener(this), plugin);
 
             // Register Commands
-            PluginCommand pluginCommand = plugin.getCommand("ecmp");
+            PluginCommand pluginCommand = plugin.getCommand("enj");
             CmdEnj cmdEnj = new CmdEnj(this);
             pluginCommand.setExecutor(cmdEnj);
 
