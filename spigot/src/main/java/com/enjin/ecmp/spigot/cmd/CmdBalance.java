@@ -4,6 +4,7 @@ import com.enjin.ecmp.spigot.Messages;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.configuration.TokenDefinition;
 import com.enjin.ecmp.spigot.enums.Permission;
+import com.enjin.ecmp.spigot.i18n.Translation;
 import com.enjin.ecmp.spigot.player.EnjPlayer;
 import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.ecmp.spigot.wallet.MutableBalance;
@@ -71,6 +72,11 @@ public class CmdBalance extends EnjCommand {
             MessageUtils.sendString(sender, String.format("&l&6Found %s tokens in your Wallet:", itemCount));
 
         tokenDisplays.forEach(l -> MessageUtils.sendString(sender, l));
+    }
+
+    @Override
+    public Translation getUsageTranslation() {
+        return Translation.COMMAND_BALANCE_DESCRIPTION;
     }
 
 }

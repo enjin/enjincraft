@@ -4,6 +4,7 @@ import com.enjin.ecmp.spigot.Messages;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.cmd.arg.PlayerArgumentProcessor;
 import com.enjin.ecmp.spigot.enums.Permission;
+import com.enjin.ecmp.spigot.i18n.Translation;
 import com.enjin.ecmp.spigot.player.EnjPlayer;
 import com.enjin.ecmp.spigot.util.MessageUtils;
 import net.kyori.text.TextComponent;
@@ -39,6 +40,11 @@ public class CmdTrade extends EnjCommand {
         MessageUtils.sendString(context.sender, cmdInvite.getUsage(context));
         MessageUtils.sendString(context.sender, cmdAccept.getUsage(context));
         MessageUtils.sendString(context.sender, cmdDecline.getUsage(context));
+    }
+
+    @Override
+    public Translation getUsageTranslation() {
+        return Translation.COMMAND_TRADE_DESCRIPTION;
     }
 
     public class CmdInvite extends EnjCommand {
@@ -136,6 +142,11 @@ public class CmdTrade extends EnjCommand {
             MessageUtils.sendComponent(target.getBukkitPlayer(), inviteMessageBuilder.build());
         }
 
+        @Override
+        public Translation getUsageTranslation() {
+            return Translation.COMMAND_TRADE_INVITE_DESCRIPTION;
+        }
+
     }
 
     public class CmdAccept extends EnjCommand {
@@ -182,6 +193,11 @@ public class CmdTrade extends EnjCommand {
             if (!result) {
                 MessageUtils.sendString(sender, String.format("&cNo open trade invites from &6%s.", senderEnjPlayer.getBukkitPlayer().getName()));
             }
+        }
+
+        @Override
+        public Translation getUsageTranslation() {
+            return Translation.COMMAND_TRADE_ACCEPT_DESCRIPTION;
         }
 
     }
@@ -238,6 +254,11 @@ public class CmdTrade extends EnjCommand {
                 MessageUtils.sendString(sender, String.format("&cNo open trade invites from &6%s.",
                         senderEnjPlayer.getBukkitPlayer().getName()));
             }
+        }
+
+        @Override
+        public Translation getUsageTranslation() {
+            return Translation.COMMAND_TRADE_DECLINE_DESCRIPTION;
         }
 
     }

@@ -3,6 +3,7 @@ package com.enjin.ecmp.spigot.cmd;
 import com.enjin.ecmp.spigot.Messages;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.enums.Permission;
+import com.enjin.ecmp.spigot.i18n.Translation;
 import com.enjin.ecmp.spigot.player.EnjPlayer;
 import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.ecmp.spigot.wallet.TokenWalletView;
@@ -33,6 +34,11 @@ public class CmdWallet extends EnjCommand {
 
         TokenWalletView view = new TokenWalletView(bootstrap, enjPlayer);
         view.open(context.player);
+    }
+
+    @Override
+    public Translation getUsageTranslation() {
+        return Translation.COMMAND_WALLET_DESCRIPTION;
     }
 
 }

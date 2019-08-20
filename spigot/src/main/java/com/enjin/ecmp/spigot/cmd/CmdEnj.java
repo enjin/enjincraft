@@ -2,6 +2,7 @@ package com.enjin.ecmp.spigot.cmd;
 
 import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.enums.CommandProcess;
+import com.enjin.ecmp.spigot.i18n.Translation;
 import com.enjin.ecmp.spigot.player.UnregisteredPlayerException;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -62,4 +63,10 @@ public class CmdEnj extends EnjCommand implements CommandExecutor, TabCompleter 
         process(context, CommandProcess.TAB);
         return context.tabCompletionResult;
     }
+
+    @Override
+    public Translation getUsageTranslation() {
+        return Translation.COMMAND_ROOT_DESCRIPTION;
+    }
+
 }

@@ -1,5 +1,7 @@
 package com.enjin.ecmp.spigot.util;
 
+import org.bukkit.ChatColor;
+
 import java.util.List;
 
 public class TextUtil {
@@ -13,6 +15,14 @@ public class TextUtil {
         }
 
         return builder.toString();
+    }
+
+    public static String colorize(char prefix, String text) {
+        return ChatColor.translateAlternateColorCodes(prefix, text);
+    }
+
+    public static String colorize(String text) {
+        return colorize('&', text);
     }
 
 }
