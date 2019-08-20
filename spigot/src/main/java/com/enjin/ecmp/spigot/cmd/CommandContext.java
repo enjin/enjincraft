@@ -1,6 +1,7 @@
 package com.enjin.ecmp.spigot.cmd;
 
 import com.enjin.ecmp.spigot.EnjSpigot;
+import com.enjin.ecmp.spigot.cmd.arg.PlayerArgumentProcessor;
 import com.enjin.ecmp.spigot.player.EnjPlayer;
 import com.enjin.ecmp.spigot.player.UnregisteredPlayerException;
 import org.bukkit.command.CommandSender;
@@ -8,6 +9,7 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Stack;
 
 public class CommandContext {
@@ -40,6 +42,11 @@ public class CommandContext {
                 throw new UnregisteredPlayerException(player);
             }
         }
+    }
+
+    public Optional<Player> argToPlayer(int index) {
+        if (args.size() == 0 || index >= args.size()) return Optional.empty();
+        return PlayerArgumentProcessor.INSTANCE.parse(args.get(index));
     }
 
 }

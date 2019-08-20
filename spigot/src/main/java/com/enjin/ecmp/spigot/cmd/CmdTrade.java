@@ -2,22 +2,17 @@ package com.enjin.ecmp.spigot.cmd;
 
 import com.enjin.ecmp.spigot.Messages;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
-import com.enjin.ecmp.spigot.cmd.arg.PlayerArgument;
+import com.enjin.ecmp.spigot.cmd.arg.PlayerArgumentProcessor;
 import com.enjin.ecmp.spigot.enums.Permission;
 import com.enjin.ecmp.spigot.player.EnjPlayer;
-import com.enjin.ecmp.spigot.player.PlayerManager;
-import com.enjin.ecmp.spigot.trade.TradeManager;
 import com.enjin.ecmp.spigot.util.MessageUtils;
-import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
-import com.enjin.enjincoin.sdk.model.service.identities.GetIdentities;
-import com.enjin.enjincoin.sdk.model.service.identities.Identity;
 import net.kyori.text.TextComponent;
 import net.kyori.text.event.ClickEvent;
 import net.kyori.text.format.TextColor;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,8 +42,18 @@ public class CmdTrade extends EnjCommand {
             this.aliases.add("invite");
             this.requirements = new CommandRequirements.Builder()
                     .withAllowedSenderTypes(SenderType.PLAYER)
-                    .withArguments(PlayerArgument.REQUIRED)
                     .build();
+        }
+
+        @Override
+        public List<String> tab(CommandContext context) {
+            List<String> result = new ArrayList<>();
+
+            if (context.args.size() ==  1) {
+                result.addAll(PlayerArgumentProcessor.INSTANCE.tab());
+            }
+
+            return result;
         }
 
         @Override
@@ -63,7 +68,7 @@ public class CmdTrade extends EnjCommand {
             }
 
             Player sender = context.player;
-            Optional<Player> target = PlayerArgument.REQUIRED.parse(context, context.args);
+            Optional<Player> target = context.argToPlayer(0);
 
             if (!target.isPresent() || !target.get().isOnline()) {
                 MessageUtils.sendString(sender, String.format("&6%s &cis not online.", context.args.get(0)));
@@ -133,16 +138,24 @@ public class CmdTrade extends EnjCommand {
             this.aliases.add("accept");
             this.requirements = new CommandRequirements.Builder()
                     .withAllowedSenderTypes(SenderType.PLAYER)
-                    .withArguments(PlayerArgument.REQUIRED)
                     .build();
         }
 
         @Override
-        public void execute(CommandContext context) {
-            if (context.args.size() == 0) return;
+        public List<String> tab(CommandContext context) {
+            List<String> result = new ArrayList<>();
 
+            if (context.args.size() ==  1) {
+                result.addAll(PlayerArgumentProcessor.INSTANCE.tab());
+            }
+
+            return result;
+        }
+
+        @Override
+        public void execute(CommandContext context) {
             Player sender = context.player;
-            Optional<Player> target = PlayerArgument.REQUIRED.parse(context, context.args);
+            Optional<Player> target = context.argToPlayer(0);
 
             if (!target.isPresent() || !target.get().isOnline()) {
                 MessageUtils.sendString(sender, String.format("&6%s &cis not online.", context.args.get(0)));
@@ -172,8 +185,18 @@ public class CmdTrade extends EnjCommand {
             this.aliases.add("decline");
             this.requirements = new CommandRequirements.Builder()
                     .withAllowedSenderTypes(SenderType.PLAYER)
-                    .withArguments(PlayerArgument.REQUIRED)
                     .build();
+        }
+
+        @Override
+        public List<String> tab(CommandContext context) {
+            List<String> result = new ArrayList<>();
+
+            if (context.args.size() ==  1) {
+                result.addAll(PlayerArgumentProcessor.INSTANCE.tab());
+            }
+
+            return result;
         }
 
         @Override
@@ -181,7 +204,7 @@ public class CmdTrade extends EnjCommand {
             if (context.args.size() == 0) return;
 
             Player sender = context.player;
-            Optional<Player> target = PlayerArgument.REQUIRED.parse(context, context.args);
+            Optional<Player> target = context.argToPlayer(0);
 
             if (!target.isPresent() || !target.get().isOnline()) {
                 MessageUtils.sendString(sender, String.format("&6%s &cis not online.", context.args.get(0)));
