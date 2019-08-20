@@ -12,10 +12,6 @@ import java.util.stream.Collectors;
 
 public abstract class EnjCommand {
 
-    public static final CommandRequirements DEFAULT_REQUIREMENTS = CommandRequirements.builder()
-            .withAllowedSenderTypes(SenderType.ANY)
-            .build();
-
     protected SpigotBootstrap bootstrap;
     protected List<String> aliases;
     protected List<EnjCommand> subCommands;
@@ -25,13 +21,21 @@ public abstract class EnjCommand {
         this.bootstrap = bootstrap;
         this.aliases = new ArrayList<>();
         this.subCommands = new ArrayList<>();
-        this.requirements = DEFAULT_REQUIREMENTS;
+        this.requirements = CommandRequirements.builder()
+                .withAllowedSenderTypes(SenderType.ANY)
+                .build();
     }
 
     public abstract void execute(CommandContext context);
 
     public List<String> tab(CommandContext context) {
-        return Arrays.asList();
+        List<String> result = new ArrayList<>();
+
+        if (context.args.size() > 0 && context.args.size() <= requirements.arguments.size()) {
+            result.addAll(requirements.arguments.get(context.args.size() - 1).tab());
+        }
+
+        return result;
     }
 
     protected List<String> tab0(CommandContext context) {
