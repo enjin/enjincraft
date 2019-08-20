@@ -68,7 +68,15 @@ public class CommandRequirements {
 
         public Builder withAllowedSenderTypes(SenderType... types) {
             requirements.allowedSenderTypes.clear();
-            if (types != null) requirements.allowedSenderTypes.addAll(Arrays.asList(types));
+            if (types != null && types.length != 0)
+                requirements.allowedSenderTypes.addAll(Arrays.asList(types));
+            return this;
+        }
+
+        public Builder withArguments(Argument... arguments) {
+            requirements.arguments.clear();
+            if (arguments != null && arguments.length != 0)
+                requirements.arguments.addAll(Arrays.asList(arguments));
             return this;
         }
 

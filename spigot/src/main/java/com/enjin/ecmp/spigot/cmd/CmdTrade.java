@@ -45,7 +45,10 @@ public class CmdTrade extends EnjCommand {
         public CmdInvite() {
             super(CmdTrade.this.bootstrap);
             this.aliases.add("invite");
-            this.requirements.arguments.add(PlayerArgument.REQUIRED);
+            this.requirements = new CommandRequirements.Builder()
+                    .withAllowedSenderTypes(SenderType.PLAYER)
+                    .withArguments(PlayerArgument.REQUIRED)
+                    .build();
         }
 
         @Override
@@ -128,6 +131,10 @@ public class CmdTrade extends EnjCommand {
         public CmdAccept() {
             super(CmdTrade.this.bootstrap);
             this.aliases.add("accept");
+            this.requirements = new CommandRequirements.Builder()
+                    .withAllowedSenderTypes(SenderType.PLAYER)
+                    .withArguments(PlayerArgument.REQUIRED)
+                    .build();
         }
 
         @Override
@@ -135,24 +142,24 @@ public class CmdTrade extends EnjCommand {
             if (context.args.size() == 0) return;
 
             Player sender = context.player;
-            Player target = Bukkit.getPlayer(context.args.get(0));
+            Optional<Player> target = PlayerArgument.REQUIRED.parse(context, context.args);
 
-            if (target == null) {
+            if (!target.isPresent() || !target.get().isOnline()) {
                 MessageUtils.sendString(sender, String.format("&6%s &cis not online.", context.args.get(0)));
                 return;
             }
 
-            if (target == sender) {
+            if (sender == target.get()) {
                 MessageUtils.sendString(sender, "&cYou must specify a player other than yourself.");
                 return;
             }
 
-            EnjPlayer senderEnjPlayer = bootstrap.getPlayerManager().getPlayer(target).orElse(null);
-            EnjPlayer targetEnjPlayer = context.enjPlayer;
+            EnjPlayer targetEnjPlayer = bootstrap.getPlayerManager().getPlayer(target.get()).orElse(null);
+            EnjPlayer senderEnjPlayer = context.enjPlayer;
 
-            boolean result = bootstrap.getTradeManager().acceptInvite(senderEnjPlayer, targetEnjPlayer);
+            boolean result = bootstrap.getTradeManager().acceptInvite(targetEnjPlayer, senderEnjPlayer);
             if (!result) {
-                MessageUtils.sendString(sender, String.format("&cNo open trade invites from &6%s.", target.getName()));
+                MessageUtils.sendString(sender, String.format("&cNo open trade invites from &6%s.", senderEnjPlayer.getBukkitPlayer().getName()));
             }
         }
 
@@ -163,6 +170,10 @@ public class CmdTrade extends EnjCommand {
         public CmdDecline() {
             super(CmdTrade.this.bootstrap);
             this.aliases.add("decline");
+            this.requirements = new CommandRequirements.Builder()
+                    .withAllowedSenderTypes(SenderType.PLAYER)
+                    .withArguments(PlayerArgument.REQUIRED)
+                    .build();
         }
 
         @Override
@@ -170,27 +181,30 @@ public class CmdTrade extends EnjCommand {
             if (context.args.size() == 0) return;
 
             Player sender = context.player;
-            Player target = Bukkit.getPlayer(context.args.get(0));
+            Optional<Player> target = PlayerArgument.REQUIRED.parse(context, context.args);
 
-            if (target == null) {
+            if (!target.isPresent() || !target.get().isOnline()) {
                 MessageUtils.sendString(sender, String.format("&6%s &cis not online.", context.args.get(0)));
                 return;
             }
 
-            if (target == sender) {
+            if (sender == target.get()) {
                 MessageUtils.sendString(sender, "&cYou must specify a player other than yourself.");
                 return;
             }
 
-            EnjPlayer senderEnjPlayer = bootstrap.getPlayerManager().getPlayer(target).orElse(null);
-            EnjPlayer targetEnjPlayer = context.enjPlayer;
+            EnjPlayer targetEnjPlayer = bootstrap.getPlayerManager().getPlayer(target.get()).orElse(null);
+            EnjPlayer senderEnjPlayer = context.enjPlayer;
 
-            boolean result = bootstrap.getTradeManager().declineInvite(senderEnjPlayer, targetEnjPlayer);
+            boolean result = bootstrap.getTradeManager().declineInvite(targetEnjPlayer, senderEnjPlayer);
             if (result) {
-                MessageUtils.sendString(sender, String.format("&aYou have declined &6%s's &atrade invite.", target.getName()));
-                MessageUtils.sendString(target, String.format("&6%s &chas declined your trade invite.", sender.getName()));
+                MessageUtils.sendString(sender, String.format("&aYou have declined &6%s's &atrade invite.",
+                        senderEnjPlayer.getBukkitPlayer().getName()));
+                MessageUtils.sendString(targetEnjPlayer.getBukkitPlayer(), String.format("&6%s &chas declined your trade invite.",
+                        targetEnjPlayer.getBukkitPlayer().getName()));
             } else {
-                MessageUtils.sendString(sender, String.format("&cNo open trade invites from &6%s.", target.getName()));
+                MessageUtils.sendString(sender, String.format("&cNo open trade invites from &6%s.",
+                        senderEnjPlayer.getBukkitPlayer().getName()));
             }
         }
 
