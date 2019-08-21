@@ -1,6 +1,7 @@
 package com.enjin.ecmp.spigot;
 
 import com.enjin.ecmp.spigot.cmd.CmdEnj;
+import com.enjin.ecmp.spigot.configuration.ConfigurationException;
 import com.enjin.ecmp.spigot.configuration.EnjConfig;
 import com.enjin.ecmp.spigot.hooks.PlaceholderApiExpansion;
 import com.enjin.ecmp.spigot.i18n.Translation;
@@ -17,7 +18,6 @@ import com.enjin.enjincoin.sdk.model.service.platform.PlatformDetails;
 import com.enjin.enjincoin.sdk.service.notifications.NotificationsService;
 import com.enjin.enjincoin.sdk.service.notifications.PusherNotificationService;
 import com.enjin.java_commons.StringUtils;
-import com.google.common.base.Charsets;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
@@ -27,6 +27,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
@@ -53,7 +54,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
         try {
             if (!initConfig()) return;
 
-            loadLangFile();
+            loadLocale();
 
             // Create the trusted platform client
             trustedPlatformClient = new TrustedPlatformClient.Builder()
@@ -216,19 +217,25 @@ public class SpigotBootstrap implements Bootstrap, Module {
         return validUrl && validAppId && validSecret && validIdentityId;
     }
 
-    public void loadLangFile() throws IOException {
-        InputStream is = plugin.getResource(String.format("lang/%s.yml", config.getLanguage()));
+    public void loadLocale() throws ConfigurationException {
+        YamlConfiguration lang = loadLocaleResource(config.getLocale());
+
+        if (lang == null)
+            lang = loadLocaleResource(Translation.DEFAULT_LOCALE);
+
+        if (lang == null)
+            throw new ConfigurationException("Could not load default (en_US) translation.");
+
+        Translation.setLang(lang);
+    }
+
+    public YamlConfiguration loadLocaleResource(String locale) {
+        InputStream is = plugin.getResource(String.format("lang/%s.yml", locale));
 
         if (is == null)
-            is = plugin.getResource("lang/en_US.yml");
+            return null;
 
-        if (is == null)
-            throw new RuntimeException("Could not load default (en_US) language resource.");
-
-        YamlConfiguration configuration = YamlConfiguration
-                .loadConfiguration(new InputStreamReader(is, Charsets.UTF_8));
-
-        Translation.setFile(configuration);
+        return YamlConfiguration.loadConfiguration(new InputStreamReader(is, Charset.forName("UTF-8")));
     }
 
     public void debug(String log) {

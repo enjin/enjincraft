@@ -1,8 +1,18 @@
+internal:
+  locale: "en_US"
+  version: 1
 COMMAND:
   ROOT:
     DESCRIPTION: "Show information about the plugin and authors."
   BALANCE:
     DESCRIPTION: "Show wallet address, eth, enj, and token balances."
+    WALLETADDRESS: "&6Wallet Address: &d%s"
+    IDENTITYID: "&6Identity ID: &d%s"
+    ENJBALANCE: "&a[ %s ENJ ]"
+    ETHBALANCE: "&a[ %s ETH ]"
+    TOKENDISPLAY: "&6%s. &5%s &a(qty. %s)"
+    NOTOKENS: "&l&6No tokens found in your wallet."
+    TOKENCOUNT: "&l&6Found %s tokens in your wallet."
   HELP:
     DESCRIPTION: "Show list of commands with their usage."
   LINK:

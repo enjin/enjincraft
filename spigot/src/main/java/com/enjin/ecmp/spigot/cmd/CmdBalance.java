@@ -8,10 +8,6 @@ import com.enjin.ecmp.spigot.i18n.Translation;
 import com.enjin.ecmp.spigot.player.EnjPlayer;
 import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.ecmp.spigot.wallet.MutableBalance;
-import net.kyori.text.TextComponent;
-import net.kyori.text.format.TextColor;
-import org.bukkit.ChatColor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.math.BigDecimal;
@@ -47,13 +43,13 @@ public class CmdBalance extends EnjCommand {
                 ? BigDecimal.ZERO
                 : enjPlayer.getEnjBalance();
 
-        MessageUtils.sendString(sender, String.format("&6Wallet Address: &d%s", enjPlayer.getEthereumAddress()));
-        MessageUtils.sendString(sender, String.format("&6Identity ID: &d%s", enjPlayer.getIdentityId()));
+        Translation.COMMAND_BALANCE_WALLETADDRESS.sendMessage(sender, enjPlayer.getEthereumAddress());
+        Translation.COMMAND_BALANCE_IDENTITYID.sendMessage(sender, enjPlayer.getIdentityId());
 
         if (enjBalance != null)
-            MessageUtils.sendString(sender, String.format("&a[ %s ENJ ]", enjBalance));
+            Translation.COMMAND_BALANCE_ENJBALANCE.sendMessage(sender, enjBalance);
         if (enjBalance != null)
-            MessageUtils.sendString(sender, String.format("&a[ %s ETH ]", ethBalance));
+            Translation.COMMAND_BALANCE_ETHBALANCE.sendMessage(sender, ethBalance);
 
         int itemCount = 0;
         List<String> tokenDisplays = new ArrayList<>();
@@ -62,14 +58,14 @@ public class CmdBalance extends EnjCommand {
             TokenDefinition def = bootstrap.getConfig().getTokens().get(balance.id());
             if (def == null) continue;
             itemCount++;
-            tokenDisplays.add(String.format("&6%s. &5%s &a(qty. %s)", itemCount, def.getDisplayName(), balance.balance()));
+            Translation.COMMAND_BALANCE_TOKENDISPLAY.sendMessage(sender, itemCount, def.getDisplayName(), balance.balance());
         }
 
         Messages.newLine(sender);
         if (itemCount == 0)
-            MessageUtils.sendString(sender, "&l&6No tokens found in your Enjin Wallet.");
+            Translation.COMMAND_BALANCE_NOTOKENS.sendMessage(sender);
         else
-            MessageUtils.sendString(sender, String.format("&l&6Found %s tokens in your Wallet:", itemCount));
+            Translation.COMMAND_BALANCE_TOKENCOUNT.sendMessage(sender, itemCount);
 
         tokenDisplays.forEach(l -> MessageUtils.sendString(sender, l));
     }
