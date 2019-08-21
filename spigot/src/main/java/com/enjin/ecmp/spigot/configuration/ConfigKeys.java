@@ -14,6 +14,6 @@ public final class ConfigKeys {
     public static final String ITEM_DISPLAY_NAME = "displayName";
     public static final String ITEM_MATERIAL = "material";
     public static final String ITEM_LORE = "lore";
-    public static final String LANGUAGE = "language";
+    public static final String LOCALE = "locale";
 
 }

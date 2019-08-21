@@ -1,8 +1,18 @@
+internal:
+  locale: "es_ES"
+  version: 1
 COMMAND:
   ROOT:
     DESCRIPTION: "Mostrar información sobre el complemento y los autores."
   BALANCE:
     DESCRIPTION: "Mostrar la dirección de la billetera, eth, enj y saldos de token."
+    WALLETADDRESS: "&6Dirección de billetera: &d%s"
+    IDENTITYID: "&6ID de identidad: &d%s"
+    ENJBALANCE: "&a[ %s ENJ ]"
+    ETHBALANCE: "&a[ %s ETH ]"
+    TOKENDISPLAY: "&6%s. &5%s &a(qty. %s)"
+    NOTOKENS: "&l&6No se encontraron fichas en su billetera."
+    TOKENCOUNT: "&l&6Encontró %s fichas en su billetera."
   HELP:
     DESCRIPTION: "Mostrar lista de comandos con su uso."
   LINK:

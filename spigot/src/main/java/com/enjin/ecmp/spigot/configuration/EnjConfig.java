@@ -1,5 +1,6 @@
 package com.enjin.ecmp.spigot.configuration;
 
+import com.enjin.ecmp.spigot.i18n.Translation;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -28,7 +29,7 @@ public class EnjConfig {
     private boolean sdkDebugging;
     private boolean pluginDebugging;
     private Map<String, TokenDefinition> tokens;
-    private String language;
+    private String locale;
 
     public EnjConfig(Plugin plugin) {
         this.plugin = plugin;
@@ -36,7 +37,7 @@ public class EnjConfig {
         this.appId = -1;
         this.devIdentityId = -1;
         this.tokens = new HashMap<>();
-        this.language = "en_US";
+        this.locale = Translation.DEFAULT_LOCALE;
     }
 
     public boolean load() {
@@ -70,7 +71,7 @@ public class EnjConfig {
         this.allowVanillaItemsInTrades = false;
         this.sdkDebugging = false;
         this.pluginDebugging = false;
-        this.language = "en_US";
+        this.locale = "en_US";
     }
 
     private void init(JsonObject root) {
@@ -111,8 +112,8 @@ public class EnjConfig {
                 }
             }
         }
-        if (root.has(LANGUAGE))
-            this.language = root.get(LANGUAGE).getAsString();
+        if (root.has(LOCALE))
+            this.locale = root.get(LOCALE).getAsString();
     }
 
     public String getPlatformBaseUrl() {
@@ -147,8 +148,8 @@ public class EnjConfig {
         return tokens;
     }
 
-    public String getLanguage() {
-        return language;
+    public String getLocale() {
+        return locale;
     }
 
     public JsonObject getRoot() {
