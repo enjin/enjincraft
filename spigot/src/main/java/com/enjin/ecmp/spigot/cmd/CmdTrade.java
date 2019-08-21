@@ -19,27 +19,21 @@ import java.util.Optional;
 
 public class CmdTrade extends EnjCommand {
 
-    protected CmdInvite cmdInvite;
-    protected CmdAccept cmdAccept;
-    protected CmdDecline cmdDecline;
-
-    public CmdTrade(SpigotBootstrap bootstrap, CmdEnj parent) {
+    public CmdTrade(SpigotBootstrap bootstrap, EnjCommand parent) {
         super(bootstrap, parent);
         this.aliases.add("trade");
+        this.requiredArgs.add("action");
         this.requirements = CommandRequirements.builder()
                 .withAllowedSenderTypes(SenderType.PLAYER)
                 .withPermission(Permission.CMD_TRADE)
                 .build();
-        this.addSubCommand(cmdInvite = new CmdInvite());
-        this.addSubCommand(cmdAccept = new CmdAccept());
-        this.addSubCommand(cmdDecline = new CmdDecline());
+        this.addSubCommand(new CmdInvite());
+        this.addSubCommand(new CmdAccept());
+        this.addSubCommand(new CmdDecline());
     }
 
     @Override
     public void execute(CommandContext context) {
-        MessageUtils.sendString(context.sender, cmdInvite.getUsage());
-        MessageUtils.sendString(context.sender, cmdAccept.getUsage());
-        MessageUtils.sendString(context.sender, cmdDecline.getUsage());
     }
 
     @Override
@@ -61,13 +55,9 @@ public class CmdTrade extends EnjCommand {
 
         @Override
         public List<String> tab(CommandContext context) {
-            List<String> result = new ArrayList<>();
-
-            if (context.args.size() ==  1) {
-                result.addAll(PlayerArgumentProcessor.INSTANCE.tab());
-            }
-
-            return result;
+            if (context.args.size() == 1)
+                return PlayerArgumentProcessor.INSTANCE.tab();
+            return new ArrayList<>(0);
         }
 
         @Override
@@ -164,13 +154,9 @@ public class CmdTrade extends EnjCommand {
 
         @Override
         public List<String> tab(CommandContext context) {
-            List<String> result = new ArrayList<>();
-
-            if (context.args.size() ==  1) {
-                result.addAll(PlayerArgumentProcessor.INSTANCE.tab());
-            }
-
-            return result;
+            if (context.args.size() == 1)
+                return PlayerArgumentProcessor.INSTANCE.tab();
+            return new ArrayList<>(0);
         }
 
         @Override
@@ -218,13 +204,9 @@ public class CmdTrade extends EnjCommand {
 
         @Override
         public List<String> tab(CommandContext context) {
-            List<String> result = new ArrayList<>();
-
-            if (context.args.size() ==  1) {
-                result.addAll(PlayerArgumentProcessor.INSTANCE.tab());
-            }
-
-            return result;
+            if (context.args.size() == 1)
+                return PlayerArgumentProcessor.INSTANCE.tab();
+            return new ArrayList<>(0);
         }
 
         @Override

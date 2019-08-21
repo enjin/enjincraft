@@ -10,23 +10,29 @@ commands:
   enj:
     description: Reference command for ECMP.
 permissions:
-  ecmp.root:
+  ecmp.*:
+    default: op
+    children:
+      ecmp.player: true
+      ecmp.conf: true
+  ecmp.conf:
+    default: false
+    children:
+      ecmp.conf.set: true
+      ecmp.conf.reload: true
+  ecmp.player:
     default: true
-  ecmp.balance:
-    default: true
-  ecmp.help:
-    default: true
-  ecmp.link:
-    default: true
-  ecmp.send:
-    default: true
+    children:
+      ecmp.root: true
+      ecmp.balance: true
+      ecmp.help: true
+      ecmp.link: true
+      ecmp.send: true
+      ecmp.trade: true
+      ecmp.unlink: true
+      ecmp.wallet: true
   ecmp.trade:
-    default: true
     children:
       ecmp.trade.invite: true
       ecmp.trade.accept: true
       ecmp.trade.decline: true
-  ecmp.unlink:
-    default: true
-  ecmp.wallet:
-    default: true

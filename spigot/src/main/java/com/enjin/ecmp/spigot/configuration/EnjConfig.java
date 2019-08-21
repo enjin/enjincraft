@@ -8,6 +8,8 @@ import org.bukkit.plugin.Plugin;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,6 +62,24 @@ public class EnjConfig {
         }
 
         return result;
+    }
+
+    public void save() {
+        try {
+            if (file.getParentFile() != null) {
+                file.getParentFile().mkdirs();
+            }
+
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+
+            FileWriter fw = new FileWriter(file);
+            fw.write(root.toString());
+            fw.close();
+        } catch (IOException ex) {
+            throw new ConfigurationException("Unable to save config.", ex);
+        }
     }
 
     private void clean() {
@@ -150,6 +170,11 @@ public class EnjConfig {
 
     public String getLocale() {
         return locale;
+    }
+
+    public void setLocale(String locale) {
+        this.locale = locale;
+        this.root.addProperty(LOCALE, locale);
     }
 
     public JsonObject getRoot() {

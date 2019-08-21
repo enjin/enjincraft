@@ -31,6 +31,10 @@ public enum Translation {
 
     COMMAND_SEND_DESCRIPTION("Send the held token to another player."),
 
+    COMMAND_CONF_DESCRIPTION("Perform operations on the plugin configuration."),
+    COMMAND_CONF_SET_DESCRIPTION("Set new value for config option."),
+    COMMAND_CONF_SET_LANG_DESCRIPTION("Set the default language to use."),
+
     COMMAND_TRADE_DESCRIPTION("Show help for trade sub-commands."),
     COMMAND_TRADE_INVITE_DESCRIPTION("Invite a player to trade tokens."),
     COMMAND_TRADE_ACCEPT_DESCRIPTION("Accept another player's trade invite."),

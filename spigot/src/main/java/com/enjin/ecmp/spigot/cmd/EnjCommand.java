@@ -2,6 +2,7 @@ package com.enjin.ecmp.spigot.cmd;
 
 import com.enjin.ecmp.spigot.Messages;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
+import com.enjin.ecmp.spigot.enums.Usage;
 import com.enjin.ecmp.spigot.enums.VeryifyRequirements;
 import com.enjin.ecmp.spigot.enums.CommandProcess;
 import com.enjin.ecmp.spigot.enums.MessageAction;
@@ -70,20 +71,24 @@ public abstract class EnjCommand {
         return tabResults;
     }
 
-    public void showUsage(CommandSender sender) {
-        showUsage(sender, VeryifyRequirements.YES, MessageAction.OMIT);
+    public void showHelp(CommandSender sender) {
+        showHelp(sender, VeryifyRequirements.YES, Usage.ALL);
     }
 
-    public void showUsage(CommandSender sender, VeryifyRequirements verifyRequirements, MessageAction action) {
-        if (verifyRequirements == VeryifyRequirements.NO || requirements.areMet(sender, action)) {
-            String usage = getUsage();
-            if (SenderType.type(sender) != SenderType.PLAYER)
-                usage = usage.replaceFirst("/", "");
-            MessageUtils.sendString(sender, usage);
-        }
+    public void showHelp(CommandSender sender, VeryifyRequirements verifyRequirements, Usage usage) {
+        if (verifyRequirements == VeryifyRequirements.YES && !requirements.areMet(sender, MessageAction.OMIT))
+            return;
+        MessageUtils.sendString(sender, getUsage(SenderType.type(sender), usage));
     }
 
-    public String getUsage() {
+    public String getUsage(SenderType type, Usage usage) {
+        String output = getUsage(usage);
+        if (type != SenderType.PLAYER)
+            output = output.replaceFirst("/", "");
+        return output;
+    }
+
+    public String getUsage(Usage usage) {
         StringBuilder builder = new StringBuilder();
 
         builder.append("&6/");
@@ -109,14 +114,15 @@ public abstract class EnjCommand {
                     .append(' ');
         }
 
-        builder.append("&f").append(getUsageTranslation().toString());
+        if (usage == Usage.ALL)
+            builder.append("&f").append(getUsageTranslation().toString());
 
         return builder.toString();
     }
 
     public void process(CommandContext context, CommandProcess process) {
         try {
-            if (!isValid(context, process.showErrorMessages() ? MessageAction.SEND : MessageAction.OMIT))
+            if (!isValid(context, process.getMessageAction()))
                 return;
 
             if (context.args.size() > 0) {
@@ -147,11 +153,19 @@ public abstract class EnjCommand {
     }
 
     private boolean isValid(CommandContext context, MessageAction action) {
-        return requirements.areMet(context, action) && validArgs(context);
+        return requirements.areMet(context, action) && validArgs(context, action);
     }
 
-    private boolean validArgs(CommandContext context) {
-        return context.args.size() >= requiredArgs.size();
+    private boolean validArgs(CommandContext context, MessageAction action) {
+        boolean result = context.args.size() >= requiredArgs.size();
+
+        if (action == MessageAction.SEND && !result) {
+            MessageUtils.sendString(context.sender, "&cIncorrect command usage!");
+            MessageUtils.sendString(context.sender,
+                    String.format("USAGE: %s", getUsage(context.senderType, Usage.COMMAND_ONLY)));
+        }
+
+        return result;
     }
 
 }

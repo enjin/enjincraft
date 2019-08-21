@@ -13,7 +13,7 @@ import org.bukkit.command.CommandSender;
 
 public class CmdWallet extends EnjCommand {
 
-    public CmdWallet(SpigotBootstrap bootstrap, CmdEnj parent) {
+    public CmdWallet(SpigotBootstrap bootstrap, EnjCommand parent) {
         super(bootstrap, parent);
         this.aliases.add("wallet");
         this.aliases.add("wal");

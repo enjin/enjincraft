@@ -14,19 +14,19 @@ public class CommandRequirements {
     protected List<SenderType> allowedSenderTypes = new ArrayList<>();
     protected Permission permission;
 
-    public boolean areMet(CommandSender sender, MessageAction informIfNot) {
-        return areMet(sender, SenderType.type(sender), informIfNot);
+    public boolean areMet(CommandSender sender, MessageAction messageAction) {
+        return areMet(sender, SenderType.type(sender), messageAction);
     }
 
-    public boolean areMet(CommandContext context, MessageAction informIfNot) {
-        return areMet(context.sender, context.senderType, informIfNot);
+    public boolean areMet(CommandContext context, MessageAction messageAction) {
+        return areMet(context.sender, context.senderType, messageAction);
     }
 
-    public boolean areMet(CommandSender sender, SenderType senderType, MessageAction informIfNot) {
+    public boolean areMet(CommandSender sender, SenderType senderType, MessageAction messageAction) {
         boolean senderAllowed = isSenderAllowed(sender);
         boolean hasPermission = hasPermission(sender);
 
-        if (informIfNot == MessageAction.SEND) {
+        if (messageAction == MessageAction.SEND) {
             if (!senderAllowed) sendInvalidSenderTypeMessage(sender, senderType);
             if (!hasPermission) sendNoPermissionMessage(sender);
         }
@@ -74,6 +74,10 @@ public class CommandRequirements {
     public static class Builder {
 
         private CommandRequirements requirements = new CommandRequirements();
+
+        public Builder() {
+            requirements.allowedSenderTypes.add(SenderType.ANY);
+        }
 
         public Builder withPermission(Permission permission) {
             requirements.permission = permission;
