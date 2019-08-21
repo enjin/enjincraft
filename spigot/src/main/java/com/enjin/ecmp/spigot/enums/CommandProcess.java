@@ -2,16 +2,16 @@ package com.enjin.ecmp.spigot.enums;
 
 public enum CommandProcess {
 
-    EXECUTE(true),
-    TAB(false);
+    EXECUTE(MessageAction.SEND),
+    TAB(MessageAction.OMIT);
 
-    boolean showErrorMessages;
+    private MessageAction messageAction;
 
-    CommandProcess(boolean showErrorMessages) {
-        showErrorMessages = showErrorMessages;
+    CommandProcess(MessageAction messageAction) {
+        this.messageAction = messageAction;
     }
 
-    public boolean showErrorMessages() {
-        return showErrorMessages;
+    public MessageAction getMessageAction() {
+        return messageAction;
     }
 }

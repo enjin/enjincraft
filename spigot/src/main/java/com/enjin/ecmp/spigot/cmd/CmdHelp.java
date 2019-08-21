@@ -7,7 +7,7 @@ import org.bukkit.command.CommandSender;
 
 public class CmdHelp extends EnjCommand {
 
-    public CmdHelp(SpigotBootstrap bootstrap, CmdEnj parent) {
+    public CmdHelp(SpigotBootstrap bootstrap, EnjCommand parent) {
         super(bootstrap, parent);
         this.aliases.add("help");
         this.aliases.add("h");
@@ -20,19 +20,12 @@ public class CmdHelp extends EnjCommand {
     @Override
     public void execute(CommandContext context) {
         CommandSender sender = context.sender;
-        CmdEnj root = (CmdEnj) this.parent.get();
+        showHelp(sender, parent.get());
+    }
 
-        root.showUsage(sender);
-        root.cmdBalance.showUsage(sender);
-        root.cmdHelp.showUsage(sender);
-        root.cmdLink.showUsage(sender);
-        root.cmdSend.showUsage(sender);
-        root.cmdTrade.showUsage(sender);
-        root.cmdTrade.cmdInvite.showUsage(sender);
-        root.cmdTrade.cmdAccept.showUsage(sender);
-        root.cmdTrade.cmdDecline.showUsage(sender);
-        root.cmdUnlink.showUsage(sender);
-        root.cmdWallet.showUsage(sender);
+    private void showHelp(CommandSender sender, EnjCommand command) {
+        command.showHelp(sender);
+        command.subCommands.forEach(c -> showHelp(sender, c));
     }
 
     @Override

@@ -26,7 +26,7 @@ import java.util.List;
 
 public class CmdSend extends EnjCommand {
 
-    public CmdSend(SpigotBootstrap bootstrap, CmdEnj parent) {
+    public CmdSend(SpigotBootstrap bootstrap, EnjCommand parent) {
         super(bootstrap, parent);
         this.aliases.add("send");
         this.requiredArgs.add("player");
@@ -38,13 +38,9 @@ public class CmdSend extends EnjCommand {
 
     @Override
     public List<String> tab(CommandContext context) {
-        List<String> result = new ArrayList<>();
-
-        if (context.args.size() ==  1) {
-            result.addAll(PlayerArgumentProcessor.INSTANCE.tab());
-        }
-
-        return result;
+        if (context.args.size() == 1)
+            return PlayerArgumentProcessor.INSTANCE.tab();
+        return new ArrayList<>(0);
     }
 
     @Override

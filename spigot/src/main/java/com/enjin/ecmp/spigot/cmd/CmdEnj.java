@@ -16,24 +16,17 @@ import java.util.List;
 
 public class CmdEnj extends EnjCommand implements CommandExecutor, TabCompleter {
 
-    protected CmdBalance cmdBalance;
-    protected CmdHelp cmdHelp;
-    protected CmdLink cmdLink;
-    protected CmdSend cmdSend;
-    protected CmdTrade cmdTrade;
-    protected CmdUnlink cmdUnlink;
-    protected CmdWallet cmdWallet;
-
     public CmdEnj(SpigotBootstrap bootstrap) {
         super(bootstrap);
         this.aliases.add("enj");
-        this.addSubCommand(cmdBalance = new CmdBalance(bootstrap, this));
-        this.addSubCommand(cmdHelp = new CmdHelp(bootstrap, this));
-        this.addSubCommand(cmdLink = new CmdLink(bootstrap, this));
-        this.addSubCommand(cmdSend = new CmdSend(bootstrap, this));
-        this.addSubCommand(cmdTrade = new CmdTrade(bootstrap, this));
-        this.addSubCommand(cmdUnlink = new CmdUnlink(bootstrap, this));
-        this.addSubCommand(cmdWallet = new CmdWallet(bootstrap, this));
+        this.addSubCommand(new CmdBalance(bootstrap, this));
+        this.addSubCommand(new CmdHelp(bootstrap, this));
+        this.addSubCommand(new CmdLink(bootstrap, this));
+        this.addSubCommand(new CmdSend(bootstrap, this));
+        this.addSubCommand(new CmdConfSet(bootstrap, this));
+        this.addSubCommand(new CmdTrade(bootstrap, this));
+        this.addSubCommand(new CmdUnlink(bootstrap, this));
+        this.addSubCommand(new CmdWallet(bootstrap, this));
     }
 
     @Override
@@ -49,8 +42,7 @@ public class CmdEnj extends EnjCommand implements CommandExecutor, TabCompleter 
 
     @Override
     public void execute(CommandContext context) {
-        if (cmdHelp.requirements.areMet(context, MessageAction.OMIT))
-            cmdHelp.execute(context);
+        // TODO: show plugin information
     }
 
     @Override
