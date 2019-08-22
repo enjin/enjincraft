@@ -2,13 +2,15 @@ package com.enjin.ecmp.spigot.cmd;
 
 import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.enums.CommandProcess;
-import com.enjin.ecmp.spigot.enums.MessageAction;
+import com.enjin.ecmp.spigot.enums.Usage;
 import com.enjin.ecmp.spigot.i18n.Translation;
 import com.enjin.ecmp.spigot.player.UnregisteredPlayerException;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginDescriptionFile;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,14 +18,16 @@ import java.util.List;
 
 public class CmdEnj extends EnjCommand implements CommandExecutor, TabCompleter {
 
+    private CmdHelp cmdHelp;
+
     public CmdEnj(SpigotBootstrap bootstrap) {
         super(bootstrap);
         this.aliases.add("enj");
         this.addSubCommand(new CmdBalance(bootstrap, this));
-        this.addSubCommand(new CmdHelp(bootstrap, this));
+        this.addSubCommand(new CmdConf(bootstrap, this));
+        this.addSubCommand(cmdHelp = new CmdHelp(bootstrap, this));
         this.addSubCommand(new CmdLink(bootstrap, this));
         this.addSubCommand(new CmdSend(bootstrap, this));
-        this.addSubCommand(new CmdConfSet(bootstrap, this));
         this.addSubCommand(new CmdTrade(bootstrap, this));
         this.addSubCommand(new CmdUnlink(bootstrap, this));
         this.addSubCommand(new CmdWallet(bootstrap, this));
@@ -42,7 +46,12 @@ public class CmdEnj extends EnjCommand implements CommandExecutor, TabCompleter 
 
     @Override
     public void execute(CommandContext context) {
-        // TODO: show plugin information
+        Plugin plugin = bootstrap.plugin();
+        PluginDescriptionFile description = plugin.getDescription();
+        Translation.COMMAND_ROOT_DETAILS.send(context.sender,
+                description.getName(),
+                description.getVersion(),
+                cmdHelp.getUsage(context.senderType, Usage.COMMAND_ONLY));
     }
 
     @Override

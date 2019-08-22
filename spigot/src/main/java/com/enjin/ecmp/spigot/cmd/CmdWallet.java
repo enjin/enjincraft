@@ -1,15 +1,10 @@
 package com.enjin.ecmp.spigot.cmd;
 
-import com.enjin.ecmp.spigot.Messages;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.enums.Permission;
 import com.enjin.ecmp.spigot.i18n.Translation;
 import com.enjin.ecmp.spigot.player.EnjPlayer;
-import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.ecmp.spigot.wallet.TokenWalletView;
-import net.kyori.text.TextComponent;
-import net.kyori.text.format.TextColor;
-import org.bukkit.command.CommandSender;
 
 public class CmdWallet extends EnjCommand {
 
@@ -28,7 +23,7 @@ public class CmdWallet extends EnjCommand {
         EnjPlayer enjPlayer = context.enjPlayer;
 
         if (!enjPlayer.isLinked()) {
-            Messages.identityNotLinked(context.sender);
+            Translation.WALLET_NOTLINKED_SELF.send(context.sender);
             return;
         }
 

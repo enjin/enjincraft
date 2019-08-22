@@ -1,7 +1,6 @@
 package com.enjin.ecmp.spigot.cmd;
 
 import com.enjin.ecmp.spigot.GraphQLException;
-import com.enjin.ecmp.spigot.Messages;
 import com.enjin.ecmp.spigot.NetworkException;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.cmd.arg.PlayerArgumentProcessor;
@@ -52,39 +51,39 @@ public class CmdSend extends EnjCommand {
         if (context.args.size() == 0) return;
 
         if (!senderEnjPlayer.isLinked()) {
-            Messages.identityNotLinked(sender);
+            Translation.WALLET_NOTLINKED_SELF.send(sender);
             return;
         }
 
         Player target = Bukkit.getPlayer(context.args.get(0));
-        if (target == null) {
-            MessageUtils.sendString(sender, String.format("&6%s &cis not online.", context.args.get(0)));
+        if (target == null || !target.isOnline()) {
+            Translation.ERRORS_PLAYERNOTONLINE.send(sender, context.args.get(0));
             return;
         }
 
         if (target == sender) {
-            MessageUtils.sendString(sender, "&cYou must specify a player other than yourself.");
+            Translation.ERRORS_CHOOSEOTHERPLAYER.send(sender);
             return;
         }
 
         EnjPlayer targetEnjPlayer = bootstrap.getPlayerManager().getPlayer(target).orElse(null);
 
         if (!targetEnjPlayer.isLinked()) {
-            MessageUtils.sendString(sender, String.format("&6%s &chas not linked a wallet and cannot receive tokens.", target.getName()));
+            Translation.WALLET_NOTLINKED_OTHER.send(sender, target.getName());
             return;
         }
 
         ItemStack is = sender.getInventory().getItemInMainHand();
 
         if (is == null) {
-            MessageUtils.sendString(sender, "&cYou must hold the tokenized item you wish to send.");
+            Translation.COMMAND_SEND_MUSTHOLDITEM.send(sender);
             return;
         }
 
         String tokenId = TokenUtils.getTokenID(is);
 
         if (StringUtils.isEmpty(tokenId)) {
-            MessageUtils.sendString(sender, "&cThe held item is not associated with a token.");
+            Translation.COMMAND_SEND_ITEMNOTTOKEN.send(sender);
             return;
         }
 
@@ -93,7 +92,7 @@ public class CmdSend extends EnjCommand {
         sender.getInventory().clear(sender.getInventory().getHeldItemSlot());
 
         if (BigInteger.ZERO.equals(senderEnjPlayer.getEnjAllowance())) {
-            Messages.allowanceNotSet(sender);
+            Translation.WALLET_ALLOWANCENOTSET.send(sender);
             return;
         }
 
@@ -113,18 +112,18 @@ public class CmdSend extends EnjCommand {
                 networkResponse -> {
                     if (!networkResponse.isSuccess()) {
                         NetworkException exception = new NetworkException(networkResponse.code());
-                        Messages.error(sender, exception);
+                        Translation.ERRORS_EXCEPTION.send(sender, exception.getMessage());
                         throw exception;
                     }
 
                     GraphQLResponse<Transaction> graphQLResponse = networkResponse.body();
                     if (!graphQLResponse.isSuccess()) {
                         GraphQLException exception = new GraphQLException(graphQLResponse.getErrors());
-                        Messages.error(sender, exception);
+                        Translation.ERRORS_EXCEPTION.send(sender, exception.getMessage());
                         throw exception;
                     }
 
-                    MessageUtils.sendString(sender, "&aSend request submitted successfully. Please confirm the request in the Enjin Wallet.");
+                    Translation.COMMAND_SEND_SUBMITTED.send(sender);
                 });
     }
 

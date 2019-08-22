@@ -1,11 +1,9 @@
 package com.enjin.ecmp.spigot.cmd;
 
-import com.enjin.ecmp.spigot.Messages;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.enums.Permission;
 import com.enjin.ecmp.spigot.i18n.Translation;
 import com.enjin.ecmp.spigot.player.EnjPlayer;
-import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.ecmp.spigot.util.TokenUtils;
 import com.enjin.enjincoin.sdk.model.service.identities.DeleteIdentity;
 import com.enjin.java_commons.StringUtils;
@@ -35,30 +33,31 @@ public class CmdUnlink extends EnjCommand {
         EnjPlayer enjPlayer = context.enjPlayer;
 
         if (!enjPlayer.isLoaded()) {
-            Messages.identityNotLoaded(sender);
+            Translation.IDENTITY_NOTLOADED.send(sender);
             return;
         }
 
-        if (enjPlayer.isLinked()) {
-            Bukkit.getScheduler().runTaskAsynchronously(bootstrap.plugin(), () -> {
-                try {
-                    unlink(context.sender, enjPlayer.getIdentityId());
-                    enjPlayer.reloadIdentity();
-                } catch (Exception ex) {
-                    Messages.error(sender, ex);
-                }
-            });
-        } else {
-            Messages.identityNotLinked(sender);
+        if (!enjPlayer.isLinked()) {
+            Translation.WALLET_NOTLINKED_SELF.send(sender);
+            return;
         }
+
+        Bukkit.getScheduler().runTaskAsynchronously(bootstrap.plugin(), () -> {
+            try {
+                unlink(context.sender, enjPlayer.getIdentityId());
+                enjPlayer.reloadIdentity();
+            } catch (Exception ex) {
+                Translation.ERRORS_EXCEPTION.send(sender, ex.getMessage());
+            }
+        });
     }
 
     private void unlink(CommandSender sender, int id) throws IOException {
         bootstrap.getTrustedPlatformClient().getIdentitiesService()
                 .deleteIdentitySync(DeleteIdentity.unlink(id));
 
-        MessageUtils.sendString(sender, "&aThe wallet has been unlinked from your account.");
-        Messages.linkInstructions(sender);
+        Translation.COMMAND_UNLINK_SUCCESS.send(sender);
+        Translation.HINT_LINK.send(sender);
 
         Bukkit.getScheduler().runTask(bootstrap.plugin(), () -> {
             Player player = (Player) sender;

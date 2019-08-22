@@ -2,7 +2,7 @@ package com.enjin.ecmp.spigot.cmd;
 
 import com.enjin.ecmp.spigot.enums.MessageAction;
 import com.enjin.ecmp.spigot.enums.Permission;
-import com.enjin.ecmp.spigot.util.MessageUtils;
+import com.enjin.ecmp.spigot.i18n.Translation;
 import org.bukkit.command.CommandSender;
 
 import java.util.ArrayList;
@@ -56,19 +56,17 @@ public class CommandRequirements {
 
     protected void sendInvalidSenderTypeMessage(CommandSender sender, SenderType senderType) {
         if (senderType == SenderType.PLAYER)
-            MessageUtils.sendString(sender, "&cThis command cannot be used by players.");
+            Translation.COMMAND_API_REQUIREMENTS_INVALIDPLAYER.send(sender);
         else if (senderType == SenderType.CONSOLE)
-            MessageUtils.sendString(sender, "&cThis command cannot be used by the console.");
+            Translation.COMMAND_API_REQUIREMENTS_INVALIDCONSOLE.send(sender);
         else if (senderType == SenderType.REMOTE_CONSOLE)
-            MessageUtils.sendString(sender, "&cThis command cannot be used remotely.");
+            Translation.COMMAND_API_REQUIREMENTS_INVALIDREMOTE.send(sender);
         else if (senderType == SenderType.BLOCK)
-            MessageUtils.sendString(sender, "&cThis command cannot be used by command blocks.");
+            Translation.COMMAND_API_REQUIREMENTS_INVALIDBLOCK.send(sender);
     }
 
     protected void sendNoPermissionMessage(CommandSender sender) {
-        MessageUtils.sendString(sender,
-                String.format("&cYou do not have the permission required for this command: &6%s",
-                        permission.node()));
+        Translation.COMMAND_API_REQUIREMENTS_NOPERMISSION.send(sender, permission.node());
     }
 
     public static class Builder {
