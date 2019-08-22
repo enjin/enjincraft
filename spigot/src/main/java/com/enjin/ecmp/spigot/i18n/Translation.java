@@ -66,7 +66,10 @@ public enum Translation {
     COMMAND_TRADE_ALREADYINVITED("&cYou have already invited &6%s &cto trade."),
     COMMAND_TRADE_WANTSTOTRADE("&6%s &awants to trade with you."),
     COMMAND_TRADE_INVITESENT("&aTrade invite sent to &6%s!"),
-    COMMAND_TRADED_INVITEDTOTRADE("&6%s &7has invited you to trade."),
+    COMMAND_TRADE_INVITEDTOTRADE("&6%s &7has invited you to trade."),
+    COMMAND_TRADE_CONFIRM_ACTION("&6Please confirm the trade in your wallet app."),
+    COMMAND_TRADE_CONFIRM_WAIT("&6Please wait while the other player confirms the trade."),
+    COMMAND_TRADE_COMPLETE("&6Your trade is complete!"),
 
     COMMAND_UNLINK_DESCRIPTION("Removes link between wallet and player account."),
     COMMAND_UNLINK_SUCCESS("&aThe wallet has been unlinked from your account!"),

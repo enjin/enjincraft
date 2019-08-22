@@ -111,7 +111,7 @@ public class CmdTrade extends EnjCommand {
             Translation.COMMAND_TRADE_INVITESENT.send(sender.getBukkitPlayer(), target.getBukkitPlayer().getName());
 
             // TODO: Figure out way to support click events into translations
-            Translation.COMMAND_TRADED_INVITEDTOTRADE.send(target.getBukkitPlayer(), sender.getBukkitPlayer().getName());
+            Translation.COMMAND_TRADE_INVITEDTOTRADE.send(target.getBukkitPlayer(), sender.getBukkitPlayer().getName());
             TextComponent.Builder inviteMessageBuilder = TextComponent.builder("")
                     .append(TextComponent.builder("Accept")
                             .color(TextColor.GREEN)

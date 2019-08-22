@@ -4,6 +4,7 @@ import com.enjin.ecmp.spigot.GraphQLException;
 import com.enjin.ecmp.spigot.NetworkException;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.events.EnjPlayerQuitEvent;
+import com.enjin.ecmp.spigot.i18n.Translation;
 import com.enjin.ecmp.spigot.player.EnjPlayer;
 import com.enjin.ecmp.spigot.player.PlayerManager;
 import com.enjin.ecmp.spigot.util.MessageUtils;
@@ -33,15 +34,6 @@ public class TradeManager implements Listener {
 
     private SpigotBootstrap bootstrap;
     private Map<String, Trade> tradesPendingCompletion = new ConcurrentHashMap<>();
-
-    TextComponent action = TextComponent.builder()
-            .content("Please confirm the trade in your Enjin wallet!")
-            .color(TextColor.GRAY)
-            .build();
-    TextComponent wait = TextComponent.builder()
-            .content("Please wait while the other player confirms the trade.")
-            .color(TextColor.GRAY)
-            .build();
 
     public TradeManager(SpigotBootstrap bootstrap) {
         this.bootstrap = bootstrap;
@@ -100,13 +92,8 @@ public class TradeManager implements Listener {
         bukkitPlayerOne.getInventory().addItem(trade.getPlayerTwoOffer().toArray(new ItemStack[0]));
         bukkitPlayerTwo.getInventory().addItem(trade.getPlayerOneOffer().toArray(new ItemStack[0]));
 
-        TextComponent text = TextComponent.builder()
-                .content("Your trade is complete!")
-                .color(TextColor.GRAY)
-                .build();
-
-        MessageUtils.sendComponent(bukkitPlayerOne, text);
-        MessageUtils.sendComponent(bukkitPlayerTwo, text);
+        Translation.COMMAND_TRADE_COMPLETE.send(bukkitPlayerOne);
+        Translation.COMMAND_TRADE_COMPLETE.send(bukkitPlayerTwo);
     }
 
     public void submitCompleteTrade(String requestId, String tradeId) {
@@ -138,8 +125,8 @@ public class TradeManager implements Listener {
                     if (!graphQLResponse.isSuccess()) throw new GraphQLException(graphQLResponse.getErrors());
 
                     Transaction dataIn = graphQLResponse.getData();
-                    MessageUtils.sendComponent(bukkitPlayerOne, wait);
-                    MessageUtils.sendComponent(bukkitPlayerTwo, action);
+                    Translation.COMMAND_TRADE_CONFIRM_WAIT.send(bukkitPlayerOne);
+                    Translation.COMMAND_TRADE_CONFIRM_ACTION.send(bukkitPlayerTwo);
 
                     String key = dataIn.getId().toString();
                     tradesPendingCompletion.put(key, trade);
@@ -175,8 +162,8 @@ public class TradeManager implements Listener {
                     if (!graphQLResponse.isSuccess()) throw new GraphQLException(graphQLResponse.getErrors());
 
                     Transaction dataIn = graphQLResponse.getData();
-                    MessageUtils.sendComponent(bukkitPlayerOne, action);
-                    MessageUtils.sendComponent(bukkitPlayerTwo, wait);
+                    Translation.COMMAND_TRADE_CONFIRM_WAIT.send(bukkitPlayerTwo);
+                    Translation.COMMAND_TRADE_CONFIRM_ACTION.send(bukkitPlayerOne);
 
                     String key = dataIn.getId().toString();
                     tradesPendingCompletion.put(key, trade);
