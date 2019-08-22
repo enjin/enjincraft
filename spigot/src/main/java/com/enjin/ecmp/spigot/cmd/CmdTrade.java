@@ -1,6 +1,5 @@
 package com.enjin.ecmp.spigot.cmd;
 
-import com.enjin.ecmp.spigot.Messages;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.cmd.arg.PlayerArgumentProcessor;
 import com.enjin.ecmp.spigot.enums.Permission;
@@ -67,7 +66,7 @@ public class CmdTrade extends EnjCommand {
             EnjPlayer senderEnjPlayer = context.enjPlayer;
 
             if (!senderEnjPlayer.isLinked()) {
-                Messages.identityNotLinked(context.sender);
+                Translation.WALLET_NOTLINKED_SELF.send(context.sender);
                 return;
             }
 
@@ -75,26 +74,26 @@ public class CmdTrade extends EnjCommand {
             Optional<Player> target = context.argToPlayer(0);
 
             if (!target.isPresent() || !target.get().isOnline()) {
-                MessageUtils.sendString(sender, String.format("&6%s &cis not online.", context.args.get(0)));
+                Translation.ERRORS_PLAYERNOTONLINE.send(context.sender, context.args.get(0));
                 return;
             }
 
             if (sender == target.get()) {
-                MessageUtils.sendString(sender, "&cYou must specify a player other than yourself.");
+                Translation.ERRORS_CHOOSEOTHERPLAYER.send(sender);
                 return;
             }
 
             EnjPlayer targetEnjPlayer = bootstrap.getPlayerManager().getPlayer(target.get()).orElse(null);
 
             if (!targetEnjPlayer.isLinked()) {
-                MessageUtils.sendString(sender, String.format("&6%s &chas not linked a wallet and cannot trade.", targetEnjPlayer.getBukkitPlayer().getName()));
-                MessageUtils.sendString(targetEnjPlayer.getBukkitPlayer(), String.format("&6%s &awants to trade with you.", sender.getName()));
-                Messages.linkInstructions(targetEnjPlayer.getBukkitPlayer());
+                Translation.WALLET_NOTLINKED_OTHER.send(sender, target.get().getName());
+                Translation.COMMAND_TRADE_WANTSTOTRADE.send(target.get(), sender.getName());
+                Translation.HINT_LINK.send(context.sender);
                 return;
             }
 
             if (BigInteger.ZERO.equals(senderEnjPlayer.getEnjAllowance())) {
-                Messages.allowanceNotSet(sender);
+                Translation.WALLET_ALLOWANCENOTSET.send(context.sender);
                 return;
             }
 
@@ -105,26 +104,21 @@ public class CmdTrade extends EnjCommand {
             boolean result = bootstrap.getTradeManager().addInvite(sender, target);
 
             if (!result) {
-                MessageUtils.sendString(sender.getBukkitPlayer(),
-                        String.format("You have already invited &6%s &cto trade.", target.getBukkitPlayer().getName()));
+                Translation.COMMAND_TRADE_ALREADYINVITED.send(sender.getBukkitPlayer(), target.getBukkitPlayer().getName());
                 return;
             }
 
-            MessageUtils.sendString(sender.getBukkitPlayer(),
-                    String.format("&aTrade invite sent to &6%s!", target.getBukkitPlayer().getName()));
+            Translation.COMMAND_TRADE_INVITESENT.send(sender.getBukkitPlayer(), target.getBukkitPlayer().getName());
 
+            // TODO: Figure out way to support click events into translations
+            Translation.COMMAND_TRADED_INVITEDTOTRADE.send(target.getBukkitPlayer(), sender.getBukkitPlayer().getName());
             TextComponent.Builder inviteMessageBuilder = TextComponent.builder("")
-                    .color(TextColor.GRAY)
-                    .append(TextComponent.builder(sender.getBukkitPlayer().getName())
-                            .color(TextColor.GOLD)
-                            .build())
-                    .append(TextComponent.of(" has invited you to trade. "))
                     .append(TextComponent.builder("Accept")
                             .color(TextColor.GREEN)
                             .clickEvent(ClickEvent.of(ClickEvent.Action.RUN_COMMAND,
                                     String.format("/enj trade accept %s", sender.getBukkitPlayer().getName())))
                             .build())
-                    .append(TextComponent.of(" | "))
+                    .append(TextComponent.of(" | ").color(TextColor.GRAY))
                     .append(TextComponent.builder("Decline")
                             .color(TextColor.RED)
                             .clickEvent(ClickEvent.of(ClickEvent.Action.RUN_COMMAND,
@@ -165,12 +159,12 @@ public class CmdTrade extends EnjCommand {
             Optional<Player> target = context.argToPlayer(0);
 
             if (!target.isPresent() || !target.get().isOnline()) {
-                MessageUtils.sendString(sender, String.format("&6%s &cis not online.", context.args.get(0)));
+                Translation.ERRORS_PLAYERNOTONLINE.send(context.sender, context.args.get(0));
                 return;
             }
 
             if (sender == target.get()) {
-                MessageUtils.sendString(sender, "&cYou must specify a player other than yourself.");
+                Translation.ERRORS_CHOOSEOTHERPLAYER.send(sender);
                 return;
             }
 
@@ -179,7 +173,7 @@ public class CmdTrade extends EnjCommand {
 
             boolean result = bootstrap.getTradeManager().acceptInvite(targetEnjPlayer, senderEnjPlayer);
             if (!result) {
-                MessageUtils.sendString(sender, String.format("&cNo open trade invites from &6%s.", senderEnjPlayer.getBukkitPlayer().getName()));
+                Translation.COMMAND_TRADE_NOOPENINVITE.send(sender, target.get().getName());
             }
         }
 
@@ -217,12 +211,12 @@ public class CmdTrade extends EnjCommand {
             Optional<Player> target = context.argToPlayer(0);
 
             if (!target.isPresent() || !target.get().isOnline()) {
-                MessageUtils.sendString(sender, String.format("&6%s &cis not online.", context.args.get(0)));
+                Translation.ERRORS_PLAYERNOTONLINE.send(sender, context.args.get(0));
                 return;
             }
 
             if (sender == target.get()) {
-                MessageUtils.sendString(sender, "&cYou must specify a player other than yourself.");
+                Translation.ERRORS_CHOOSEOTHERPLAYER.send(sender);
                 return;
             }
 
@@ -231,13 +225,10 @@ public class CmdTrade extends EnjCommand {
 
             boolean result = bootstrap.getTradeManager().declineInvite(targetEnjPlayer, senderEnjPlayer);
             if (result) {
-                MessageUtils.sendString(sender, String.format("&aYou have declined &6%s's &atrade invite.",
-                        senderEnjPlayer.getBukkitPlayer().getName()));
-                MessageUtils.sendString(targetEnjPlayer.getBukkitPlayer(), String.format("&6%s &chas declined your trade invite.",
-                        targetEnjPlayer.getBukkitPlayer().getName()));
+                Translation.COMMAND_TRADE_DECLINED_SENDER.send(sender, target.get().getName());
+                Translation.COMMAND_TRADE_DECLINED_TARGET.send(target.get(), sender.getName());
             } else {
-                MessageUtils.sendString(sender, String.format("&cNo open trade invites from &6%s.",
-                        senderEnjPlayer.getBukkitPlayer().getName()));
+                Translation.COMMAND_TRADE_NOOPENINVITE.send(sender, target.get().getName());
             }
         }
 

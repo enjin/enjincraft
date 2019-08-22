@@ -1,14 +1,10 @@
 package com.enjin.ecmp.spigot.cmd;
 
-import com.enjin.ecmp.spigot.Messages;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.enums.Permission;
 import com.enjin.ecmp.spigot.i18n.Translation;
 import com.enjin.ecmp.spigot.player.EnjPlayer;
-import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.java_commons.StringUtils;
-import net.kyori.text.TextComponent;
-import net.kyori.text.format.TextColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -29,7 +25,7 @@ public class CmdLink extends EnjCommand {
         EnjPlayer enjPlayer = context.enjPlayer;
 
         if (!enjPlayer.isLoaded()) {
-            Messages.identityNotLoaded(sender);
+            Translation.IDENTITY_NOTLOADED.send(sender);
             return;
         }
 
@@ -42,22 +38,22 @@ public class CmdLink extends EnjCommand {
 
     private void existingLink(CommandSender sender, String address) {
         if (StringUtils.isEmpty(address))
-            MessageUtils.sendString(sender, "&cUnable to display your wallet address.");
+            Translation.COMMAND_LINK_NULLWALLET.send(sender);
         else
-            MessageUtils.sendString(sender, String.format("&aYour account is linked to the wallet address: &6%s", address));
+            Translation.COMMAND_LINK_SHOWWALLET.send(sender, address);
     }
 
     private void linkInstructions(CommandSender sender, String code) {
         if (StringUtils.isEmpty(code))
-            MessageUtils.sendString(sender, "&cUnable to display your identity linking code.");
+            Translation.COMMAND_LINK_NULLCODE.send(sender);
         else {
-            MessageUtils.sendString(sender,"&6To link your account follow the steps below:");
-            MessageUtils.sendString(sender, "&7Download the Enjin Wallet for Android or iOS");
-            MessageUtils.sendString(sender, "&7Browse to the Linked Apps section");
-            MessageUtils.sendString(sender, "&7Click the 'LINK APP' button");
-            MessageUtils.sendString(sender, "&7Select the wallet you wish to link");
-            MessageUtils.sendString(sender, "&7Enter the identity linking code shown below");
-            MessageUtils.sendString(sender, String.format("&aIdentity Code: &6%s", code));
+            Translation.COMMAND_LINK_INSTRUCTIONS_1.send(sender);
+            Translation.COMMAND_LINK_INSTRUCTIONS_2.send(sender);
+            Translation.COMMAND_LINK_INSTRUCTIONS_3.send(sender);
+            Translation.COMMAND_LINK_INSTRUCTIONS_4.send(sender);
+            Translation.COMMAND_LINK_INSTRUCTIONS_5.send(sender);
+            Translation.COMMAND_LINK_INSTRUCTIONS_6.send(sender);
+            Translation.COMMAND_LINK_INSTRUCTIONS_7.send(sender, code);
         }
     }
 

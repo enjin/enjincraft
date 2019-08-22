@@ -1,6 +1,5 @@
 package com.enjin.ecmp.spigot.cmd;
 
-import com.enjin.ecmp.spigot.Messages;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.enums.Usage;
 import com.enjin.ecmp.spigot.enums.VeryifyRequirements;
@@ -94,28 +93,31 @@ public abstract class EnjCommand {
         builder.append("&6/");
 
         List<EnjCommand> commandStack = CommandContext.createCommandStackAsList(this);
-        for (EnjCommand command : commandStack) {
-            builder.append(TextUtil.concat(command.aliases, ",")).append(' ');
+        for (int i = 0; i < commandStack.size(); i++) {
+            EnjCommand command = commandStack.get(i);
+            if (i > 0)
+                builder.append(' ');
+            builder.append(TextUtil.concat(command.aliases, ","));
         }
 
         builder.append("&e");
 
         if (!requiredArgs.isEmpty()) {
-            builder.append(TextUtil.concat(requiredArgs.stream()
+            builder.append(' ')
+                    .append(TextUtil.concat(requiredArgs.stream()
                     .map(s -> String.format("<%s>", s))
-                    .collect(Collectors.toList()), " "))
-                    .append(' ');
+                    .collect(Collectors.toList()), " "));
         }
 
         if (!optionalArgs.isEmpty()) {
-            builder.append(TextUtil.concat(optionalArgs.stream()
+            builder.append(' ')
+                    .append(TextUtil.concat(optionalArgs.stream()
                     .map(s -> String.format("[%s]", s))
-                    .collect(Collectors.toList()), " "))
-                    .append(' ');
+                    .collect(Collectors.toList()), " "));
         }
 
         if (usage == Usage.ALL)
-            builder.append("&f").append(getUsageTranslation().toString());
+            builder.append(" &f").append(getUsageTranslation().toString());
 
         return builder.toString();
     }
@@ -143,7 +145,7 @@ public abstract class EnjCommand {
             }
         } catch (Exception ex) {
             ex.printStackTrace();
-            Messages.error(context.sender, ex);
+            Translation.ERRORS_EXCEPTION.send(context.sender, ex.getMessage());
         }
 
     }
@@ -160,9 +162,8 @@ public abstract class EnjCommand {
         boolean result = context.args.size() >= requiredArgs.size();
 
         if (action == MessageAction.SEND && !result) {
-            MessageUtils.sendString(context.sender, "&cIncorrect command usage!");
-            MessageUtils.sendString(context.sender,
-                    String.format("USAGE: %s", getUsage(context.senderType, Usage.COMMAND_ONLY)));
+            Translation.COMMAND_API_BADUSAGE.send(context.sender);
+            Translation.COMMAND_API_USAGE.send(context.sender, getUsage(context.senderType, Usage.COMMAND_ONLY));
         }
 
         return result;

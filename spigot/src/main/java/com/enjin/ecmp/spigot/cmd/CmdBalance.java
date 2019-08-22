@@ -1,6 +1,5 @@
 package com.enjin.ecmp.spigot.cmd;
 
-import com.enjin.ecmp.spigot.Messages;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.configuration.TokenDefinition;
 import com.enjin.ecmp.spigot.enums.Permission;
@@ -32,7 +31,7 @@ public class CmdBalance extends EnjCommand {
         EnjPlayer enjPlayer = context.enjPlayer;
 
         if (!enjPlayer.isLinked()) {
-            Messages.identityNotLinked(sender);
+            Translation.WALLET_NOTLINKED_SELF.send(sender);
             return;
         }
 
@@ -43,13 +42,13 @@ public class CmdBalance extends EnjCommand {
                 ? BigDecimal.ZERO
                 : enjPlayer.getEnjBalance();
 
-        Translation.COMMAND_BALANCE_WALLETADDRESS.sendMessage(sender, enjPlayer.getEthereumAddress());
-        Translation.COMMAND_BALANCE_IDENTITYID.sendMessage(sender, enjPlayer.getIdentityId());
+        Translation.COMMAND_BALANCE_WALLETADDRESS.send(sender, enjPlayer.getEthereumAddress());
+        Translation.COMMAND_BALANCE_IDENTITYID.send(sender, enjPlayer.getIdentityId());
 
         if (enjBalance != null)
-            Translation.COMMAND_BALANCE_ENJBALANCE.sendMessage(sender, enjBalance);
+            Translation.COMMAND_BALANCE_ENJBALANCE.send(sender, enjBalance);
         if (enjBalance != null)
-            Translation.COMMAND_BALANCE_ETHBALANCE.sendMessage(sender, ethBalance);
+            Translation.COMMAND_BALANCE_ETHBALANCE.send(sender, ethBalance);
 
         int itemCount = 0;
         List<String> tokenDisplays = new ArrayList<>();
@@ -58,14 +57,14 @@ public class CmdBalance extends EnjCommand {
             TokenDefinition def = bootstrap.getConfig().getTokens().get(balance.id());
             if (def == null) continue;
             itemCount++;
-            Translation.COMMAND_BALANCE_TOKENDISPLAY.sendMessage(sender, itemCount, def.getDisplayName(), balance.balance());
+            Translation.COMMAND_BALANCE_TOKENDISPLAY.send(sender, itemCount, def.getDisplayName(), balance.balance());
         }
 
-        Messages.newLine(sender);
+        Translation.MISC_NEWLINE.send(sender);
         if (itemCount == 0)
-            Translation.COMMAND_BALANCE_NOTOKENS.sendMessage(sender);
+            Translation.COMMAND_BALANCE_NOTOKENS.send(sender);
         else
-            Translation.COMMAND_BALANCE_TOKENCOUNT.sendMessage(sender, itemCount);
+            Translation.COMMAND_BALANCE_TOKENCOUNT.send(sender, itemCount);
 
         tokenDisplays.forEach(l -> MessageUtils.sendString(sender, l));
     }
