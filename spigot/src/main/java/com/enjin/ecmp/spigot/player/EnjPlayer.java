@@ -4,6 +4,7 @@ import com.enjin.ecmp.spigot.GraphQLException;
 import com.enjin.ecmp.spigot.NetworkException;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.events.IdentityLoadedEvent;
+import com.enjin.ecmp.spigot.i18n.Translation;
 import com.enjin.ecmp.spigot.trade.TradeView;
 import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.ecmp.spigot.util.TokenUtils;
@@ -109,24 +110,18 @@ public class EnjPlayer {
         NotificationsService service = bootstrap.getNotificationsService();
         boolean listening = service.isSubscribedToIdentity(identityId);
 
-        if (linkingCode != null && !listening) {
+        if (linkingCode != null && !listening)
             service.subscribeToIdentity(identityId);
-        } else if (linkingCode == null && listening) {
+        else if (linkingCode == null && listening)
             service.unsubscribeToIdentity(identityId);
-        }
 
         Bukkit.getPluginManager().callEvent(new IdentityLoadedEvent(this));
 
-        if (!isLinked()) return;
+        if (!isLinked())
+            return;
 
-        if (identity.getEnjAllowance() == null || identity.getEnjAllowance().doubleValue() <= 0.0) {
-            TextComponent text = TextComponent.builder()
-                    .content("Before you can send or trade items with other players you must approve the enj " +
-                            "request in your wallet app.")
-                    .color(TextColor.GOLD)
-                    .build();
-            MessageUtils.sendComponent(getBukkitPlayer(), text);
-        }
+        if (identity.getEnjAllowance() == null || identity.getEnjAllowance().doubleValue() <= 0.0)
+            Translation.WALLET_ALLOWANCENOTSET.send(bukkitPlayer);
 
         initWallet();
     }
