@@ -27,7 +27,6 @@ public class EnjConfig {
     private int appId;
     private String appSecret;
     private int devIdentityId;
-    private boolean allowVanillaItemsInTrades;
     private boolean sdkDebugging;
     private boolean pluginDebugging;
     private Map<String, TokenDefinition> tokens;
@@ -88,7 +87,6 @@ public class EnjConfig {
         this.appSecret = null;
         this.devIdentityId = -1;
         this.tokens.clear();
-        this.allowVanillaItemsInTrades = false;
         this.sdkDebugging = false;
         this.pluginDebugging = false;
         this.locale = "en_US";
@@ -103,8 +101,6 @@ public class EnjConfig {
             appSecret = root.get(APP_SECRET).getAsString();
         if (root.has(DEV_IDENT_ID))
             devIdentityId = root.get(DEV_IDENT_ID).getAsInt();
-        if (root.has(VANILLA_ITEMS_TRADING))
-            allowVanillaItemsInTrades = root.get(VANILLA_ITEMS_TRADING).getAsBoolean();
         if (root.has(DEBUGGING)) {
             JsonElement element = root.get(DEBUGGING);
             if (element.isJsonObject()) {
@@ -150,10 +146,6 @@ public class EnjConfig {
 
     public int getDevIdentityId() {
         return devIdentityId;
-    }
-
-    public boolean isAllowVanillaItemsInTrades() {
-        return allowVanillaItemsInTrades;
     }
 
     public boolean isSdkDebugging() {

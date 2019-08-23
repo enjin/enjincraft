@@ -284,10 +284,6 @@ public class TradeView extends ChestMenu {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         if (event.getClickedInventory() instanceof PlayerInventory) {
-            if (bootstrap.getConfig().isAllowVanillaItemsInTrades()) {
-                return;
-            }
-
             ItemStack is = event.getCurrentItem();
             String id = TokenUtils.getTokenID(is);
             if (id == null) {
