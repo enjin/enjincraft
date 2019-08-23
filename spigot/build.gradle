@@ -8,6 +8,7 @@ repositories {
 dependencies {
     shadow deps.spigot
     shadow deps.placeholderApi
+    shadow deps.sqlite
 
     implementation deps.javaCommons
     implementation deps.minecraftCommons

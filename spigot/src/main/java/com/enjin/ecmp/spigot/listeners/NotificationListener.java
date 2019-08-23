@@ -23,6 +23,7 @@ public class NotificationListener implements com.enjin.enjincoin.sdk.service.not
     @Override
     public void notificationReceived(NotificationEvent event) {
         try {
+            bootstrap.debug(event.toString());
             NotificationType eventType = event.getType();
 
             if (eventType == null) return;
