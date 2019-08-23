@@ -8,6 +8,7 @@ import com.enjin.ecmp.spigot.i18n.Translation;
 import com.enjin.ecmp.spigot.listeners.NotificationListener;
 import com.enjin.ecmp.spigot.listeners.TokenItemListener;
 import com.enjin.ecmp.spigot.player.PlayerManager;
+import com.enjin.ecmp.spigot.storage.Database;
 import com.enjin.ecmp.spigot.trade.TradeManager;
 import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.enjincoin.sdk.TrustedPlatformClient;
@@ -55,6 +56,8 @@ public class SpigotBootstrap implements Bootstrap, Module {
             if (!initConfig()) return;
 
             loadLocale();
+
+            new Database(plugin);
 
             // Create the trusted platform client
             trustedPlatformClient = new TrustedPlatformClient.Builder()

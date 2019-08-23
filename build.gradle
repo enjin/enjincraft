@@ -7,7 +7,8 @@ buildscript {
             'kyoriTextAdapter': '3.0.3',
             'gson': '2.8.2',
             'spigot': '1.13.2-R0.1-SNAPSHOT',
-            'placeholderApi': '2.10.3'
+            'placeholderApi': '2.10.3',
+            'sqlite': '3.28.0'
     ]
 
     ext.deps = [
@@ -19,7 +20,8 @@ buildscript {
             'kyoriTextAdapterBukkit': "net.kyori:text-adapter-bukkit:${versions.kyoriTextAdapter}",
             'gson': "com.google.code.gson:gson:${versions.gson}",
             'spigot': "org.spigotmc:spigot-api:${versions.spigot}",
-            'placeholderApi': "me.clip:placeholderapi:${versions.placeholderApi}"
+            'placeholderApi': "me.clip:placeholderapi:${versions.placeholderApi}",
+            'sqlite': "org.xerial:sqlite-jdbc:${versions.sqlite}"
     ]
 
     ext.local = new Properties()
