@@ -95,18 +95,16 @@ public class NotificationListener implements com.enjin.enjincoin.sdk.service.not
     }
 
     private void onCreateTrade(EventData data) {
-        String requestId = data.getId().toString();
         String tradeId = data.getParam1();
-        if (StringUtils.isEmpty(requestId) || StringUtils.isEmpty(tradeId)) return;
+        if (data.getId() == null) return;
         TradeManager manager = bootstrap.getTradeManager();
-        manager.submitCompleteTrade(requestId, tradeId);
+        manager.submitCompleteTrade(data.getId(), tradeId);
     }
 
     private void onCompleteTrade(EventData data) {
-        String requestId = data.getId().toString();
-        if (StringUtils.isEmpty(requestId)) return;
+        if (data.getId() == null) return;
         TradeManager manager = bootstrap.getTradeManager();
-        manager.completeTrade(requestId);
+        manager.completeTrade(data.getId());
     }
 
 }
