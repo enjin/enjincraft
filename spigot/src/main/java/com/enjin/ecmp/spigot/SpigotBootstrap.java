@@ -39,6 +39,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
 
     private final EnjPlugin plugin;
     private EnjConfig config;
+    private Database database;
 
     private TrustedPlatformClient trustedPlatformClient;
     private PlatformDetails platformDetails;
@@ -57,7 +58,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
 
             loadLocale();
 
-            new Database(plugin);
+            this.database = new Database(this);
 
             // Create the trusted platform client
             trustedPlatformClient = new TrustedPlatformClient.Builder()
@@ -249,5 +250,9 @@ public class SpigotBootstrap implements Bootstrap, Module {
 
     public Logger getLogger() {
         return plugin.getLogger();
+    }
+
+    public Database db() {
+        return database;
     }
 }

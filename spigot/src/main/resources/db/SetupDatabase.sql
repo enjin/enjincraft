@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS "TradeSessions" (
+CREATE TABLE IF NOT EXISTS TradeSessions (
 	"id"	INTEGER PRIMARY KEY AUTOINCREMENT,
 	"createRequestId"	INTEGER,
 	"completeRequestId"	INTEGER,
