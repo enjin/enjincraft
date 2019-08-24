@@ -45,8 +45,6 @@ public class Database {
                            UUID invitedUuid,
                            String invitedEthAddr,
                            int createRequestId) throws SQLException {
-        int result = -1;
-
         synchronized (conn) {
             createTrade.clearParameters();
             createTrade.setString(1, inviterUuid.toString());
@@ -59,15 +57,15 @@ public class Database {
 
             if (count > 0) {
                 try (ResultSet rs = createTrade.getGeneratedKeys()) {
-                    result = rs.getInt(1);
+                    return rs.getInt(1);
                 }
             }
-        }
 
-        return result;
+            return -1;
+        }
     }
 
-    public void completeTrade(int createRequestId,
+    public int completeTrade(int createRequestId,
                               int completeRequestId,
                               String tradeId) throws SQLException {
         synchronized (conn) {
@@ -76,16 +74,16 @@ public class Database {
             completeTrade.setString(2, tradeId);
             completeTrade.setString(3, TradeStatus.PENDING_COMPLETE.name());
             completeTrade.setInt(4, createRequestId);
-            completeTrade.executeUpdate();
+            return completeTrade.executeUpdate();
         }
     }
 
-    public void tradeExecuted(int completeRequestId) throws SQLException {
+    public int tradeExecuted(int completeRequestId) throws SQLException {
         synchronized (conn) {
             tradeExecuted.clearParameters();
             tradeExecuted.setString(1, TradeStatus.EXECUTED.name());
             tradeExecuted.setInt(2, completeRequestId);
-            tradeExecuted.executeUpdate();
+            return tradeExecuted.executeUpdate();
         }
     }
 
