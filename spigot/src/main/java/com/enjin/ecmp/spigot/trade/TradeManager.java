@@ -25,6 +25,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -76,8 +77,8 @@ public class TradeManager implements Listener {
         return target.getReceivedTradeInvites().remove(sender);
     }
 
-    public void completeTrade(String requestId) {
-        Trade trade = tradesPendingCompletion.remove(requestId);
+    public void completeTrade(Integer requestId) {
+        Trade trade = tradesPendingCompletion.remove(requestId.toString());
 
         if (trade == null) return;
 
@@ -94,10 +95,16 @@ public class TradeManager implements Listener {
 
         Translation.COMMAND_TRADE_COMPLETE.send(bukkitPlayerOne);
         Translation.COMMAND_TRADE_COMPLETE.send(bukkitPlayerTwo);
+
+        try {
+            bootstrap.db().tradeExecuted(requestId);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
     }
 
-    public void submitCompleteTrade(String requestId, String tradeId) {
-        Trade trade = tradesPendingCompletion.remove(requestId);
+    public void submitCompleteTrade(Integer requestId, String tradeId) {
+        Trade trade = tradesPendingCompletion.remove(requestId.toString());
 
         if (trade == null) return;
 
@@ -130,6 +137,14 @@ public class TradeManager implements Listener {
 
                     String key = dataIn.getId().toString();
                     tradesPendingCompletion.put(key, trade);
+
+                    try {
+                        bootstrap.db().completeTrade(requestId,
+                                dataIn.getId(),
+                                tradeId);
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                    }
                 }
         );
     }
@@ -167,6 +182,16 @@ public class TradeManager implements Listener {
 
                     String key = dataIn.getId().toString();
                     tradesPendingCompletion.put(key, trade);
+
+                    try {
+                        bootstrap.db().createTrade(bukkitPlayerOne.getUniqueId(),
+                                playerOne.getEthereumAddress(),
+                                bukkitPlayerTwo.getUniqueId(),
+                                playerTwo.getEthereumAddress(),
+                                dataIn.getId());
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                    }
                 }
         );
     }
