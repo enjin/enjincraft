@@ -47,6 +47,7 @@ public class CmdUnlink extends EnjCommand {
                 unlink(context.sender, enjPlayer.getIdentityId());
                 enjPlayer.reloadIdentity();
             } catch (Exception ex) {
+                bootstrap.log(ex);
                 Translation.ERRORS_EXCEPTION.send(sender, ex.getMessage());
             }
         });

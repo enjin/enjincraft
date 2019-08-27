@@ -144,7 +144,7 @@ public abstract class EnjCommand {
                 context.tabCompletionResult = tab0(context);
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            bootstrap.log(ex);
             Translation.ERRORS_EXCEPTION.send(context.sender, ex.getMessage());
         }
 

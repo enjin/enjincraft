@@ -99,7 +99,7 @@ public class TradeManager implements Listener {
         try {
             bootstrap.db().tradeExecuted(requestId);
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            bootstrap.log(ex);
         }
     }
 
@@ -143,7 +143,7 @@ public class TradeManager implements Listener {
                                 dataIn.getId(),
                                 tradeId);
                     } catch (SQLException ex) {
-                        ex.printStackTrace();
+                        bootstrap.log(ex);
                     }
                 }
         );
@@ -190,7 +190,7 @@ public class TradeManager implements Listener {
                                 playerTwo.getEthereumAddress(),
                                 dataIn.getId());
                     } catch (SQLException ex) {
-                        ex.printStackTrace();
+                        bootstrap.log(ex);
                     }
                 }
         );

@@ -1,9 +1,7 @@
 package com.enjin.ecmp.spigot.configuration;
 
 import com.enjin.ecmp.spigot.i18n.Translation;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;
@@ -18,6 +16,9 @@ import static com.enjin.ecmp.spigot.configuration.ConfigKeys.*;
 public class EnjConfig {
 
     public static final String FILE_NAME = "config.json";
+    public static final Gson PRETTY_PRINT = new GsonBuilder()
+            .setPrettyPrinting()
+            .create();
 
     private Plugin plugin;
     private File file;
@@ -31,6 +32,7 @@ public class EnjConfig {
     private boolean pluginDebugging;
     private Map<String, TokenDefinition> tokens;
     private String locale;
+    private String sentry;
 
     public EnjConfig(Plugin plugin) {
         this.plugin = plugin;
@@ -74,7 +76,7 @@ public class EnjConfig {
             }
 
             FileWriter fw = new FileWriter(file);
-            fw.write(root.toString());
+            fw.write(PRETTY_PRINT.toJson(root));
             fw.close();
         } catch (IOException ex) {
             throw new ConfigurationException("Unable to save config.", ex);
@@ -130,6 +132,8 @@ public class EnjConfig {
         }
         if (root.has(LOCALE))
             this.locale = root.get(LOCALE).getAsString();
+        if (root.has(SENTRY))
+            this.sentry = root.get(SENTRY).getAsString();
     }
 
     public String getPlatformBaseUrl() {
@@ -162,6 +166,10 @@ public class EnjConfig {
 
     public String getLocale() {
         return locale;
+    }
+
+    public String getSentry() {
+        return sentry;
     }
 
     public void setLocale(String locale) {

@@ -14,5 +14,6 @@ public final class ConfigKeys {
     public static final String ITEM_MATERIAL = "material";
     public static final String ITEM_LORE = "lore";
     public static final String LOCALE = "locale";
+    public static final String SENTRY = "sentry";
 
 }
