@@ -42,7 +42,7 @@ public class NotificationListener implements com.enjin.enjincoin.sdk.service.not
                     break;
             }
         } catch (Exception ex) {
-            throw new NotificationServiceException(ex);
+            bootstrap.log(ex);
         }
     }
 

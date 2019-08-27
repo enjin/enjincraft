@@ -66,7 +66,7 @@ public class PlayerInitializationTask extends BukkitRunnable {
                     cancel();
                 }
             } catch (IOException ex) {
-                ex.printStackTrace();
+                bootstrap.log(ex);
             }
         }
 

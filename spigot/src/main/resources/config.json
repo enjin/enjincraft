@@ -18,5 +18,6 @@
     "sdk": false,
     "plugin": false
   },
-  "language": "en_US"
+  "locale": "en_US",
+  "sentry": ""
 }

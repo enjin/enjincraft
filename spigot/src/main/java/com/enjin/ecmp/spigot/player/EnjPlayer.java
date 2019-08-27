@@ -143,7 +143,7 @@ public class EnjPlayer {
             tokenWallet = new TokenWallet(bootstrap, graphQLResponse.getData());
             validateInventory();
         } catch (IOException ex) {
-            ex.printStackTrace();
+            bootstrap.log(ex);
         }
     }
 
@@ -187,7 +187,7 @@ public class EnjPlayer {
 
             loadUser(user);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            bootstrap.log(ex);
         }
     }
 
@@ -209,7 +209,7 @@ public class EnjPlayer {
 
             loadIdentity(identity);
         } catch (IOException ex) {
-            ex.printStackTrace();
+            bootstrap.log(ex);
         }
     }
 

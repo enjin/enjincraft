@@ -8,7 +8,8 @@ buildscript {
             'gson': '2.8.2',
             'spigot': '1.13.2-R0.1-SNAPSHOT',
             'placeholderApi': '2.10.3',
-            'sqlite': '3.28.0'
+            'sqlite': '3.28.0',
+            'sentry': '1.7.27'
     ]
 
     ext.deps = [
@@ -21,7 +22,8 @@ buildscript {
             'gson': "com.google.code.gson:gson:${versions.gson}",
             'spigot': "org.spigotmc:spigot-api:${versions.spigot}",
             'placeholderApi': "me.clip:placeholderapi:${versions.placeholderApi}",
-            'sqlite': "org.xerial:sqlite-jdbc:${versions.sqlite}"
+            'sqlite': "org.xerial:sqlite-jdbc:${versions.sqlite}",
+            'sentry': "io.sentry:sentry:${versions.sentry}"
     ]
 
     ext.local = new Properties()
@@ -65,6 +67,10 @@ subprojects {
 
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
+
+    dependencies {
+        implementation deps.sentry;
+    }
 
     javadoc {
         dependsOn delombok

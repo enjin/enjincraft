@@ -38,7 +38,7 @@ public class CmdEnj extends EnjCommand implements CommandExecutor, TabCompleter 
         try {
             process(new CommandContext(sender, new ArrayList<>(Arrays.asList(args)), label), CommandProcess.EXECUTE);
         } catch (UnregisteredPlayerException ex) {
-            ex.printStackTrace();
+            bootstrap.log(ex);
         }
 
         return true;

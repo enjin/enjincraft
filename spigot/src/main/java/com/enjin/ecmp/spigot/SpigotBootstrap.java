@@ -19,6 +19,9 @@ import com.enjin.enjincoin.sdk.model.service.platform.PlatformDetails;
 import com.enjin.enjincoin.sdk.service.notifications.NotificationsService;
 import com.enjin.enjincoin.sdk.service.notifications.PusherNotificationService;
 import com.enjin.java_commons.StringUtils;
+import io.sentry.Sentry;
+import io.sentry.SentryClient;
+import io.sentry.jul.SentryHandler;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
@@ -30,6 +33,8 @@ import org.bukkit.plugin.Plugin;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Handler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static okhttp3.logging.HttpLoggingInterceptor.Level.BODY;
@@ -40,6 +45,8 @@ public class SpigotBootstrap implements Bootstrap, Module {
     private final EnjPlugin plugin;
     private EnjConfig config;
     private Database database;
+    private Handler sentryHandler;
+    private SentryClient sentry;
 
     private TrustedPlatformClient trustedPlatformClient;
     private PlatformDetails platformDetails;
@@ -55,6 +62,14 @@ public class SpigotBootstrap implements Bootstrap, Module {
     public void setUp() {
         try {
             if (!initConfig()) return;
+
+            if (!StringUtils.isEmpty(config.getSentry())) {
+                sentryHandler = new SentryHandler();
+                sentry = Sentry.init(String.format("%s?release=%s",
+                        config.getSentry(),
+                        plugin.getDescription().getVersion()));
+                getLogger().addHandler(sentryHandler);
+            }
 
             loadLocale();
 
@@ -99,7 +114,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
                 }
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            log(ex);
             Bukkit.getPluginManager().disablePlugin(plugin);
         }
     }
@@ -175,8 +190,11 @@ public class SpigotBootstrap implements Bootstrap, Module {
             if (trustedPlatformClient != null) trustedPlatformClient.close();
             if (notificationsService != null) notificationsService.shutdown();
         } catch (Exception ex) {
-            ex.printStackTrace();
+            log(ex);
         }
+
+        if (sentryHandler != null)
+            getLogger().removeHandler(sentryHandler);
     }
 
     @Override
@@ -250,6 +268,10 @@ public class SpigotBootstrap implements Bootstrap, Module {
 
     public Logger getLogger() {
         return plugin.getLogger();
+    }
+
+    public void log(Throwable throwable) {
+        getLogger().log(Level.WARNING, "Exception Caught", throwable);
     }
 
     public Database db() {
