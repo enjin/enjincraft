@@ -2,7 +2,7 @@ package com.enjin.ecmp.spigot.cmd;
 
 import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.cmd.arg.LocaleArgumentProcessor;
-import com.enjin.ecmp.spigot.configuration.EnjConfig;
+import com.enjin.ecmp.spigot.configuration.Conf;
 import com.enjin.ecmp.spigot.enums.Permission;
 import com.enjin.ecmp.spigot.i18n.Locale;
 import com.enjin.ecmp.spigot.i18n.Translation;
@@ -81,9 +81,9 @@ public class CmdConf extends EnjCommand {
                     return;
                 }
 
-                EnjConfig config = bootstrap.getConfig();
-                config.setLocale(locale.get().locale());
-                config.save();
+                Conf config = bootstrap.getConfig();
+                config.setLocale(locale.get());
+                bootstrap.plugin().saveConfig();
                 bootstrap.loadLocale();
                 // TODO: success message
             }

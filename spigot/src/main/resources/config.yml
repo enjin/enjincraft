@@ -1,0 +1,11 @@
+platform:
+  base-url: "https://kovan.cloud.enjin.io/"
+  app:
+    id: -1
+    secret: ""
+    dev-identity-id: -1
+locale: "en_US"
+debug:
+  sdk: false
+  plugin: false
+  sentry: ""

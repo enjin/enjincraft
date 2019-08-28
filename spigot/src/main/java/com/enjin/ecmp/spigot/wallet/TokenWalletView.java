@@ -53,7 +53,7 @@ public class TokenWalletView extends ChestMenu {
             if (index == component.size()) break;
             if (balance.amountAvailableForWithdrawal() == 0) continue;
 
-            TokenDefinition def = bootstrap.getConfig().getTokens().get(balance.id());
+            TokenDefinition def = bootstrap.getTokenConf().getTokens().get(balance.id());
             if (def == null) continue;
             ItemStack is = def.getItemStackInstance();
             is.setAmount(balance.amountAvailableForWithdrawal());
