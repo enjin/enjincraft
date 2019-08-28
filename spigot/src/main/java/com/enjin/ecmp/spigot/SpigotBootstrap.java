@@ -1,8 +1,9 @@
 package com.enjin.ecmp.spigot;
 
 import com.enjin.ecmp.spigot.cmd.CmdEnj;
+import com.enjin.ecmp.spigot.configuration.Conf;
 import com.enjin.ecmp.spigot.configuration.ConfigurationException;
-import com.enjin.ecmp.spigot.configuration.EnjConfig;
+import com.enjin.ecmp.spigot.configuration.TokenConf;
 import com.enjin.ecmp.spigot.hooks.PlaceholderApiExpansion;
 import com.enjin.ecmp.spigot.i18n.Translation;
 import com.enjin.ecmp.spigot.listeners.NotificationListener;
@@ -43,7 +44,8 @@ import static okhttp3.logging.HttpLoggingInterceptor.Level.NONE;
 public class SpigotBootstrap implements Bootstrap, Module {
 
     private final EnjPlugin plugin;
-    private EnjConfig config;
+    private Conf conf;
+    private TokenConf tokenConf;
     private Database database;
     private Handler sentryHandler;
     private SentryClient sentry;
@@ -63,22 +65,25 @@ public class SpigotBootstrap implements Bootstrap, Module {
         try {
             if (!initConfig()) return;
 
+            tokenConf = new TokenConf(plugin);
+            tokenConf.load();
+
             if (!StringUtils.isEmpty(config.getSentry())) {
                 sentryHandler = new SentryHandler();
                 sentry = Sentry.init(String.format("%s?release=%s",
-                        config.getSentry(),
+                        conf.getSentry(),
                         plugin.getDescription().getVersion()));
                 getLogger().addHandler(sentryHandler);
             }
 
             loadLocale();
 
-            this.database = new Database(this);
+            database = new Database(this);
 
             // Create the trusted platform client
             trustedPlatformClient = new TrustedPlatformClient.Builder()
-                    .httpLogLevel(config.isSdkDebugging() ? BODY : NONE)
-                    .baseUrl(config.getPlatformBaseUrl())
+                    .httpLogLevel(conf.isSdkDebugEnabled() ? BODY : NONE)
+                    .baseUrl(conf.getBaseUrl())
                     .readTimeout(1, TimeUnit.MINUTES)
                     .build();
 
@@ -120,9 +125,9 @@ public class SpigotBootstrap implements Bootstrap, Module {
     }
 
     private boolean initConfig() {
-        // Init and load configuration file
-        config = new EnjConfig(plugin);
-        config.load();
+        plugin.saveDefaultConfig();
+
+        conf = new Conf(plugin.getConfig());
 
         // Validate that the required config values are valid
         if (!validateConfig()) {
@@ -137,8 +142,8 @@ public class SpigotBootstrap implements Bootstrap, Module {
         try {
             // Attempt to authenticate the client using an app secret
             HttpResponse<AuthResult> networkResponse = trustedPlatformClient.authAppSync(
-                    config.getAppId(),
-                    config.getAppSecret()
+                    conf.getAppId(),
+                    conf.getAppSecret()
             );
 
             // Could not authenticate the client
@@ -178,7 +183,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
             notificationsService = new PusherNotificationService(platformDetails);
             notificationsService.start();
             notificationsService.registerListener(new NotificationListener(this));
-            notificationsService.subscribeToApp(config.getAppId());
+            notificationsService.subscribeToApp(conf.getAppId());
         } catch (Exception ex) {
             throw new NotificationServiceException(ex);
         }
@@ -217,8 +222,13 @@ public class SpigotBootstrap implements Bootstrap, Module {
     }
 
     @Override
-    public EnjConfig getConfig() {
-        return config;
+    public Conf getConfig() {
+        return conf;
+    }
+
+    @Override
+    public TokenConf getTokenConf() {
+        return tokenConf;
     }
 
     public Plugin plugin() {
@@ -226,10 +236,10 @@ public class SpigotBootstrap implements Bootstrap, Module {
     }
 
     private boolean validateConfig() {
-        boolean validUrl = !StringUtils.isEmpty(config.getPlatformBaseUrl());
-        boolean validAppId = config.getAppId() >= 0;
-        boolean validSecret = !StringUtils.isEmpty(config.getAppSecret());
-        boolean validIdentityId = config.getDevIdentityId() >= 0;
+        boolean validUrl = !StringUtils.isEmpty(conf.getBaseUrl());
+        boolean validAppId = conf.getAppId() >= 0;
+        boolean validSecret = !StringUtils.isEmpty(conf.getAppSecret());
+        boolean validIdentityId = conf.getDevIdentityId() >= 0;
 
         if (!validUrl) plugin.getLogger().warning("Invalid platform url specified in config.");
         if (!validAppId) plugin.getLogger().warning("Invalid app id specified in config.");
@@ -240,7 +250,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
     }
 
     public void loadLocale() throws ConfigurationException {
-        YamlConfiguration lang = loadLocaleResource(config.getLocale());
+        YamlConfiguration lang = loadLocaleResource(conf.getLocale());
 
         if (lang == null)
             lang = loadLocaleResource(Translation.DEFAULT_LOCALE);
@@ -261,7 +271,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
     }
 
     public void debug(String log) {
-        if (config.isPluginDebugging()) {
+        if (conf.isPluginDebugEnabled()) {
             getLogger().info(log);
         }
     }
