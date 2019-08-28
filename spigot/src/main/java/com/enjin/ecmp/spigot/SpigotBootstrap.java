@@ -68,10 +68,10 @@ public class SpigotBootstrap implements Bootstrap, Module {
             tokenConf = new TokenConf(plugin);
             tokenConf.load();
 
-            if (!StringUtils.isEmpty(config.getSentry())) {
+            if (!StringUtils.isEmpty(conf.getSentryUrl())) {
                 sentryHandler = new SentryHandler();
                 sentry = Sentry.init(String.format("%s?release=%s",
-                        conf.getSentry(),
+                        conf.getSentryUrl(),
                         plugin.getDescription().getVersion()));
                 getLogger().addHandler(sentryHandler);
             }
