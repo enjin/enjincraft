@@ -1,12 +1,15 @@
 package com.enjin.ecmp.spigot.storage;
 
 import com.enjin.ecmp.spigot.SpigotBootstrap;
-import com.enjin.ecmp.spigot.enums.TradeStatus;
+import com.enjin.ecmp.spigot.enums.TradeState;
+import com.enjin.ecmp.spigot.trade.TradeSession;
 
 import java.io.*;
 import java.nio.charset.Charset;
 import java.sql.*;
-import java.util.UUID;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Database {
@@ -19,6 +22,7 @@ public class Database {
     public static final String TEMPLATE_COMPLETE_TRADE = "trade/CompleteTrade";
     public static final String TEMPLATE_TRADE_EXECUTED = "trade/TradeExecuted";
     public static final String TEMPLATE_CANCEL_TRADE = "trade/CancelTrade";
+    public static final String TEMPLATE_GET_PENDING_TRADES = "trade/GetPending";
 
     private SpigotBootstrap bootstrap;
     private File database;
@@ -29,6 +33,7 @@ public class Database {
     private PreparedStatement completeTrade;
     private PreparedStatement tradeExecuted;
     private PreparedStatement cancelTrade;
+    private PreparedStatement getPendingTrades;
 
     public Database(SpigotBootstrap bootstrap) throws SQLException, IOException {
         this.bootstrap = bootstrap;
@@ -42,20 +47,26 @@ public class Database {
         this.completeTrade = createPreparedStatement(TEMPLATE_COMPLETE_TRADE);
         this.tradeExecuted = createPreparedStatement(TEMPLATE_TRADE_EXECUTED);
         this.cancelTrade = createPreparedStatement(TEMPLATE_CANCEL_TRADE);
+        this.getPendingTrades = createPreparedStatement(TEMPLATE_GET_PENDING_TRADES);
     }
 
     public int createTrade(UUID inviterUuid,
+                           int inviterIdentityId,
                            String inviterEthAddr,
                            UUID invitedUuid,
+                           int invitedIdentityId,
                            String invitedEthAddr,
                            int createRequestId) throws SQLException {
         createTrade.clearParameters();
         createTrade.setString(1, inviterUuid.toString());
-        createTrade.setString(2, inviterEthAddr);
-        createTrade.setString(3, invitedUuid.toString());
-        createTrade.setString(4, invitedEthAddr);
-        createTrade.setInt(5, createRequestId);
-        createTrade.setString(6, TradeStatus.PENDING_CREATE.name());
+        createTrade.setInt(2, inviterIdentityId);
+        createTrade.setString(3, inviterEthAddr);
+        createTrade.setString(4, invitedUuid.toString());
+        createTrade.setInt(5, invitedIdentityId);
+        createTrade.setString(6, invitedEthAddr);
+        createTrade.setInt(7, createRequestId);
+        createTrade.setString(8, TradeState.PENDING_CREATE.name());
+        createTrade.setLong(9, OffsetDateTime.now(ZoneOffset.UTC).toEpochSecond());
         int count = createTrade.executeUpdate();
 
         if (count > 0) {
@@ -73,24 +84,36 @@ public class Database {
         completeTrade.clearParameters();
         completeTrade.setInt(1, completeRequestId);
         completeTrade.setString(2, tradeId);
-        completeTrade.setString(3, TradeStatus.PENDING_COMPLETE.name());
+        completeTrade.setString(3, TradeState.PENDING_COMPLETE.name());
         completeTrade.setInt(4, createRequestId);
         return completeTrade.executeUpdate();
     }
 
     public int tradeExecuted(int completeRequestId) throws SQLException {
         tradeExecuted.clearParameters();
-        tradeExecuted.setString(1, TradeStatus.EXECUTED.name());
+        tradeExecuted.setString(1, TradeState.EXECUTED.name());
         tradeExecuted.setInt(2, completeRequestId);
         return tradeExecuted.executeUpdate();
     }
 
     public int cancelTrade(int requestId) throws SQLException {
         cancelTrade.clearParameters();
-        cancelTrade.setString(1, TradeStatus.CANCELED.name());
+        cancelTrade.setString(1, TradeState.CANCELED.name());
         cancelTrade.setInt(2, requestId);
         cancelTrade.setInt(3, requestId);
         return cancelTrade.executeUpdate();
+    }
+
+    public List<TradeSession> getPendingTrades() throws SQLException {
+        List<TradeSession> sessions = new ArrayList<>();
+
+        try (ResultSet rs = getPendingTrades.executeQuery()) {
+            while (rs.next()) {
+                sessions.add(new TradeSession(rs));
+            }
+        }
+
+        return sessions;
     }
 
     private String loadSqlFile(String template) throws IOException {

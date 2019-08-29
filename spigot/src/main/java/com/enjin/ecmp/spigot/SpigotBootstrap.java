@@ -11,6 +11,7 @@ import com.enjin.ecmp.spigot.listeners.TokenItemListener;
 import com.enjin.ecmp.spigot.player.PlayerManager;
 import com.enjin.ecmp.spigot.storage.Database;
 import com.enjin.ecmp.spigot.trade.TradeManager;
+import com.enjin.ecmp.spigot.trade.TradeUpdateTask;
 import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.enjincoin.sdk.TrustedPlatformClient;
 import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
@@ -118,6 +119,8 @@ public class SpigotBootstrap implements Bootstrap, Module {
                             .color(TextColor.RED));
                 }
             }
+
+            new TradeUpdateTask(this).runTaskTimerAsynchronously(plugin,20, 20);
         } catch (Exception ex) {
             log(ex);
             Bukkit.getPluginManager().disablePlugin(plugin);

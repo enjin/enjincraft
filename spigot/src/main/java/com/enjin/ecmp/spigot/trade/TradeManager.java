@@ -196,8 +196,10 @@ public class TradeManager implements Listener {
 
                     try {
                         bootstrap.db().createTrade(bukkitPlayerOne.getUniqueId(),
+                                playerOne.getIdentityId(),
                                 playerOne.getEthereumAddress(),
                                 bukkitPlayerTwo.getUniqueId(),
+                                playerTwo.getIdentityId(),
                                 playerTwo.getEthereumAddress(),
                                 dataIn.getId());
                     } catch (SQLException ex) {

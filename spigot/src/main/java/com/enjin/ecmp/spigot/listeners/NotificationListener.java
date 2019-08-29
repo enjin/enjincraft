@@ -6,6 +6,7 @@ import com.enjin.ecmp.spigot.player.EnjPlayer;
 import com.enjin.ecmp.spigot.trade.TradeManager;
 import com.enjin.ecmp.spigot.wallet.MutableBalance;
 import com.enjin.enjincoin.sdk.model.service.notifications.*;
+import com.enjin.enjincoin.sdk.model.service.requests.TransactionType;
 import com.enjin.java_commons.StringUtils;
 import org.bukkit.Bukkit;
 import org.omg.CORBA.UNKNOWN;
@@ -50,7 +51,7 @@ public class NotificationListener implements com.enjin.enjincoin.sdk.service.not
 
     private void onTxExecuted(Event event) {
         EventData data = event.getData();
-        RequestType type = data.getRequestType();
+        TransactionType type = data.getRequestType();
 
         switch (type) {
             case CREATE_TRADE:
@@ -66,7 +67,7 @@ public class NotificationListener implements com.enjin.enjincoin.sdk.service.not
 
     private void onTxrCancelled(Event event) {
         EventData data = event.getData();
-        RequestType type = data.getRequestType();
+        TransactionType type = data.getRequestType();
 
         switch (type) {
             case CREATE_TRADE:
