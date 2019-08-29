@@ -18,6 +18,7 @@ public class Database {
     public static final String TEMPLATE_CREATE_TRADE = "trade/CreateTrade";
     public static final String TEMPLATE_COMPLETE_TRADE = "trade/CompleteTrade";
     public static final String TEMPLATE_TRADE_EXECUTED = "trade/TradeExecuted";
+    public static final String TEMPLATE_CANCEL_TRADE = "trade/CancelTrade";
 
     private SpigotBootstrap bootstrap;
     private File database;
@@ -27,6 +28,7 @@ public class Database {
     private PreparedStatement createTrade;
     private PreparedStatement completeTrade;
     private PreparedStatement tradeExecuted;
+    private PreparedStatement cancelTrade;
 
     public Database(SpigotBootstrap bootstrap) throws SQLException, IOException {
         this.bootstrap = bootstrap;
@@ -39,6 +41,7 @@ public class Database {
         this.createTrade = createPreparedStatement(TEMPLATE_CREATE_TRADE);
         this.completeTrade = createPreparedStatement(TEMPLATE_COMPLETE_TRADE);
         this.tradeExecuted = createPreparedStatement(TEMPLATE_TRADE_EXECUTED);
+        this.cancelTrade = createPreparedStatement(TEMPLATE_CANCEL_TRADE);
     }
 
     public int createTrade(UUID inviterUuid,
@@ -80,6 +83,14 @@ public class Database {
         tradeExecuted.setString(1, TradeStatus.EXECUTED.name());
         tradeExecuted.setInt(2, completeRequestId);
         return tradeExecuted.executeUpdate();
+    }
+
+    public int cancelTrade(int requestId) throws SQLException {
+        cancelTrade.clearParameters();
+        cancelTrade.setString(1, TradeStatus.CANCELED.name());
+        cancelTrade.setInt(2, requestId);
+        cancelTrade.setInt(3, requestId);
+        return cancelTrade.executeUpdate();
     }
 
     private String loadSqlFile(String template) throws IOException {

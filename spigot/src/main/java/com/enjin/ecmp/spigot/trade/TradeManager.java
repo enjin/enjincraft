@@ -80,12 +80,14 @@ public class TradeManager implements Listener {
     public void completeTrade(Integer requestId) {
         Trade trade = tradesPendingCompletion.remove(requestId.toString());
 
-        if (trade == null) return;
+        if (trade == null)
+            return;
 
         EnjPlayer playerOne = bootstrap.getPlayerManager().getPlayer(trade.getPlayerOneUuid()).orElse(null);
         EnjPlayer playerTwo = bootstrap.getPlayerManager().getPlayer(trade.getPlayerTwoUuid()).orElse(null);
 
-        if (playerOne == null || playerTwo == null) return;
+        if (playerOne == null || playerTwo == null)
+            return;
 
         Player bukkitPlayerOne = playerOne.getBukkitPlayer();
         Player bukkitPlayerTwo = playerTwo.getBukkitPlayer();
@@ -106,15 +108,18 @@ public class TradeManager implements Listener {
     public void submitCompleteTrade(Integer requestId, String tradeId) {
         Trade trade = tradesPendingCompletion.remove(requestId.toString());
 
-        if (trade == null) return;
+        if (trade == null)
+            return;
 
         trade.setTradeId(tradeId);
 
         EnjPlayer playerOne = bootstrap.getPlayerManager().getPlayer(trade.getPlayerOneUuid()).orElse(null);
         EnjPlayer playerTwo = bootstrap.getPlayerManager().getPlayer(trade.getPlayerTwoUuid()).orElse(null);
 
-        if (playerOne == null || playerTwo == null) return;
-        if (!playerOne.isLinked() || !playerTwo.isLinked()) return;
+        if (playerOne == null || playerTwo == null)
+            return;
+        if (!playerOne.isLinked() || !playerTwo.isLinked())
+            return;
 
         Player bukkitPlayerOne = playerOne.getBukkitPlayer();
         Player bukkitPlayerTwo = playerTwo.getBukkitPlayer();
@@ -126,10 +131,12 @@ public class TradeManager implements Listener {
                                 .tradeId(trade.getTradeId())
                                 .build()),
                 networkResponse -> {
-                    if (!networkResponse.isSuccess()) throw new NetworkException(networkResponse.code());
+                    if (!networkResponse.isSuccess())
+                        throw new NetworkException(networkResponse.code());
 
                     GraphQLResponse<Transaction> graphQLResponse = networkResponse.body();
-                    if (!graphQLResponse.isSuccess()) throw new GraphQLException(graphQLResponse.getErrors());
+                    if (!graphQLResponse.isSuccess())
+                        throw new GraphQLException(graphQLResponse.getErrors());
 
                     Transaction dataIn = graphQLResponse.getData();
                     Translation.COMMAND_TRADE_CONFIRM_WAIT.send(bukkitPlayerOne);
@@ -153,8 +160,10 @@ public class TradeManager implements Listener {
         EnjPlayer playerOne = bootstrap.getPlayerManager().getPlayer(trade.getPlayerOneUuid()).orElse(null);
         EnjPlayer playerTwo = bootstrap.getPlayerManager().getPlayer(trade.getPlayerTwoUuid()).orElse(null);
 
-        if (playerOne == null || playerTwo == null) return;
-        if (!playerOne.isLinked() || !playerTwo.isLinked()) return;
+        if (playerOne == null || playerTwo == null)
+            return;
+        if (!playerOne.isLinked() || !playerTwo.isLinked())
+            return;
 
         Player bukkitPlayerOne = playerOne.getBukkitPlayer();
         Player bukkitPlayerTwo = playerTwo.getBukkitPlayer();
@@ -171,10 +180,12 @@ public class TradeManager implements Listener {
                                 .secondPartyIdentityId(playerTwo.getIdentityId())
                                 .build()),
                 networkResponse -> {
-                    if (!networkResponse.isSuccess()) throw new NetworkException(networkResponse.code());
+                    if (!networkResponse.isSuccess())
+                        throw new NetworkException(networkResponse.code());
 
                     GraphQLResponse<Transaction> graphQLResponse = networkResponse.body();
-                    if (!graphQLResponse.isSuccess()) throw new GraphQLException(graphQLResponse.getErrors());
+                    if (!graphQLResponse.isSuccess())
+                        throw new GraphQLException(graphQLResponse.getErrors());
 
                     Transaction dataIn = graphQLResponse.getData();
                     Translation.COMMAND_TRADE_CONFIRM_WAIT.send(bukkitPlayerTwo);
@@ -194,6 +205,19 @@ public class TradeManager implements Listener {
                     }
                 }
         );
+    }
+
+    public void cancelTrade(Integer requestId) {
+        Trade trade = tradesPendingCompletion.remove(requestId.toString());
+
+        if (trade == null)
+            return;
+
+        try {
+            bootstrap.db().cancelTrade(requestId);
+        } catch (SQLException ex) {
+            bootstrap.log(ex);
+        }
     }
 
     private List<TokenValueData> extractTokens(List<ItemStack> offeredItems) {

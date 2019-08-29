@@ -5,12 +5,10 @@ import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.player.EnjPlayer;
 import com.enjin.ecmp.spigot.trade.TradeManager;
 import com.enjin.ecmp.spigot.wallet.MutableBalance;
-import com.enjin.enjincoin.sdk.model.service.notifications.Event;
-import com.enjin.enjincoin.sdk.model.service.notifications.EventData;
-import com.enjin.enjincoin.sdk.model.service.notifications.NotificationEvent;
-import com.enjin.enjincoin.sdk.model.service.notifications.NotificationType;
+import com.enjin.enjincoin.sdk.model.service.notifications.*;
 import com.enjin.java_commons.StringUtils;
 import org.bukkit.Bukkit;
+import org.omg.CORBA.UNKNOWN;
 
 public class NotificationListener implements com.enjin.enjincoin.sdk.service.notifications.NotificationListener {
 
@@ -23,7 +21,7 @@ public class NotificationListener implements com.enjin.enjincoin.sdk.service.not
     @Override
     public void notificationReceived(NotificationEvent event) {
         try {
-            bootstrap.debug(event.toString());
+            bootstrap.debug(event.getData());
             NotificationType eventType = event.getType();
 
             if (eventType == null) return;
@@ -31,6 +29,10 @@ public class NotificationListener implements com.enjin.enjincoin.sdk.service.not
             switch (eventType) {
                 case TX_EXECUTED:
                     onTxExecuted(event.getEvent());
+                    break;
+                case TXR_CANCELED_USER:
+                case TXR_CANCELED_PLATFORM:
+                    onTxrCancelled(event.getEvent());
                     break;
                 case IDENTITY_LINKED:
                     onIdentityUpdated(event.getEvent());
@@ -48,16 +50,28 @@ public class NotificationListener implements com.enjin.enjincoin.sdk.service.not
 
     private void onTxExecuted(Event event) {
         EventData data = event.getData();
-        String type = data.getRequestType();
-
-        if (StringUtils.isEmpty(type)) return;
+        RequestType type = data.getRequestType();
 
         switch (type) {
-            case "create_trade":
+            case CREATE_TRADE:
                 onCreateTrade(data);
                 break;
-            case "complete_trade":
+            case COMPLETE_TRADE:
                 onCompleteTrade(data);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void onTxrCancelled(Event event) {
+        EventData data = event.getData();
+        RequestType type = data.getRequestType();
+
+        switch (type) {
+            case CREATE_TRADE:
+            case COMPLETE_TRADE:
+                cancelTrade(data);
                 break;
             default:
                 break;
@@ -95,16 +109,19 @@ public class NotificationListener implements com.enjin.enjincoin.sdk.service.not
     }
 
     private void onCreateTrade(EventData data) {
-        String tradeId = data.getParam1();
         if (data.getId() == null) return;
-        TradeManager manager = bootstrap.getTradeManager();
-        manager.submitCompleteTrade(data.getId(), tradeId);
+        String tradeId = data.getParam1();
+        bootstrap.getTradeManager().submitCompleteTrade(data.getId(), tradeId);
     }
 
     private void onCompleteTrade(EventData data) {
         if (data.getId() == null) return;
-        TradeManager manager = bootstrap.getTradeManager();
-        manager.completeTrade(data.getId());
+        bootstrap.getTradeManager().completeTrade(data.getId());
+    }
+
+    private void cancelTrade(EventData data) {
+        if (data.getId() == null) return;
+        bootstrap.getTradeManager().cancelTrade(data.getId());
     }
 
 }
