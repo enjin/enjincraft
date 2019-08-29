@@ -1,5 +1,5 @@
 UPDATE TradeSessions
 SET "completeRequestId" = ?,
-    "tradeId" = ?,
-    "state" = ?
+    "tradeId"           = ?,
+    "state"             = ?
 WHERE "createRequestId" = ?;

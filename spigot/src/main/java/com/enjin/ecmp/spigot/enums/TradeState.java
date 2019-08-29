@@ -1,6 +1,6 @@
 package com.enjin.ecmp.spigot.enums;
 
-public enum TradeStatus {
+public enum TradeState {
 
     PENDING_CREATE,
     PENDING_COMPLETE,
