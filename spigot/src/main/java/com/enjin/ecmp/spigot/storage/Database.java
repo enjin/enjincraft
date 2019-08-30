@@ -23,6 +23,7 @@ public class Database {
     public static final String TEMPLATE_TRADE_EXECUTED = "trade/TradeExecuted";
     public static final String TEMPLATE_CANCEL_TRADE = "trade/CancelTrade";
     public static final String TEMPLATE_GET_PENDING_TRADES = "trade/GetPending";
+    public static final String TEMPLATE_GET_SESSION_REQ_ID = "trade/GetSessionFromRequestId";
 
     private SpigotBootstrap bootstrap;
     private File database;
@@ -34,6 +35,7 @@ public class Database {
     private PreparedStatement tradeExecuted;
     private PreparedStatement cancelTrade;
     private PreparedStatement getPendingTrades;
+    private PreparedStatement getSessionReqId;
 
     public Database(SpigotBootstrap bootstrap) throws SQLException, IOException {
         this.bootstrap = bootstrap;
@@ -48,6 +50,7 @@ public class Database {
         this.tradeExecuted = createPreparedStatement(TEMPLATE_TRADE_EXECUTED);
         this.cancelTrade = createPreparedStatement(TEMPLATE_CANCEL_TRADE);
         this.getPendingTrades = createPreparedStatement(TEMPLATE_GET_PENDING_TRADES);
+        this.getSessionReqId = createPreparedStatement(TEMPLATE_GET_SESSION_REQ_ID);
     }
 
     public int createTrade(UUID inviterUuid,
@@ -114,6 +117,21 @@ public class Database {
         }
 
         return sessions;
+    }
+
+    public TradeSession getSessionFromRequestId(int requestId) throws SQLException {
+        TradeSession session = null;
+
+        getSessionReqId.clearParameters();
+        getSessionReqId.setInt(1, requestId);
+        getSessionReqId.setInt(2, requestId);
+
+        try (ResultSet rs = getSessionReqId.executeQuery()) {
+            if (rs.next())
+                session = new TradeSession(rs);
+        }
+
+        return session;
     }
 
     private String loadSqlFile(String template) throws IOException {
