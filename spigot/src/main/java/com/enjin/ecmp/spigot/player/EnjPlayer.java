@@ -3,14 +3,11 @@ package com.enjin.ecmp.spigot.player;
 import com.enjin.ecmp.spigot.GraphQLException;
 import com.enjin.ecmp.spigot.NetworkException;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
-import com.enjin.ecmp.spigot.events.IdentityLoadedEvent;
 import com.enjin.ecmp.spigot.i18n.Translation;
 import com.enjin.ecmp.spigot.trade.TradeView;
-import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.ecmp.spigot.util.TokenUtils;
 import com.enjin.ecmp.spigot.wallet.MutableBalance;
 import com.enjin.ecmp.spigot.wallet.TokenWallet;
-import com.enjin.enjincoin.sdk.TrustedPlatformClient;
 import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
 import com.enjin.enjincoin.sdk.http.HttpResponse;
 import com.enjin.enjincoin.sdk.model.service.balances.Balance;
@@ -21,9 +18,6 @@ import com.enjin.enjincoin.sdk.model.service.users.GetUsers;
 import com.enjin.enjincoin.sdk.model.service.users.User;
 import com.enjin.enjincoin.sdk.service.notifications.NotificationsService;
 import com.enjin.java_commons.StringUtils;
-import net.kyori.text.TextComponent;
-import net.kyori.text.format.TextColor;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -114,8 +108,6 @@ public class EnjPlayer {
             service.subscribeToIdentity(identityId);
         else if (linkingCode == null && listening)
             service.unsubscribeToIdentity(identityId);
-
-        Bukkit.getPluginManager().callEvent(new IdentityLoadedEvent(this));
 
         if (!isLinked())
             return;
