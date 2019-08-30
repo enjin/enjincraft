@@ -2,6 +2,7 @@ package com.enjin.ecmp.spigot.trade;
 
 import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.enums.TargetPlayer;
+import com.enjin.ecmp.spigot.enums.Trader;
 import com.enjin.ecmp.spigot.player.EnjPlayer;
 import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.ecmp.spigot.util.TokenUtils;
@@ -29,7 +30,6 @@ import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class TradeView extends ChestMenu {
 
@@ -37,6 +37,7 @@ public class TradeView extends ChestMenu {
 
     private EnjPlayer viewer;
     private EnjPlayer other;
+    private Trader traderType;
 
     private SimpleMenuComponent viewerItemsComponent;
     private SimpleMenuComponent viewerStatusComponent;
@@ -51,11 +52,12 @@ public class TradeView extends ChestMenu {
     private ItemStack readyItem = createReadyItemStack();
     private ItemStack unreadyItem = createUnreadyItemStack();
 
-    public TradeView(SpigotBootstrap bootstrap, EnjPlayer viewer, EnjPlayer other) {
+    public TradeView(SpigotBootstrap bootstrap, EnjPlayer viewer, EnjPlayer other, Trader traderType) {
         super("Trade", 6);
         this.bootstrap = bootstrap;
         this.viewer = viewer;
         this.other = other;
+        this.traderType = traderType;
         init();
     }
 
@@ -133,11 +135,11 @@ public class TradeView extends ChestMenu {
                     tradeApproved = true;
                     otherView.tradeApproved = true;
 
-                    UUID viewerUuid = viewer.getBukkitPlayer().getUniqueId();
-                    UUID otherUuid = other.getBukkitPlayer().getUniqueId();
-                    Trade trade = new Trade(viewerUuid, viewerOffer, otherUuid, otherOffer);
-
-                    bootstrap.getTradeManager().submitCreateTrade(trade);
+                    if (traderType == Trader.INVITER) {
+                        bootstrap.getTradeManager().createTrade(viewer, other, viewerOffer, otherOffer);
+                    } else {
+                        bootstrap.getTradeManager().createTrade(other, viewer, otherOffer, viewerOffer);
+                    }
 
                     closeMenu(p);
                 }

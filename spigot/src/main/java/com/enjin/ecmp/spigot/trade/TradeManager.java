@@ -3,11 +3,13 @@ package com.enjin.ecmp.spigot.trade;
 import com.enjin.ecmp.spigot.GraphQLException;
 import com.enjin.ecmp.spigot.NetworkException;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
+import com.enjin.ecmp.spigot.enums.Trader;
 import com.enjin.ecmp.spigot.events.EnjPlayerQuitEvent;
 import com.enjin.ecmp.spigot.i18n.Translation;
 import com.enjin.ecmp.spigot.player.EnjPlayer;
 import com.enjin.ecmp.spigot.player.PlayerManager;
 import com.enjin.ecmp.spigot.util.MessageUtils;
+import com.enjin.ecmp.spigot.util.TokenUtils;
 import com.enjin.enjincoin.sdk.TrustedPlatformClient;
 import com.enjin.enjincoin.sdk.graphql.GraphQLError;
 import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
@@ -17,24 +19,24 @@ import com.enjin.enjincoin.sdk.model.service.requests.data.CompleteTradeData;
 import com.enjin.enjincoin.sdk.model.service.requests.data.CreateTradeData;
 import com.enjin.enjincoin.sdk.model.service.requests.data.TokenValueData;
 import com.enjin.enjincoin.sdk.service.requests.RequestsService;
+import com.enjin.java_commons.StringUtils;
 import com.enjin.minecraft_commons.spigot.nbt.NBTItem;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class TradeManager implements Listener {
 
     private SpigotBootstrap bootstrap;
-    private Map<String, Trade> tradesPendingCompletion = new ConcurrentHashMap<>();
 
     public TradeManager(SpigotBootstrap bootstrap) {
         this.bootstrap = bootstrap;
@@ -55,18 +57,18 @@ public class TradeManager implements Listener {
         return result;
     }
 
-    public boolean acceptInvite(EnjPlayer sender, EnjPlayer target) {
-        boolean result = inviteExists(sender, target);
+    public boolean acceptInvite(EnjPlayer inviter, EnjPlayer invited) {
+        boolean result = inviteExists(inviter, invited);
 
         if (result) {
-            sender.getSentTradeInvites().remove(target);
-            target.getReceivedTradeInvites().remove(target);
+            inviter.getSentTradeInvites().remove(invited);
+            invited.getReceivedTradeInvites().remove(invited);
 
-            sender.setActiveTradeView(new TradeView(bootstrap, sender, target));
-            target.setActiveTradeView(new TradeView(bootstrap, target, sender));
+            inviter.setActiveTradeView(new TradeView(bootstrap, inviter, invited, Trader.INVITER));
+            invited.setActiveTradeView(new TradeView(bootstrap, invited, inviter, Trader.INVITED));
 
-            sender.getActiveTradeView().open();
-            target.getActiveTradeView().open();
+            inviter.getActiveTradeView().open();
+            invited.getActiveTradeView().open();
         }
 
         return result;
@@ -78,106 +80,88 @@ public class TradeManager implements Listener {
     }
 
     public void completeTrade(Integer requestId) {
-        Trade trade = tradesPendingCompletion.remove(requestId.toString());
-
-        if (trade == null)
-            return;
-
-        EnjPlayer playerOne = bootstrap.getPlayerManager().getPlayer(trade.getPlayerOneUuid()).orElse(null);
-        EnjPlayer playerTwo = bootstrap.getPlayerManager().getPlayer(trade.getPlayerTwoUuid()).orElse(null);
-
-        if (playerOne == null || playerTwo == null)
-            return;
-
-        Player bukkitPlayerOne = playerOne.getBukkitPlayer();
-        Player bukkitPlayerTwo = playerTwo.getBukkitPlayer();
-
-        bukkitPlayerOne.getInventory().addItem(trade.getPlayerTwoOffer().toArray(new ItemStack[0]));
-        bukkitPlayerTwo.getInventory().addItem(trade.getPlayerOneOffer().toArray(new ItemStack[0]));
-
-        Translation.COMMAND_TRADE_COMPLETE.send(bukkitPlayerOne);
-        Translation.COMMAND_TRADE_COMPLETE.send(bukkitPlayerTwo);
-
         try {
+            TradeSession session = bootstrap.db().getSessionFromRequestId(requestId);
+
+            if (session == null)
+                return;
+
+            Optional<Player> inviter = Optional.ofNullable(Bukkit.getPlayer(session.getInviterUuid()));
+            Optional<Player> invited = Optional.ofNullable(Bukkit.getPlayer(session.getInvitedUuid()));
+
+            inviter.ifPresent(player -> Translation.COMMAND_TRADE_COMPLETE.send(player));
+            invited.ifPresent(player -> Translation.COMMAND_TRADE_COMPLETE.send(player));
+
             bootstrap.db().tradeExecuted(requestId);
-        } catch (SQLException ex) {
+        } catch (Exception ex) {
             bootstrap.log(ex);
         }
     }
 
-    public void submitCompleteTrade(Integer requestId, String tradeId) {
-        Trade trade = tradesPendingCompletion.remove(requestId.toString());
+    public void completeTrade(Integer requestId, String tradeId) {
+        try {
+            TradeSession session = bootstrap.db().getSessionFromRequestId(requestId);
 
-        if (trade == null)
-            return;
+            if (session == null)
+                return;
 
-        trade.setTradeId(tradeId);
+            Optional<Player> inviter = Optional.ofNullable(Bukkit.getPlayer(session.getInviterUuid()));
+            Optional<Player> invited = Optional.ofNullable(Bukkit.getPlayer(session.getInvitedUuid()));
 
-        EnjPlayer playerOne = bootstrap.getPlayerManager().getPlayer(trade.getPlayerOneUuid()).orElse(null);
-        EnjPlayer playerTwo = bootstrap.getPlayerManager().getPlayer(trade.getPlayerTwoUuid()).orElse(null);
+            bootstrap.getTrustedPlatformClient()
+                    .getRequestsService().createRequestAsync(new CreateRequest()
+                            .identityId(session.getInvitedIdentityId())
+                            .completeTrade(CompleteTradeData.builder()
+                                    .tradeId(tradeId)
+                                    .build()),
+                    networkResponse -> {
+                        if (!networkResponse.isSuccess())
+                            throw new NetworkException(networkResponse.code());
 
-        if (playerOne == null || playerTwo == null)
-            return;
-        if (!playerOne.isLinked() || !playerTwo.isLinked())
-            return;
+                        GraphQLResponse<Transaction> graphQLResponse = networkResponse.body();
+                        if (!graphQLResponse.isSuccess())
+                            throw new GraphQLException(graphQLResponse.getErrors());
 
-        Player bukkitPlayerOne = playerOne.getBukkitPlayer();
-        Player bukkitPlayerTwo = playerTwo.getBukkitPlayer();
+                        Transaction dataIn = graphQLResponse.getData();
+                        inviter.ifPresent(player -> Translation.COMMAND_TRADE_CONFIRM_WAIT.send(player));
+                        invited.ifPresent(player -> Translation.COMMAND_TRADE_CONFIRM_ACTION.send(player));
 
-        bootstrap.getTrustedPlatformClient()
-                .getRequestsService().createRequestAsync(new CreateRequest()
-                        .identityId(playerTwo.getIdentityId())
-                        .completeTrade(CompleteTradeData.builder()
-                                .tradeId(trade.getTradeId())
-                                .build()),
-                networkResponse -> {
-                    if (!networkResponse.isSuccess())
-                        throw new NetworkException(networkResponse.code());
-
-                    GraphQLResponse<Transaction> graphQLResponse = networkResponse.body();
-                    if (!graphQLResponse.isSuccess())
-                        throw new GraphQLException(graphQLResponse.getErrors());
-
-                    Transaction dataIn = graphQLResponse.getData();
-                    Translation.COMMAND_TRADE_CONFIRM_WAIT.send(bukkitPlayerOne);
-                    Translation.COMMAND_TRADE_CONFIRM_ACTION.send(bukkitPlayerTwo);
-
-                    String key = dataIn.getId().toString();
-                    tradesPendingCompletion.put(key, trade);
-
-                    try {
-                        bootstrap.db().completeTrade(requestId,
-                                dataIn.getId(),
-                                tradeId);
-                    } catch (SQLException ex) {
-                        bootstrap.log(ex);
+                        try {
+                            bootstrap.db().completeTrade(requestId,
+                                    dataIn.getId(),
+                                    tradeId);
+                        } catch (SQLException ex) {
+                            bootstrap.log(ex);
+                        }
                     }
-                }
-        );
+            );
+        } catch (Exception ex) {
+            bootstrap.log(ex);
+        }
     }
 
-    public void submitCreateTrade(Trade trade) {
-        EnjPlayer playerOne = bootstrap.getPlayerManager().getPlayer(trade.getPlayerOneUuid()).orElse(null);
-        EnjPlayer playerTwo = bootstrap.getPlayerManager().getPlayer(trade.getPlayerTwoUuid()).orElse(null);
-
-        if (playerOne == null || playerTwo == null)
+    public void createTrade(EnjPlayer inviter,
+                            EnjPlayer invited,
+                            List<ItemStack> inviterOffer,
+                            List<ItemStack> invitedOffer) {
+        if (inviter == null || invited == null)
             return;
-        if (!playerOne.isLinked() || !playerTwo.isLinked())
+        if (!inviter.isLinked() || !invited.isLinked())
             return;
 
-        Player bukkitPlayerOne = playerOne.getBukkitPlayer();
-        Player bukkitPlayerTwo = playerTwo.getBukkitPlayer();
+        Player bukkitPlayerOne = inviter.getBukkitPlayer();
+        Player bukkitPlayerTwo = invited.getBukkitPlayer();
 
-        List<TokenValueData> playerOneTokens = extractTokens(trade.getPlayerOneOffer());
-        List<TokenValueData> playerTwoTokens = extractTokens(trade.getPlayerTwoOffer());
+        List<TokenValueData> playerOneTokens = extractOffers(inviterOffer);
+        List<TokenValueData> playerTwoTokens = extractOffers(invitedOffer);
 
         bootstrap.getTrustedPlatformClient()
                 .getRequestsService().createRequestAsync(new CreateRequest()
-                        .identityId(playerOne.getIdentityId())
+                        .identityId(inviter.getIdentityId())
                         .createTrade(CreateTradeData.builder()
                                 .offeringTokens(playerOneTokens)
                                 .askingTokens(playerTwoTokens)
-                                .secondPartyIdentityId(playerTwo.getIdentityId())
+                                .secondPartyIdentityId(invited.getIdentityId())
                                 .build()),
                 networkResponse -> {
                     if (!networkResponse.isSuccess())
@@ -191,16 +175,13 @@ public class TradeManager implements Listener {
                     Translation.COMMAND_TRADE_CONFIRM_WAIT.send(bukkitPlayerTwo);
                     Translation.COMMAND_TRADE_CONFIRM_ACTION.send(bukkitPlayerOne);
 
-                    String key = dataIn.getId().toString();
-                    tradesPendingCompletion.put(key, trade);
-
                     try {
                         bootstrap.db().createTrade(bukkitPlayerOne.getUniqueId(),
-                                playerOne.getIdentityId(),
-                                playerOne.getEthereumAddress(),
+                                inviter.getIdentityId(),
+                                inviter.getEthereumAddress(),
                                 bukkitPlayerTwo.getUniqueId(),
-                                playerTwo.getIdentityId(),
-                                playerTwo.getEthereumAddress(),
+                                invited.getIdentityId(),
+                                invited.getEthereumAddress(),
                                 dataIn.getId());
                     } catch (SQLException ex) {
                         bootstrap.log(ex);
@@ -210,11 +191,6 @@ public class TradeManager implements Listener {
     }
 
     public void cancelTrade(Integer requestId) {
-        Trade trade = tradesPendingCompletion.remove(requestId.toString());
-
-        if (trade == null)
-            return;
-
         try {
             bootstrap.db().cancelTrade(requestId);
         } catch (SQLException ex) {
@@ -222,20 +198,24 @@ public class TradeManager implements Listener {
         }
     }
 
-    private List<TokenValueData> extractTokens(List<ItemStack> offeredItems) {
-        List<TokenValueData> offers = new ArrayList<>();
+    private List<TokenValueData> extractOffers(List<ItemStack> offers) {
+        Map<String, Integer> tokens = new HashMap<>();
 
-        for (ItemStack item : offeredItems) {
-            NBTItem nbtItem = new NBTItem(item);
-            if (!nbtItem.hasKey("tokenID")) continue;
-            String tokenId = nbtItem.getString("tokenID");
-            offers.add(TokenValueData.builder()
-                    .id(tokenId)
-                    .value(item.getAmount())
-                    .build());
+        for (ItemStack is : offers) {
+            String tokenId = TokenUtils.getTokenID(is);
+            if (StringUtils.isEmpty(tokenId))
+                continue;
+            tokens.compute(tokenId, (key, value) -> {
+                return value == null ? is.getAmount() : value + is.getAmount();
+            });
         }
 
-        return offers;
+        return tokens.entrySet().stream()
+                .map(e -> TokenValueData.builder()
+                        .id(e.getKey())
+                        .value(e.getValue())
+                        .build())
+                .collect(Collectors.toList());
     }
 
     @EventHandler

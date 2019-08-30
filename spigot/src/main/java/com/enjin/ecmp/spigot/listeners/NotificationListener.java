@@ -1,15 +1,11 @@
 package com.enjin.ecmp.spigot.listeners;
 
-import com.enjin.ecmp.spigot.NotificationServiceException;
 import com.enjin.ecmp.spigot.SpigotBootstrap;
 import com.enjin.ecmp.spigot.player.EnjPlayer;
-import com.enjin.ecmp.spigot.trade.TradeManager;
 import com.enjin.ecmp.spigot.wallet.MutableBalance;
 import com.enjin.enjincoin.sdk.model.service.notifications.*;
 import com.enjin.enjincoin.sdk.model.service.requests.TransactionType;
-import com.enjin.java_commons.StringUtils;
 import org.bukkit.Bukkit;
-import org.omg.CORBA.UNKNOWN;
 
 public class NotificationListener implements com.enjin.enjincoin.sdk.service.notifications.NotificationListener {
 
@@ -112,7 +108,7 @@ public class NotificationListener implements com.enjin.enjincoin.sdk.service.not
     private void onCreateTrade(EventData data) {
         if (data.getId() == null) return;
         String tradeId = data.getParam1();
-        bootstrap.getTradeManager().submitCompleteTrade(data.getId(), tradeId);
+        bootstrap.getTradeManager().completeTrade(data.getId(), tradeId);
     }
 
     private void onCompleteTrade(EventData data) {
