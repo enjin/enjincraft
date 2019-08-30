@@ -1,5 +1,7 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
+jar.archiveBaseName = 'ECMP-Spigot'
+
 repositories {
     maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
     maven { url 'http://repo.extendedclip.com/content/repositories/placeholderapi/' }

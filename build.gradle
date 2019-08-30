@@ -78,13 +78,19 @@ subprojects {
     }
 
     task javadocJar(type: Jar, dependsOn: javadoc) {
-        classifier = 'javadoc'
+        archiveBaseName = jar.archiveBaseName
+        archiveClassifier = 'javadoc'
         from javadoc
     }
 
     task sourcesJar(type: Jar) {
-        classifier = 'sources'
+        archiveBaseName = jar.archiveBaseName
+        archiveClassifier = 'sources'
         from sourceSets.main.allJava
+    }
+
+    shadowJar {
+        archiveBaseName = jar.archiveBaseName
     }
 
     artifacts {
