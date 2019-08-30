@@ -24,7 +24,6 @@ import com.enjin.java_commons.StringUtils;
 import io.sentry.Sentry;
 import io.sentry.SentryClient;
 import io.sentry.jul.SentryHandler;
-import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
 import org.bukkit.Bukkit;
@@ -109,8 +108,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
             if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
                 MessageUtils.sendComponent(Bukkit.getConsoleSender(), TextComponent.of("[ECMP] Registering PlaceholderAPI Expansion")
                         .color(TextColor.GOLD));
-                PlaceholderExpansion expansion = new PlaceholderApiExpansion(this);
-                boolean registered = expansion.register();
+                boolean registered = new PlaceholderApiExpansion(this).register();
                 if (registered) {
                     MessageUtils.sendComponent(Bukkit.getConsoleSender(), TextComponent.of("[ECMP] Registered PlaceholderAPI Expansion")
                             .color(TextColor.GREEN));
