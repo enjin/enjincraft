@@ -6,7 +6,7 @@ We encourage plugin developers to expand and build on this framework to create f
 
 ## Useful Resources
 
-Released versions of ECMP can be downloaded [here](https://github.com/enjin/enjin-coin-minecraft-framework/releases).
+Released versions of ECMP can be downloaded [here](../../releases).
 
 ## Building
 
@@ -42,4 +42,4 @@ The project consists of the following modules.
 
 ## License
 
-ECMP is licensed under the Apache License 2.0. Please see [`LICENSE.txt`](https://github.com/enjin/enjin-coin-minecraft-framework/blob/master/LICENSE) for more info.
+ECMP is licensed under the Apache License 2.0. Please see [`LICENSE.txt`](./LICENSE) for more info.
