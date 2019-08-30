@@ -145,9 +145,9 @@ public class TradeManager implements Listener {
                             List<ItemStack> inviterOffer,
                             List<ItemStack> invitedOffer) {
         if (inviter == null || invited == null)
-            return;
+            throw new NullPointerException("Inviter or invited EnjPlayer is null.");
         if (!inviter.isLinked() || !invited.isLinked())
-            return;
+            throw new IllegalArgumentException(String.format("Inviter or invited EnjPlayer is not linked."));
 
         Player bukkitPlayerOne = inviter.getBukkitPlayer();
         Player bukkitPlayerTwo = invited.getBukkitPlayer();
@@ -164,18 +164,18 @@ public class TradeManager implements Listener {
                                 .secondPartyIdentityId(invited.getIdentityId())
                                 .build()),
                 networkResponse -> {
-                    if (!networkResponse.isSuccess())
-                        throw new NetworkException(networkResponse.code());
-
-                    GraphQLResponse<Transaction> graphQLResponse = networkResponse.body();
-                    if (!graphQLResponse.isSuccess())
-                        throw new GraphQLException(graphQLResponse.getErrors());
-
-                    Transaction dataIn = graphQLResponse.getData();
-                    Translation.COMMAND_TRADE_CONFIRM_WAIT.send(bukkitPlayerTwo);
-                    Translation.COMMAND_TRADE_CONFIRM_ACTION.send(bukkitPlayerOne);
-
                     try {
+                        if (!networkResponse.isSuccess())
+                            throw new NetworkException(networkResponse.code());
+
+                        GraphQLResponse<Transaction> graphQLResponse = networkResponse.body();
+                        if (!graphQLResponse.isSuccess())
+                            throw new GraphQLException(graphQLResponse.getErrors());
+
+                        Transaction dataIn = graphQLResponse.getData();
+                        Translation.COMMAND_TRADE_CONFIRM_WAIT.send(bukkitPlayerTwo);
+                        Translation.COMMAND_TRADE_CONFIRM_ACTION.send(bukkitPlayerOne);
+
                         bootstrap.db().createTrade(bukkitPlayerOne.getUniqueId(),
                                 inviter.getIdentityId(),
                                 inviter.getEthereumAddress(),
@@ -183,7 +183,7 @@ public class TradeManager implements Listener {
                                 invited.getIdentityId(),
                                 invited.getEthereumAddress(),
                                 dataIn.getId());
-                    } catch (SQLException ex) {
+                    } catch (Exception ex) {
                         bootstrap.log(ex);
                     }
                 }

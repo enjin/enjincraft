@@ -120,29 +120,33 @@ public class TradeView extends ChestMenu {
 
         this.viewerStatusComponent.setItem(Position.of(1, 0), readyItem);
         this.viewerStatusComponent.addAction(readyItem, (p) -> {
-            this.playerReady = true;
-            setItem(p, this.viewerStatusComponent, Position.of(3, 0), readyPane);
-            p.updateInventory();
+            try {
+                this.playerReady = true;
+                setItem(p, this.viewerStatusComponent, Position.of(3, 0), readyPane);
+                p.updateInventory();
 
-            TradeView otherView = this.other.getActiveTradeView();
-            otherView.setItem(other.getBukkitPlayer(), otherView.otherStatusComponent, Position.of(3, 0), readyPane);
-            other.getBukkitPlayer().updateInventory();
+                TradeView otherView = this.other.getActiveTradeView();
+                otherView.setItem(other.getBukkitPlayer(), otherView.otherStatusComponent, Position.of(3, 0), readyPane);
+                other.getBukkitPlayer().updateInventory();
 
-            if (otherView.playerReady) {
-                List<ItemStack> viewerOffer = getOfferedItems();
-                List<ItemStack> otherOffer = otherView.getOfferedItems();
-                if (viewerOffer.size() > 0 || otherOffer.size() > 0) {
-                    tradeApproved = true;
-                    otherView.tradeApproved = true;
+                if (otherView.playerReady) {
+                    List<ItemStack> viewerOffer = getOfferedItems();
+                    List<ItemStack> otherOffer = otherView.getOfferedItems();
+                    if (viewerOffer.size() > 0 || otherOffer.size() > 0) {
+                        tradeApproved = true;
+                        otherView.tradeApproved = true;
 
-                    if (traderType == Trader.INVITER) {
-                        bootstrap.getTradeManager().createTrade(viewer, other, viewerOffer, otherOffer);
-                    } else {
-                        bootstrap.getTradeManager().createTrade(other, viewer, otherOffer, viewerOffer);
+                        if (traderType == Trader.INVITER) {
+                            bootstrap.getTradeManager().createTrade(viewer, other, viewerOffer, otherOffer);
+                        } else {
+                            bootstrap.getTradeManager().createTrade(other, viewer, otherOffer, viewerOffer);
+                        }
+
+                        closeMenu(p);
                     }
-
-                    closeMenu(p);
                 }
+            } catch (Exception ex) {
+                bootstrap.log(ex);
             }
         }, ClickType.LEFT, ClickType.RIGHT);
         this.viewerStatusComponent.setItem(Position.of(2, 0), unreadyItem);
