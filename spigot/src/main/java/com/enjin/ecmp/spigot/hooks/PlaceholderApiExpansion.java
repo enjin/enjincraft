@@ -5,6 +5,8 @@ import com.enjin.ecmp.spigot.player.EnjPlayer;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
 
+import java.math.BigDecimal;
+
 public class PlaceholderApiExpansion extends PlaceholderExpansion {
 
     public static final String ENJ_BALANCE = "enj_balance";
@@ -51,34 +53,42 @@ public class PlaceholderApiExpansion extends PlaceholderExpansion {
 
     @Override
     public String onPlaceholderRequest(Player player, String identifier) {
-        if (player == null) {
-            return "";
-        }
+        try {
+            if (player == null) {
+                return "";
+            }
 
-        EnjPlayer enjPlayer = bootstrap.getPlayerManager().getPlayer(player).orElse(null);
+            EnjPlayer enjPlayer = bootstrap.getPlayerManager().getPlayer(player).orElse(null);
 
-        if (identifier.equals(ENJ_BALANCE)) {
-            return enjPlayer.getEnjBalance() == null ? "0" : enjPlayer.getEnjBalance().toString();
-        }
+            if (identifier.equals(ENJ_BALANCE)) {
+                return enjPlayer.getEnjBalance() == null ? "0" : enjPlayer.getEnjBalance()
+                        .setScale(2, BigDecimal.ROUND_HALF_DOWN)
+                        .toString();
+            }
 
-        if (identifier.equals(ETH_BALANCE)) {
-            return enjPlayer.getEthBalance() == null ? "0" : enjPlayer.getEthBalance().toString();
-        }
+            if (identifier.equals(ETH_BALANCE)) {
+                return enjPlayer.getEthBalance() == null ? "0" : enjPlayer.getEthBalance()
+                        .setScale(2, BigDecimal.ROUND_HALF_DOWN)
+                        .toString();
+            }
 
-        if (identifier.equals(LINK_STATUS)) {
-            return enjPlayer.isIdentityLoaded()
-                    ? (enjPlayer.isLinked() ? LINKED : enjPlayer.getLinkingCode())
-                    : LOADING;
-        }
+            if (identifier.equals(LINK_STATUS)) {
+                return enjPlayer.isIdentityLoaded()
+                        ? (enjPlayer.isLinked() ? LINKED : enjPlayer.getLinkingCode())
+                        : LOADING;
+            }
 
-        if (identifier.equals(ENJ_URL)) {
-            return URL;
-        }
+            if (identifier.equals(ENJ_URL)) {
+                return URL;
+            }
 
-        if (identifier.equals(ETH_ADDR)) {
-            return enjPlayer.isIdentityLoaded()
-                    ? (enjPlayer.isLinked() ? enjPlayer.getEthereumAddress() : NOT_AVAILABLE)
-                    : LOADING;
+            if (identifier.equals(ETH_ADDR)) {
+                return enjPlayer.isIdentityLoaded()
+                        ? (enjPlayer.isLinked() ? enjPlayer.getEthereumAddress() : NOT_AVAILABLE)
+                        : LOADING;
+            }
+        } catch (Exception ex) {
+            bootstrap.log(ex);
         }
 
         return null;
