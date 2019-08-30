@@ -6,6 +6,7 @@ import com.enjin.ecmp.spigot.enums.Trader;
 import com.enjin.ecmp.spigot.player.EnjPlayer;
 import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.ecmp.spigot.util.TokenUtils;
+import com.enjin.java_commons.StringUtils;
 import com.enjin.minecraft_commons.spigot.ui.Component;
 import com.enjin.minecraft_commons.spigot.ui.Dimension;
 import com.enjin.minecraft_commons.spigot.ui.Position;
@@ -20,6 +21,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
@@ -290,12 +292,19 @@ public class TradeView extends ChestMenu {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         if (event.getClickedInventory() instanceof PlayerInventory) {
+            int slot = event.getSlot();
+
             ItemStack is = event.getCurrentItem();
+
+            if (is == null)
+                return;
+
             String id = TokenUtils.getTokenID(is);
-            if (id == null) {
+            if (StringUtils.isEmpty(id)) {
                 event.setResult(Event.Result.DENY);
             }
         } else {
+            bootstrap.debug("Menu Clicked");
             super.onInventoryClick(event);
         }
     }
