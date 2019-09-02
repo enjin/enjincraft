@@ -1,0 +1,90 @@
+internal:
+  locale: "de_DE"
+  version: 1
+COMMAND:
+  API:
+    BADUSAGE: "&cUngültiger Befehl!"
+    USAGE: "Anwendung: %s"
+    REQUIREMENTS:
+      INVALIDPLAYER: "&cDieser Befehl kann von Spielern nicht benutzt werden."
+      INVALIDCONSOLE: "&cDieser Befehl kann von dieser Konsole nicht benutzt werden."
+      INVALIDREMOTE: "&cDieser Befehl kann nicht von RCON benutzt werden."
+      INVALIDBLOCK: "&cDieser Befehl kann nicht von Befehlsblöcken benutzt werden."
+      NOPERMISSION: "&cDu hast nicht die benötigte Erlaubnis, diesen Befehl auszuführen: &6%s"
+  ROOT:
+    DESCRIPTION: "Zeige Informationen über das Plugin und Autoren."
+    DETAILS: "&7Ausführen von &6%s &cv%s&7.<br>&7Benutze &6%s &7um verfügbare Befehle anzuzeigen."
+  BALANCE:
+    DESCRIPTION: "Zeige Wallet Address, eth, enj, und Token Guthaben."
+    WALLETADDRESS: "&6Wallet Address: &d%s"
+    IDENTITYID: "&6Identität ID: &d%s"
+    ENJBALANCE: "&a[ %s ENJ ]"
+    ETHBALANCE: "&a[ %s ETH ]"
+    TOKENDISPLAY: "&6%s. &5%s &a(qty. %s)"
+    NOTOKENS: "&l&6Keine Tokens in deinem Wallet gefunden."
+    TOKENCOUNT: "&l&6 %s Tokens in deinem Wallet gefunden."
+  HELP:
+    DESCRIPTION: "Zeige Liste von Befehlen mit deren Anwendung."
+  LINK:
+    DESCRIPTION: "Zeige Link Code oder verbundene Wallet Address."
+    NULLWALLET: "&cDeine Wallet Address kann nicht angezeigt werden."
+    SHOWWALLET: "&aDein Account ist jetzt mit dieser Wallet Address verbunden: &6%s"
+    NULLCODE: "&cDein Link Code kann nicht angezeigt werden."
+    INSTRUCTIONS:
+      1: "&6Um deinen Account zu verbinden, folge diesen Schritten:"
+      2: "&7Lade die Enjin Wallet App für Android oder iOS herunter"
+      3: "&7Finde den 'Verlinkte Apps' Bereich"
+      4: "&7Drücke auf 'Verlinke App'"
+      5: "&7Wähle das Wallet, das du verbinden möchtest"
+      6: "&7Gebe dazu den unten angezeigten Link Code ein"
+      7: "&aLink Code: &6%s"
+  SEND:
+    DESCRIPTION: "Sende den Token an einen anderen Spieler."
+    SUBMITTED: "&aSendeanfrage erfolgreich übermittelt. Bitte bestätige die Anfrage in deiner Wallet App."
+    MUSTHOLDITEM: "&cDas Item muss dir gehören, um es senden zu können."
+    ITEMNOTTOKEN: "&cDas Item ist kein Token."
+  CONF:
+    DESCRIPTION: "Bestätige die Änderungen der Plugin Konfiguration."
+    SET:
+      DESCRIPTION: "Ändere den Wert der Option."
+      LANG:
+        DESCRIPTION: "Stelle die Standardsprache ein."
+  TRADE:
+    DESCRIPTION: "Zeige Hilfe für Tausch Sub-commands."
+    INVITE:
+      DESCRIPTION: "Lade einen Spieler ein, Tokens zu tauschen."
+    ACCEPT:
+      DESCRIPTION: "Nehme eine Tausch-Einladung eines anderen Spielers an."
+    DECLINE:
+      DESCRIPTION: "Lehne eine Tausch-Einladung eines anderen Spielers ab."
+    NOOPENINVITE: "&cKeine offene Tausch-Einladung von &6%s"
+    DECLINED:
+      SENDER: "&aDu hast &6%s's &aTausch-Einladung abgelehnt."
+      TARGET: "&6%s &chat deine Tausch-Einladung abgelehnt."
+    ALREADYINVITED: "&cDu hast &6%s &cschon zum Tauschen eingeladen."
+    WANTSTOTRADE: "&6%s &awill mit dir tauschen."
+    INVITESENT: "&aTausch-Einladung an &6%sgesendet!"
+    INVITEDTOTRADE: "&6%s &7hat dir eine Tausch-Einladung gesendet."
+    CONFIRM:
+      ACTION: "&6Bitte bestätige den Tausch in deiner Wallet App."
+      WAIT: "&6Bitte warte während der andere Spieler den Tausch bestätigt."
+    COMPLETE: "&6Euer Tausch wurde abgeschlossen!"
+  UNLINK:
+    DESCRIPTION: "Hebt die Verbindung zwischen Wallet und Spieler Account auf."
+    SUCCESS: "&aDas Wallet wurde von deinem Spieler Account getrennt!"
+  WALLET:
+    DESCRIPTION: "Öffne dein Wallet-Inventar um Items anzuzeigen, herauszunehmen, und wieder zurückzulegen."
+HINT:
+  LINK: "&cGebe &6'/enj link' &cein, um eine Anleitung für die Verknüpfung des Enjin Wallets anzuzeigen."
+IDENTITY:
+  NOTLOADED: "&cDeine Spielerdaten laden. Versuche es gleich noch einmal."
+ERRORS:
+  EXCEPTION: "&cERROR: &7%s"
+  CHOOSEOTHERPLAYER: "&cDu musst einen anderen Spieler als dich selbst angeben."
+  PLAYERNOTONLINE: "&6%s &cist nicht online."
+WALLET:
+  NOTLINKED:
+    SELF: "&cDu hast kein Wallet mit deiner Identität verbunden."
+    OTHER: "&6%s &chat kein Wallet verbunden."
+  ALLOWANCENOTSET: "&cDu musst die Zustimmung in deinem Wallet erteilen, bevor du Tokens senden oder tauschen kannst."
+
