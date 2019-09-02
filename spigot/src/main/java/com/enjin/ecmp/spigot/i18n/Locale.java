@@ -1,5 +1,7 @@
 package com.enjin.ecmp.spigot.i18n;
 
+import java.nio.charset.Charset;
+
 public enum  Locale {
 
     en_US("English"),
@@ -9,7 +11,7 @@ public enum  Locale {
     private String language;
 
     Locale(String language) {
-        this.language = language;
+        this.language = new String(language.getBytes(), Charset.forName("UTF-8"));
     }
 
     public String locale() {
