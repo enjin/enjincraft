@@ -17,7 +17,7 @@ public enum Translation {
     COMMAND_API_USAGE("USAGE: %s"),
     COMMAND_API_REQUIREMENTS_INVALIDPLAYER("&cThis command cannot be used by players."),
     COMMAND_API_REQUIREMENTS_INVALIDCONSOLE("&cThis command cannot be used by the console."),
-    COMMAND_API_REQUIREMENTS_INVALIDREMOTE("&cThis command cannot be used remotely."),
+    COMMAND_API_REQUIREMENTS_INVALIDREMOTE("&cThis command cannot be used by RCON."),
     COMMAND_API_REQUIREMENTS_INVALIDBLOCK("&cThis command cannot be used by command blocks."),
     COMMAND_API_REQUIREMENTS_NOPERMISSION("&cYou do not have the permission required for this command: &6%s"),
 
@@ -45,7 +45,7 @@ public enum Translation {
     COMMAND_LINK_INSTRUCTIONS_4("&7Click the 'LINK APP' button"),
     COMMAND_LINK_INSTRUCTIONS_5("&7Select the wallet you wish to link"),
     COMMAND_LINK_INSTRUCTIONS_6("&7Enter the identity linking code shown below"),
-    COMMAND_LINK_INSTRUCTIONS_7("&aIdentity Code: &6%s"),
+    COMMAND_LINK_INSTRUCTIONS_7("&aLink Code: &6%s"),
 
     COMMAND_SEND_DESCRIPTION("Send the held token to another player."),
     COMMAND_SEND_SUBMITTED("&aSend request submitted successfully. Please confirm the request in your wallet app."),
@@ -88,7 +88,7 @@ public enum Translation {
 
     WALLET_NOTLINKED_SELF("&cYou have not linked a wallet to your identity."),
     WALLET_NOTLINKED_OTHER("&6%s &chas not linked a wallet."),
-    WALLET_ALLOWANCENOTSET("&cYou must approve the allowance request in your wallet before you can send or trade tokens.");
+    WALLET_ALLOWANCENOTSET("&cYou must confirm the approve request in your wallet before you can send or trade tokens.");
 
     public static final String DEFAULT_LOCALE = "en_US";
 

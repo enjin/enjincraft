@@ -8,12 +8,12 @@ COMMAND:
     REQUIREMENTS:
       INVALIDPLAYER: "&cThis command cannot be used by players."
       INVALIDCONSOLE: "&cThis command cannot be used by the console."
-      INVALIDREMOTE: "&cThis command cannot be used remotely."
+      INVALIDREMOTE: "&cThis command cannot be used by RCON."
       INVALIDBLOCK: "&cThis command cannot be used by command blocks."
       NOPERMISSION: "&cYou do not have the permission required for this command: &6%s"
   ROOT:
     DESCRIPTION: "Show information about the plugin and authors."
-    DETAILS: "&7Running &6%s&7.<br>&7Use &6%s &7to view available commands."
+    DETAILS: "&7Running &6%s&7 &cv%s&7.<br>&7Use &6%s &7to view available commands."
   BALANCE:
     DESCRIPTION: "Show wallet address, eth, enj, and token balances."
     WALLETADDRESS: "&6Wallet Address: &d%s"
@@ -37,7 +37,7 @@ COMMAND:
       4: "&7Click the 'LINK APP' button"
       5: "&7Select the wallet you wish to link"
       6: "&7Enter the identity linking code shown below"
-      7: "&aIdentity Code: &6%s"
+      7: "&aLink Code: &6%s"
   SEND:
     DESCRIPTION: "Send the held token to another player."
     SUBMITTED: "&aSend request submitted successfully. Please confirm the request in your wallet app."
