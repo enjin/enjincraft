@@ -37,7 +37,7 @@ COMMAND:
       4: "&7Klik på knappen 'LINK APP'"
       5: "&7Vælg den tegnebog, du vil linke"
       6: "&7Indtast identitets linkingskode vist nedenfor"
-      7: "&aIdentitets kode: &6%s"
+      7: "&aLink kode: &6%s"
   SEND:
     DESCRIPTION: "Send token til en anden spiller."
     SUBMITTED: "&aAnmodning sendt med succes. Bekræft venligst anmodningen i din tegnebog app."
