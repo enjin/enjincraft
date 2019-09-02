@@ -13,7 +13,7 @@ COMMAND:
       NOPERMISSION: "&cYou do not have the permission required for this command: &6%s"
   ROOT:
     DESCRIPTION: "Show information about the plugin and authors."
-    DETAILS: "&7Running &6%s&7 &cv%s&7.<br>&7Use &6%s &7to view available commands."
+    DETAILS: "&7Running &6%s &cv%s&7.<br>&7Use &6%s &7to view available commands."
   BALANCE:
     DESCRIPTION: "Show wallet address, eth, enj, and token balances."
     WALLETADDRESS: "&6Wallet Address: &d%s"
