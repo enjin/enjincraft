@@ -5,6 +5,7 @@ import com.enjin.ecmp.spigot.util.TextUtil;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -90,6 +91,7 @@ public enum Translation {
     WALLET_NOTLINKED_OTHER("&6%s &chas not linked a wallet."),
     WALLET_ALLOWANCENOTSET("&cYou must approve the allowance request in your wallet before you can send or trade tokens.");
 
+    private static final Logger LOGGER = Logger.getLogger("ECMP");
     public static final String DEFAULT_LOCALE = "en_US";
 
     private static YamlConfiguration LANG;
@@ -149,10 +151,15 @@ public enum Translation {
         for (Translation translation : values()) {
             if (!LANG.isSet(translation.path)) {
                 LANG.set(translation.path, translation.def);
+                LOGGER.info(String.format("Setting missing translation key %s to default English translation.",
+                        translation.path));
             } else {
                 int argCount = getArgCount(LANG.getString(translation.path));
-                if (argCount != translation.argCount)
+                if (argCount != translation.argCount) {
                     LANG.set(translation.path, translation.def);
+                    LOGGER.info(String.format("Invalid translation key %s, using default English translation.",
+                            translation.path));
+                }
             }
         }
     }
