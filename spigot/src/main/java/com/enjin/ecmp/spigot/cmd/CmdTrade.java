@@ -55,7 +55,7 @@ public class CmdTrade extends EnjCommand {
         @Override
         public List<String> tab(CommandContext context) {
             if (context.args.size() == 1)
-                return PlayerArgumentProcessor.INSTANCE.tab();
+                return PlayerArgumentProcessor.INSTANCE.tab(context.sender, context.args.get(0));
             return new ArrayList<>(0);
         }
 
@@ -149,7 +149,7 @@ public class CmdTrade extends EnjCommand {
         @Override
         public List<String> tab(CommandContext context) {
             if (context.args.size() == 1)
-                return PlayerArgumentProcessor.INSTANCE.tab();
+                return PlayerArgumentProcessor.INSTANCE.tab(context.sender, context.args.get(0));
             return new ArrayList<>(0);
         }
 
@@ -199,7 +199,7 @@ public class CmdTrade extends EnjCommand {
         @Override
         public List<String> tab(CommandContext context) {
             if (context.args.size() == 1)
-                return PlayerArgumentProcessor.INSTANCE.tab();
+                return PlayerArgumentProcessor.INSTANCE.tab(context.sender, context.args.get(0));
             return new ArrayList<>(0);
         }
 
