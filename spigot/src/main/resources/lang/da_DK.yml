@@ -13,7 +13,7 @@ COMMAND:
       NOPERMISSION: "&cDu har ikke den nødvendige tilladelse til denne kommando: &6%s"
   ROOT:
     DESCRIPTION: "Hvis information om plugin og udgiver."
-    DETAILS: "&Kører &6%s&7.<br>&7Brug &6%s &7for at se tilgængelige kommandoer."
+    DETAILS: "&7Kører &6%s&7 &cv%s&7.<br>&7Brug &6%s &7for at se tilgængelige kommandoer."
   BALANCE:
     DESCRIPTION: "Vis tegnebog adresse, eth, enj, og token saldo."
     WALLETADDRESS: "&6Tegnebog adresse: &d%s"
