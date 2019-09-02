@@ -68,13 +68,13 @@ public class CmdConf extends EnjCommand {
             @Override
             public List<String> tab(CommandContext context) {
                 if (context.args.size() == 1)
-                    return LocaleArgumentProcessor.INSTANCE.tab();
+                    return LocaleArgumentProcessor.INSTANCE.tab(context.sender, context.args.get(0));
                 return new ArrayList<>(0);
             }
 
             @Override
             public void execute(CommandContext context) {
-                Optional<Locale> locale = LocaleArgumentProcessor.INSTANCE.parse(context.args.get(0));
+                Optional<Locale> locale = LocaleArgumentProcessor.INSTANCE.parse(context.sender, context.args.get(0));
 
                 if (!locale.isPresent()) {
                     // TODO invalid lang message

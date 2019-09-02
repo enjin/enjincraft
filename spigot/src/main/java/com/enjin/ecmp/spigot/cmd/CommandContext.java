@@ -46,7 +46,7 @@ public class CommandContext {
 
     public Optional<Player> argToPlayer(int index) {
         if (args.size() == 0 || index >= args.size()) return Optional.empty();
-        return PlayerArgumentProcessor.INSTANCE.parse(args.get(index));
+        return PlayerArgumentProcessor.INSTANCE.parse(sender, args.get(index));
     }
 
     public static List<EnjCommand> createCommandStackAsList(EnjCommand top) {
