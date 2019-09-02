@@ -1,0 +1,89 @@
+internal:
+  locale: "da_DK"
+  version: 1
+COMMAND:
+  API:
+    BADUSAGE: "&cUgyldig kommando!"
+    USAGE: "USAGE: %s"
+    REQUIREMENTS:
+      INVALIDPLAYER: "&cDenne kommando kan ikke bruges af spillere."
+      INVALIDCONSOLE: "&cDenne kommado kan ikke bruges af konsollen."
+      INVALIDREMOTE: "&cDenne kommando kan ikke bruges eksternt."
+      INVALIDBLOCK: "&cDenne kommando kan ikke bruges af kommandoblokke."
+      NOPERMISSION: "&cDu har ikke den nødvendige tilladelse til denne kommando: &6%s"
+  ROOT:
+    DESCRIPTION: "Hvis information om plugin og udgiver."
+    DETAILS: "&Kører &6%s&7.<br>&7Brug &6%s &7for at se tilgængelige kommandoer."
+  BALANCE:
+    DESCRIPTION: "Vis tegnebog adresse, eth, enj, og token saldo."
+    WALLETADDRESS: "&6Tegnebog adresse: &d%s"
+    IDENTITYID: "&6Identitet ID: &d%s"
+    ENJBALANCE: "&a[ %s ENJ ]"
+    ETHBALANCE: "&a[ %s ETH ]"
+    TOKENDISPLAY: "&6%s. &5%s &a(qty. %s)"
+    NOTOKENS: "&l&6Der kunne ikke findes nogle tokens i din tegnebog."
+    TOKENCOUNT: "&l&6Fandt %s tokens i din tegnebog."
+  HELP:
+    DESCRIPTION: "Vis liste over kommandoer og deres brug."
+  LINK:
+    DESCRIPTION: "Vis linkingskode eller tilknyttet adresse."
+    NULLWALLET: "&cDin tegnebog adresse kunne ikke vises."
+    SHOWWALLET: "&aDin konto er knyttet til tegnebogens adresse: &6%s"
+    NULLCODE: "&cKan ikke vise din identitets linkingskode."
+    INSTRUCTIONS:
+      1: "&6Følg nedenstående trin for at linke din konto:"
+      2: "&7Download appen Enjin Wallet til Android eller iOS"
+      3: "&7Gå til sektionen Linked apps"
+      4: "&7Klik på knappen 'LINK APP'"
+      5: "&7Vælg den tegnebog, du vil linke"
+      6: "&7Indtast identitets linkingskode vist nedenfor"
+      7: "&aIdentitets kode: &6%s"
+  SEND:
+    DESCRIPTION: "Send token til en anden spiller."
+    SUBMITTED: "&aAnmodning sendt med succes. Bekræft venligst anmodningen i din tegnebog app."
+    MUSTHOLDITEM: "&cDu skal holde den tokeniserede vare, du vil sende."
+    ITEMNOTTOKEN: "&cDen holdte vare er ikke knyttet til et token."
+  CONF:
+    DESCRIPTION: "Udfør handlinger på plugin-konfigurationen."
+    SET:
+      DESCRIPTION: "Indstil ny værdi for konfigurationsindstillingen."
+      LANG:
+        DESCRIPTION: "Indstil standardsproget, der skal bruges."
+  TRADE:
+    DESCRIPTION: "Vis hjælp til underkommandoer for handel."
+    INVITE:
+      DESCRIPTION: "Inviter en spiller til at handle tokens."
+    ACCEPT:
+      DESCRIPTION: "Accepter en anden spillers handelsinvitation."
+    DECLINE:
+      DESCRIPTION: "Afvis en anden spillers handelsinvitation."
+    NOOPENINVITE: "&cIngen åben handel inviteret fra &6%s"
+    DECLINED:
+      SENDER: "&aDu har afvist &6%s's &ahandels invitation."
+      TARGET: "&6%s &char afvist din handelsinvitation."
+    ALREADYINVITED: "&cDu har allerede inviteret &6%s &ctil at handle."
+    WANTSTOTRADE: "&6%s &avil handle med dig."
+    INVITESENT: "&aHandelsinvitation sendt til &6%s!"
+    INVITEDTOTRADE: "&6%s &7har inviteret dig til at handle."
+    CONFIRM:
+      ACTION: "&6Bekræft handelen med din tegnebog-app."
+      WAIT: "&6Vent venligst, mens den anden spiller bekræfter handlen."
+    COMPLETE: "&6Din handel er afsluttet!"
+  UNLINK:
+    DESCRIPTION: "Fjerner linket mellem tegnebog og spillerkonto."
+    SUCCESS: "&aTegnebogen er fjernet fra din konto!"
+  WALLET:
+    DESCRIPTION: "Åbn din tegnebogsbeholdning for at se, tjek ud og returnere genstande."
+HINT:
+  LINK: "&cType &6'/enj link' &cfor instruktioner i, hvordan du forbinder din Enjin-tegnebog."
+IDENTITY:
+  NOTLOADED: "&cDine spillerdata indlæses. Prøv igen om et øjeblik."
+ERRORS:
+  EXCEPTION: "&cFEJL: &7%s"
+  CHOOSEOTHERPLAYER: "&cDu skal specificere en anden spiller end dig selv."
+  PLAYERNOTONLINE: "&6%s &cer ikke online."
+WALLET:
+  NOTLINKED:
+    SELF: "&cDu har ikke knyttet en tegnebog til din identitet."
+    OTHER: "&6%s &char ikke knyttet en tegnebog."
+  ALLOWANCENOTSET: "&cDu skal godkende lommepenge anmodningen i din tegnebog, før du kan sende eller handle tokens."

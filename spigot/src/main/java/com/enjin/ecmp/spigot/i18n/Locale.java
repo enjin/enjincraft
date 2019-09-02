@@ -3,7 +3,8 @@ package com.enjin.ecmp.spigot.i18n;
 public enum  Locale {
 
     en_US("English"),
-    es_ES("Spanish");
+    es_ES("Española"),
+    da_DK("Dansk");
 
     private String language;
 
