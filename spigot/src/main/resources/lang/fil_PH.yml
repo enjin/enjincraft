@@ -1,0 +1,89 @@
+internal:
+  locale: "fil_ph"
+  version: 1
+COMMAND:
+  API:
+    BADUSAGE: "&cHindi wastong pag utos!"
+    USAGE: "PAG GAMIT: %s"
+    REQUIREMENTS:
+      INVALIDPLAYER: "&cAng utos na ito ay hindi maaaring gamitin ng mga manlalaro."
+      INVALIDCONSOLE: "&cAng utos na ito ay hindi maaaring gamitin ng console."
+      INVALIDREMOTE: "&cAng utos na ito ay hindi maaaring magamit nang malayuan."
+      INVALIDBLOCK: "&cAng utos na ito ay hindi maaaring gamitin ng mga command blocks."
+      NOPERMISSION: "&cWala kang pahintulot na kinakailangan para sa utos na ito: &6%s"
+  ROOT:
+    DESCRIPTION: "Ipakita ang impormasyon tungkol sa plugin at may-akda."
+    DETAILS: "&7Tumatakbo &6%s &cv%s&7.<br>&7Gumamit &6%s &7upang tingnan ang magagamit na mga utos."
+  BALANCE:
+    DESCRIPTION: "Ipakita ang address ng pitaka, eth, enj, at balanse ng token."
+    WALLETADDRESS: "&6Address ng Wallet: &d%s"
+    IDENTITYID: "&6ID ng pagkakakilanlan: &d%s"
+    ENJBALANCE: "&a[ %s ENJ ]"
+    ETHBALANCE: "&a[ %s ETH ]"
+    TOKENDISPLAY: "&6%s. &5%s &a(qty. %s)"
+    NOTOKENS: "&l&6Walang mga token na natagpuan sa iyong pitaka."
+    TOKENCOUNT: "&l&6Natagpuan %s token sa iyong pitaka."
+  HELP:
+    DESCRIPTION: "Ipakita ang listahan ng mga utos sa kanilang paggamit."
+  LINK:
+    DESCRIPTION: "Ipakita ang pag-link ng code o naka-link na address."
+    NULLWALLET: "&cHindi maipakita ang iyong address ng pitaka."
+    SHOWWALLET: "&aAng iyong account ay naka-link sa address ng pitaka: &6%s"
+    NULLCODE: "&cHindi maipakita ang iyong code sa pag-link ng pagkakakilanlan."
+    INSTRUCTIONS:
+      1: "&6Upang mai-link ang iyong account sundin ang mga hakbang sa ibaba:"
+      2: "&7I-download ang Enjin Wallet app para sa Android o iOS"
+      3: "&7Mag-browse sa seksyong naka-link na Apps"
+      4: "&7I-click ang pindutan ng 'LINK APP'"
+      5: "&7Piliin ang pitaka na nais mong mai-link"
+      6: "&7Ipasok ang code ng pag-link ng pagkakakilanlan na ipinakita sa ibaba"
+      7: "&aCode ng pagkakakilanlan: &6%s"
+  SEND:
+    DESCRIPTION: "Ipadala ang hawak na token sa isa pang manlalaro."
+    SUBMITTED: "&aMatagumpay na isumite ang kahilingan. Mangyaring kumpirmahin ang kahilingan sa iyong wallet app."
+    MUSTHOLDITEM: "&cDapat mong hawakan ang natukoy na item na nais mong ipadala."
+    ITEMNOTTOKEN: "&cAng hawak na item ay hindi nauugnay sa isang token."
+  CONF:
+    DESCRIPTION: "Magsagawa ng mga operasyon sa pagsasaayos ng plugin."
+    SET:
+      DESCRIPTION: "Itakda ang bagong numero para sa pagpipilian ng config."
+      LANG:
+        DESCRIPTION: "Itakda ang default na wika na gagamitin."
+  TRADE:
+    DESCRIPTION: "Magpakita ng listahan para sa trade sub-commands."
+    INVITE:
+      DESCRIPTION: "Anyayahan ang isang manlalaro na makipagkalakalan ng tokens."
+    ACCEPT:
+      DESCRIPTION: "Tanggapin ang paanyaya ng ibang manlalaro na makipagkalakalan."
+    DECLINE:
+      DESCRIPTION: "Tanggihan ang imbitasyon na makipagkalakalan sa ibang manlalaro."
+    NOOPENINVITE: "&cWalang imbitasyon sa kalakalan galing kay &6%s"
+    DECLINED:
+      SENDER: "&aTumanggi sa &aimbitasyon ni &6%s sa kalakalan."
+      TARGET: "&6%s &cay tinanggihan ang iyong imbitasyon sa pangangalakal."
+    ALREADYINVITED: "&cInimbitahan mo na si &6%s &cmakipagkalakalan."
+    WANTSTOTRADE: "&6%s &agustong makipagkalakalan sa iyo."
+    INVITESENT: "&aAng imbitasyong pangkalakalan na ipinadala kay &6%s!"
+    INVITEDTOTRADE: "&6%s &7nag-imbita sa iyo upang makipagkalakalan."
+    CONFIRM:
+      ACTION: "&6Mangyaring kumpirmahin ang kalakalan sa iyong wallet app."
+      WAIT: "&6Mangyaring maghintay habang kinukumpirma ng ibang player ang kalakalan."
+    COMPLETE: "&6Naganap na ang kalakalan!"
+  UNLINK:
+    DESCRIPTION: "Tinatanggal ang link sa pagitan ng pitaka at account ng player."
+    SUCCESS: "&aNatanggal na ang link ng pitaka sa iyong account!"
+  WALLET:
+    DESCRIPTION: "Buksan ang iyong imbentaryo ng pitaka upang tingnan, suriin, at ibalik ang mga item."
+HINT:
+  LINK: "&cType &6'/enj link' &cpara sa mga tagubilin sa kung paano i-link ang iyong Enjin Wallet."
+IDENTITY:
+  NOTLOADED: "&cNaglo-load ang data ng iyong player. Subukang muli sandali."
+ERRORS:
+  EXCEPTION: "&cERROR: &7%s"
+  CHOOSEOTHERPLAYER: "&cDapat mong tukuyin ang isang player maliban sa iyong sarili."
+  PLAYERNOTONLINE: "&6%s &cay hindi online."
+WALLET:
+  NOTLINKED:
+    SELF: "&cHindi mo pa naiugnay ang isang pitaka sa iyong pagkakakilanlan."
+    OTHER: "&6%s &cay hindi naka-link ang isang pitaka."
+  ALLOWANCENOTSET: "&cDapat mong aprubahan ang kahilingan ng allowance sa iyong pitaka bago ka makapagpadala o mag-trade ng mga token."
