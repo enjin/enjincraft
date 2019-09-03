@@ -82,7 +82,14 @@ public class TradeManager implements Listener {
     public void completeTrade(Integer requestId) {
         try {
             TradeSession session = bootstrap.db().getSessionFromRequestId(requestId);
+            completeTrade(session);
+        } catch (Exception ex) {
+            bootstrap.log(ex);
+        }
+    }
 
+    public void completeTrade(TradeSession session) {
+        try {
             if (session == null)
                 return;
 
@@ -92,17 +99,24 @@ public class TradeManager implements Listener {
             inviter.ifPresent(player -> Translation.COMMAND_TRADE_COMPLETE.send(player));
             invited.ifPresent(player -> Translation.COMMAND_TRADE_COMPLETE.send(player));
 
-            bootstrap.db().tradeExecuted(requestId);
+            bootstrap.db().tradeExecuted(session.getCompleteRequestId());
         } catch (Exception ex) {
             bootstrap.log(ex);
         }
     }
 
-    public void completeTrade(Integer requestId, String tradeId) {
+    public void sendCompleteRequest(Integer requestId, String tradeId) {
         try {
             TradeSession session = bootstrap.db().getSessionFromRequestId(requestId);
+            sendCompleteRequest(session,tradeId);
+        } catch (Exception ex) {
+            bootstrap.log(ex);
+        }
+    }
 
-            if (session == null)
+    public void sendCompleteRequest(TradeSession session, String tradeId) {
+        try {
+            if (session == null || StringUtils.isEmpty(tradeId))
                 return;
 
             Optional<Player> inviter = Optional.ofNullable(Bukkit.getPlayer(session.getInviterUuid()));
@@ -127,7 +141,7 @@ public class TradeManager implements Listener {
                         invited.ifPresent(player -> Translation.COMMAND_TRADE_CONFIRM_ACTION.send(player));
 
                         try {
-                            bootstrap.db().completeTrade(requestId,
+                            bootstrap.db().completeTrade(session.getCreateRequestId(),
                                     dataIn.getId(),
                                     tradeId);
                         } catch (SQLException ex) {

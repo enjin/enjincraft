@@ -38,7 +38,7 @@ public class TradeUpdateTask extends BukkitRunnable {
             TradeSession session = tradeSessions.remove(0);
 
             if (session.isExpired()) {
-                bootstrap.db().cancelTrade(session.getMostRecentRequestId());
+                bootstrap.getTradeManager().cancelTrade(session.getMostRecentRequestId());
                 return;
             }
 
@@ -73,44 +73,20 @@ public class TradeUpdateTask extends BukkitRunnable {
 
             if (type == TokenEventType.CREATE_TRADE) {
                 if (state == TransactionState.CANCELED_USER || state == TransactionState.CANCELED_PLATFORM) {
-                    bootstrap.db().cancelTrade(transaction.getId());
+                    bootstrap.getTradeManager().cancelTrade(transaction.getId());
                 } else if (state == TransactionState.EXECUTED) {
-                    sendCompleteRequest(session, event);
+                    bootstrap.getTradeManager().sendCompleteRequest(session, event.getParam1());
                 }
             } else if (type == TokenEventType.COMPLETE_TRADE) {
                 if (state == TransactionState.CANCELED_USER || state == TransactionState.CANCELED_PLATFORM) {
-                    bootstrap.db().cancelTrade(transaction.getId());
+                    bootstrap.getTradeManager().cancelTrade(transaction.getId());
                 } else if (state == TransactionState.EXECUTED) {
-                    bootstrap.db().tradeExecuted(transaction.getId());
+                    bootstrap.getTradeManager().completeTrade(session);
                 }
             }
         } catch (Exception ex) {
             bootstrap.log(ex);
         }
-    }
-
-    private void sendCompleteRequest(TradeSession session, TokenEvent event) throws SQLException, IOException {
-        if (StringUtils.isEmpty(event.getParam1()))
-            return;
-
-        HttpResponse<GraphQLResponse<Transaction>> networkResponse = bootstrap.getTrustedPlatformClient()
-                .getRequestsService().createRequestSync(new CreateRequest()
-                        .identityId(session.getInvitedIdentityId())
-                        .completeTrade(CompleteTradeData.builder()
-                                .tradeId(event.getParam1())
-                                .build()));
-
-        if (!networkResponse.isSuccess())
-            throw new NetworkException(networkResponse.code());
-
-        GraphQLResponse<Transaction> graphQLResponse = networkResponse.body();
-
-        if (!graphQLResponse.isSuccess())
-            throw new GraphQLException(graphQLResponse.getErrors());
-
-        Transaction data = graphQLResponse.getData();
-
-        bootstrap.db().completeTrade(session.getCreateRequestId(), data.getId(), session.getTradeId());
     }
 
 }
