@@ -7,7 +7,8 @@ public enum  Locale {
     en_US("English"),
     es_ES("Española"),
     da_DK("Dansk"),
-    de_DE("Deutsche");
+    de_DE("Deutsche"),
+    fil_PH("Filipino");
 
     private String language;
 
