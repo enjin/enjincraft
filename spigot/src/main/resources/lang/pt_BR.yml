@@ -1,0 +1,89 @@
+internal:
+  locale: "pt_BR"
+  version: 1
+COMMAND:
+  API:
+    BADUSAGE: "&cUtilização de comando inválido!"
+    USAGE: "Utilização: %s"
+    REQUIREMENTS:
+      INVALIDPLAYER: "&cEste comando não pode ser utilizado por jogadores."
+      INVALIDCONSOLE: "&cEste comando não pode ser utilizado pelo console."
+      INVALIDREMOTE: "&cEste comando não pode ser utilizado remotamente."
+      INVALIDBLOCK: "&cEste comando não pode ser utilizado pelo bloco de comandos."
+      NOPERMISSION: "&cVocê não tem as permissões necessárias para executar este comando: &6%s"
+  ROOT:
+    DESCRIPTION: "Exibir informações sobre o plugin e seus autores."
+    DETAILS: "&7Executando &6%s &cv%s&7.<br>&7Utilize &6%s &7para ver comandos disponíveis."
+  BALANCE:
+    DESCRIPTION: "Exibir endereço da carteira, eth, enj e saldo de tokens."
+    WALLETADDRESS: "&6Endereço da carteira: &d%s"
+    IDENTITYID: "&6ID da Identidade: &d%s"
+    ENJBALANCE: "&a[ %s ENJ ]"
+    ETHBALANCE: "&a[ %s ETH ]"
+    TOKENDISPLAY: "&6%s. &5%s &a(qty. %s)"
+    NOTOKENS: "&l&6Nenhum token encontrado em sua carteira."
+    TOKENCOUNT: "&l&6Encontrados %s tokens em sua carteira."
+  HELP:
+    DESCRIPTION: "Exibir lista de comandos e sua utilização."
+  LINK:
+    DESCRIPTION: "Exibir código de vinculação ou endereço vinculado."
+    NULLWALLET: "&cNão foi possível exibir o endereço da sua carteira."
+    SHOWWALLET: "&aSua conta está vinculada ao endereço de carteira: &6%s"
+    NULLCODE: "&cNão foi possível exibir seu código de vinculação de identidade."
+    INSTRUCTIONS:
+      1: "&6Siga o passo a passo abaixo para vincular sua conta:"
+      2: "&7Faça o download da Carteira Enjin para Android ou iOS"
+      3: "&7Navegue até a seção de aplicações ligadas"
+      4: "&7Pressione o botão 'LIGAR APLICAÇÃO'"
+      5: "&7Selecione a carteira no qual você deseja vincular"
+      6: "&7Introduza o código de vinculação de identidade exibido abaixo"
+      7: "&aCódigo de identidade: &6%s"
+  SEND:
+    DESCRIPTION: "Enviar o token para outro jogador."
+    SUBMITTED: "&aSolicitação de envio registrada com sucesso. Por favor, confirme a solicitação em sua carteira."
+    MUSTHOLDITEM: "&cVocê deve ter o item tokenizado que deseja enviar."
+    ITEMNOTTOKEN: "&cEste item não está vinculado a nenhum token."
+  CONF:
+    DESCRIPTION: "Executar operações na configuração do plug-in."
+    SET:
+      DESCRIPTION: "Definir novo valor para a opção de configuração."
+      LANG:
+        DESCRIPTION: "Definir o idioma de utilização padrão."
+  TRADE:
+    DESCRIPTION: "Exibir ajuda para sub comandos de troca."
+    INVITE:
+      DESCRIPTION: "Convidar um jogador para trocar tokens."
+    ACCEPT:
+      DESCRIPTION: "Aceitar o convite de troca de outro jogador."
+    DECLINE:
+      DESCRIPTION: "Recusar o convite de troca de outro jogador."
+    NOOPENINVITE: "&cNenhum convite de troca feito por &6%s"
+    DECLINED:
+      SENDER: "&aVocê recusou o convite de troca de &6%s's &a."
+      TARGET: "&6%s &chas recusou seu convite de troca."
+    ALREADYINVITED: "&cVocê já convidou &6%s &cpara trocar."
+    WANTSTOTRADE: "&6%s &aQuer trocar com você."
+    INVITESENT: "&aConvite de troca enviado para &6%s!"
+    INVITEDTOTRADE: "&6%s &7Te convidou para trocar."
+    CONFIRM:
+      ACTION: "&6Por favor, confirme a troca no seu aplicativo de carteira."
+      WAIT: "&6Por favor, aguarde enquanto o outro jogador confirma a troca."
+    COMPLETE: "&6Sua troca foi realizada com sucesso!"
+  UNLINK:
+    DESCRIPTION: "Remove o vínculo entre a carteira e a conta do jogador."
+    SUCCESS: "&aA carteira foi desvinculada de sua conta!"
+  WALLET:
+    DESCRIPTION: "Abra o inventário da sua carteira para visualizar, retirar e devolver itens."
+HINT:
+  LINK: "&cDigite &6'/enj link' &cpara receber instruções de como vincular a sua Carteira Enjin."
+IDENTITY:
+  NOTLOADED: "&cAs informações de seu jogador estão carregando. Tente novamente em alguns momentos."
+ERRORS:
+  EXCEPTION: "&cERRO: &7%s"
+  CHOOSEOTHERPLAYER: "&cVocê precisa especificar um jogador que não seja você mesmo."
+  PLAYERNOTONLINE: "&6%s &cnão está online."
+WALLET:
+  NOTLINKED:
+    SELF: "&cVocê não vinculou uma carteira à sua identidade."
+    OTHER: "&6%s &cNão vinculou uma carteira."
+  ALLOWANCENOTSET: "&cVocê deve aprovar a solicitação de utilização em sua carteira antes de poder enviar ou trocar tokens."
