@@ -2,12 +2,12 @@ package com.enjin.ecmp.spigot;
 
 import java.util.Optional;
 
-public class EnjSpigot {
+public class ECMP {
 
     private static Optional<SpigotBootstrap> instance = Optional.empty();
 
     protected static void register(SpigotBootstrap instance) {
-        EnjSpigot.instance = Optional.ofNullable(instance);
+        ECMP.instance = Optional.ofNullable(instance);
     }
 
     protected static void unregister() {

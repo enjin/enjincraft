@@ -1,6 +1,6 @@
 package com.enjin.ecmp.spigot.cmd;
 
-import com.enjin.ecmp.spigot.EnjSpigot;
+import com.enjin.ecmp.spigot.ECMP;
 import com.enjin.ecmp.spigot.cmd.arg.PlayerArgumentProcessor;
 import com.enjin.ecmp.spigot.player.EnjPlayer;
 import com.enjin.ecmp.spigot.player.UnregisteredPlayerException;
@@ -33,7 +33,7 @@ public class CommandContext {
 
         if (sender instanceof Player) {
             player = (Player) sender;
-            enjPlayer = EnjSpigot.bootstrap().get()
+            enjPlayer = ECMP.bootstrap().get()
                     .getPlayerManager()
                     .getPlayer(player)
                     .orElse(null);
