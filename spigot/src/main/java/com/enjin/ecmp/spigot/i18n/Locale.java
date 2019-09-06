@@ -7,7 +7,6 @@ public enum  Locale {
     da_DK("Dansk"),
     de_DE("Deutsche"),
     en_US("English"),
-    es_ES("Española"),
     fil_PH("Pilipino"),
     pt_BR("Português");
 
