@@ -5,7 +5,7 @@ import java.nio.charset.Charset;
 public enum  Locale {
 
     da_DK("Dansk"),
-    de_DE("Deutsche"),
+    de_DE("Deutsch"),
     en_US("English"),
     fil_PH("Pilipino"),
     pt_BR("Português");
