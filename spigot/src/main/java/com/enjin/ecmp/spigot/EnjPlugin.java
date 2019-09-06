@@ -8,14 +8,14 @@ public class EnjPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        EnjSpigot.register(bootstrap = new SpigotBootstrap(this));
+        ECMP.register(bootstrap = new SpigotBootstrap(this));
         bootstrap.setUp();
     }
 
     @Override
     public void onDisable() {
         bootstrap.tearDown();
-        EnjSpigot.unregister();
+        ECMP.unregister();
     }
 
     public SpigotBootstrap bootstrap() {
