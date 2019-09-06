@@ -4,10 +4,10 @@ import java.nio.charset.Charset;
 
 public enum  Locale {
 
-    en_US("English"),
-    es_ES("Española"),
     da_DK("Dansk"),
     de_DE("Deutsche"),
+    en_US("English"),
+    es_ES("Española"),
     fil_PH("Pilipino"),
     pt_BR("Português");
 
