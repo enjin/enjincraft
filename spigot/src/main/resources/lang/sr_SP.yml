@@ -1,0 +1,88 @@
+internal:
+ locale: "sr_SP"
+ version: 1
+COMMAND:
+ API:
+   BADUSAGE: "&cNevažeća upotreba komande!"
+   USAGE: "UPOTREBA: %s"
+   REQUIREMENTS:
+     INVALIDPLAYER: "&cOva komanda ne može biti korišćena od strane igrača."
+     INVALIDCONSOLE: "&cKonzola ne podržava ovu komandu."
+     INVALIDREMOTE: "&cOva komanda ne radi na daljinu."
+     INVALIDBLOCK: "&cOva komanda ne može da bude iskorišćena od strane komandnih blokova."
+     NOPERMISSION: "&cNemate dozvolu koja je potrebna za ovu naredbu: &6%s"
+ ROOT:
+   DESCRIPTION: "Prikaži podatke o pluginu i autorima."
+   DETAILS: "&7U toku &6%s &c%s&7.<br>&7Koristi &6%s &7da vidiš raspoložive komande."
+ BALANCE:
+   DESCRIPTION: "Prikaži adresu novčanika, eth, enj, i stanje tokena."
+   WALLETADDRESS: "&6Adresa novčanika: &d%s"
+   IDENTITYID: "&6Identifikacioni broj: &d%s"
+   ENJBALANCE: "&a[ %s ENJ ]"
+   ETHBALANCE: "&a[ %s ETH ]"
+   TOKENDISPLAY: "&6%s. &5%s &a(qty. %s)"
+   NOTOKENS: "&l&6Nijedan token nije pronađen u Vašem novčaniku."
+   TOKENCOUNT: "&l&6Pronađeni %s tokeni u Vašem novčaniku."
+ HELP:
+   DESCRIPTION: "Prikaži listu komandi i njihovu upotrebu."
+ LINK:
+   DESCRIPTION: "Prikaži kod za povezivanje ili adresu za povezivanje."
+   NULLWALLET: "&cNije moguće prikazati adresu vašeg novčanika."
+   SHOWWALLET: "&aVaš nalog je povezan sa adresom novčanika: &6%s"
+   NULLCODE: "&cNije moguće pokazati kod za povezivanje identiteta."
+   INSTRUCTIONS:
+     1: "&6Da biste povezali svoj nalog, sledite dole navedene korake:"
+     2: "&7Preuzmite Enjin Wallet aplikaciju Android or iOS"
+     3: "&7Pređite na odeljak Povezane aplikacije"
+     4: "&7Kliknite 'LINK APP' dugme"
+     5: "&7Izaberite novčanik koji želite da povežete"
+     6: "&7Unesite kod za povezivanje identiteta prikazan dole"
+     7: "&aIndentifikacioni kod: &6%s"
+ SEND:
+   DESCRIPTION: "Pošalji token drugom igraču."
+   SUBMITTED: "&aSlanje zahteva uspešno poslato. Potvrdi zahtev u aplikaciji za novčanik."
+   MUSTHOLDITEM: "&cMorate držati tokenizovanu stavku koju želite da pošaljete."
+   ITEMNOTTOKEN: "&cStavka koja se zadržava nije povezana sa tokenom."
+ CONF:
+   DESCRIPTION: "Izvrši konfiguraciju plugina."
+   SET:
+     DESCRIPTION: "Podesi novu vrednost za opciju za konfiguraciju."
+     LANG:
+       DESCRIPTION: "Podesi podrazumevani jezik za korišćenje."
+ TRADE:
+   DESCRIPTION: "<Prikaži pomoć za pod-komande za trgovinu."
+   INVITE:
+     DESCRIPTION: "Pozovi igrača da trguje žetonima."
+   ACCEPT:
+     DESCRIPTION: "Prihvati poziv za trgovinu od strane drugog igrača."
+   DECLINE:
+     DESCRIPTION: "Odbij poziv za trgovinu od strane drugog igrača."
+   NOOPENINVITE: "&cNema poziva za trgovinu &6%s"
+   DECLINED:
+     SENDER: "&aOdbili ste &6%s's &apoziv za trgovinu."
+     TARGET: "&6%s &cje odbio Vaš poziv za trgovinu."
+   ALREADYINVITED: "&cVeć ste pozvali &6%s &cto trgovinu."
+   WANTSTOTRADE: "&6%s &aželi da trguje sa Vama."
+   INVITESENT: "&aPozivnica za trgovinu je poslata igraču &6%s!"
+   INVITEDTOTRADE: "&6%s &7Vas je pozvao da trgujete."
+   CONFIRM:
+     ACTION: "&6Potvrdi trgovinu u novčaniku."
+     WAIT: "&6Pričekajte dok drugi igrač potvrdi trgovinu."
+   COMPLETE: "&6Trgovina je završena!"
+ UNLINK:
+   DESCRIPTION: "Uklanja link između novčanika i naloga igrača!"
+ WALLET:
+   DESCRIPTION: "Otvorite popis novčanika da biste pregledali i vraćali predmete."
+HINT:
+ LINK: "&cType &6'/enj link' &cza uputstva o tome kako da povežete svoj Enjin novčanik."
+IDENTITY:
+ NOTLOADED: "&cPodaci o Vašem plejeru se učitavaju. Pokušajte ponovo za koji trenutak."
+ERRORS:
+ EXCEPTION: "&cGREŠKA: &7%s"
+ CHOOSEOTHERPLAYER: "&cMorate navesti još nekog igrača pored sebe."
+ PLAYERNOTONLINE: "&6%s &cnije na vezi."
+WALLET:
+ NOTLINKED:
+   SELF: "&cNiste povezali novčanik sa svojim identitetom."
+   OTHER: "&6%s &cnije povezao novčanik."
+ ALLOWANCENOTSET: "&cDa biste mogli da pošaljete ili trgujete žetonima, morate da odobrite zahtev za dodatak u svom novčaniku."

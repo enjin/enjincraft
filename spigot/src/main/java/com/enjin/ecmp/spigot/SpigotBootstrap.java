@@ -84,7 +84,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
             database = new Database(this);
 
             // Create the trusted platform client
-            trustedPlatformClient = new TrustedPlatformClient.Builder()
+            trustedPlatformClient = TrustedPlatformClient.builder()
                     .httpLogLevel(conf.isSdkDebugEnabled() ? BODY : NONE)
                     .baseUrl(conf.getBaseUrl())
                     .readTimeout(1, TimeUnit.MINUTES)
