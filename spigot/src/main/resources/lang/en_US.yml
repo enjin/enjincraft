@@ -50,6 +50,8 @@ COMMAND:
       DESCRIPTION: "Set new value for config option."
       LANG:
         DESCRIPTION: "Set the default language to use."
+        NOTFOUND: "&cThat is not a valid language option."
+        SUCCESS: "&aYou have set the server language to &6%s!"
   TRADE:
     DESCRIPTION: "Show help for trade sub-commands."
     INVITE:

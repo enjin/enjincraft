@@ -65,6 +65,8 @@ public enum Translation {
     COMMAND_CONF_DESCRIPTION("Perform operations on the plugin configuration."),
     COMMAND_CONF_SET_DESCRIPTION("Set new value for config option."),
     COMMAND_CONF_SET_LANG_DESCRIPTION("Set the default language to use."),
+    COMMAND_CONF_SET_LANG_NOTFOUND("&cThat is not a valid language option."),
+    COMMAND_CONF_SET_LANG_SUCCESS("&aYou have set the server language to &6%s!"),
 
     COMMAND_TRADE_DESCRIPTION("Show help for trade sub-commands."),
     COMMAND_TRADE_INVITE_DESCRIPTION("Invite a player to trade tokens."),
