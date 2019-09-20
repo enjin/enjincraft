@@ -4,7 +4,10 @@ import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.ecmp.spigot.util.TextUtil;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.Plugin;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,6 +15,7 @@ import java.util.regex.Pattern;
 public enum Translation {
 
     _locale("en_US"),
+    _language("English"),
     _version(1),
 
     COMMAND_API_BADUSAGE("&cInvalid command usage!"),
@@ -94,7 +98,9 @@ public enum Translation {
     private static final Logger LOGGER = Logger.getLogger("ECMP");
     public static final Locale DEFAULT_LOCALE = Locale.en_US;
 
-    private static YamlConfiguration LANG;
+    private static final Map<Locale, YamlConfiguration> LOCALE_CONFIGS = new HashMap<>();
+    private static final Map<Locale, String> LOCALE_NAMES = new HashMap<>();
+    private static Locale serverLocale = DEFAULT_LOCALE;
 
     private String path;
     private Object def;
@@ -117,7 +123,12 @@ public enum Translation {
     }
 
     public String translation() {
-        return LANG.getString(path(), defaultTranslation());
+        return translation(serverLocale);
+    }
+
+    public String translation(Locale locale) {
+        YamlConfiguration lang = LOCALE_CONFIGS.getOrDefault(locale, LOCALE_CONFIGS.get(DEFAULT_LOCALE));
+        return lang.getString(path(), defaultTranslation());
     }
 
     public int version() {
@@ -140,23 +151,37 @@ public enum Translation {
             MessageUtils.sendString(sender, line);
     }
 
-    public static void setLang(YamlConfiguration config) {
-        LANG = config;
-        setDefaults();
+    public static void setServerLocale(Locale locale) {
+        serverLocale = locale;
     }
 
-    private static void setDefaults() {
-        if (LANG == null) return;
+    public static Map<Locale, String> localeNames() {
+        return LOCALE_NAMES;
+    }
+
+    public static void loadLocales(Plugin plugin) {
+        for (Locale locale : Locale.values()) {
+            YamlConfiguration lang = locale.loadLocaleResource(plugin);
+            if (lang == null)
+                continue;
+            setDefaults(lang);
+            LOCALE_CONFIGS.put(locale, lang);
+            LOCALE_NAMES.put(locale, lang.getString(Translation._language.path()));
+        }
+    }
+
+    protected static void setDefaults(YamlConfiguration lang) {
+        if (lang == null) return;
 
         for (Translation translation : values()) {
-            if (!LANG.isSet(translation.path)) {
-                LANG.set(translation.path, translation.def);
+            if (!lang.isSet(translation.path)) {
+                lang.set(translation.path, translation.def);
                 LOGGER.info(String.format("Setting missing translation key %s to default English translation.",
                         translation.path));
             } else {
-                int argCount = getArgCount(LANG.getString(translation.path));
+                int argCount = getArgCount(lang.getString(translation.path));
                 if (argCount != translation.argCount) {
-                    LANG.set(translation.path, translation.def);
+                    lang.set(translation.path, translation.def);
                     LOGGER.info(String.format("Invalid translation key %s, using default English translation.",
                             translation.path));
                 }
@@ -164,7 +189,7 @@ public enum Translation {
         }
     }
 
-    private static int getArgCount(String text) {
+    protected static int getArgCount(String text) {
         int argCount = 0;
         Matcher matcher = Pattern.compile("%s").matcher(text);
         while (matcher.find())

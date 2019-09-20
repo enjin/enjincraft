@@ -1,10 +1,10 @@
 package com.enjin.ecmp.spigot.cmd.arg;
 
 import com.enjin.ecmp.spigot.i18n.Locale;
+import com.enjin.ecmp.spigot.i18n.Translation;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -18,9 +18,9 @@ public class LocaleArgumentProcessor extends AbstractArgumentProcessor<Locale> {
     public List<String> tab(CommandSender sender, String arg) {
         String lowerCaseArg = arg.toLowerCase();
         return Arrays.asList(Locale.values()).stream()
-                .map(locale -> sender instanceof Player ? locale.language().toLowerCase()
-                        : locale.locale().toLowerCase())
-                .filter(locale -> locale.startsWith(lowerCaseArg))
+                .map(locale -> sender instanceof Player ? Translation.localeNames().get(locale)
+                        : locale.locale())
+                .filter(locale -> locale.toLowerCase().startsWith(lowerCaseArg))
                 .collect(Collectors.toList());
     }
 
@@ -29,7 +29,7 @@ public class LocaleArgumentProcessor extends AbstractArgumentProcessor<Locale> {
         Optional result = Optional.empty();
 
         for (Locale locale : Locale.values()) {
-            if (locale.locale().equalsIgnoreCase(arg) || locale.language().equalsIgnoreCase(arg)) {
+            if (locale.locale().equalsIgnoreCase(arg) || Translation.localeNames().get(locale).equalsIgnoreCase(arg)) {
                 result = Optional.of(locale);
                 break;
             }
