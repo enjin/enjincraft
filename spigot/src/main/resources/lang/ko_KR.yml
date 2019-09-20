@@ -1,0 +1,89 @@
+internal:
+  locale: "ko_KR"
+  version: 1
+COMMAND:
+  API:
+    BADUSAGE: "&c유효하지 않은 명령어 사용입니다!"
+    USAGE: "USAGE: %s"
+    REQUIREMENTS:
+      INVALIDPLAYER: "&c이 명령어는 게임 유저들이 사용할 수 없습니다."
+      INVALIDCONSOLE: "&c이 명령어를 콘솔에서 사용할 수 없습니다."
+      INVALIDREMOTE: "&c이 명령어는 원격으로 사용할 수 없습니다."
+      INVALIDBLOCK: "&c이 명령어는 명령어 블록으로 사용할 수 없습니다."
+      NOPERMISSION: "&c이 명령어에 필요한 권한이 없습니다: &6%s"
+  ROOT:
+    DESCRIPTION: "플러그인과 저자 관련 내용 보기."
+    DETAILS: "&7러닝 &6%s &cv%s&7.<br>&6%s &7을 &7사용하여 가능한 명령어 보기."
+  BALANCE:
+    DESCRIPTION: "지갑 주소, 이더리움, 엔진, 및 토큰 잔액 보기."
+    WALLETADDRESS: "&6지갑 주소: &d%s"
+    IDENTITYID: "&6아이덴티티 ID: &d%s"
+    ENJBALANCE: "&a[ %s ENJ ]"
+    ETHBALANCE: "&a[ %s ETH ]"
+    TOKENDISPLAY: "&6%s. &5%s &a(qty. %s)"
+    NOTOKENS: "&l&6지갑에 토큰이 없습니다."
+    TOKENCOUNT: "&l&6지갑에 %s 토큰이 있습니다."
+  HELP:
+    DESCRIPTION: "사용량을 포함한 명령어 목록 보기."
+  LINK:
+    DESCRIPTION: "링크 코드나 링크된 주소 보기."
+    NULLWALLET: "&c지갑 주소를 볼 수 없습니다."
+    SHOWWALLET: "&a계정은 지갑 주소와 연동되었습니다: &6%s"
+    NULLCODE: "&c아이덴티티 링크 코드를 볼 수 없습니다."
+    INSTRUCTIONS:
+      1: "&6계정 연동을 하기 위해 다음 단계를 완성하면 됩니다:"
+      2: "&7안드로이드나 iOS용 엔진 지갑 앱을 다운로드 하세요"
+      3: "&7링크 앱 (Linked Apps) 섹션으로 가세요"
+      4: "&7’LINK APP’ 버튼을 클릭하세요"
+      5: "&7연동하고 싶은 지갑을 선택하세요"
+      6: "&7아래 보이는 아이덴티티 링크 코드를 입력하세요"
+      7: "&a아이덴티티 코드: &6%s"
+  SEND:
+    DESCRIPTION: "보유 토큰을 다른 유저에게 보내기."
+    SUBMITTED: "&a전송 요청이 성공적으로 제출됐습니다. 지갑 앱에서 요청을 승인해주세요."
+    MUSTHOLDITEM: "&c보내려 하는 토큰 아이템을 소유하고 계셔야 합니다."
+    ITEMNOTTOKEN: "&c해당 아이템은 토큰과 연결되지 않았습니다."
+  CONF:
+    DESCRIPTION: "플러그인 구성에서 작업 수행하기."
+    SET:
+      DESCRIPTION: "구성 옵션에 새로운 밸류를 설정하세요."
+      LANG:
+        DESCRIPTION: "사용할 기본 언어를 설정하세요."
+  TRADE:
+    DESCRIPTION: "거래 서브 커맨드 돕기 보기."
+    INVITE:
+      DESCRIPTION: "토큰 거래를 위해 유저 초대하기."
+    ACCEPT:
+      DESCRIPTION: "다른 유저의 거래 초대 수락하기."
+    DECLINE:
+      DESCRIPTION: "다른 유저의 거래 초대 거절하기."
+    NOOPENINVITE: "&c &6%s에서 열려있는 거래 초대가 없습니다"
+    DECLINED:
+      SENDER: "&a &6%s의 &a거래 초대를 거절했습니다."
+      TARGET: "&6%s &c가/이 거래 초청을 거절했습니다."
+    ALREADYINVITED: "&c이미 &6%s &c를/을 거래에 초대했습니다"
+    WANTSTOTRADE: "&6%s &a 가/이 거래를 원합니다."
+    INVITESENT: "&a거래 초대를 &6%s에게 보냈습니다!"
+    INVITEDTOTRADE: "&6%s &7에서 거래 초대를 보내왔습니다."
+    CONFIRM:
+      ACTION: "&6지갑 앱에서 거래를 승인하세요."
+      WAIT: "&6상대방 유저가 거래를 승인할때까지 잠시 기다려주세요."
+    COMPLETE: "&6거래가 완료되었습니다!"
+  UNLINK:
+    DESCRIPTION: "지갑과 유저 계정 간 연동을 없앱니다."
+    SUCCESS: "&a계정에서 지갑이 비연동 되었습니다!"
+  WALLET:
+    DESCRIPTION: "지갑 인벤토리를 열어 아이템 보기, 체크아웃, 돌려주기를 할 수 있습니다."
+HINT:
+  LINK: "&c 다음 &6'/enj link' &c 입력하면 엔진 지갑 연결하는 방법을 볼 수 있습니다."
+IDENTITY:
+  NOTLOADED: "&c유저 데이터가 로딩 중입니다. 잠시 후 다시 시도해주세요."
+ERRORS:
+  EXCEPTION: "&cERROR: &7%s"
+  CHOOSEOTHERPLAYER: "&c본인이 아닌 다른 유저를 지정해주세요."
+  PLAYERNOTONLINE: "&6%s &c는/은 현재 온라인 상태가 아닙니다."
+WALLET:
+  NOTLINKED:
+    SELF: "&c아이덴티티에 지갑을 연동하지 않았습니다."
+    OTHER: "&6%s &c는/은 아직 지갑을 연결하지 않았습니다."
+  ALLOWANCENOTSET: "&c지갑 내 금액 요청을 승인해야 토큰을 전송하거나 거래할 수 있습니다."
