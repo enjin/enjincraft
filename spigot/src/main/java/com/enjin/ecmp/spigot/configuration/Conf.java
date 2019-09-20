@@ -27,8 +27,12 @@ public class Conf {
         return internalConf.getInt(ConfPath.DEV_IDENTITY_ID.path());
     }
 
-    public String getLocale() {
+    public String getLocaleAsString() {
         return internalConf.getString(ConfPath.LOCALE.path());
+    }
+
+    public Locale getLocale() {
+        return Locale.of(getLocaleAsString());
     }
 
     public void setLocale(Locale locale) {
