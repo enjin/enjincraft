@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.enjin.ecmp.spigot.configuration.ConfigKeys.*;
+import static com.enjin.ecmp.spigot.configuration.TokenConfKeys.*;
 
 public class TokenConf {
 
