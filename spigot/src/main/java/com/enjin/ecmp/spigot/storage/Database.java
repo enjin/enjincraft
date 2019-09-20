@@ -60,21 +60,23 @@ public class Database {
                            int invitedIdentityId,
                            String invitedEthAddr,
                            int createRequestId) throws SQLException {
-        createTrade.clearParameters();
-        createTrade.setString(1, inviterUuid.toString());
-        createTrade.setInt(2, inviterIdentityId);
-        createTrade.setString(3, inviterEthAddr);
-        createTrade.setString(4, invitedUuid.toString());
-        createTrade.setInt(5, invitedIdentityId);
-        createTrade.setString(6, invitedEthAddr);
-        createTrade.setInt(7, createRequestId);
-        createTrade.setString(8, TradeState.PENDING_CREATE.name());
-        createTrade.setLong(9, OffsetDateTime.now(ZoneOffset.UTC).toEpochSecond());
-        int count = createTrade.executeUpdate();
+        synchronized (createTrade) {
+            createTrade.clearParameters();
+            createTrade.setString(1, inviterUuid.toString());
+            createTrade.setInt(2, inviterIdentityId);
+            createTrade.setString(3, inviterEthAddr);
+            createTrade.setString(4, invitedUuid.toString());
+            createTrade.setInt(5, invitedIdentityId);
+            createTrade.setString(6, invitedEthAddr);
+            createTrade.setInt(7, createRequestId);
+            createTrade.setString(8, TradeState.PENDING_CREATE.name());
+            createTrade.setLong(9, OffsetDateTime.now(ZoneOffset.UTC).toEpochSecond());
+            int count = createTrade.executeUpdate();
 
-        if (count > 0) {
-            try (ResultSet rs = createTrade.getGeneratedKeys()) {
-                return rs.getInt(1);
+            if (count > 0) {
+                try (ResultSet rs = createTrade.getGeneratedKeys()) {
+                    return rs.getInt(1);
+                }
             }
         }
 
@@ -84,35 +86,43 @@ public class Database {
     public int completeTrade(int createRequestId,
                              int completeRequestId,
                              String tradeId) throws SQLException {
-        completeTrade.clearParameters();
-        completeTrade.setInt(1, completeRequestId);
-        completeTrade.setString(2, tradeId);
-        completeTrade.setString(3, TradeState.PENDING_COMPLETE.name());
-        completeTrade.setInt(4, createRequestId);
-        return completeTrade.executeUpdate();
+        synchronized (completeTrade) {
+            completeTrade.clearParameters();
+            completeTrade.setInt(1, completeRequestId);
+            completeTrade.setString(2, tradeId);
+            completeTrade.setString(3, TradeState.PENDING_COMPLETE.name());
+            completeTrade.setInt(4, createRequestId);
+            return completeTrade.executeUpdate();
+        }
     }
 
     public int tradeExecuted(int completeRequestId) throws SQLException {
-        tradeExecuted.clearParameters();
-        tradeExecuted.setString(1, TradeState.EXECUTED.name());
-        tradeExecuted.setInt(2, completeRequestId);
-        return tradeExecuted.executeUpdate();
+        synchronized (tradeExecuted) {
+            tradeExecuted.clearParameters();
+            tradeExecuted.setString(1, TradeState.EXECUTED.name());
+            tradeExecuted.setInt(2, completeRequestId);
+            return tradeExecuted.executeUpdate();
+        }
     }
 
     public int cancelTrade(int requestId) throws SQLException {
-        cancelTrade.clearParameters();
-        cancelTrade.setString(1, TradeState.CANCELED.name());
-        cancelTrade.setInt(2, requestId);
-        cancelTrade.setInt(3, requestId);
-        return cancelTrade.executeUpdate();
+        synchronized (cancelTrade) {
+            cancelTrade.clearParameters();
+            cancelTrade.setString(1, TradeState.CANCELED.name());
+            cancelTrade.setInt(2, requestId);
+            cancelTrade.setInt(3, requestId);
+            return cancelTrade.executeUpdate();
+        }
     }
 
     public List<TradeSession> getPendingTrades() throws SQLException {
         List<TradeSession> sessions = new ArrayList<>();
 
-        try (ResultSet rs = getPendingTrades.executeQuery()) {
-            while (rs.next()) {
-                sessions.add(new TradeSession(rs));
+        synchronized (getPendingTrades) {
+            try (ResultSet rs = getPendingTrades.executeQuery()) {
+                while (rs.next()) {
+                    sessions.add(new TradeSession(rs));
+                }
             }
         }
 
@@ -122,13 +132,15 @@ public class Database {
     public TradeSession getSessionFromRequestId(int requestId) throws SQLException {
         TradeSession session = null;
 
-        getSessionReqId.clearParameters();
-        getSessionReqId.setInt(1, requestId);
-        getSessionReqId.setInt(2, requestId);
+        synchronized (getSessionReqId) {
+            getSessionReqId.clearParameters();
+            getSessionReqId.setInt(1, requestId);
+            getSessionReqId.setInt(2, requestId);
 
-        try (ResultSet rs = getSessionReqId.executeQuery()) {
-            if (rs.next())
-                session = new TradeSession(rs);
+            try (ResultSet rs = getSessionReqId.executeQuery()) {
+                if (rs.next())
+                    session = new TradeSession(rs);
+            }
         }
 
         return session;
