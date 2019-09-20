@@ -81,13 +81,13 @@ public abstract class EnjCommand {
     }
 
     public String getUsage(SenderType type, Usage usage) {
-        String output = getUsage(usage);
+        String output = buildUsage(type, usage);
         if (type != SenderType.PLAYER)
             output = output.replaceFirst("/", "");
         return output;
     }
 
-    public String getUsage(Usage usage) {
+    public String buildUsage(SenderType type, Usage usage) {
         StringBuilder builder = new StringBuilder();
 
         builder.append("&6/");
@@ -117,7 +117,7 @@ public abstract class EnjCommand {
         }
 
         if (usage == Usage.ALL)
-            builder.append(" &f").append(getUsageTranslation().toString());
+            builder.append(" &f").append(TextUtil.colorize(getUsageTranslation().translation(type)));
 
         return builder.toString();
     }

@@ -1,9 +1,11 @@
 package com.enjin.ecmp.spigot.i18n;
 
+import com.enjin.ecmp.spigot.cmd.SenderType;
 import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.ecmp.spigot.util.TextUtil;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.util.HashMap;
@@ -126,6 +128,20 @@ public enum Translation {
         return translation(serverLocale);
     }
 
+    public String translation(CommandSender sender) {
+        if (sender instanceof Player)
+            return translation();
+
+        return defaultTranslation();
+    }
+
+    public String translation(SenderType type) {
+        if (type == SenderType.PLAYER)
+            return translation();
+
+        return defaultTranslation();
+    }
+
     public String translation(Locale locale) {
         YamlConfiguration lang = LOCALE_CONFIGS.getOrDefault(locale, LOCALE_CONFIGS.get(DEFAULT_LOCALE));
         return lang.getString(path(), defaultTranslation());
@@ -139,13 +155,8 @@ public enum Translation {
         return _locale.translation();
     }
 
-    @Override
-    public String toString() {
-        return TextUtil.colorize(translation());
-    }
-
     public void send(CommandSender sender, Object... args) {
-        String formatted = String.format(translation(), args);
+        String formatted = String.format(translation(sender instanceof Player ? serverLocale : DEFAULT_LOCALE), args);
         String[] lines = formatted.split("<br>");
         for (String line : lines)
             MessageUtils.sendString(sender, line);
