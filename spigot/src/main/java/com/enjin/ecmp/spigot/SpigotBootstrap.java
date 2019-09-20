@@ -65,8 +65,6 @@ public class SpigotBootstrap implements Bootstrap, Module {
     @Override
     public void setUp() {
         try {
-            getLogger().info("Default Charset: " + Charset.defaultCharset().name());
-
             if (!initConfig()) return;
 
             tokenConf = new TokenConf(plugin);
