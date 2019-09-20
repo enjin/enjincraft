@@ -1,9 +1,12 @@
 package com.enjin.ecmp.spigot.i18n;
 
+import com.enjin.ecmp.spigot.ECMP;
 import com.enjin.ecmp.spigot.cmd.SenderType;
+import com.enjin.ecmp.spigot.configuration.Conf;
 import com.enjin.ecmp.spigot.util.MessageUtils;
 import com.enjin.ecmp.spigot.util.TextUtil;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -129,14 +132,14 @@ public enum Translation {
     }
 
     public String translation(CommandSender sender) {
-        if (sender instanceof Player)
+        if ((sender instanceof ConsoleCommandSender && conf().shouldTranslateConsoleMessages()) || sender instanceof Player)
             return translation();
 
         return defaultTranslation();
     }
 
     public String translation(SenderType type) {
-        if (type == SenderType.PLAYER)
+        if ((type == SenderType.CONSOLE && conf().shouldTranslateConsoleMessages()) || type == SenderType.PLAYER)
             return translation();
 
         return defaultTranslation();
@@ -160,6 +163,10 @@ public enum Translation {
         String[] lines = formatted.split("<br>");
         for (String line : lines)
             MessageUtils.sendString(sender, line);
+    }
+
+    private Conf conf() {
+        return ECMP.bootstrap().get().getConfig();
     }
 
     public static void setServerLocale(Locale locale) {

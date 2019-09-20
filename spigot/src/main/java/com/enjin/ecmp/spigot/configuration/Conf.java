@@ -51,4 +51,8 @@ public class Conf {
         return internalConf.getString(ConfPath.SENTRY_URL.path());
     }
 
+    public boolean shouldTranslateConsoleMessages() {
+        return internalConf.getBoolean(ConfPath.TRANSLATE_CONSOLE_MESSAGES.path());
+    }
+
 }

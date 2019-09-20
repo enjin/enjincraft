@@ -13,7 +13,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.enjin.ecmp.spigot.configuration.ConfigKeys.*;
+import static com.enjin.ecmp.spigot.configuration.TokenConfKeys.*;
 
 public class TokenDefinition {
 
