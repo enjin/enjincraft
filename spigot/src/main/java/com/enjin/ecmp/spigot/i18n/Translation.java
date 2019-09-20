@@ -92,7 +92,7 @@ public enum Translation {
     WALLET_ALLOWANCENOTSET("&cYou must confirm the approve request in your wallet before you can send or trade tokens.");
 
     private static final Logger LOGGER = Logger.getLogger("ECMP");
-    public static final String DEFAULT_LOCALE = "en_US";
+    public static final Locale DEFAULT_LOCALE = Locale.en_US;
 
     private static YamlConfiguration LANG;
 

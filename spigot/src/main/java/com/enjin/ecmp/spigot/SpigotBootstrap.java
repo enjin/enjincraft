@@ -7,6 +7,7 @@ import com.enjin.ecmp.spigot.configuration.TokenConf;
 import com.enjin.ecmp.spigot.dependencies.DependencyConfig;
 import com.enjin.ecmp.spigot.dependencies.DependencyManager;
 import com.enjin.ecmp.spigot.hooks.PlaceholderApiExpansion;
+import com.enjin.ecmp.spigot.i18n.Locale;
 import com.enjin.ecmp.spigot.i18n.Translation;
 import com.enjin.ecmp.spigot.listeners.NotificationListener;
 import com.enjin.ecmp.spigot.listeners.TokenItemListener;
@@ -66,6 +67,8 @@ public class SpigotBootstrap implements Bootstrap, Module {
     @Override
     public void setUp() {
         try {
+            getLogger().info("Default Charset: " + Charset.defaultCharset().name());
+
             if (!initConfig()) return;
 
             tokenConf = new TokenConf(plugin);
@@ -265,13 +268,13 @@ public class SpigotBootstrap implements Bootstrap, Module {
         Translation.setLang(lang);
     }
 
-    public YamlConfiguration loadLocaleResource(String locale) {
-        InputStream is = plugin.getResource(String.format("lang/%s.yml", locale));
+    public YamlConfiguration loadLocaleResource(Locale locale) {
+        InputStream is = plugin.getResource(String.format("lang/%s.yml", locale.name()));
 
         if (is == null)
             return null;
 
-        return YamlConfiguration.loadConfiguration(new InputStreamReader(is, Charset.forName("UTF-8")));
+        return YamlConfiguration.loadConfiguration(new InputStreamReader(is, locale.charset()));
     }
 
     public void debug(String log) {
