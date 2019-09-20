@@ -9,3 +9,7 @@ debug:
   sdk: false
   plugin: false
   sentry: ""
+experimental:
+  translate-console-messages: false
+interal:
+  config-version: 1
