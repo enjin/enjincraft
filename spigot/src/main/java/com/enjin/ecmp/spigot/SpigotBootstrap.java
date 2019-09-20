@@ -7,7 +7,6 @@ import com.enjin.ecmp.spigot.configuration.TokenConf;
 import com.enjin.ecmp.spigot.dependencies.DependencyConfig;
 import com.enjin.ecmp.spigot.dependencies.DependencyManager;
 import com.enjin.ecmp.spigot.hooks.PlaceholderApiExpansion;
-import com.enjin.ecmp.spigot.i18n.Locale;
 import com.enjin.ecmp.spigot.i18n.Translation;
 import com.enjin.ecmp.spigot.listeners.NotificationListener;
 import com.enjin.ecmp.spigot.listeners.TokenItemListener;
@@ -31,7 +30,6 @@ import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 
 import java.io.*;
@@ -82,7 +80,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
                 getLogger().addHandler(sentryHandler);
             }
 
-            loadLocale();
+            loadLocales();
 
             database = new Database(this);
 
@@ -256,25 +254,9 @@ public class SpigotBootstrap implements Bootstrap, Module {
         return validUrl && validAppId && validSecret && validIdentityId;
     }
 
-    public void loadLocale() throws ConfigurationException {
-        YamlConfiguration lang = loadLocaleResource(conf.getLocale());
-
-        if (lang == null)
-            lang = loadLocaleResource(Translation.DEFAULT_LOCALE);
-
-        if (lang == null)
-            throw new ConfigurationException("Could not load default (en_US) translation.");
-
-        Translation.setLang(lang);
-    }
-
-    public YamlConfiguration loadLocaleResource(Locale locale) {
-        InputStream is = plugin.getResource(String.format("lang/%s.yml", locale.name()));
-
-        if (is == null)
-            return null;
-
-        return YamlConfiguration.loadConfiguration(new InputStreamReader(is, locale.charset()));
+    public void loadLocales() throws ConfigurationException {
+        Translation.setServerLocale(conf.getLocale());
+        Translation.loadLocales(plugin);
     }
 
     public void debug(String log) {
