@@ -84,7 +84,7 @@ public class CmdConf extends EnjCommand {
                 Conf config = bootstrap.getConfig();
                 config.setLocale(locale.get());
                 bootstrap.plugin().saveConfig();
-                bootstrap.loadLocale();
+                Translation.setServerLocale(locale.get());
                 // TODO: success message
             }
 
