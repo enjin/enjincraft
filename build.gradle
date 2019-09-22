@@ -69,7 +69,7 @@ subprojects {
     targetCompatibility = JavaVersion.VERSION_1_8
 
     dependencies {
-        implementation deps.sentry;
+        compileOnly deps.sentry;
     }
 
     javadoc {
