@@ -1,0 +1,40 @@
+repositories:
+  - https://repo.maven.apache.org/maven2
+  - https://oss.sonatype.org/content/groups/public
+dependencies:
+  sentry:
+    groupId: io.sentry
+    artifactId: sentry
+    version: 1.7.27
+  slf4j-api:
+    groupId: org.slf4j
+    artifactId: slf4j-api
+    version: 1.7.24
+  jackson-core:
+    groupId: com.fasterxml.jackson.core
+    artifactId: jackson-core
+    version: 2.9.9
+  gson:
+    groupId: com.google.code.gson
+    artifactId: gson
+    version: 2.8.2
+  text-api:
+    groupId: net.kyori
+    artifactId: text-api
+    version: 3.0.2
+  text-serializer-legacy:
+    groupId: net.kyori
+    artifactId: text-serializer-legacy
+    version: 3.0.2
+  text-serializer-gson:
+    groupId: net.kyori
+    artifactId: text-serializer-gson
+    version: 3.0.0
+  text-adapter-bukkit:
+    groupId: net.kyori
+    artifactId: text-adapter-bukkit
+    version: 3.0.3
+  checker-qual:
+    groupId: org.checkerframework
+    artifactId: checker-qual
+    version: 2.5.8

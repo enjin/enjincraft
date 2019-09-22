@@ -4,6 +4,8 @@ import com.enjin.ecmp.spigot.cmd.CmdEnj;
 import com.enjin.ecmp.spigot.configuration.Conf;
 import com.enjin.ecmp.spigot.configuration.ConfigurationException;
 import com.enjin.ecmp.spigot.configuration.TokenConf;
+import com.enjin.ecmp.spigot.dependencies.DependencyConfig;
+import com.enjin.ecmp.spigot.dependencies.DependencyManager;
 import com.enjin.ecmp.spigot.hooks.PlaceholderApiExpansion;
 import com.enjin.ecmp.spigot.i18n.Translation;
 import com.enjin.ecmp.spigot.listeners.NotificationListener;
@@ -33,6 +35,7 @@ import org.bukkit.plugin.Plugin;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Handler;
 import java.util.logging.Level;
