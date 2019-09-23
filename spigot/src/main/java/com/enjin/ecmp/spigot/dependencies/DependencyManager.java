@@ -71,6 +71,8 @@ public class DependencyManager {
         plugin.getLogger().info("Downloading Dependency: " + dependency.getArtifactName());
         List<URL> urls = config.getArtifactUrls(dependency);
 
+        boolean success = false;
+
         for (URL url : urls) {
             try {
                 URLConnection connection = url.openConnection();
@@ -84,10 +86,18 @@ public class DependencyManager {
                         continue;
 
                     Files.write(file, bytes);
+
+                    success = true;
+                    break;
                 }
-            } catch (Exception ex) {
-                ex.printStackTrace();
+            } catch (Exception ignore) {
+                // Do Nothing
             }
+        }
+
+        if (!success) {
+            plugin.getLogger().warning("Dependency not found: " + dependency.getArtifactName());
+            return null;
         }
 
         if (!Files.exists(file))
