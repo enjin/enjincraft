@@ -72,7 +72,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
 
             if (!StringUtils.isEmpty(conf.getSentryUrl())) {
                 sentryHandler = new SentryHandler();
-                sentry = Sentry.init(String.format("%s?release=%s",
+                sentry = Sentry.init(String.format("%s?release=%s&stacktrace.app.packages=com.enjin",
                         conf.getSentryUrl(),
                         plugin.getDescription().getVersion()));
                 getLogger().addHandler(sentryHandler);
