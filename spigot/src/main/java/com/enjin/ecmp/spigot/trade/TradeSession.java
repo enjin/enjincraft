@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 @ToString
 public class TradeSession {
 
-    private static final long ONE_DAY_IN_SECONDS = TimeUnit.DAYS.toSeconds(1);
+    private static final long LIFETIME = TimeUnit.DAYS.toSeconds(5);
 
     private int id;
     private int createRequestId;
@@ -47,7 +47,7 @@ public class TradeSession {
 
     public boolean isExpired() {
         long diff = ChronoUnit.SECONDS.between(createdAt, OffsetDateTime.now(ZoneOffset.UTC));
-        return diff >= ONE_DAY_IN_SECONDS;
+        return diff >= LIFETIME;
     }
 
     public int getMostRecentRequestId() {
