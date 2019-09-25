@@ -27,18 +27,26 @@ public class PlayerManager implements Listener, PlayerManagerApi {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerJoin(PlayerJoinEvent event) {
-        EnjPlayer enjPlayer = new EnjPlayer(bootstrap, event.getPlayer());
-        addPlayer(enjPlayer);
-        // Fetch or create a User and Identity associated with the joining Player
-        PlayerInitializationTask.create(bootstrap, enjPlayer);
+        try {
+            EnjPlayer enjPlayer = new EnjPlayer(bootstrap, event.getPlayer());
+            addPlayer(enjPlayer);
+            // Fetch or create a User and Identity associated with the joining Player
+            PlayerInitializationTask.create(bootstrap, enjPlayer);
+        } catch (Exception ex) {
+            bootstrap.log(ex);
+        }
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
-        EnjPlayer player = removePlayer(event.getPlayer());
-        if (player == null) return;
-        Bukkit.getPluginManager().callEvent(new EnjPlayerQuitEvent(player));
-        player.cleanUp();
+        try {
+            EnjPlayer player = removePlayer(event.getPlayer());
+            if (player == null) return;
+            Bukkit.getPluginManager().callEvent(new EnjPlayerQuitEvent(player));
+            player.cleanUp();
+        } catch (Exception ex) {
+            bootstrap.log(ex);
+        }
     }
 
     @Override

@@ -27,7 +27,10 @@ public class TokenItemListener implements Listener {
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
-        if (!event.getKeepInventory()) {
+        if (event.getKeepInventory())
+            return;
+
+        try {
             List<ItemStack> drops = event.getDrops();
             EnjPlayer player = bootstrap.getPlayerManager().getPlayer(event.getEntity()).orElse(null);
             TokenWallet wallet = player.getTokenWallet();
@@ -41,6 +44,8 @@ public class TokenItemListener implements Listener {
                 MutableBalance balance = wallet.getBalance(id);
                 balance.deposit(is.getAmount());
             }
+        } catch (Exception ex) {
+            bootstrap.log(ex);
         }
     }
 
