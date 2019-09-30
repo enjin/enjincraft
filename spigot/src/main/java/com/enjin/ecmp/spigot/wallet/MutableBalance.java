@@ -17,7 +17,7 @@ public class MutableBalance {
     private Integer withdrawn = 0;
 
     public MutableBalance(Balance balance) {
-        this(balance.getTokenId(), balance.getTokenIndex(), balance.getBalance());
+        this(balance.getTokenId(), balance.getTokenIndex(), balance.getAmount());
     }
 
     public MutableBalance(Token token) {
