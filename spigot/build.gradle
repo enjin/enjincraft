@@ -1,6 +1,6 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
-jar.archiveBaseName = 'ECMP-Spigot'
+jar.archiveBaseName = 'EnjinCraft-Spigot'
 
 repositories {
     maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
@@ -20,7 +20,7 @@ dependencies {
     implementation deps.javaCommons
     implementation deps.minecraftCommons
 
-    api deps.enjinCoinSdk
+    api deps.enjinSdk
 }
 
 processResources {

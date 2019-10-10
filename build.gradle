@@ -2,7 +2,7 @@ buildscript {
     ext.versions = [
             'javaCommons': '0.3.0-SNAPSHOT',
             'minecraftCommons': '0.1.0-SNAPSHOT',
-            'enjinCoinSdk': '1.0.0-SNAPSHOT',
+            'enjinSdk': '1.0.0-SNAPSHOT',
             'kyoriText': '3.0.2',
             'kyoriTextAdapter': '3.0.3',
             'gson': '2.8.2',
@@ -15,7 +15,7 @@ buildscript {
     ext.deps = [
             'javaCommons': "com.enjin:java_commons:${versions.javaCommons}",
             'minecraftCommons': "com.enjin.minecraft_commons:spigot:${versions.minecraftCommons}",
-            'enjinCoinSdk': "com.enjin:enjincoin-sdk:${versions.enjinCoinSdk}",
+            'enjinSdk': "com.enjin:enjincoin-sdk:${versions.enjinSdk}",
             'kyoriText': "net.kyori:text-api:${versions.kyoriText}",
             'kyoriTextLegacy': "net.kyori:text-serializer-legacy:${versions.kyoriText}",
             'kyoriTextAdapterBukkit': "net.kyori:text-adapter-bukkit:${versions.kyoriTextAdapter}",
@@ -47,7 +47,7 @@ plugins {
 }
 
 allprojects {
-    group = 'com.enjin.ecmp'
+    group = 'com.enjin.enjincraft'
     version = '1.0.0-SNAPSHOT'
 
     repositories {
@@ -113,7 +113,7 @@ subprojects {
     }
 
     gitPublish {
-        repoUri = 'git@github.com:enjin/enjin-coin-minecraft-framework.git'
+        repoUri = 'git@github.com:enjin/enjincraft.git'
         branch = 'gh-pages'
         contents {
             from(javadoc) {

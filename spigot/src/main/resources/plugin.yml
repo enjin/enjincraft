@@ -1,38 +1,38 @@
-name: ECMP
-description: Spigot plugin for the Enjin Coin Minecraft Framework, a platform for game assets on the Ethereum block-chain.
+name: EnjinCraft
+description: EnjinCraft spigot implementation, a platform for game assets on the Ethereum blockchain.
 version: @version@-spigot
-authors: [Evan "Favorlock" Lindsay, Damien Gallagher, Tobias Drewry, Enjin Coin Team]
-website: https://enjincoin.io
-main: com.enjin.ecmp.spigot.EnjPlugin
+authors: [Evan "Favorlock" Lindsay, Damien Gallagher, Tobias Drewry, Enjin Team]
+website: https://enjin.io
+main: com.enjin.enjincraft.spigot.EnjPlugin
 softdepend: [Vault, PlaceholderAPI]
 api-version: 1.13
 commands:
   enj:
-    description: Reference command for ECMP.
+    description: Reference command for EnjinCraft.
 permissions:
-  ecmp.*:
+  enjincraft.*:
     default: op
     children:
-      ecmp.player: true
-      ecmp.conf: true
-  ecmp.conf:
+      enjincraft.player: true
+      enjincraft.conf: true
+  enjincraft.conf:
     default: false
     children:
-      ecmp.conf.set: true
-      ecmp.conf.reload: true
-  ecmp.player:
+      enjincraft.conf.set: true
+      enjincraft.conf.reload: true
+  enjincraft.player:
     default: true
     children:
-      ecmp.root: true
-      ecmp.balance: true
-      ecmp.help: true
-      ecmp.link: true
-      ecmp.send: true
-      ecmp.trade: true
-      ecmp.unlink: true
-      ecmp.wallet: true
-  ecmp.trade:
+      enjincraft.root: true
+      enjincraft.balance: true
+      enjincraft.help: true
+      enjincraft.link: true
+      enjincraft.send: true
+      enjincraft.trade: true
+      enjincraft.unlink: true
+      enjincraft.wallet: true
+  enjincraft.trade:
     children:
-      ecmp.trade.invite: true
-      ecmp.trade.accept: true
-      ecmp.trade.decline: true
+      enjincraft.trade.invite: true
+      enjincraft.trade.accept: true
+      enjincraft.trade.decline: true

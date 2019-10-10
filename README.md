@@ -1,16 +1,16 @@
-# Enjin Coin Minecraft Plugin
+# EnjinCraft Plugin
 
-ECMP is an implementation of the Enjin Coin Java SDK.
-The primary goal of this project is to serve as an example for plugin developers on how to integrate Enjin Coin technology into Minecraft servers.
+EnjinCraft is an implementation of the Enjin Java SDK.
+The primary goal of this project is to serve as an example for plugin developers on how to integrate Enjin blockchain technology into Minecraft servers.
 We encourage plugin developers to expand and build on this framework to create fun and engaging experiences for the Minecraft community.
 
 ## Useful Resources
 
-Released versions of ECMP can be downloaded [here](../../releases).
+Released versions of EnjinCraft can be downloaded [here](../../releases).
 
 ## Building
 
-ECMP uses Gradle to manage dependencies and building.
+EnjinCraft uses Gradle to manage dependencies and building.
 
 #### Requirements
 * Java 8 JDK or newer
@@ -19,8 +19,8 @@ ECMP uses Gradle to manage dependencies and building.
 #### Building
 
 ```shell script
-git clone https://github.com/enjin/enjin-coin-minecraft-framework.git
-cd enjin-coin-minecraft-framework
+git clone https://github.com/enjin/enjincraft.git
+cd enjincraft
 ./gradlew build
 ```
 
@@ -42,4 +42,4 @@ The project consists of the following modules.
 
 ## License
 
-ECMP is licensed under the Apache License 2.0. Please see [`LICENSE.txt`](./LICENSE) for more info.
+EnjinCraft is licensed under the Apache License 2.0. Please see [`LICENSE.txt`](./LICENSE) for more info.
