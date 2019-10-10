@@ -3,11 +3,11 @@ package com.enjin.enjincraft.spigot.listeners;
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
 import com.enjin.enjincraft.spigot.wallet.MutableBalance;
-import com.enjin.enjincoin.sdk.model.service.notifications.*;
-import com.enjin.enjincoin.sdk.model.service.requests.TransactionType;
+import com.enjin.sdk.model.service.notifications.*;
+import com.enjin.sdk.model.service.requests.TransactionType;
 import org.bukkit.Bukkit;
 
-public class NotificationListener implements com.enjin.enjincoin.sdk.service.notifications.NotificationListener {
+public class NotificationListener implements com.enjin.sdk.service.notifications.NotificationListener {
 
     private SpigotBootstrap bootstrap;
 

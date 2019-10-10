@@ -15,7 +15,7 @@ buildscript {
     ext.deps = [
             'javaCommons': "com.enjin:java_commons:${versions.javaCommons}",
             'minecraftCommons': "com.enjin.minecraft_commons:spigot:${versions.minecraftCommons}",
-            'enjinSdk': "com.enjin:enjincoin-sdk:${versions.enjinSdk}",
+            'enjinSdk': "com.enjin:enjin-sdk:${versions.enjinSdk}",
             'kyoriText': "net.kyori:text-api:${versions.kyoriText}",
             'kyoriTextLegacy': "net.kyori:text-serializer-legacy:${versions.kyoriText}",
             'kyoriTextAdapterBukkit': "net.kyori:text-adapter-bukkit:${versions.kyoriTextAdapter}",

@@ -5,7 +5,7 @@ import com.enjin.enjincraft.spigot.enums.Permission;
 import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
 import com.enjin.enjincraft.spigot.util.TokenUtils;
-import com.enjin.enjincoin.sdk.model.service.identities.DeleteIdentity;
+import com.enjin.sdk.model.service.identities.DeleteIdentity;
 import com.enjin.java_commons.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;

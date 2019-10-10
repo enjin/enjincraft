@@ -3,11 +3,11 @@ package com.enjin.enjincraft.spigot.trade;
 import com.enjin.enjincraft.spigot.GraphQLException;
 import com.enjin.enjincraft.spigot.NetworkException;
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
-import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
-import com.enjin.enjincoin.sdk.http.HttpResponse;
-import com.enjin.enjincoin.sdk.model.service.requests.*;
-import com.enjin.enjincoin.sdk.model.service.tokens.TokenEvent;
-import com.enjin.enjincoin.sdk.model.service.tokens.TokenEventType;
+import com.enjin.sdk.graphql.GraphQLResponse;
+import com.enjin.sdk.http.HttpResponse;
+import com.enjin.sdk.model.service.requests.*;
+import com.enjin.sdk.model.service.tokens.TokenEvent;
+import com.enjin.sdk.model.service.tokens.TokenEventType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.sql.SQLException;

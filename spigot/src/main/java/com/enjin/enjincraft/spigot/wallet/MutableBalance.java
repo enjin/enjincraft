@@ -1,7 +1,7 @@
 package com.enjin.enjincraft.spigot.wallet;
 
-import com.enjin.enjincoin.sdk.model.service.balances.Balance;
-import com.enjin.enjincoin.sdk.model.service.tokens.Token;
+import com.enjin.sdk.model.service.balances.Balance;
+import com.enjin.sdk.model.service.tokens.Token;
 
 /**
  * Thread safe class that represents the current balance

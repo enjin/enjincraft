@@ -1,6 +1,6 @@
 package com.enjin.enjincraft.spigot;
 
-import com.enjin.enjincoin.sdk.graphql.GraphQLError;
+import com.enjin.sdk.graphql.GraphQLError;
 
 import java.util.List;
 

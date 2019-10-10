@@ -8,12 +8,12 @@ import com.enjin.enjincraft.spigot.events.EnjPlayerQuitEvent;
 import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
 import com.enjin.enjincraft.spigot.util.TokenUtils;
-import com.enjin.enjincoin.sdk.graphql.GraphQLResponse;
-import com.enjin.enjincoin.sdk.model.service.requests.CreateRequest;
-import com.enjin.enjincoin.sdk.model.service.requests.Transaction;
-import com.enjin.enjincoin.sdk.model.service.requests.data.CompleteTradeData;
-import com.enjin.enjincoin.sdk.model.service.requests.data.CreateTradeData;
-import com.enjin.enjincoin.sdk.model.service.requests.data.TokenValueData;
+import com.enjin.sdk.graphql.GraphQLResponse;
+import com.enjin.sdk.model.service.requests.CreateRequest;
+import com.enjin.sdk.model.service.requests.Transaction;
+import com.enjin.sdk.model.service.requests.data.CompleteTradeData;
+import com.enjin.sdk.model.service.requests.data.CreateTradeData;
+import com.enjin.sdk.model.service.requests.data.TokenValueData;
 import com.enjin.java_commons.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -224,7 +224,7 @@ public class TradeManager implements Listener {
     }
 
     @EventHandler
-    public void onEnjinCoinPlayerQuit(EnjPlayerQuitEvent event) {
+    public void onEnjPlayerQuit(EnjPlayerQuitEvent event) {
         EnjPlayer player = event.getPlayer();
 
         player.getSentTradeInvites().forEach(other -> other.getReceivedTradeInvites().remove(player));

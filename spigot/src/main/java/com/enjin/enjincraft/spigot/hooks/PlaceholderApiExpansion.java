@@ -18,7 +18,7 @@ public class PlaceholderApiExpansion extends PlaceholderExpansion {
     public static final String LOADING = "loading";
     public static final String LINKED = "linked";
     public static final String NOT_AVAILABLE = "n/a";
-    public static final String URL = "www.enjincoin.io";
+    public static final String URL = "www.enjin.io";
 
     private SpigotBootstrap bootstrap;
 

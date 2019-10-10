@@ -16,7 +16,7 @@ COMMAND:
     DESCRIPTION: "Show information about the plugin and authors."
     DETAILS: "&7Running &6%s &cv%s&7.<br>&7Use &6%s &7to view available commands."
   BALANCE:
-    DESCRIPTION: "Show wallet address, eth, enj, and token balances."
+    DESCRIPTION: "Show wallet address, ETH, ENJ, and token balances."
     WALLETADDRESS: "&6Wallet Address: &d%s"
     IDENTITYID: "&6Identity ID: &d%s"
     ENJBALANCE: "&a[ %s ENJ ]"
