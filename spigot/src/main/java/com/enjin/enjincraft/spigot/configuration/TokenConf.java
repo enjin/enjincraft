@@ -38,7 +38,8 @@ public class TokenConf {
         clean();
 
         try {
-            if (!file.exists()) plugin.saveResource(file.getName(), false);
+            if (!file.exists())
+                plugin.saveResource(file.getName(), false);
 
             JsonParser parser = new JsonParser();
             JsonElement element = parser.parse(new FileReader(file));
@@ -56,13 +57,11 @@ public class TokenConf {
 
     public void save() {
         try {
-            if (file.getParentFile() != null) {
+            if (file.getParentFile() != null)
                 file.getParentFile().mkdirs();
-            }
 
-            if (!file.exists()) {
+            if (!file.exists())
                 file.createNewFile();
-            }
 
             FileWriter fw = new FileWriter(file);
             fw.write(PRETTY_PRINT.toJson(root));
@@ -77,21 +76,26 @@ public class TokenConf {
     }
 
     private void init(JsonObject root) {
-        if (root.has(TokenConfKeys.TOKENS)) {
-            JsonElement element = root.get(TokenConfKeys.TOKENS);
-            if (element.isJsonObject()) {
-                JsonObject object = element.getAsJsonObject();
-                for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
-                    String id = entry.getKey();
-                    JsonElement tokenDefElem = entry.getValue();
-                    if (tokenDefElem.isJsonObject()) {
-                        try {
-                            this.tokens.put(id, new TokenDefinition(id, tokenDefElem.getAsJsonObject()));
-                        } catch (Exception ex) {
-                            throw new ConfigurationException(String.format("Invalid token definition: %s", id), ex);
-                        }
-                    }
-                }
+        if (!root.has(TokenConfKeys.TOKENS))
+            return;
+
+        JsonElement element = root.get(TokenConfKeys.TOKENS);
+        if (!element.isJsonObject())
+            return;
+
+        JsonObject object = element.getAsJsonObject();
+
+        for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
+            String id = entry.getKey();
+            JsonElement tokenDefElem = entry.getValue();
+
+            if (!tokenDefElem.isJsonObject())
+                continue;
+
+            try {
+                this.tokens.put(id, new TokenDefinition(id, tokenDefElem.getAsJsonObject()));
+            } catch (Exception ex) {
+                throw new ConfigurationException(String.format("Invalid token definition: %s", id), ex);
             }
         }
     }

@@ -39,9 +39,8 @@ public class MessageUtils {
 
     public static void logStrings(Iterable<String> messages) {
         Iterator<String> it = messages.iterator();
-        while (it.hasNext()) {
+        while (it.hasNext())
             sendString(Bukkit.getConsoleSender(), it.next());
-        }
     }
 
     public static void logComponent(TextComponent component) {
@@ -50,56 +49,52 @@ public class MessageUtils {
 
     public static void logComponents(TextComponent... components) {
         if (components != null) {
-            for (TextComponent component : components) {
+            for (TextComponent component : components)
                 sendComponent(Bukkit.getConsoleSender(), component);
-            }
         }
     }
 
     public static void logComponents(Iterable<TextComponent> components) {
         Iterator<TextComponent> it = components.iterator();
-        while (it.hasNext()) {
+        while (it.hasNext())
             sendComponent(Bukkit.getConsoleSender(), it.next());
-        }
     }
 
     public static void sendString(CommandSender sender, String message) {
-        if (sender == null || message == null) return;
+        if (sender == null || message == null)
+            return;
         TextComponent component = LEGACY_COMPONENT_SERIALIZER.deserialize(message, TEXT_FORMAT_TOKEN);
         sendComponent(sender, component);
     }
 
     public static void sendStrings(CommandSender sender, String... messages) {
-        for (String message : messages) {
+        for (String message : messages)
             sendString(sender, message);
-        }
     }
 
     public static void sendStrings(CommandSender sender, Iterable<String> messages) {
         Iterator<String> it = messages.iterator();
-        while (it.hasNext()) {
+        while (it.hasNext())
             sendString(sender, it.next());
-        }
     }
 
     public static void sendComponent(CommandSender sender, TextComponent component) {
-        if (sender == null || component == null) return;
+        if (sender == null || component == null)
+            return;
         TextAdapter.sendComponent(sender, component);
     }
 
     public static void sendComponents(CommandSender sender, TextComponent... components) {
         if (components != null) {
-            for (TextComponent component : components) {
+            for (TextComponent component : components)
                 sendComponent(sender, component);
-            }
         }
     }
 
     public static void sendComponents(CommandSender sender, Iterable<TextComponent> components) {
         Iterator<TextComponent> it = components.iterator();
-        while (it.hasNext()) {
+        while (it.hasNext())
             sendComponent(sender, it.next());
-        }
     }
 
 }

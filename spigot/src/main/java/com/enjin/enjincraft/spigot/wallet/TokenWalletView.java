@@ -43,18 +43,19 @@ public class TokenWalletView extends ChestMenu {
         populate();
     }
 
-
-
     private void populate() {
         List<MutableBalance> balances = owner.getTokenWallet().getBalances();
 
         int index = 0;
         for (MutableBalance balance : balances) {
-            if (index == component.size()) break;
-            if (balance.amountAvailableForWithdrawal() == 0) continue;
+            if (index == component.size())
+                break;
+            if (balance.amountAvailableForWithdrawal() == 0)
+                continue;
 
             TokenDefinition def = bootstrap.getTokenConf().getTokens().get(balance.id());
-            if (def == null) continue;
+            if (def == null)
+                continue;
             ItemStack is = def.getItemStackInstance();
             is.setAmount(balance.amountAvailableForWithdrawal());
             component.setItem(index % getDimension().getWidth(), index / getDimension().getWidth(), is);
@@ -76,9 +77,8 @@ public class TokenWalletView extends ChestMenu {
 
     public void repopulate(Player player) {
         for (int y = 0; y < component.getDimension().getHeight(); y++) {
-            for (int x = 0; x < component.getDimension().getWidth(); x++) {
+            for (int x = 0; x < component.getDimension().getWidth(); x++)
                 component.removeItem(x, y);
-            }
         }
 
         populate();
@@ -90,9 +90,8 @@ public class TokenWalletView extends ChestMenu {
         if (player != null) {
             InventoryView view = player.getOpenInventory();
 
-            if (view != null) {
+            if (view != null)
                 return ChatColor.stripColor(view.getTitle()).equalsIgnoreCase(TokenWalletView.WALLET_VIEW_NAME);
-            }
         }
 
         return false;

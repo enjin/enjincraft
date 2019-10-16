@@ -66,7 +66,8 @@ public class CmdUnlink extends EnjCommand {
 
             for (int i = 0; i < inventory.getSize(); i++) {
                 ItemStack is = inventory.getItem(i);
-                if (is == null || is.getType() == Material.AIR) continue;
+                if (is == null || is.getType() == Material.AIR)
+                    continue;
                 String tokenId = TokenUtils.getTokenID(is);
                 if (!StringUtils.isEmpty(tokenId)) inventory.setItem(i, null);
             }

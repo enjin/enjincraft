@@ -53,9 +53,11 @@ public class CmdBalance extends EnjCommand {
         int itemCount = 0;
         List<String> tokenDisplays = new ArrayList<>();
         for (MutableBalance balance : enjPlayer.getTokenWallet().getBalances()) {
-            if (balance == null || balance.balance() == 0) continue;
+            if (balance == null || balance.balance() == 0)
+                continue;
             TokenDefinition def = bootstrap.getTokenConf().getTokens().get(balance.id());
-            if (def == null) continue;
+            if (def == null)
+                continue;
             itemCount++;
             Translation.COMMAND_BALANCE_TOKENDISPLAY.send(sender, itemCount, def.getDisplayName(), balance.balance());
         }

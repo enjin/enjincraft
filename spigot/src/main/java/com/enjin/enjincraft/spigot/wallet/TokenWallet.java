@@ -34,7 +34,8 @@ public class TokenWallet {
     }
 
     public void setBalance(MutableBalance balance) {
-        if (balance == null) return;
+        if (balance == null)
+            return;
         balances.put(balance.id(), balance);
     }
 

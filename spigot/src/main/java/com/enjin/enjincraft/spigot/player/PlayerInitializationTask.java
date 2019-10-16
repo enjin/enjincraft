@@ -39,7 +39,8 @@ public class PlayerInitializationTask extends BukkitRunnable {
 
     @Override
     public void run() {
-        if (this.inProgress || isCancelled()) return;
+        if (this.inProgress || isCancelled())
+            return;
 
         this.inProgress = true;
 
@@ -76,9 +77,8 @@ public class PlayerInitializationTask extends BukkitRunnable {
     private User getUser(UUID playerUuid) throws IOException {
         User user = fetchExistingUser(playerUuid);
 
-        if (user == null) {
+        if (user == null)
             user = createUser(playerUuid);
-        }
 
         return user;
     }
@@ -166,7 +166,8 @@ public class PlayerInitializationTask extends BukkitRunnable {
 
     public static void cleanUp(UUID playerUuid) {
         PlayerInitializationTask task = PLAYER_TASKS.remove(playerUuid);
-        if (task != null && !task.isCancelled()) task.cancel();
+        if (task != null && !task.isCancelled())
+            task.cancel();
     }
 
 }

@@ -61,7 +61,8 @@ public class SpigotBootstrap implements Bootstrap, Module {
     @Override
     public void setUp() {
         try {
-            if (!initConfig()) return;
+            if (!initConfig())
+                return;
 
             tokenConf = new TokenConf(plugin);
             tokenConf.load();
@@ -116,7 +117,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
                 }
             }
 
-            new TradeUpdateTask(this).runTaskTimerAsynchronously(plugin,20, 20);
+            new TradeUpdateTask(this).runTaskTimerAsynchronously(plugin, 20, 20);
         } catch (Exception ex) {
             log(ex);
             Bukkit.getPluginManager().disablePlugin(plugin);
@@ -160,15 +161,13 @@ public class SpigotBootstrap implements Bootstrap, Module {
             HttpResponse<GraphQLResponse<PlatformDetails>> networkResponse = trustedPlatformClient.getPlatformService()
                     .getPlatformSync();
 
-            if (!networkResponse.isSuccess()) {
+            if (!networkResponse.isSuccess())
                 throw new NetworkException(networkResponse.code());
-            }
 
             GraphQLResponse<PlatformDetails> graphQLResponse = networkResponse.body();
 
-            if (!graphQLResponse.isSuccess()) {
+            if (!graphQLResponse.isSuccess())
                 throw new GraphQLException(graphQLResponse.getErrors());
-            }
 
             platformDetails = graphQLResponse.getData();
         } catch (IOException ex) {
@@ -191,8 +190,10 @@ public class SpigotBootstrap implements Bootstrap, Module {
     @Override
     public void tearDown() {
         try {
-            if (trustedPlatformClient != null) trustedPlatformClient.close();
-            if (notificationsService != null) notificationsService.shutdown();
+            if (trustedPlatformClient != null)
+                trustedPlatformClient.close();
+            if (notificationsService != null)
+                notificationsService.shutdown();
         } catch (Exception ex) {
             log(ex);
         }
@@ -240,10 +241,14 @@ public class SpigotBootstrap implements Bootstrap, Module {
         boolean validSecret = !StringUtils.isEmpty(conf.getAppSecret());
         boolean validIdentityId = conf.getDevIdentityId() >= 0;
 
-        if (!validUrl) plugin.getLogger().warning("Invalid platform url specified in config.");
-        if (!validAppId) plugin.getLogger().warning("Invalid app id specified in config.");
-        if (!validSecret) plugin.getLogger().warning("Invalid app secret specified in config.");
-        if (!validIdentityId) plugin.getLogger().warning("Invalid dev identity id specified in config.");
+        if (!validUrl)
+            plugin.getLogger().warning("Invalid platform url specified in config.");
+        if (!validAppId)
+            plugin.getLogger().warning("Invalid app id specified in config.");
+        if (!validSecret)
+            plugin.getLogger().warning("Invalid app secret specified in config.");
+        if (!validIdentityId)
+            plugin.getLogger().warning("Invalid dev identity id specified in config.");
 
         return validUrl && validAppId && validSecret && validIdentityId;
     }
@@ -254,9 +259,8 @@ public class SpigotBootstrap implements Bootstrap, Module {
     }
 
     public void debug(String log) {
-        if (conf.isPluginDebugEnabled()) {
+        if (conf.isPluginDebugEnabled())
             getLogger().info(log);
-        }
     }
 
     public Logger getLogger() {

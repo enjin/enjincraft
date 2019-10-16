@@ -195,15 +195,10 @@ public enum Translation {
         for (Translation translation : values()) {
             if (!lang.isSet(translation.path)) {
                 lang.set(translation.path, translation.def);
-                LOGGER.info(String.format("Setting missing translation key %s to default English translation.",
-                        translation.path));
             } else {
                 int argCount = getArgCount(lang.getString(translation.path));
-                if (argCount != translation.argCount) {
+                if (argCount != translation.argCount)
                     lang.set(translation.path, translation.def);
-                    LOGGER.info(String.format("Invalid translation key %s, using default English translation.",
-                            translation.path));
-                }
             }
         }
     }

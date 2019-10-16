@@ -47,7 +47,8 @@ public class CmdSend extends EnjCommand {
         EnjPlayer senderEnjPlayer = context.enjPlayer;
 
         // TODO implement argument handling
-        if (context.args.size() == 0) return;
+        if (context.args.size() == 0)
+            return;
 
         if (!senderEnjPlayer.isLinked()) {
             Translation.WALLET_NOTLINKED_SELF.send(sender);

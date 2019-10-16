@@ -10,9 +10,8 @@ public class TokenUtils {
         if (is != null) {
             NBTItem nbt = new NBTItem(is);
 
-            if (nbt.hasKey(TokenDefinition.NBT_ID)) {
+            if (nbt.hasKey(TokenDefinition.NBT_ID))
                 return nbt.getString(TokenDefinition.NBT_ID);
-            }
         }
 
         return null;

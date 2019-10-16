@@ -38,14 +38,14 @@ public class CommandContext {
                     .getPlayer(player)
                     .orElse(null);
 
-            if (enjPlayer == null) {
+            if (enjPlayer == null)
                 throw new UnregisteredPlayerException(player);
-            }
         }
     }
 
     public Optional<Player> argToPlayer(int index) {
-        if (args.size() == 0 || index >= args.size()) return Optional.empty();
+        if (args.size() == 0 || index >= args.size())
+            return Optional.empty();
         return PlayerArgumentProcessor.INSTANCE.parse(sender, args.get(index));
     }
 

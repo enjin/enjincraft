@@ -41,7 +41,8 @@ public class PlayerManager implements Listener, PlayerManagerApi {
     public void onPlayerQuit(PlayerQuitEvent event) {
         try {
             EnjPlayer player = removePlayer(event.getPlayer());
-            if (player == null) return;
+            if (player == null)
+                return;
             Bukkit.getPluginManager().callEvent(new EnjPlayerQuitEvent(player));
             player.cleanUp();
         } catch (Exception ex) {
@@ -56,19 +57,22 @@ public class PlayerManager implements Listener, PlayerManagerApi {
 
     @Override
     public Optional<EnjPlayer> getPlayer(Player player) {
-        if (player == null) throw new NullPointerException("player must not be null");
+        if (player == null)
+            throw new NullPointerException("player must not be null");
         return getPlayer(player.getUniqueId());
     }
 
     @Override
     public Optional<EnjPlayer> getPlayer(UUID uuid) {
-        if (uuid == null) throw new NullPointerException("uuid must not be null");
+        if (uuid == null)
+            throw new NullPointerException("uuid must not be null");
         return Optional.ofNullable(this.players.get(uuid));
     }
 
     @Override
     public Optional<EnjPlayer> getPlayer(String ethAddr) {
-        if (ethAddr == null) throw new NullPointerException("ethAddr must not be null");
+        if (ethAddr == null)
+            throw new NullPointerException("ethAddr must not be null");
         return this.players.values().stream()
                 .filter(player -> player.getEthereumAddress() != null
                         && ethAddr.equalsIgnoreCase(player.getEthereumAddress()))
@@ -77,7 +81,8 @@ public class PlayerManager implements Listener, PlayerManagerApi {
 
     @Override
     public Optional<EnjPlayer> getPlayer(Integer identityId) {
-        if (identityId == null) throw new NullPointerException("identityId must not be null");
+        if (identityId == null)
+            throw new NullPointerException("identityId must not be null");
         return this.players.values().stream()
                 .filter(player -> player.getIdentityId() != null
                         && identityId.equals(player.getIdentityId()))
@@ -85,7 +90,8 @@ public class PlayerManager implements Listener, PlayerManagerApi {
     }
 
     public void addPlayer(EnjPlayer player) {
-        if (!player.getBukkitPlayer().isOnline()) return;
+        if (!player.getBukkitPlayer().isOnline())
+            return;
         this.players.put(player.getBukkitPlayer().getUniqueId(), player);
     }
 

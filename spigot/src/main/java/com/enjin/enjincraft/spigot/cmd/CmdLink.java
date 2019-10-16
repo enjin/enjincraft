@@ -29,24 +29,24 @@ public class CmdLink extends EnjCommand {
             return;
         }
 
-        if (enjPlayer.isLinked()) {
+        if (enjPlayer.isLinked())
             existingLink(context.sender, enjPlayer.getEthereumAddress());
-        } else {
+        else
             linkInstructions(context.sender, enjPlayer.getLinkingCode());
-        }
     }
 
     private void existingLink(CommandSender sender, String address) {
-        if (StringUtils.isEmpty(address))
+        if (StringUtils.isEmpty(address)) {
             Translation.COMMAND_LINK_NULLWALLET.send(sender);
-        else
+        } else {
             Translation.COMMAND_LINK_SHOWWALLET.send(sender, address);
+        }
     }
 
     private void linkInstructions(CommandSender sender, String code) {
-        if (StringUtils.isEmpty(code))
+        if (StringUtils.isEmpty(code)) {
             Translation.COMMAND_LINK_NULLCODE.send(sender);
-        else {
+        } else {
             Translation.COMMAND_LINK_INSTRUCTIONS_1.send(sender);
             Translation.COMMAND_LINK_INSTRUCTIONS_2.send(sender);
             Translation.COMMAND_LINK_INSTRUCTIONS_3.send(sender);

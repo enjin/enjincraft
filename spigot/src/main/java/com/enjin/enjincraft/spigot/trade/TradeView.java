@@ -226,9 +226,8 @@ public class TradeView extends ChestMenu {
             for (int x = 0; x < 4; x++) {
                 InventoryView view = this.viewer.getBukkitPlayer().getOpenInventory();
                 ItemStack item = view.getItem(x + (y * 9));
-                if (item != null && item.getType() != Material.AIR) {
+                if (item != null && item.getType() != Material.AIR)
                     items.add(item);
-                }
             }
         }
 
@@ -299,9 +298,8 @@ public class TradeView extends ChestMenu {
                 return;
 
             String id = TokenUtils.getTokenID(is);
-            if (StringUtils.isEmpty(id)) {
+            if (StringUtils.isEmpty(id))
                 event.setResult(Event.Result.DENY);
-            }
         } else {
             bootstrap.debug("Menu Clicked");
             super.onInventoryClick(event);

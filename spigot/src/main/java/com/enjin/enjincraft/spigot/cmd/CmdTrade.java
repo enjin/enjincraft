@@ -61,7 +61,8 @@ public class CmdTrade extends EnjCommand {
 
         @Override
         public void execute(CommandContext context) {
-            if (context.args.size() == 0) return;
+            if (context.args.size() == 0)
+                return;
 
             EnjPlayer senderEnjPlayer = context.enjPlayer;
 
@@ -172,9 +173,8 @@ public class CmdTrade extends EnjCommand {
             EnjPlayer senderEnjPlayer = context.enjPlayer;
 
             boolean result = bootstrap.getTradeManager().acceptInvite(targetEnjPlayer, senderEnjPlayer);
-            if (!result) {
+            if (!result)
                 Translation.COMMAND_TRADE_NOOPENINVITE.send(sender, target.get().getName());
-            }
         }
 
         @Override
@@ -205,7 +205,8 @@ public class CmdTrade extends EnjCommand {
 
         @Override
         public void execute(CommandContext context) {
-            if (context.args.size() == 0) return;
+            if (context.args.size() == 0)
+                return;
 
             Player sender = context.player;
             Optional<Player> target = context.argToPlayer(0);

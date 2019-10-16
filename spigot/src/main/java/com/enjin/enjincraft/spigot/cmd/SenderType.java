@@ -19,7 +19,8 @@ public enum SenderType {
 
     public static SenderType type(CommandSender sender) {
         for (SenderType type : values()) {
-            if (type.instanceSuperClass.isInstance(sender)) return type;
+            if (type.instanceSuperClass.isInstance(sender))
+                return type;
         }
         return ANY;
     }

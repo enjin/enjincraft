@@ -119,7 +119,8 @@ public class EnjPlayer {
     }
 
     public void initWallet() {
-        if (StringUtils.isEmpty(ethereumAddress)) return;
+        if (StringUtils.isEmpty(ethereumAddress))
+            return;
 
         try {
             HttpResponse<GraphQLResponse<List<Balance>>> networkResponse = bootstrap.getTrustedPlatformClient()
@@ -147,10 +148,12 @@ public class EnjPlayer {
         for (int i = inventory.getSize() - 1; i >= 0; i--) {
             ItemStack is = inventory.getItem(i);
             String id = TokenUtils.getTokenID(is);
-            if (StringUtils.isEmpty(id)) continue;
+            if (StringUtils.isEmpty(id))
+                continue;
 
             MutableBalance balance = tokenWallet.getBalance(id);
-            if (balance == null) continue;
+            if (balance == null)
+                continue;
 
             if (balance.amountAvailableForWithdrawal() == 0) {
                 inventory.clear(i);

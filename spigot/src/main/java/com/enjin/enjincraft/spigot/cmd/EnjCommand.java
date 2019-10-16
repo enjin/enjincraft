@@ -105,15 +105,15 @@ public abstract class EnjCommand {
         if (!requiredArgs.isEmpty()) {
             builder.append(' ')
                     .append(TextUtil.concat(requiredArgs.stream()
-                    .map(s -> String.format("<%s>", s))
-                    .collect(Collectors.toList()), " "));
+                            .map(s -> String.format("<%s>", s))
+                            .collect(Collectors.toList()), " "));
         }
 
         if (!optionalArgs.isEmpty()) {
             builder.append(' ')
                     .append(TextUtil.concat(optionalArgs.stream()
-                    .map(s -> String.format("[%s]", s))
-                    .collect(Collectors.toList()), " "));
+                            .map(s -> String.format("[%s]", s))
+                            .collect(Collectors.toList()), " "));
         }
 
         if (usage == Usage.ALL)

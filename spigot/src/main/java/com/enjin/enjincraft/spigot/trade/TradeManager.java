@@ -99,7 +99,7 @@ public class TradeManager implements Listener {
     public void sendCompleteRequest(Integer requestId, String tradeId) {
         try {
             TradeSession session = bootstrap.db().getSessionFromRequestId(requestId);
-            sendCompleteRequest(session,tradeId);
+            sendCompleteRequest(session, tradeId);
         } catch (Exception ex) {
             bootstrap.log(ex);
         }

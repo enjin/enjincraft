@@ -27,8 +27,10 @@ public class CommandRequirements {
         boolean hasPermission = hasPermission(sender);
 
         if (messageAction == MessageAction.SEND) {
-            if (!senderAllowed) sendInvalidSenderTypeMessage(sender, senderType);
-            if (!hasPermission) sendNoPermissionMessage(sender);
+            if (!senderAllowed)
+                sendInvalidSenderTypeMessage(sender, senderType);
+            if (!hasPermission)
+                sendNoPermissionMessage(sender);
         }
 
         return senderAllowed && hasPermission;

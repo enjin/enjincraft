@@ -22,7 +22,8 @@ public class GraphQLException extends RuntimeException {
             builder.append(GQL_ERRORS_HEADER);
             int num = 1;
             for (GraphQLError error : errors) {
-                if (error == null) continue;
+                if (error == null)
+                    continue;
                 builder.append(String.format("%s - %s", num++, error.toString()));
             }
         }

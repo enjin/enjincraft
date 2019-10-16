@@ -27,9 +27,8 @@ public class DependencyManager {
     public void loadDependencies(DependencyConfig config) {
         List<Path> paths = downloadDependencies(config);
 
-        for (Path path : paths) {
+        for (Path path : paths)
             classLoader.loadJar(path);
-        }
     }
 
     public List<Path> downloadDependencies(DependencyConfig config) {

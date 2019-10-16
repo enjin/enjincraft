@@ -54,9 +54,8 @@ public class PlaceholderApiExpansion extends PlaceholderExpansion {
     @Override
     public String onPlaceholderRequest(Player player, String identifier) {
         try {
-            if (player == null) {
+            if (player == null)
                 return "";
-            }
 
             EnjPlayer enjPlayer = bootstrap.getPlayerManager().getPlayer(player).orElse(null);
 
@@ -78,9 +77,8 @@ public class PlaceholderApiExpansion extends PlaceholderExpansion {
                         : LOADING;
             }
 
-            if (identifier.equals(ENJ_URL)) {
+            if (identifier.equals(ENJ_URL))
                 return URL;
-            }
 
             if (identifier.equals(ETH_ADDR)) {
                 return enjPlayer.isIdentityLoaded()
