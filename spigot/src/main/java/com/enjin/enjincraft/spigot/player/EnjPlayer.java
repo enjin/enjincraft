@@ -141,6 +141,8 @@ public class EnjPlayer {
 
     public void validateInventory() {
         tokenWallet.getBalances().forEach(MutableBalance::reset);
+        if (bukkitPlayer == null)
+            return;
         PlayerInventory inventory = bukkitPlayer.getInventory();
         for (int i = inventory.getSize() - 1; i >= 0; i--) {
             ItemStack is = inventory.getItem(i);

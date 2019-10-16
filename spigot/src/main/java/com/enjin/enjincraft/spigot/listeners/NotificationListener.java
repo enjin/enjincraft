@@ -21,7 +21,8 @@ public class NotificationListener implements com.enjin.sdk.service.notifications
             bootstrap.debug(event.getData());
             NotificationType eventType = event.getType();
 
-            if (eventType == null) return;
+            if (eventType == null)
+                return;
 
             switch (eventType) {
                 case TX_EXECUTED:
@@ -77,10 +78,12 @@ public class NotificationListener implements com.enjin.sdk.service.notifications
 
     private void onIdentityUpdated(Event event) {
         EventData data = event.getData();
-        if (data.getId() == null) return;
+        if (data.getId() == null)
+            return;
 
         EnjPlayer enjPlayer = bootstrap.getPlayerManager().getPlayer(data.getId()).orElse(null);
-        if (enjPlayer == null) return;
+        if (enjPlayer == null)
+            return;
 
         Bukkit.getScheduler().runTaskAsynchronously(bootstrap.plugin(), () -> enjPlayer.reloadIdentity());
     }
@@ -91,7 +94,8 @@ public class NotificationListener implements com.enjin.sdk.service.notifications
         Integer balance = Integer.parseInt(event.getData().getParam4());
         EnjPlayer enjPlayer = bootstrap.getPlayerManager().getPlayer(ethAddr).orElse(null);
 
-        if (enjPlayer == null) return;
+        if (enjPlayer == null || enjPlayer.getTokenWallet() == null)
+            return;
 
         MutableBalance mBalance = enjPlayer.getTokenWallet().getBalance(tokenId);
 
@@ -106,18 +110,21 @@ public class NotificationListener implements com.enjin.sdk.service.notifications
     }
 
     private void onCreateTrade(EventData data) {
-        if (data.getId() == null) return;
+        if (data.getId() == null)
+            return;
         String tradeId = data.getParam1();
         bootstrap.getTradeManager().sendCompleteRequest(data.getId(), tradeId);
     }
 
     private void onCompleteTrade(EventData data) {
-        if (data.getId() == null) return;
+        if (data.getId() == null)
+            return;
         bootstrap.getTradeManager().completeTrade(data.getId());
     }
 
     private void cancelTrade(EventData data) {
-        if (data.getId() == null) return;
+        if (data.getId() == null)
+            return;
         bootstrap.getTradeManager().cancelTrade(data.getId());
     }
 
