@@ -98,7 +98,7 @@ public class TokenWalletView extends ChestMenu {
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onTokenCheckout(InventoryClickEvent event) {
+    public void onTokenDeposit(InventoryClickEvent event) {
         if (event.getClickedInventory() instanceof PlayerInventory) {
             ItemStack current = event.getCurrentItem();
             if (current != null) {
