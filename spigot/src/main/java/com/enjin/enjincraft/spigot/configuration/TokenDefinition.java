@@ -8,6 +8,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
@@ -46,6 +47,19 @@ public class TokenDefinition {
             meta.setDisplayName(ChatColor.DARK_PURPLE + json.get(TokenConfKeys.ITEM_DISPLAY_NAME).getAsString());
         else
             meta.setDisplayName(ChatColor.DARK_PURPLE + "Token #" + id);
+
+        if (meta instanceof BookMeta) {
+            BookMeta bookMeta = (BookMeta) meta;
+            if (json.has("title"))
+                bookMeta.setTitle(json.get("title").getAsString());
+            if (json.has("author"))
+                bookMeta.setAuthor(json.get("author").getAsString());
+            if (json.has("pages")) {
+                for (JsonElement page : json.getAsJsonArray("pages")) {
+                    bookMeta.addPage(page.getAsString());
+                }
+            }
+        }
 
         if (json.has(TokenConfKeys.ITEM_LORE)) {
             List<String> lore = new ArrayList<>();
