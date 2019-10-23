@@ -6,10 +6,8 @@ import com.google.gson.JsonParser;
 import org.bukkit.plugin.Plugin;
 import com.google.gson.*;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -63,9 +61,9 @@ public class TokenConf {
             if (!file.exists())
                 file.createNewFile();
 
-            FileWriter fw = new FileWriter(file);
-            fw.write(PRETTY_PRINT.toJson(root));
-            fw.close();
+            try (Writer fw = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.ISO_8859_1)) {
+                fw.write(PRETTY_PRINT.toJson(root));
+            }
         } catch (IOException ex) {
             throw new ConfigurationException("Unable to save config.", ex);
         }
@@ -102,6 +100,10 @@ public class TokenConf {
 
     public Map<String, TokenDefinition> getTokens() {
         return tokens;
+    }
+
+    public JsonObject getTokensRaw() {
+        return root.getAsJsonObject("tokens");
     }
 
 }

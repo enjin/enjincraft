@@ -19,6 +19,7 @@ permissions:
     default: false
     children:
       enjincraft.conf.set: true
+      enjincraft.conf.token: true
       enjincraft.conf.reload: true
   enjincraft.player:
     default: true

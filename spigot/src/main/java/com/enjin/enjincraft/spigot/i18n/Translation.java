@@ -66,6 +66,7 @@ public enum Translation {
     COMMAND_CONF_SET_LANG_DESCRIPTION("Set the default language to use."),
     COMMAND_CONF_SET_LANG_NOTFOUND("&cThat is not a valid language option."),
     COMMAND_CONF_SET_LANG_SUCCESS("&aYou have set the server language to &6%s!"),
+    COMMAND_CONF_TOKEN_DESCRIPTION("Add a token definition for the held item and provided id to the config."),
 
     COMMAND_TRADE_DESCRIPTION("Show help for trade sub-commands."),
     COMMAND_TRADE_INVITE_DESCRIPTION("Invite a player to trade tokens."),

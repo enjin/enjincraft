@@ -10,6 +10,7 @@ public enum Permission {
     CMD_SEND("send"),
     CMD_CONF("conf"),
     CMD_CONF_SET("conf.set"),
+    CMD_CONF_TOKEN("conf.token"),
     CMD_TRADE("trade"),
     CMD_TRADE_INVITE("trade.invite"),
     CMD_TRADE_ACCEPT("trade.accept"),
