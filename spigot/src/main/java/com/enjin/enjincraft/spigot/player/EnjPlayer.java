@@ -218,8 +218,6 @@ public class EnjPlayer {
 
         bootstrap.getTrustedPlatformClient().getIdentitiesService()
                 .deleteIdentitySync(DeleteIdentity.unlink(identityId));
-
-        unlinked();
     }
 
     public void unlinked() {
