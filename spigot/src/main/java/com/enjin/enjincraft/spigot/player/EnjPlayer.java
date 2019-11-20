@@ -12,13 +12,17 @@ import com.enjin.sdk.graphql.GraphQLResponse;
 import com.enjin.sdk.http.HttpResponse;
 import com.enjin.sdk.model.service.balances.Balance;
 import com.enjin.sdk.model.service.balances.GetBalances;
+import com.enjin.sdk.model.service.identities.DeleteIdentity;
 import com.enjin.sdk.model.service.identities.GetIdentities;
 import com.enjin.sdk.model.service.identities.Identity;
 import com.enjin.sdk.model.service.users.GetUsers;
 import com.enjin.sdk.model.service.users.User;
 import com.enjin.sdk.service.notifications.NotificationsService;
 import com.enjin.java_commons.StringUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
@@ -104,10 +108,8 @@ public class EnjPlayer {
         NotificationsService service = bootstrap.getNotificationsService();
         boolean listening = service.isSubscribedToIdentity(identityId);
 
-        if (linkingCode != null && !listening)
+        if (!listening)
             service.subscribeToIdentity(identityId);
-        else if (linkingCode == null && listening)
-            service.unsubscribeToIdentity(identityId);
 
         if (!isLinked())
             return;
@@ -210,6 +212,39 @@ public class EnjPlayer {
         }
     }
 
+    public void unlink() throws IOException {
+        if (!isLinked())
+            return;
+
+        bootstrap.getTrustedPlatformClient().getIdentitiesService()
+                .deleteIdentitySync(DeleteIdentity.unlink(identityId));
+
+        unlinked();
+    }
+
+    public void unlinked() {
+        if (!isLinked())
+            return;
+
+        Translation.COMMAND_UNLINK_SUCCESS.send(bukkitPlayer);
+        Translation.HINT_LINK.send(bukkitPlayer);
+
+        Bukkit.getScheduler().runTask(bootstrap.plugin(), () -> {
+            Inventory inventory = bukkitPlayer.getInventory();
+
+            for (int i = 0; i < inventory.getSize(); i++) {
+                ItemStack is = inventory.getItem(i);
+                if (is == null || is.getType() == Material.AIR)
+                    continue;
+                String tokenId = TokenUtils.getTokenID(is);
+                if (!StringUtils.isEmpty(tokenId))
+                    inventory.setItem(i, null);
+            }
+        });
+
+        reloadIdentity();
+    }
+
     public boolean isUserLoaded() {
         return userLoaded;
     }
@@ -228,7 +263,10 @@ public class EnjPlayer {
 
     protected void cleanUp() {
         PlayerInitializationTask.cleanUp(bukkitPlayer.getUniqueId());
-        bootstrap.getNotificationsService().unsubscribeToIdentity(identityId);
+        NotificationsService service = bootstrap.getNotificationsService();
+        boolean listening = service.isSubscribedToIdentity(identityId);
+        if (listening)
+            service.unsubscribeToIdentity(identityId);
         bukkitPlayer = null;
     }
 
