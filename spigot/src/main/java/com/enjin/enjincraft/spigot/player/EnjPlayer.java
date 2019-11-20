@@ -111,8 +111,10 @@ public class EnjPlayer {
         if (!listening)
             service.subscribeToIdentity(identityId);
 
-        if (!isLinked())
+        if (!isLinked()) {
+            Bukkit.getScheduler().runTask(bootstrap.plugin(), this::removeTokenizedItems);
             return;
+        }
 
         if (identity.getEnjAllowance() == null || identity.getEnjAllowance().doubleValue() <= 0.0)
             Translation.WALLET_ALLOWANCENOTSET.send(bukkitPlayer);
@@ -168,28 +170,6 @@ public class EnjPlayer {
         }
     }
 
-    public void reloadUser() {
-        try {
-            HttpResponse<GraphQLResponse<List<User>>> networkResponse = bootstrap.getTrustedPlatformClient()
-                    .getUsersService().getUsersSync(new GetUsers()
-                            .name(bukkitPlayer.getUniqueId().toString()));
-            if (!networkResponse.isSuccess())
-                throw new NetworkException(networkResponse.code());
-
-            GraphQLResponse<List<User>> graphQLResponse = networkResponse.body();
-            if (!graphQLResponse.isSuccess())
-                throw new GraphQLException(graphQLResponse.getErrors());
-
-            User user = null;
-            if (!graphQLResponse.getData().isEmpty())
-                user = graphQLResponse.getData().get(0);
-
-            loadUser(user);
-        } catch (Exception ex) {
-            bootstrap.log(ex);
-        }
-    }
-
     public void reloadIdentity() {
         try {
             HttpResponse<GraphQLResponse<List<Identity>>> networkResponse = bootstrap.getTrustedPlatformClient()
@@ -227,20 +207,21 @@ public class EnjPlayer {
         Translation.COMMAND_UNLINK_SUCCESS.send(bukkitPlayer);
         Translation.HINT_LINK.send(bukkitPlayer);
 
-        Bukkit.getScheduler().runTask(bootstrap.plugin(), () -> {
-            Inventory inventory = bukkitPlayer.getInventory();
-
-            for (int i = 0; i < inventory.getSize(); i++) {
-                ItemStack is = inventory.getItem(i);
-                if (is == null || is.getType() == Material.AIR)
-                    continue;
-                String tokenId = TokenUtils.getTokenID(is);
-                if (!StringUtils.isEmpty(tokenId))
-                    inventory.setItem(i, null);
-            }
-        });
-
+        Bukkit.getScheduler().runTask(bootstrap.plugin(), this::removeTokenizedItems);
         reloadIdentity();
+    }
+
+    public void removeTokenizedItems() {
+        Inventory inventory = bukkitPlayer.getInventory();
+        for (int i = 0; i < inventory.getSize(); i++) {
+            ItemStack is = inventory.getItem(i);
+            if (is == null || is.getType() == Material.AIR)
+                continue;
+
+            String tokenId = TokenUtils.getTokenID(is);
+            if (!StringUtils.isEmpty(tokenId))
+                inventory.setItem(i, null);
+        }
     }
 
     public boolean isUserLoaded() {
