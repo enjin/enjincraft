@@ -44,36 +44,13 @@ public class CmdUnlink extends EnjCommand {
 
         Bukkit.getScheduler().runTaskAsynchronously(bootstrap.plugin(), () -> {
             try {
-                unlink(context.sender, enjPlayer.getIdentityId());
-                enjPlayer.reloadIdentity();
+                enjPlayer.unlink();
             } catch (Exception ex) {
                 bootstrap.log(ex);
                 Translation.ERRORS_EXCEPTION.send(sender, ex.getMessage());
             }
         });
     }
-
-    private void unlink(CommandSender sender, int id) throws IOException {
-        bootstrap.getTrustedPlatformClient().getIdentitiesService()
-                .deleteIdentitySync(DeleteIdentity.unlink(id));
-
-        Translation.COMMAND_UNLINK_SUCCESS.send(sender);
-        Translation.HINT_LINK.send(sender);
-
-        Bukkit.getScheduler().runTask(bootstrap.plugin(), () -> {
-            Player player = (Player) sender;
-            Inventory inventory = player.getInventory();
-
-            for (int i = 0; i < inventory.getSize(); i++) {
-                ItemStack is = inventory.getItem(i);
-                if (is == null || is.getType() == Material.AIR)
-                    continue;
-                String tokenId = TokenUtils.getTokenID(is);
-                if (!StringUtils.isEmpty(tokenId)) inventory.setItem(i, null);
-            }
-        });
-    }
-
     @Override
     public Translation getUsageTranslation() {
         return Translation.COMMAND_UNLINK_DESCRIPTION;

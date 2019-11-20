@@ -7,6 +7,8 @@ import com.enjin.sdk.model.service.notifications.*;
 import com.enjin.sdk.model.service.requests.TransactionType;
 import org.bukkit.Bukkit;
 
+import java.util.Optional;
+
 public class NotificationListener implements com.enjin.sdk.service.notifications.NotificationListener {
 
     private SpigotBootstrap bootstrap;
@@ -33,6 +35,9 @@ public class NotificationListener implements com.enjin.sdk.service.notifications
                     onTxrCancelled(event.getEvent());
                     break;
                 case IDENTITY_LINKED:
+                    onIdentityLinked(event.getEvent());
+                    break;
+                case IDENTITY_UPDATED:
                     onIdentityUpdated(event.getEvent());
                     break;
                 case BALANCE_UPDATED:
@@ -76,7 +81,7 @@ public class NotificationListener implements com.enjin.sdk.service.notifications
         }
     }
 
-    private void onIdentityUpdated(Event event) {
+    private void onIdentityLinked(Event event) {
         EventData data = event.getData();
         if (data.getId() == null)
             return;
@@ -86,6 +91,19 @@ public class NotificationListener implements com.enjin.sdk.service.notifications
             return;
 
         Bukkit.getScheduler().runTaskAsynchronously(bootstrap.plugin(), () -> enjPlayer.reloadIdentity());
+    }
+
+    private void onIdentityUpdated(Event event) {
+        EventData data = event.getData();
+        if (data.getId() == null)
+            return;
+
+        Optional<EnjPlayer> playerOptional = bootstrap.getPlayerManager().getPlayer(data.getId());
+        playerOptional.ifPresent(player -> {
+            if (data.getParam1() == null || data.getParam1().isEmpty())
+                return;
+            Bukkit.getScheduler().runTaskAsynchronously(bootstrap.plugin(), player::unlinked);
+        });
     }
 
     private void onBalanceUpdated(Event event) {
