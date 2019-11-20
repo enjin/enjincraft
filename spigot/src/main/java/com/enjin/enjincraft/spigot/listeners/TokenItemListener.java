@@ -16,6 +16,7 @@ import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
+import java.util.Optional;
 
 public class TokenItemListener implements Listener {
 
@@ -32,7 +33,10 @@ public class TokenItemListener implements Listener {
 
         try {
             List<ItemStack> drops = event.getDrops();
-            EnjPlayer player = bootstrap.getPlayerManager().getPlayer(event.getEntity()).orElse(null);
+            Optional<EnjPlayer> optionalPlayer = bootstrap.getPlayerManager().getPlayer(event.getEntity());
+            if (!optionalPlayer.isPresent())
+                return;
+            EnjPlayer player = optionalPlayer.get();
             TokenWallet wallet = player.getTokenWallet();
 
             for (int i = drops.size() - 1; i >= 0; i--) {

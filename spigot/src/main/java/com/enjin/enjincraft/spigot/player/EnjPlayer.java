@@ -15,7 +15,6 @@ import com.enjin.sdk.model.service.balances.GetBalances;
 import com.enjin.sdk.model.service.identities.DeleteIdentity;
 import com.enjin.sdk.model.service.identities.GetIdentities;
 import com.enjin.sdk.model.service.identities.Identity;
-import com.enjin.sdk.model.service.users.GetUsers;
 import com.enjin.sdk.model.service.users.User;
 import com.enjin.sdk.service.notifications.NotificationsService;
 import com.enjin.java_commons.StringUtils;

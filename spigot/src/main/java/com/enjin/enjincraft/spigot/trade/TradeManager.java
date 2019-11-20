@@ -87,8 +87,8 @@ public class TradeManager implements Listener {
             Optional<Player> inviter = Optional.ofNullable(Bukkit.getPlayer(session.getInviterUuid()));
             Optional<Player> invited = Optional.ofNullable(Bukkit.getPlayer(session.getInvitedUuid()));
 
-            inviter.ifPresent(player -> Translation.COMMAND_TRADE_COMPLETE.send(player));
-            invited.ifPresent(player -> Translation.COMMAND_TRADE_COMPLETE.send(player));
+            inviter.ifPresent(Translation.COMMAND_TRADE_COMPLETE::send);
+            invited.ifPresent(Translation.COMMAND_TRADE_COMPLETE::send);
 
             bootstrap.db().tradeExecuted(session.getCompleteRequestId());
         } catch (Exception ex) {
@@ -128,8 +128,8 @@ public class TradeManager implements Listener {
                             throw new GraphQLException(graphQLResponse.getErrors());
 
                         Transaction dataIn = graphQLResponse.getData();
-                        inviter.ifPresent(player -> Translation.COMMAND_TRADE_CONFIRM_WAIT.send(player));
-                        invited.ifPresent(player -> Translation.COMMAND_TRADE_CONFIRM_ACTION.send(player));
+                        inviter.ifPresent(Translation.COMMAND_TRADE_CONFIRM_WAIT::send);
+                        invited.ifPresent(Translation.COMMAND_TRADE_CONFIRM_ACTION::send);
 
                         try {
                             bootstrap.db().completeTrade(session.getCreateRequestId(),
@@ -152,7 +152,7 @@ public class TradeManager implements Listener {
         if (inviter == null || invited == null)
             throw new NullPointerException("Inviter or invited EnjPlayer is null.");
         if (!inviter.isLinked() || !invited.isLinked())
-            throw new IllegalArgumentException(String.format("Inviter or invited EnjPlayer is not linked."));
+            throw new IllegalArgumentException("Inviter or invited EnjPlayer is not linked.");
 
         Player bukkitPlayerOne = inviter.getBukkitPlayer();
         Player bukkitPlayerTwo = invited.getBukkitPlayer();
@@ -210,9 +210,7 @@ public class TradeManager implements Listener {
             String tokenId = TokenUtils.getTokenID(is);
             if (StringUtils.isEmpty(tokenId))
                 continue;
-            tokens.compute(tokenId, (key, value) -> {
-                return value == null ? is.getAmount() : value + is.getAmount();
-            });
+            tokens.compute(tokenId, (key, value) -> value == null ? is.getAmount() : value + is.getAmount());
         }
 
         return tokens.entrySet().stream()

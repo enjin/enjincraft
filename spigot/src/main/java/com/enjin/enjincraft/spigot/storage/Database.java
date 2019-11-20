@@ -5,7 +5,7 @@ import com.enjin.enjincraft.spigot.enums.TradeState;
 import com.enjin.enjincraft.spigot.trade.TradeSession;
 
 import java.io.*;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -26,7 +26,7 @@ public class Database {
     public static final String TEMPLATE_GET_SESSION_REQ_ID = "trade/GetSessionFromRequestId";
 
     private SpigotBootstrap bootstrap;
-    private File database;
+    private File dbFile;
     private Connection conn;
 
     private PreparedStatement setupSql;
@@ -39,8 +39,8 @@ public class Database {
 
     public Database(SpigotBootstrap bootstrap) throws SQLException, IOException {
         this.bootstrap = bootstrap;
-        this.database = new File(bootstrap.plugin().getDataFolder(), DB_FILE_NAME);
-        this.conn = DriverManager.getConnection(String.format(URL_FORMAT, this.database.getCanonicalPath()));
+        this.dbFile = new File(bootstrap.plugin().getDataFolder(), DB_FILE_NAME);
+        this.conn = DriverManager.getConnection(String.format(URL_FORMAT, this.dbFile.getCanonicalPath()));
 
         this.setupSql = createPreparedStatement(TEMPLATE_SETUP_DB);
         this.setupSql.execute();
@@ -148,7 +148,7 @@ public class Database {
 
     private String loadSqlFile(String template) throws IOException {
         try (InputStream is = bootstrap.plugin().getResource(String.format(RESOURCE_FORMAT, template))) {
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")))) {
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
                 return br.lines().collect(Collectors.joining(System.lineSeparator()));
             }
         }

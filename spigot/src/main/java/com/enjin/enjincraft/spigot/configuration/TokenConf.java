@@ -43,7 +43,8 @@ public class TokenConf {
             JsonElement element = parser.parse(new FileReader(file));
 
             if (element instanceof JsonObject) {
-                init(root = element.getAsJsonObject());
+                root = element.getAsJsonObject();
+                init(root);
                 result = true;
             }
         } catch (Exception ex) {
@@ -58,8 +59,9 @@ public class TokenConf {
             if (file.getParentFile() != null)
                 file.getParentFile().mkdirs();
 
-            if (!file.exists())
-                file.createNewFile();
+            if (!file.exists() && !file.createNewFile()) {
+                throw new IllegalStateException("File state changed before create operation");
+            }
 
             try (Writer fw = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.ISO_8859_1)) {
                 fw.write(PRETTY_PRINT.toJson(root));

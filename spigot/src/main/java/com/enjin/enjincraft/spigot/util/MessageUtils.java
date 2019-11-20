@@ -6,8 +6,6 @@ import net.kyori.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
-import java.util.Iterator;
-
 /**
  * <p>Message related operations.</p>
  *
@@ -19,6 +17,7 @@ import java.util.Iterator;
  */
 public class MessageUtils {
 
+    @SuppressWarnings("deprecation")
     public static final LegacyComponentSerializer LEGACY_COMPONENT_SERIALIZER = LegacyComponentSerializer.INSTANCE;
     public static final char TEXT_FORMAT_TOKEN = '&';
     public static final String PLUGIN_PREFIX = "&7[&EnjinCraft&7]";
@@ -32,15 +31,13 @@ public class MessageUtils {
     }
 
     public static void logStrings(String... messages) {
-        for (String message : messages) {
+        for (String message : messages)
             sendString(Bukkit.getConsoleSender(), message);
-        }
     }
 
     public static void logStrings(Iterable<String> messages) {
-        Iterator<String> it = messages.iterator();
-        while (it.hasNext())
-            sendString(Bukkit.getConsoleSender(), it.next());
+        for (String message : messages)
+            sendString(Bukkit.getConsoleSender(), message);
     }
 
     public static void logComponent(TextComponent component) {
@@ -55,9 +52,8 @@ public class MessageUtils {
     }
 
     public static void logComponents(Iterable<TextComponent> components) {
-        Iterator<TextComponent> it = components.iterator();
-        while (it.hasNext())
-            sendComponent(Bukkit.getConsoleSender(), it.next());
+        for (TextComponent component : components)
+            sendComponent(Bukkit.getConsoleSender(), component);
     }
 
     public static void sendString(CommandSender sender, String message) {
@@ -73,9 +69,8 @@ public class MessageUtils {
     }
 
     public static void sendStrings(CommandSender sender, Iterable<String> messages) {
-        Iterator<String> it = messages.iterator();
-        while (it.hasNext())
-            sendString(sender, it.next());
+        for (String message : messages)
+            sendString(sender, message);
     }
 
     public static void sendComponent(CommandSender sender, TextComponent component) {
@@ -92,9 +87,8 @@ public class MessageUtils {
     }
 
     public static void sendComponents(CommandSender sender, Iterable<TextComponent> components) {
-        Iterator<TextComponent> it = components.iterator();
-        while (it.hasNext())
-            sendComponent(sender, it.next());
+        for (TextComponent component : components)
+            sendComponent(sender, component);
     }
 
 }

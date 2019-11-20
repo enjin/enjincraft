@@ -28,7 +28,7 @@ public class Dependency {
                 .append('-')
                 .append(version);
 
-        classifier.ifPresent(classifier -> builder.append('-').append(classifier));
+        classifier.ifPresent(cf -> builder.append('-').append(cf));
 
         return builder.append(".jar")
                 .toString();

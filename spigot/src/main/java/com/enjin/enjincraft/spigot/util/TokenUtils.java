@@ -6,6 +6,10 @@ import org.bukkit.inventory.ItemStack;
 
 public class TokenUtils {
 
+    private TokenUtils() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static String getTokenID(ItemStack is) {
         if (is != null) {
             NBTItem nbt = new NBTItem(is);

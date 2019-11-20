@@ -15,12 +15,14 @@ import com.enjin.sdk.model.service.requests.Transaction;
 import com.enjin.sdk.model.service.requests.data.SendTokenData;
 import com.enjin.java_commons.StringUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class CmdSend extends EnjCommand {
 
@@ -46,8 +48,7 @@ public class CmdSend extends EnjCommand {
         Player sender = context.player;
         EnjPlayer senderEnjPlayer = context.enjPlayer;
 
-        // TODO implement argument handling
-        if (context.args.size() == 0)
+        if (context.args.isEmpty())
             return;
 
         if (!senderEnjPlayer.isLinked()) {
@@ -66,7 +67,10 @@ public class CmdSend extends EnjCommand {
             return;
         }
 
-        EnjPlayer targetEnjPlayer = bootstrap.getPlayerManager().getPlayer(target).orElse(null);
+        Optional<EnjPlayer> optionalTarget = bootstrap.getPlayerManager().getPlayer(target);
+        if (!optionalTarget.isPresent())
+            return;
+        EnjPlayer targetEnjPlayer = optionalTarget.get();
 
         if (!targetEnjPlayer.isLinked()) {
             Translation.WALLET_NOTLINKED_OTHER.send(sender, target.getName());
@@ -75,7 +79,7 @@ public class CmdSend extends EnjCommand {
 
         ItemStack is = sender.getInventory().getItemInMainHand();
 
-        if (is == null) {
+        if (is.getType() == Material.AIR) {
             Translation.COMMAND_SEND_MUSTHOLDITEM.send(sender);
             return;
         }

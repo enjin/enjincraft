@@ -9,6 +9,6 @@ public interface ArgumentProcessor<T> {
 
     List<String> tab(CommandSender sender, String arg);
 
-    <A extends Object> Optional<T> parse(CommandSender sender, String arg);
+    Optional<T> parse(CommandSender sender, String arg);
 
 }

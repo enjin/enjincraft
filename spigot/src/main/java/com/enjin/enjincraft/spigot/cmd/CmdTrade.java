@@ -18,6 +18,8 @@ import java.util.Optional;
 
 public class CmdTrade extends EnjCommand {
 
+    private static final String PLAYER_ARG = "player";
+
     public CmdTrade(SpigotBootstrap bootstrap, EnjCommand parent) {
         super(bootstrap, parent);
         this.aliases.add("trade");
@@ -45,7 +47,7 @@ public class CmdTrade extends EnjCommand {
         public CmdInvite() {
             super(CmdTrade.this.bootstrap, CmdTrade.this);
             this.aliases.add("invite");
-            this.requiredArgs.add("player");
+            this.requiredArgs.add(PLAYER_ARG);
             this.requirements = new CommandRequirements.Builder()
                     .withAllowedSenderTypes(SenderType.PLAYER)
                     .withPermission(Permission.CMD_TRADE_INVITE)
@@ -61,7 +63,7 @@ public class CmdTrade extends EnjCommand {
 
         @Override
         public void execute(CommandContext context) {
-            if (context.args.size() == 0)
+            if (context.args.isEmpty())
                 return;
 
             EnjPlayer senderEnjPlayer = context.enjPlayer;
@@ -72,23 +74,28 @@ public class CmdTrade extends EnjCommand {
             }
 
             Player sender = context.player;
-            Optional<Player> target = context.argToPlayer(0);
+            Optional<Player> optionalTarget = context.argToPlayer(0);
 
-            if (!target.isPresent() || !target.get().isOnline()) {
+            if (!optionalTarget.isPresent() || !optionalTarget.get().isOnline()) {
                 Translation.ERRORS_PLAYERNOTONLINE.send(context.sender, context.args.get(0));
                 return;
             }
 
-            if (sender == target.get()) {
+            Player target = optionalTarget.get();
+
+            if (sender == target) {
                 Translation.ERRORS_CHOOSEOTHERPLAYER.send(sender);
                 return;
             }
 
-            EnjPlayer targetEnjPlayer = bootstrap.getPlayerManager().getPlayer(target.get()).orElse(null);
+            Optional<EnjPlayer> optionalEnjTarget = bootstrap.getPlayerManager().getPlayer(target);
+            if (!optionalEnjTarget.isPresent())
+                return;
+            EnjPlayer targetEnjPlayer = optionalEnjTarget.get();
 
             if (!targetEnjPlayer.isLinked()) {
-                Translation.WALLET_NOTLINKED_OTHER.send(sender, target.get().getName());
-                Translation.COMMAND_TRADE_WANTSTOTRADE.send(target.get(), sender.getName());
+                Translation.WALLET_NOTLINKED_OTHER.send(sender, target.getName());
+                Translation.COMMAND_TRADE_WANTSTOTRADE.send(target, sender.getName());
                 Translation.HINT_LINK.send(context.sender);
                 return;
             }
@@ -111,7 +118,7 @@ public class CmdTrade extends EnjCommand {
 
             Translation.COMMAND_TRADE_INVITESENT.send(sender.getBukkitPlayer(), target.getBukkitPlayer().getName());
 
-            // TODO: Figure out way to support click events into translations
+            // TODO: Implement support for click events in translations
             Translation.COMMAND_TRADE_INVITEDTOTRADE.send(target.getBukkitPlayer(), sender.getBukkitPlayer().getName());
             TextComponent.Builder inviteMessageBuilder = TextComponent.builder("")
                     .append(TextComponent.builder("Accept")
@@ -140,7 +147,7 @@ public class CmdTrade extends EnjCommand {
         public CmdAccept() {
             super(CmdTrade.this.bootstrap, CmdTrade.this);
             this.aliases.add("accept");
-            this.requiredArgs.add("player");
+            this.requiredArgs.add(PLAYER_ARG);
             this.requirements = new CommandRequirements.Builder()
                     .withAllowedSenderTypes(SenderType.PLAYER)
                     .withPermission(Permission.CMD_TRADE_ACCEPT)
@@ -189,7 +196,7 @@ public class CmdTrade extends EnjCommand {
         public CmdDecline() {
             super(CmdTrade.this.bootstrap, CmdTrade.this);
             this.aliases.add("decline");
-            this.requiredArgs.add("player");
+            this.requiredArgs.add(PLAYER_ARG);
             this.requirements = new CommandRequirements.Builder()
                     .withAllowedSenderTypes(SenderType.PLAYER)
                     .withPermission(Permission.CMD_TRADE_DECLINE)
@@ -205,7 +212,7 @@ public class CmdTrade extends EnjCommand {
 
         @Override
         public void execute(CommandContext context) {
-            if (context.args.size() == 0)
+            if (context.args.isEmpty())
                 return;
 
             Player sender = context.player;

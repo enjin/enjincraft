@@ -1,5 +1,6 @@
 package com.enjin.enjincraft.spigot.i18n;
 
+import com.enjin.enjincraft.spigot.Bootstrap;
 import com.enjin.enjincraft.spigot.EnjinCraft;
 import com.enjin.enjincraft.spigot.cmd.SenderType;
 import com.enjin.enjincraft.spigot.configuration.Conf;
@@ -10,8 +11,9 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -105,8 +107,8 @@ public enum Translation {
     private static final Logger LOGGER = Logger.getLogger("EnjinCraft");
     public static final Locale DEFAULT_LOCALE = Locale.en_US;
 
-    private static final Map<Locale, YamlConfiguration> LOCALE_CONFIGS = new HashMap<>();
-    private static final Map<Locale, String> LOCALE_NAMES = new HashMap<>();
+    private static final Map<Locale, YamlConfiguration> LOCALE_CONFIGS = new EnumMap<>(Locale.class);
+    private static final Map<Locale, String> LOCALE_NAMES = new EnumMap<>(Locale.class);
     private static Locale serverLocale = DEFAULT_LOCALE;
 
     private String path;
@@ -168,7 +170,11 @@ public enum Translation {
     }
 
     private Conf conf() {
-        return EnjinCraft.bootstrap().get().getConfig();
+        Optional<? extends Bootstrap> optionalBootstrap = EnjinCraft.bootstrap();
+        if (!optionalBootstrap.isPresent())
+            throw new IllegalStateException("Bootstrap not available");
+        Bootstrap bootstrap = optionalBootstrap.get();
+        return bootstrap.getConfig();
     }
 
     public static void setServerLocale(Locale locale) {

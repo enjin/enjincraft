@@ -1,16 +1,13 @@
 package com.enjin.enjincraft.spigot.cmd;
 
-import com.enjin.enjincraft.spigot.EnjinCraft;
+import com.enjin.enjincraft.spigot.Bootstrap;
 import com.enjin.enjincraft.spigot.cmd.arg.PlayerArgumentProcessor;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
 import com.enjin.enjincraft.spigot.player.UnregisteredPlayerException;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Stack;
+import java.util.*;
 
 public class CommandContext {
 
@@ -20,21 +17,20 @@ public class CommandContext {
     protected EnjPlayer enjPlayer;
     protected List<String> args;
     protected String alias;
-    protected Stack<EnjCommand> commandStack;
+    protected Deque<EnjCommand> commandStack;
     protected List<String> tabCompletionResult;
 
-    public CommandContext(CommandSender sender, List<String> args, String alias) {
+    public CommandContext(Bootstrap bootstrap, CommandSender sender, List<String> args, String alias) {
         this.sender = sender;
         this.senderType = SenderType.type(sender);
         this.args = args;
         this.alias = alias;
-        this.commandStack = new Stack<>();
+        this.commandStack = new ArrayDeque<>();
         this.tabCompletionResult = new ArrayList<>();
 
         if (sender instanceof Player) {
             player = (Player) sender;
-            enjPlayer = EnjinCraft.bootstrap().get()
-                    .getPlayerManager()
+            enjPlayer = bootstrap.getPlayerManager()
                     .getPlayer(player)
                     .orElse(null);
 
@@ -44,7 +40,7 @@ public class CommandContext {
     }
 
     public Optional<Player> argToPlayer(int index) {
-        if (args.size() == 0 || index >= args.size())
+        if (args.isEmpty() || index >= args.size())
             return Optional.empty();
         return PlayerArgumentProcessor.INSTANCE.parse(sender, args.get(index));
     }

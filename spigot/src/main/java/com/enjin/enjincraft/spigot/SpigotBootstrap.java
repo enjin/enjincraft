@@ -2,11 +2,10 @@ package com.enjin.enjincraft.spigot;
 
 import com.enjin.enjincraft.spigot.cmd.CmdEnj;
 import com.enjin.enjincraft.spigot.configuration.Conf;
-import com.enjin.enjincraft.spigot.configuration.ConfigurationException;
 import com.enjin.enjincraft.spigot.configuration.TokenConf;
 import com.enjin.enjincraft.spigot.hooks.PlaceholderApiExpansion;
 import com.enjin.enjincraft.spigot.i18n.Translation;
-import com.enjin.enjincraft.spigot.listeners.NotificationListener;
+import com.enjin.enjincraft.spigot.listeners.EnjEventListener;
 import com.enjin.enjincraft.spigot.listeners.TokenItemListener;
 import com.enjin.enjincraft.spigot.player.PlayerManager;
 import com.enjin.enjincraft.spigot.storage.Database;
@@ -22,7 +21,6 @@ import com.enjin.sdk.service.notifications.NotificationsService;
 import com.enjin.sdk.service.notifications.PusherNotificationService;
 import com.enjin.java_commons.StringUtils;
 import io.sentry.Sentry;
-import io.sentry.SentryClient;
 import io.sentry.jul.SentryHandler;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
@@ -33,7 +31,6 @@ import org.bukkit.plugin.Plugin;
 import java.io.*;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Handler;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static okhttp3.logging.HttpLoggingInterceptor.Level.BODY;
@@ -46,7 +43,6 @@ public class SpigotBootstrap implements Bootstrap, Module {
     private TokenConf tokenConf;
     private Database database;
     private Handler sentryHandler;
-    private SentryClient sentry;
 
     private TrustedPlatformClient trustedPlatformClient;
     private PlatformDetails platformDetails;
@@ -69,7 +65,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
 
             if (!StringUtils.isEmpty(conf.getSentryUrl())) {
                 sentryHandler = new SentryHandler();
-                sentry = Sentry.init(String.format("%s?release=%s&stacktrace.app.packages=com.enjin",
+                Sentry.init(String.format("%s?release=%s&stacktrace.app.packages=com.enjin",
                         conf.getSentryUrl(),
                         plugin.getDescription().getVersion()));
                 getLogger().addHandler(sentryHandler);
@@ -138,7 +134,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
         return true;
     }
 
-    private void authenticateTPClient() throws AuthenticationException {
+    private void authenticateTPClient() {
         try {
             // Attempt to authenticate the client using an app secret
             HttpResponse<AuthResult> networkResponse = trustedPlatformClient.authAppSync(
@@ -155,7 +151,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
         }
     }
 
-    private void fetchPlatformDetails() throws NetworkException, GraphQLException {
+    private void fetchPlatformDetails() {
         try {
             // Fetch the platform details
             HttpResponse<GraphQLResponse<PlatformDetails>> networkResponse = trustedPlatformClient.getPlatformService()
@@ -180,7 +176,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
             // Start the notification service and register a listener
             notificationsService = new PusherNotificationService(platformDetails);
             notificationsService.start();
-            notificationsService.registerListener(new NotificationListener(this));
+            notificationsService.registerListener(new EnjEventListener(this));
             notificationsService.subscribeToApp(conf.getAppId());
         } catch (Exception ex) {
             throw new NotificationServiceException(ex);
@@ -253,7 +249,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
         return validUrl && validAppId && validSecret && validIdentityId;
     }
 
-    public void loadLocales() throws ConfigurationException {
+    public void loadLocales() {
         Translation.setServerLocale(conf.getLocale());
         Translation.loadLocales(plugin);
     }
@@ -268,7 +264,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
     }
 
     public void log(Throwable throwable) {
-        getLogger().log(Level.WARNING, "Exception Caught", throwable);
+        plugin.log(throwable);
     }
 
     public Database db() {

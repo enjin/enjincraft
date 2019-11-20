@@ -1,9 +1,10 @@
 package com.enjin.enjincraft.spigot.dependencies;
 
+import com.enjin.enjincraft.spigot.EnjPlugin;
 import com.enjin.enjincraft.spigot.dependencies.classloader.ReflectionClassLoader;
 import com.google.common.io.ByteStreams;
-import org.bukkit.plugin.Plugin;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -16,10 +17,10 @@ import java.util.concurrent.TimeUnit;
 
 public class DependencyManager {
 
-    private Plugin plugin;
+    private EnjPlugin plugin;
     private ReflectionClassLoader classLoader;
 
-    public DependencyManager(Plugin plugin) {
+    public DependencyManager(EnjPlugin plugin) {
         this.plugin = plugin;
         this.classLoader = new ReflectionClassLoader(plugin);
     }
@@ -54,7 +55,7 @@ public class DependencyManager {
             try {
                 paths.add(downloadDependency(targetDirectory, config, dependency));
             } catch (IOException | IllegalStateException ex) {
-                ex.printStackTrace();
+                plugin.log(ex);
             }
         }
 
@@ -62,10 +63,11 @@ public class DependencyManager {
     }
 
     private Path downloadDependency(Path targetDirectory, DependencyConfig config, Dependency dependency) throws IOException {
-        Path file = targetDirectory.resolve(dependency.getArtifactName());
+        Path path = targetDirectory.resolve(dependency.getArtifactName());
+        File file = path.toFile();
 
-        if (Files.exists(file))
-            return file;
+        if (file.exists())
+            return path;
 
         plugin.getLogger().info("Downloading Dependency: " + dependency.getArtifactName());
         List<URL> urls = config.getArtifactUrls(dependency);
@@ -84,7 +86,7 @@ public class DependencyManager {
                     if (bytes.length == 0)
                         continue;
 
-                    Files.write(file, bytes);
+                    Files.write(path, bytes);
 
                     success = true;
                     break;
@@ -99,10 +101,10 @@ public class DependencyManager {
             return null;
         }
 
-        if (!Files.exists(file))
+        if (!file.exists())
             throw new IllegalStateException("Dependency not saved: " + dependency.getArtifactName());
 
-        return file;
+        return path;
     }
 
 }

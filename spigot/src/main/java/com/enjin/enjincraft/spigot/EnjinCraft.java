@@ -6,6 +6,10 @@ public class EnjinCraft {
 
     private static Optional<SpigotBootstrap> instance = Optional.empty();
 
+    private EnjinCraft() {
+        throw new IllegalStateException("Utility class");
+    }
+
     protected static void register(SpigotBootstrap instance) {
         EnjinCraft.instance = Optional.ofNullable(instance);
     }
