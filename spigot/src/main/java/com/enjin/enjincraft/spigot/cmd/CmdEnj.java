@@ -23,9 +23,10 @@ public class CmdEnj extends EnjCommand implements CommandExecutor, TabCompleter 
     public CmdEnj(SpigotBootstrap bootstrap) {
         super(bootstrap);
         this.aliases.add("enj");
+        this.cmdHelp = new CmdHelp(bootstrap, this);
         this.addSubCommand(new CmdBalance(bootstrap, this));
         this.addSubCommand(new CmdConf(bootstrap, this));
-        this.addSubCommand(cmdHelp = new CmdHelp(bootstrap, this));
+        this.addSubCommand(cmdHelp);
         this.addSubCommand(new CmdLink(bootstrap, this));
         this.addSubCommand(new CmdSend(bootstrap, this));
         this.addSubCommand(new CmdTrade(bootstrap, this));
@@ -36,7 +37,7 @@ public class CmdEnj extends EnjCommand implements CommandExecutor, TabCompleter 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         try {
-            process(new CommandContext(sender, new ArrayList<>(Arrays.asList(args)), label), CommandProcess.EXECUTE);
+            process(new CommandContext(bootstrap, sender, new ArrayList<>(Arrays.asList(args)), label), CommandProcess.EXECUTE);
         } catch (UnregisteredPlayerException ex) {
             bootstrap.log(ex);
         }
@@ -56,7 +57,7 @@ public class CmdEnj extends EnjCommand implements CommandExecutor, TabCompleter 
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
-        CommandContext context = new CommandContext(sender, new ArrayList<>(Arrays.asList(args)), label);
+        CommandContext context = new CommandContext(bootstrap, sender, new ArrayList<>(Arrays.asList(args)), label);
         process(context, CommandProcess.TAB);
         return context.tabCompletionResult;
     }

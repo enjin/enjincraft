@@ -53,13 +53,13 @@ public abstract class EnjCommand {
         List<String> tabResults = new ArrayList<>();
 
         if (!subCommands.isEmpty()) {
-            List<String> aliases = subCommands.stream()
+            List<String> als = subCommands.stream()
                     .filter(c -> c.requirements.areMet(context, MessageAction.OMIT))
                     .map(c -> c.aliases.get(0).toLowerCase())
                     .collect(Collectors.toList());
 
             if (!context.args.isEmpty()) {
-                tabResults.addAll(aliases.stream()
+                tabResults.addAll(als.stream()
                         .filter(a -> a.startsWith(context.args.get(0).toLowerCase()))
                         .collect(Collectors.toList()));
             }
@@ -127,7 +127,7 @@ public abstract class EnjCommand {
             if (!isValid(context, process.getMessageAction()))
                 return;
 
-            if (context.args.size() > 0) {
+            if (!context.args.isEmpty()) {
                 for (EnjCommand subCommand : subCommands) {
                     if (!subCommand.aliases.contains(context.args.get(0).toLowerCase()))
                         continue;

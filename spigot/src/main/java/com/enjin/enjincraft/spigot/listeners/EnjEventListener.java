@@ -9,11 +9,11 @@ import org.bukkit.Bukkit;
 
 import java.util.Optional;
 
-public class NotificationListener implements com.enjin.sdk.service.notifications.NotificationListener {
+public class EnjEventListener implements com.enjin.sdk.service.notifications.NotificationListener {
 
     private SpigotBootstrap bootstrap;
 
-    public NotificationListener(SpigotBootstrap bootstrap) {
+    public EnjEventListener(SpigotBootstrap bootstrap) {
         this.bootstrap = bootstrap;
     }
 
@@ -90,7 +90,7 @@ public class NotificationListener implements com.enjin.sdk.service.notifications
         if (enjPlayer == null)
             return;
 
-        Bukkit.getScheduler().runTaskAsynchronously(bootstrap.plugin(), () -> enjPlayer.reloadIdentity());
+        Bukkit.getScheduler().runTaskAsynchronously(bootstrap.plugin(), enjPlayer::reloadIdentity);
     }
 
     private void onIdentityUpdated(Event event) {

@@ -22,13 +22,13 @@ public class ReflectionClassLoader implements PluginClassLoader {
 
     private final URLClassLoader classLoader;
 
-    public ReflectionClassLoader(Object plugin) throws IllegalStateException {
-        ClassLoader classLoader = plugin.getClass().getClassLoader();
+    public ReflectionClassLoader(Object plugin) {
+        ClassLoader cl = plugin.getClass().getClassLoader();
 
-        if (!(classLoader instanceof URLClassLoader))
+        if (!(cl instanceof URLClassLoader))
             throw new IllegalStateException("ClassLoader is not instance of URLClassLoader");
 
-        this.classLoader = (URLClassLoader) classLoader;
+        this.classLoader = (URLClassLoader) cl;
     }
 
     @Override

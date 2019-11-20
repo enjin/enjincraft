@@ -38,8 +38,8 @@ public class UuidUtils {
      * <p>This constructor is public to permit tools that require a JavaBean instance
      * to operate.</p>
      */
-    public UuidUtils() {
-        super();
+    private UuidUtils() {
+        throw new IllegalStateException("Utility class");
     }
 
     /**
@@ -50,8 +50,8 @@ public class UuidUtils {
      * @since 1.0
      */
     public static UUID stringToUuid(String s) {
-        if (s != null & !s.isEmpty()) {
-            String stripped = s.replaceAll("-", "");
+        if (s != null && !s.isEmpty()) {
+            String stripped = s.replace("-", "");
             if (stripped.length() == STRIPPED_UUID_LENGTH) {
                 BigInteger least = new BigInteger(stripped.substring(0, RADIX), RADIX);
                 BigInteger most = new BigInteger(stripped.substring(RADIX, STRIPPED_UUID_LENGTH), RADIX);

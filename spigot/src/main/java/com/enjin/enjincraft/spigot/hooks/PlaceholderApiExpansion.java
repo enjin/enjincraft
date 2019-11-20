@@ -6,6 +6,7 @@ import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 public class PlaceholderApiExpansion extends PlaceholderExpansion {
 
@@ -57,7 +58,10 @@ public class PlaceholderApiExpansion extends PlaceholderExpansion {
             if (player == null)
                 return "";
 
-            EnjPlayer enjPlayer = bootstrap.getPlayerManager().getPlayer(player).orElse(null);
+            Optional<EnjPlayer> enjPlayerOptional = bootstrap.getPlayerManager().getPlayer(player);
+            if (!enjPlayerOptional.isPresent())
+                return "";
+            EnjPlayer enjPlayer = enjPlayerOptional.get();
 
             if (identifier.equals(ENJ_BALANCE)) {
                 return enjPlayer.getEnjBalance() == null ? "0" : enjPlayer.getEnjBalance()
@@ -72,18 +76,28 @@ public class PlaceholderApiExpansion extends PlaceholderExpansion {
             }
 
             if (identifier.equals(LINK_STATUS)) {
-                return enjPlayer.isIdentityLoaded()
-                        ? (enjPlayer.isLinked() ? LINKED : enjPlayer.getLinkingCode())
-                        : LOADING;
+                if (enjPlayer.isIdentityLoaded()) {
+                    if (enjPlayer.isLinked())
+                        return LINKED;
+                    else
+                        return enjPlayer.getLinkingCode();
+                } else {
+                    return LOADING;
+                }
             }
 
             if (identifier.equals(ENJ_URL))
                 return URL;
 
             if (identifier.equals(ETH_ADDR)) {
-                return enjPlayer.isIdentityLoaded()
-                        ? (enjPlayer.isLinked() ? enjPlayer.getEthereumAddress() : NOT_AVAILABLE)
-                        : LOADING;
+                if (enjPlayer.isIdentityLoaded()) {
+                    if (enjPlayer.isLinked())
+                        return enjPlayer.getEthereumAddress();
+                    else
+                        return NOT_AVAILABLE;
+                } else {
+                    return LOADING;
+                }
             }
         } catch (Exception ex) {
             bootstrap.log(ex);

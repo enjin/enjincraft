@@ -22,6 +22,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
 import java.util.List;
+import java.util.Optional;
 
 public class TokenWalletView extends ChestMenu {
 
@@ -89,9 +90,7 @@ public class TokenWalletView extends ChestMenu {
     public static boolean isViewingWallet(Player player) {
         if (player != null) {
             InventoryView view = player.getOpenInventory();
-
-            if (view != null)
-                return ChatColor.stripColor(view.getTitle()).equalsIgnoreCase(TokenWalletView.WALLET_VIEW_NAME);
+            return ChatColor.stripColor(view.getTitle()).equalsIgnoreCase(TokenWalletView.WALLET_VIEW_NAME);
         }
 
         return false;
@@ -104,8 +103,10 @@ public class TokenWalletView extends ChestMenu {
             if (current != null) {
                 String id = TokenUtils.getTokenID(current);
                 if (!StringUtils.isEmpty(id)) {
-                    EnjPlayer player = bootstrap.getPlayerManager()
-                            .getPlayer((Player) event.getWhoClicked()).orElse(null);
+                    Optional<EnjPlayer> optionalPlayer = bootstrap.getPlayerManager().getPlayer((Player) event.getWhoClicked());
+                    if (!optionalPlayer.isPresent())
+                        return;
+                    EnjPlayer player = optionalPlayer.get();
                     MutableBalance balance = player.getTokenWallet().getBalance(id);
                     balance.deposit(current.getAmount());
                     current.setAmount(0);

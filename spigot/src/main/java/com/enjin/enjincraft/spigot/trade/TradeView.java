@@ -120,7 +120,7 @@ public class TradeView extends ChestMenu {
         this.viewerStatusComponent.setItem(Position.of(0, 0), getPlayerHead(viewer.getBukkitPlayer(), TargetPlayer.SELF));
 
         this.viewerStatusComponent.setItem(Position.of(1, 0), readyItem);
-        this.viewerStatusComponent.addAction(readyItem, (p) -> {
+        this.viewerStatusComponent.addAction(readyItem, p -> {
             try {
                 this.playerReady = true;
                 setItem(p, this.viewerStatusComponent, Position.of(3, 0), readyPane);
@@ -133,7 +133,7 @@ public class TradeView extends ChestMenu {
                 if (otherView.playerReady) {
                     List<ItemStack> viewerOffer = getOfferedItems();
                     List<ItemStack> otherOffer = otherView.getOfferedItems();
-                    if (viewerOffer.size() > 0 || otherOffer.size() > 0) {
+                    if (!viewerOffer.isEmpty() || !otherOffer.isEmpty()) {
                         tradeApproved = true;
                         otherView.tradeApproved = true;
 
@@ -151,7 +151,7 @@ public class TradeView extends ChestMenu {
             }
         }, ClickType.LEFT, ClickType.RIGHT);
         this.viewerStatusComponent.setItem(Position.of(2, 0), unreadyItem);
-        this.viewerStatusComponent.addAction(unreadyItem, (p) -> {
+        this.viewerStatusComponent.addAction(unreadyItem, p -> {
             this.playerReady = false;
             setItem(p, this.viewerStatusComponent, Position.of(3, 0), unreadyPane);
             p.updateInventory();
@@ -287,14 +287,13 @@ public class TradeView extends ChestMenu {
         return stack;
     }
 
+    @Override
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         if (event.getClickedInventory() instanceof PlayerInventory) {
-            int slot = event.getSlot();
-
             ItemStack is = event.getCurrentItem();
 
-            if (is == null)
+            if (is == null || is.getType() == Material.AIR)
                 return;
 
             String id = TokenUtils.getTokenID(is);

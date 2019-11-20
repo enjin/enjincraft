@@ -9,20 +9,20 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.logging.Level;
 
 public class EnjPlugin extends JavaPlugin {
 
-    private DependencyManager dependencyManager;
     private SpigotBootstrap bootstrap;
 
     @Override
     public void onEnable() {
-        dependencyManager = new DependencyManager(this);
+        DependencyManager dependencyManager = new DependencyManager(this);
         YamlConfiguration dependencyYamlConfig = loadYamlResource("dependencies.yml");
         DependencyConfig dependencyConfig = DependencyConfig.create(dependencyYamlConfig);
         dependencyManager.loadDependencies(dependencyConfig);
-
-        EnjinCraft.register(bootstrap = new SpigotBootstrap(this));
+        bootstrap = new SpigotBootstrap(this);
+        EnjinCraft.register(bootstrap);
         bootstrap.setUp();
     }
 
@@ -47,5 +47,9 @@ public class EnjPlugin extends JavaPlugin {
 
     public SpigotBootstrap bootstrap() {
         return bootstrap;
+    }
+
+    public void log(Throwable throwable) {
+        getLogger().log(Level.WARNING, "Exception Caught", throwable);
     }
 }

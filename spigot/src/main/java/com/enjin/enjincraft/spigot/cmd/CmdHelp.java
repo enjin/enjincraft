@@ -19,8 +19,7 @@ public class CmdHelp extends EnjCommand {
 
     @Override
     public void execute(CommandContext context) {
-        CommandSender sender = context.sender;
-        showHelp(sender, parent.get());
+        parent.ifPresent(parent -> showHelp(context.sender, parent));
     }
 
     private void showHelp(CommandSender sender, EnjCommand command) {

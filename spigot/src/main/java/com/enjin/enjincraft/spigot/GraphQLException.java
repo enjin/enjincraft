@@ -16,7 +16,7 @@ public class GraphQLException extends RuntimeException {
     private static String generateMessage(List<GraphQLError> errors) {
         StringBuilder builder = new StringBuilder();
 
-        if (errors == null || errors.size() == 0) {
+        if (errors == null || errors.isEmpty()) {
             builder.append(GQL_NO_ERRORS_MESSAGE);
         } else {
             builder.append(GQL_ERRORS_HEADER);

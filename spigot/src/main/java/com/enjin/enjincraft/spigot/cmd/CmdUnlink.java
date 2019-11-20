@@ -4,17 +4,8 @@ import com.enjin.enjincraft.spigot.SpigotBootstrap;
 import com.enjin.enjincraft.spigot.enums.Permission;
 import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
-import com.enjin.enjincraft.spigot.util.TokenUtils;
-import com.enjin.sdk.model.service.identities.DeleteIdentity;
-import com.enjin.java_commons.StringUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-
-import java.io.IOException;
 
 public class CmdUnlink extends EnjCommand {
 

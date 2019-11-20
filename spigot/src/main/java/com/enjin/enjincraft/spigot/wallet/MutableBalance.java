@@ -15,6 +15,8 @@ public class MutableBalance {
     private final String tokenIndex;
     private Integer balance = 0;
     private Integer withdrawn = 0;
+    private final Object balanceLock = new Object();
+    private final Object withdrawnLock = new Object();
 
     public MutableBalance(Balance balance) {
         this(balance.getTokenId(), balance.getTokenIndex(), balance.getAmount());
@@ -39,55 +41,55 @@ public class MutableBalance {
     }
 
     public Integer balance() {
-        synchronized (this.balance) {
-            return this.balance;
+        synchronized (balanceLock) {
+            return balance;
         }
     }
 
     public Integer withdrawn() {
-        synchronized (this.withdrawn) {
-            return this.withdrawn;
+        synchronized (withdrawnLock) {
+            return withdrawn;
         }
     }
 
     public Integer amountAvailableForWithdrawal() {
-        synchronized (this.balance) {
-            synchronized (this.withdrawn) {
-                return this.balance - this.withdrawn;
+        synchronized (balanceLock) {
+            synchronized (withdrawnLock) {
+                return balance - withdrawn;
             }
         }
     }
 
     public Integer subtract(Integer amount) {
-        synchronized (this.balance) {
-            this.balance -= amount;
-            if (this.balance < 0)
-                this.balance = 0;
-            return this.balance;
+        synchronized (balanceLock) {
+            balance -= amount;
+            if (balance < 0)
+                balance = 0;
+            return balance;
         }
     }
 
     public Integer add(Integer amount) {
-        synchronized (this.balance) {
-            this.balance += amount;
-            return this.balance;
+        synchronized (balanceLock) {
+            balance += amount;
+            return balance;
         }
     }
 
     public void set(Integer amount) {
-        synchronized (this.balance) {
-            this.balance = amount;
-            synchronized (this.withdrawn) {
-                if (this.withdrawn > this.balance)
-                    this.withdrawn = this.balance;
+        synchronized (balanceLock) {
+            balance = amount;
+            synchronized (withdrawnLock) {
+                if (withdrawn > balance)
+                    withdrawn = balance;
             }
         }
     }
 
     public boolean withdraw(Integer amount) {
-        synchronized (this.withdrawn) {
-            if (amountAvailableForWithdrawal().compareTo(amount) != -1) {
-                this.withdrawn += amount;
+        synchronized (withdrawnLock) {
+            if (amountAvailableForWithdrawal().compareTo(amount) >= 0) {
+                withdrawn += amount;
                 return true;
             }
         }
@@ -96,16 +98,16 @@ public class MutableBalance {
     }
 
     public void deposit(Integer amount) {
-        synchronized (this.withdrawn) {
-            this.withdrawn -= amount;
-            if (this.withdrawn < 0)
-                this.withdrawn = 0;
+        synchronized (withdrawnLock) {
+            withdrawn -= amount;
+            if (withdrawn < 0)
+                withdrawn = 0;
         }
     }
 
     public void reset() {
-        synchronized (this.withdrawn) {
-            this.withdrawn = 0;
+        synchronized (withdrawnLock) {
+            withdrawn = 0;
         }
     }
 }

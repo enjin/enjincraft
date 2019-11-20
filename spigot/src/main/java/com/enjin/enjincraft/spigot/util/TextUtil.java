@@ -6,6 +6,10 @@ import java.util.List;
 
 public class TextUtil {
 
+    private TextUtil() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static String concat(List<String> list, String glue) {
         StringBuilder builder = new StringBuilder();
 
