@@ -7,9 +7,7 @@ import com.enjin.enjincraft.spigot.player.EnjPlayer;
 import com.enjin.enjincraft.spigot.util.MessageUtils;
 import com.enjin.enjincraft.spigot.util.TokenUtils;
 import com.enjin.java_commons.StringUtils;
-import com.enjin.minecraft_commons.spigot.ui.Component;
-import com.enjin.minecraft_commons.spigot.ui.Dimension;
-import com.enjin.minecraft_commons.spigot.ui.Position;
+import com.enjin.minecraft_commons.spigot.ui.*;
 import com.enjin.minecraft_commons.spigot.ui.menu.ChestMenu;
 import com.enjin.minecraft_commons.spigot.ui.menu.component.SimpleMenuComponent;
 import net.kyori.text.TextComponent;
@@ -64,45 +62,7 @@ public class TradeView extends ChestMenu {
 
     private void init() {
         allowPlayerInventoryInteractions(true);
-        setCloseConsumer((player, menu) -> {
-            if (player == this.viewer.getBukkitPlayer()) {
-                this.viewer.setActiveTradeView(null);
-
-                TradeView otherTradeView = this.other.getActiveTradeView();
-                if (otherTradeView != null) {
-                    otherTradeView.removePlayer(this.other.getBukkitPlayer());
-                    otherTradeView.destroy();
-                }
-
-                if (!tradeApproved) {
-                    Inventory playerInventory = player.getInventory();
-                    Inventory inventory = getInventory(player, false);
-                    if (inventory != null) {
-                        for (int y = 0; y < this.viewerItemsComponent.getDimension().getHeight(); y++) {
-                            for (int x = 0; x < this.viewerItemsComponent.getDimension().getWidth(); x++) {
-                                ItemStack item = inventory.getItem(x + (y * getDimension().getWidth()));
-                                if (item != null && item.getType() != Material.AIR) {
-                                    playerInventory.addItem(item);
-                                }
-                            }
-                        }
-                    }
-
-                    if (otherTradeView == null) {
-                        MessageUtils.sendComponent(viewer.getBukkitPlayer(), TextComponent.builder("")
-                                .color(TextColor.GRAY)
-                                .append(TextComponent.builder(other.getBukkitPlayer().getName())
-                                        .color(TextColor.GOLD)
-                                        .build())
-                                .append(TextComponent.builder(" has cancelled the trade.")
-                                        .build())
-                                .build());
-                    }
-                }
-
-                destroy();
-            }
-        });
+        setCloseConsumer(this::closeMenuAction);
 
         //  Create the offering region for the viewing player
         this.viewerItemsComponent = new SimpleMenuComponent(new Dimension(4, 4));
@@ -309,5 +269,53 @@ public class TradeView extends ChestMenu {
     protected void onClose(Player player) {
         HandlerList.unregisterAll(this);
         super.onClose(player);
+    }
+
+    private void closeMenuAction(Player player, AbstractMenu menu) {
+        if (player != this.viewer.getBukkitPlayer())
+            return;
+
+        this.viewer.setActiveTradeView(null);
+
+        TradeView otherTradeView = this.other.getActiveTradeView();
+        if (otherTradeView != null) {
+            otherTradeView.removePlayer(this.other.getBukkitPlayer());
+            otherTradeView.destroy();
+        }
+
+        if (!tradeApproved) {
+            returnItems(player);
+
+            if (otherTradeView == null)
+                informViewerOfCancellation();
+        }
+
+        destroy();
+    }
+
+    private void returnItems(Player player) {
+        Inventory playerInventory = player.getInventory();
+        Inventory inventory = getInventory(player, false);
+        if (inventory != null) {
+            for (int y = 0; y < this.viewerItemsComponent.getDimension().getHeight(); y++) {
+                for (int x = 0; x < this.viewerItemsComponent.getDimension().getWidth(); x++) {
+                    ItemStack item = inventory.getItem(x + (y * getDimension().getWidth()));
+                    if (item != null && item.getType() != Material.AIR) {
+                        playerInventory.addItem(item);
+                    }
+                }
+            }
+        }
+    }
+
+    private void informViewerOfCancellation() {
+        MessageUtils.sendComponent(viewer.getBukkitPlayer(), TextComponent.builder("")
+                .color(TextColor.GRAY)
+                .append(TextComponent.builder(other.getBukkitPlayer().getName())
+                        .color(TextColor.GOLD)
+                        .build())
+                .append(TextComponent.builder(" has cancelled the trade.")
+                        .build())
+                .build());
     }
 }

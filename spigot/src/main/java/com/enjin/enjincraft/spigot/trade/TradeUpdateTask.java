@@ -10,6 +10,7 @@ import com.enjin.sdk.model.service.tokens.TokenEvent;
 import com.enjin.sdk.model.service.tokens.TokenEventType;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -39,51 +40,60 @@ public class TradeUpdateTask extends BukkitRunnable {
                 return;
             }
 
-            HttpResponse<GraphQLResponse<List<Transaction>>> networkResponse = bootstrap.getTrustedPlatformClient()
-                    .getRequestsService().getRequestsSync(new GetRequests()
-                            .requestId(session.getMostRecentRequestId()));
-
-            if (!networkResponse.isSuccess())
-                throw new NetworkException(networkResponse.code());
-
-            GraphQLResponse<List<Transaction>> graphQLResponse = networkResponse.body();
-
-            if (!graphQLResponse.isSuccess())
-                throw new GraphQLException(graphQLResponse.getErrors());
-
-            List<Transaction> data = graphQLResponse.getData();
+            List<Transaction> data = getMostRecentTransaction(session);
 
             if (data.isEmpty())
                 return;
 
-            Transaction transaction = data.get(0);
-            TransactionState state = transaction.getState();
-            TokenEvent event = transaction.getEvents().stream()
-                    .filter(e -> e.getEvent() == TokenEventType.CREATE_TRADE
-                            || e.getEvent() == TokenEventType.COMPLETE_TRADE)
-                    .findFirst().orElse(null);
-
-            if (event == null)
-                return;
-
-            TokenEventType type = event.getEvent();
-
-            if (type == TokenEventType.CREATE_TRADE) {
-                if (state == TransactionState.CANCELED_USER || state == TransactionState.CANCELED_PLATFORM) {
-                    bootstrap.getTradeManager().cancelTrade(transaction.getId());
-                } else if (state == TransactionState.EXECUTED) {
-                    bootstrap.getTradeManager().sendCompleteRequest(session, event.getParam1());
-                }
-            } else if (type == TokenEventType.COMPLETE_TRADE) {
-                if (state == TransactionState.CANCELED_USER || state == TransactionState.CANCELED_PLATFORM) {
-                    bootstrap.getTradeManager().cancelTrade(transaction.getId());
-                } else if (state == TransactionState.EXECUTED) {
-                    bootstrap.getTradeManager().completeTrade(session);
-                }
-            }
+            processTransaction(session, data.get(0));
         } catch (Exception ex) {
             bootstrap.log(ex);
         }
     }
 
+    private List<Transaction> getMostRecentTransaction(TradeSession session) throws IOException {
+        HttpResponse<GraphQLResponse<List<Transaction>>> networkResponse = bootstrap.getTrustedPlatformClient()
+                .getRequestsService().getRequestsSync(new GetRequests()
+                        .requestId(session.getMostRecentRequestId()));
+
+        if (!networkResponse.isSuccess())
+            throw new NetworkException(networkResponse.code());
+
+        GraphQLResponse<List<Transaction>> graphQLResponse = networkResponse.body();
+
+        if (!graphQLResponse.isSuccess())
+            throw new GraphQLException(graphQLResponse.getErrors());
+
+        return graphQLResponse.getData();
+    }
+
+    private TokenEvent getTokenEvent(Transaction transaction) {
+        return transaction.getEvents().stream()
+                .filter(e -> e.getEvent() == TokenEventType.CREATE_TRADE
+                        || e.getEvent() == TokenEventType.COMPLETE_TRADE)
+                .findFirst().orElse(null);
+    }
+
+    private void processTransaction(TradeSession session, Transaction transaction) {
+        TransactionState state = transaction.getState();
+        TokenEvent event =  getTokenEvent(transaction);
+
+        if (event == null)
+            return;
+
+        TokenEventType type = event.getEvent();
+        if (type == TokenEventType.CREATE_TRADE) {
+            if (state == TransactionState.CANCELED_USER || state == TransactionState.CANCELED_PLATFORM) {
+                bootstrap.getTradeManager().cancelTrade(transaction.getId());
+            } else if (state == TransactionState.EXECUTED) {
+                bootstrap.getTradeManager().sendCompleteRequest(session, event.getParam1());
+            }
+        } else if (type == TokenEventType.COMPLETE_TRADE) {
+            if (state == TransactionState.CANCELED_USER || state == TransactionState.CANCELED_PLATFORM) {
+                bootstrap.getTradeManager().cancelTrade(transaction.getId());
+            } else if (state == TransactionState.EXECUTED) {
+                bootstrap.getTradeManager().completeTrade(session);
+            }
+        }
+    }
 }
