@@ -48,30 +48,34 @@ public class PlayerInitializationTask extends BukkitRunnable {
             cancel();
         } else {
             try {
-                if (!this.player.isUserLoaded()) {
-                    User user = getUser(player.getBukkitPlayer().getUniqueId());
-                    if (user != null) {
-                        // An existing user has been found or a new user has been created
-                        this.player.loadUser(user);
-                    }
-                }
+                if (!this.player.isUserLoaded())
+                    loadUser();
 
-                if (this.player.isUserLoaded() && !this.player.isIdentityLoaded()) {
-                    Identity identity = getIdentity();
-                    if (identity != null) {
-                        // A new identity has been created
-                        this.player.loadIdentity(identity);
-                        cancel();
-                    }
-                } else if (this.player.isLoaded() && !isCancelled()) {
+                if (this.player.isUserLoaded() && !this.player.isIdentityLoaded())
+                    loadIdentity();
+                else if (this.player.isLoaded() && !isCancelled())
                     cancel();
-                }
             } catch (IOException ex) {
                 bootstrap.log(ex);
             }
         }
 
         this.inProgress = false;
+    }
+
+    private void loadUser() throws IOException {
+        User user = getUser(player.getBukkitPlayer().getUniqueId());
+        if (user != null)
+            this.player.loadUser(user);
+    }
+
+    private void loadIdentity() throws IOException {
+        Identity identity = getIdentity();
+        if (identity != null) {
+            // A new identity has been created
+            this.player.loadIdentity(identity);
+            cancel();
+        }
     }
 
     private User getUser(UUID playerUuid) throws IOException {

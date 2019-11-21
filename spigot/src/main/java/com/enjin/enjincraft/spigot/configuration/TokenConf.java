@@ -30,9 +30,7 @@ public class TokenConf {
         this.tokens = new HashMap<>();
     }
 
-    public boolean load() {
-        boolean result = false;
-
+    public void load() {
         clean();
 
         try {
@@ -45,13 +43,10 @@ public class TokenConf {
             if (element instanceof JsonObject) {
                 root = element.getAsJsonObject();
                 init(root);
-                result = true;
             }
         } catch (Exception ex) {
             throw new ConfigurationException(ex);
         }
-
-        return result;
     }
 
     public void save() {

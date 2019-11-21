@@ -85,7 +85,6 @@ public class CmdConf extends EnjCommand {
                 Optional<Locale> locale = LocaleArgumentProcessor.INSTANCE.parse(context.sender, context.args.get(0));
 
                 if (!locale.isPresent()) {
-                    // TODO invalid lang message
                     return;
                 }
 
@@ -93,7 +92,6 @@ public class CmdConf extends EnjCommand {
                 config.setLocale(locale.get());
                 bootstrap.plugin().saveConfig();
                 Translation.setServerLocale(locale.get());
-                // TODO: success message
             }
 
             @Override
