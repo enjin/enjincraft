@@ -10,6 +10,8 @@ import java.util.Optional;
 
 public class PlaceholderApiExpansion extends PlaceholderExpansion {
 
+    private static final String EMPTY = "";
+
     public static final String ENJ_BALANCE = "enj_balance";
     public static final String ETH_BALANCE = "eth_balance";
     public static final String LINK_STATUS = "link_status";
@@ -54,55 +56,76 @@ public class PlaceholderApiExpansion extends PlaceholderExpansion {
 
     @Override
     public String onPlaceholderRequest(Player player, String identifier) {
+        Optional<EnjPlayer> enjPlayerOptional = bootstrap.getPlayerManager().getPlayer(player);
+        if (!enjPlayerOptional.isPresent())
+            return EMPTY;
+
         try {
-            if (player == null)
-                return "";
-
-            Optional<EnjPlayer> enjPlayerOptional = bootstrap.getPlayerManager().getPlayer(player);
-            if (!enjPlayerOptional.isPresent())
-                return "";
-            EnjPlayer enjPlayer = enjPlayerOptional.get();
-
-            if (identifier.equals(ENJ_BALANCE)) {
-                return enjPlayer.getEnjBalance() == null ? "0" : enjPlayer.getEnjBalance()
-                        .setScale(2, BigDecimal.ROUND_HALF_DOWN)
-                        .toString();
-            }
-
-            if (identifier.equals(ETH_BALANCE)) {
-                return enjPlayer.getEthBalance() == null ? "0" : enjPlayer.getEthBalance()
-                        .setScale(2, BigDecimal.ROUND_HALF_DOWN)
-                        .toString();
-            }
-
-            if (identifier.equals(LINK_STATUS)) {
-                if (enjPlayer.isIdentityLoaded()) {
-                    if (enjPlayer.isLinked())
-                        return LINKED;
-                    else
-                        return enjPlayer.getLinkingCode();
-                } else {
-                    return LOADING;
-                }
-            }
-
-            if (identifier.equals(ENJ_URL))
-                return URL;
-
-            if (identifier.equals(ETH_ADDR)) {
-                if (enjPlayer.isIdentityLoaded()) {
-                    if (enjPlayer.isLinked())
-                        return enjPlayer.getEthereumAddress();
-                    else
-                        return NOT_AVAILABLE;
-                } else {
-                    return LOADING;
-                }
-            }
+            return process(enjPlayerOptional.get(), identifier);
         } catch (Exception ex) {
             bootstrap.log(ex);
         }
 
-        return null;
+        return EMPTY;
+    }
+
+    public String process(EnjPlayer player, String identifier) {
+        String result = EMPTY;
+
+        switch (identifier) {
+            case ENJ_BALANCE:
+                result = getEnjBalance(player);
+                break;
+            case ETH_BALANCE:
+                result = getEthBalance(player);
+                break;
+            case LINK_STATUS:
+                result = getLinkStatus(player);
+                break;
+            case ENJ_URL:
+                result = URL;
+                break;
+            case ETH_ADDR:
+                result = getEthAddress(player);
+                break;
+            default:
+                break;
+        }
+
+        return result;
+    }
+
+    private String getEnjBalance(EnjPlayer player) {
+        return player.getEnjBalance() == null ? "0" : player.getEnjBalance()
+                .setScale(2, BigDecimal.ROUND_HALF_DOWN)
+                .toString();
+    }
+
+    private String getEthBalance(EnjPlayer player) {
+        return player.getEthBalance() == null ? "0" : player.getEthBalance()
+                .setScale(2, BigDecimal.ROUND_HALF_DOWN)
+                .toString();
+    }
+
+    private String getLinkStatus(EnjPlayer player) {
+        if (player.isIdentityLoaded()) {
+            if (player.isLinked())
+                return LINKED;
+            else
+                return player.getLinkingCode();
+        }
+
+        return LOADING;
+    }
+
+    private String getEthAddress(EnjPlayer player) {
+        if (player.isIdentityLoaded()) {
+            if (player.isLinked())
+                return player.getEthereumAddress();
+            else
+                return NOT_AVAILABLE;
+        }
+
+        return LOADING;
     }
 }

@@ -33,13 +33,7 @@ public class TokenDefinition {
         if (!json.has(TokenConfKeys.ITEM_MATERIAL))
             throw new TokenConfigurationException(id, TokenConfKeys.ITEM_MATERIAL);
 
-        String mat = json.get(TokenConfKeys.ITEM_MATERIAL).getAsString();
-        Material material = Material.getMaterial(mat);
-        // If the material returned null try getting the material using legacy names
-        if (material == null) material = Material.getMaterial(mat, true);
-        // If the material returned null for both non-legacy and legacy names use an apple as material
-        if (material == null) material = Material.APPLE;
-
+        Material material = getItemMaterial(json);
         ItemStack itemStack = new ItemStack(material);
         ItemMeta meta = itemStack.getItemMeta();
 
@@ -48,34 +42,11 @@ public class TokenDefinition {
         else
             meta.setDisplayName(ChatColor.DARK_PURPLE + "Token #" + id);
 
-        if (meta instanceof BookMeta) {
-            BookMeta bookMeta = (BookMeta) meta;
-            if (json.has("title"))
-                bookMeta.setTitle(json.get("title").getAsString());
-            if (json.has("author"))
-                bookMeta.setAuthor(json.get("author").getAsString());
-            if (json.has("pages")) {
-                for (JsonElement page : json.getAsJsonArray("pages")) {
-                    bookMeta.addPage(page.getAsString());
-                }
-            }
-        }
+        if (meta instanceof BookMeta)
+            setBookMeta(json, (BookMeta) meta);
 
-        if (json.has(TokenConfKeys.ITEM_LORE)) {
-            List<String> lore = new ArrayList<>();
-
-            JsonElement loreElem = json.get(TokenConfKeys.ITEM_LORE);
-            if (loreElem.isJsonArray()) {
-                JsonArray loreArray = loreElem.getAsJsonArray();
-                for (JsonElement line : loreArray) {
-                    lore.add(ChatColor.DARK_GRAY + line.getAsString());
-                }
-            } else {
-                lore.add(ChatColor.DARK_GRAY + loreElem.getAsString());
-            }
-
-            meta.setLore(lore);
-        }
+        if (json.has(TokenConfKeys.ITEM_LORE))
+            setItemLore(json, meta);
 
         meta.setUnbreakable(true);
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
@@ -85,6 +56,45 @@ public class TokenDefinition {
 
         nbtItemStack = new NBTItem(itemStack);
         nbtItemStack.setString(NBT_ID, id);
+    }
+
+    private Material getItemMaterial(JsonObject json) {
+        String mat = json.get(TokenConfKeys.ITEM_MATERIAL).getAsString();
+        Material material = Material.getMaterial(mat);
+        // If the material returned null try getting the material using legacy names
+        if (material == null)
+            material = Material.getMaterial(mat, true);
+        // If the material returned null for both non-legacy and legacy names use an apple as material
+        if (material == null)
+            material = Material.APPLE;
+        return material;
+    }
+
+    private void setBookMeta(JsonObject json, BookMeta meta) {
+        if (json.has("title"))
+            meta.setTitle(json.get("title").getAsString());
+        if (json.has("author"))
+            meta.setAuthor(json.get("author").getAsString());
+        if (json.has("pages")) {
+            for (JsonElement page : json.getAsJsonArray("pages"))
+                meta.addPage(page.getAsString());
+        }
+    }
+
+    private void setItemLore(JsonObject json, ItemMeta meta) {
+        List<String> lore = new ArrayList<>();
+
+        JsonElement loreElem = json.get(TokenConfKeys.ITEM_LORE);
+        if (loreElem.isJsonArray()) {
+            JsonArray loreArray = loreElem.getAsJsonArray();
+            for (JsonElement line : loreArray) {
+                lore.add(ChatColor.DARK_GRAY + line.getAsString());
+            }
+        } else {
+            lore.add(ChatColor.DARK_GRAY + loreElem.getAsString());
+        }
+
+        meta.setLore(lore);
     }
 
     public String getId() {
