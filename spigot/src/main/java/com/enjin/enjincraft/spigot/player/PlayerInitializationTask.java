@@ -109,8 +109,10 @@ public class PlayerInitializationTask extends BukkitRunnable {
 
     private User createUser(UUID playerUuid) throws IOException {
         // Create the User for the Player in question
-        HttpResponse<GraphQLResponse<User>> networkResponse = bootstrap.getTrustedPlatformClient()
+        TrustedPlatformClient client = bootstrap.getTrustedPlatformClient();
+        HttpResponse<GraphQLResponse<User>> networkResponse = client
                 .getUsersService().createUserSync(new CreateUser()
+                        .appId(client.getAppId())
                         .name(playerUuid.toString()));
         if (!networkResponse.isSuccess())
             throw new NetworkException(networkResponse.code());
@@ -149,7 +151,9 @@ public class PlayerInitializationTask extends BukkitRunnable {
         TrustedPlatformClient client = bootstrap.getTrustedPlatformClient();
         // Create the Identity for the App ID and Player in question
         HttpResponse<GraphQLResponse<Identity>> networkResponse = client.getIdentitiesService()
-                .createIdentitySync(new CreateIdentity().userId(this.player.getUserId()));
+                .createIdentitySync(new CreateIdentity()
+                                            .appId(client.getAppId())
+                                            .userId(this.player.getUserId()));
         if (!networkResponse.isSuccess())
             throw new NetworkException(networkResponse.code());
 

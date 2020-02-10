@@ -8,6 +8,7 @@ import com.enjin.enjincraft.spigot.events.EnjPlayerQuitEvent;
 import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
 import com.enjin.enjincraft.spigot.util.TokenUtils;
+import com.enjin.sdk.TrustedPlatformClient;
 import com.enjin.sdk.graphql.GraphQLResponse;
 import com.enjin.sdk.model.service.requests.CreateRequest;
 import com.enjin.sdk.model.service.requests.Transaction;
@@ -113,12 +114,13 @@ public class TradeManager implements Listener {
             Optional<Player> inviter = Optional.ofNullable(Bukkit.getPlayer(session.getInviterUuid()));
             Optional<Player> invited = Optional.ofNullable(Bukkit.getPlayer(session.getInvitedUuid()));
 
-            bootstrap.getTrustedPlatformClient()
-                    .getRequestsService().createRequestAsync(new CreateRequest()
-                            .identityId(session.getInvitedIdentityId())
-                            .completeTrade(CompleteTradeData.builder()
-                                    .tradeId(tradeId)
-                                    .build()),
+            TrustedPlatformClient client = bootstrap.getTrustedPlatformClient();
+            client.getRequestsService().createRequestAsync(new CreateRequest()
+                    .appId(client.getAppId())
+                    .identityId(session.getInvitedIdentityId())
+                    .completeTrade(CompleteTradeData.builder()
+                                                    .tradeId(tradeId)
+                                                    .build()),
                     networkResponse -> {
                         if (!networkResponse.isSuccess())
                             throw new NetworkException(networkResponse.code());
@@ -160,14 +162,15 @@ public class TradeManager implements Listener {
         List<TokenValueData> playerOneTokens = extractOffers(inviterOffer);
         List<TokenValueData> playerTwoTokens = extractOffers(invitedOffer);
 
-        bootstrap.getTrustedPlatformClient()
-                .getRequestsService().createRequestAsync(new CreateRequest()
-                        .identityId(inviter.getIdentityId())
-                        .createTrade(CreateTradeData.builder()
-                                .offeringTokens(playerOneTokens)
-                                .askingTokens(playerTwoTokens)
-                                .secondPartyIdentityId(invited.getIdentityId())
-                                .build()),
+        TrustedPlatformClient client = bootstrap.getTrustedPlatformClient();
+        client.getRequestsService().createRequestAsync(new CreateRequest()
+                .appId(client.getAppId())
+                .identityId(inviter.getIdentityId())
+                .createTrade(CreateTradeData.builder()
+                                            .offeringTokens(playerOneTokens)
+                                            .askingTokens(playerTwoTokens)
+                                            .secondPartyIdentityId(invited.getIdentityId())
+                                            .build()),
                 networkResponse -> {
                     try {
                         if (!networkResponse.isSuccess())

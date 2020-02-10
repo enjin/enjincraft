@@ -15,6 +15,7 @@ import com.enjin.sdk.model.service.balances.GetBalances;
 import com.enjin.sdk.model.service.identities.DeleteIdentity;
 import com.enjin.sdk.model.service.identities.GetIdentities;
 import com.enjin.sdk.model.service.identities.Identity;
+import com.enjin.sdk.model.service.identities.UnlinkIdentity;
 import com.enjin.sdk.model.service.users.User;
 import com.enjin.sdk.service.notifications.NotificationsService;
 import com.enjin.java_commons.StringUtils;
@@ -47,7 +48,7 @@ public class EnjPlayer {
     private String linkingCode;
     private BigDecimal enjBalance;
     private BigDecimal ethBalance;
-    private BigInteger enjAllowance;
+    private BigDecimal enjAllowance;
     private TokenWallet tokenWallet;
 
     // State Fields
@@ -97,11 +98,11 @@ public class EnjPlayer {
         }
 
         identityId = identity.getId();
-        ethereumAddress = identity.getEthereumAddress();
+        ethereumAddress = identity.getWallet().getEthAddress();
         linkingCode = identity.getLinkingCode();
-        ethBalance = identity.getEthBalance();
-        enjBalance = identity.getEnjBalance();
-        enjAllowance = identity.getEnjAllowance();
+        ethBalance = identity.getWallet().getEthBalance();
+        enjBalance = identity.getWallet().getEnjBalance();
+        enjAllowance = identity.getWallet().getEnjAllowance();
         identityLoaded = true;
 
         NotificationsService service = bootstrap.getNotificationsService();
@@ -115,7 +116,7 @@ public class EnjPlayer {
             return;
         }
 
-        if (identity.getEnjAllowance() == null || identity.getEnjAllowance().doubleValue() <= 0.0)
+        if (identity.getWallet().getEnjAllowance() == null || identity.getWallet().getEnjAllowance().doubleValue() <= 0.0)
             Translation.WALLET_ALLOWANCENOTSET.send(bukkitPlayer);
 
         initWallet();
@@ -196,7 +197,7 @@ public class EnjPlayer {
             return;
 
         bootstrap.getTrustedPlatformClient().getIdentitiesService()
-                .deleteIdentitySync(DeleteIdentity.unlink(identityId));
+                .unlinkIdentitySync(new UnlinkIdentity().id(identityId));
     }
 
     public void unlinked() {
@@ -288,7 +289,7 @@ public class EnjPlayer {
         return ethBalance;
     }
 
-    public BigInteger getEnjAllowance() {
+    public BigDecimal getEnjAllowance() {
         return enjAllowance;
     }
 

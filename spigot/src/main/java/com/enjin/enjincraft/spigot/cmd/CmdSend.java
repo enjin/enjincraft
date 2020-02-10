@@ -9,6 +9,7 @@ import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
 import com.enjin.enjincraft.spigot.util.TokenUtils;
 import com.enjin.enjincraft.spigot.wallet.MutableBalance;
+import com.enjin.sdk.TrustedPlatformClient;
 import com.enjin.sdk.graphql.GraphQLResponse;
 import com.enjin.sdk.model.service.requests.CreateRequest;
 import com.enjin.sdk.model.service.requests.Transaction;
@@ -105,8 +106,9 @@ public class CmdSend extends EnjCommand {
     }
 
     private void send(Player sender, int senderId, int targetId, String tokenId, int amount) {
-        bootstrap.getTrustedPlatformClient()
-                .getRequestsService().createRequestAsync(new CreateRequest()
+        TrustedPlatformClient client = bootstrap.getTrustedPlatformClient();
+        client.getRequestsService().createRequestAsync(new CreateRequest()
+                        .appId(client.getAppId())
                         .identityId(senderId)
                         .sendToken(SendTokenData.builder()
                                 .recipientIdentityId(targetId)

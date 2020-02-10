@@ -19,11 +19,11 @@ public class MutableBalance {
     private final Object withdrawnLock = new Object();
 
     public MutableBalance(Balance balance) {
-        this(balance.getTokenId(), balance.getTokenIndex(), balance.getAmount());
+        this(balance.getId(), balance.getIndex(), balance.getValue());
     }
 
     public MutableBalance(Token token) {
-        this(token.getTokenId(), token.getIndex(), token.getBalance());
+        this(token.getId(), token.getIndex(), token.getBalance());
     }
 
     public MutableBalance(String tokenId, String tokenIndex, Integer balance) {

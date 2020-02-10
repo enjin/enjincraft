@@ -16,8 +16,8 @@ public class TokenWallet {
     public TokenWallet(SpigotBootstrap bootstrap, List<Balance> balances) {
         this.balances = new ConcurrentHashMap<>();
         balances.forEach(balance -> {
-            if (bootstrap.getTokenConf().getTokens().containsKey(balance.getTokenId()))
-                this.balances.put(balance.getTokenId(), new MutableBalance(balance));
+            if (bootstrap.getTokenConf().getTokens().containsKey(balance.getId()))
+                this.balances.put(balance.getId(), new MutableBalance(balance));
         });
     }
 
