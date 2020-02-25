@@ -17,6 +17,7 @@ import com.enjin.sdk.model.service.identities.GetIdentities;
 import com.enjin.sdk.model.service.identities.Identity;
 import com.enjin.sdk.model.service.identities.UnlinkIdentity;
 import com.enjin.sdk.model.service.users.User;
+import com.enjin.sdk.model.service.wallets.Wallet;
 import com.enjin.sdk.service.notifications.NotificationsService;
 import com.enjin.java_commons.StringUtils;
 import org.bukkit.Bukkit;
@@ -44,7 +45,7 @@ public class EnjPlayer {
 
     // Identity Data
     private Integer identityId;
-    private String ethereumAddress;
+    private Wallet wallet;
     private String linkingCode;
     private BigDecimal enjBalance;
     private BigDecimal ethBalance;
@@ -87,7 +88,7 @@ public class EnjPlayer {
     public void loadIdentity(Identity identity) {
         if (identity == null) {
             identityId = null;
-            ethereumAddress = null;
+            wallet = null;
             linkingCode = null;
             identityLoaded = false;
             ethBalance = null;
@@ -98,11 +99,12 @@ public class EnjPlayer {
         }
 
         identityId = identity.getId();
-        ethereumAddress = identity.getWallet().getEthAddress();
+        wallet = identity.getWallet();
         linkingCode = identity.getLinkingCode();
         ethBalance = identity.getWallet().getEthBalance();
         enjBalance = identity.getWallet().getEnjBalance();
         enjAllowance = identity.getWallet().getEnjAllowance();
+
         identityLoaded = true;
 
         NotificationsService service = bootstrap.getNotificationsService();
@@ -123,13 +125,13 @@ public class EnjPlayer {
     }
 
     public void initWallet() {
-        if (StringUtils.isEmpty(ethereumAddress))
+        if (wallet == null || StringUtils.isEmpty(wallet.getEthAddress()))
             return;
 
         try {
             HttpResponse<GraphQLResponse<List<Balance>>> networkResponse = bootstrap.getTrustedPlatformClient()
                     .getBalancesService().getBalancesSync(new GetBalances()
-                            .ethAddr(ethereumAddress));
+                            .ethAddr(wallet.getEthAddress()));
             if (!networkResponse.isSuccess())
                 throw new NetworkException(networkResponse.code());
 
@@ -237,7 +239,7 @@ public class EnjPlayer {
     }
 
     public boolean isLinked() {
-        return isIdentityLoaded() && ethereumAddress != null;
+        return isIdentityLoaded() && wallet != null && !StringUtils.isEmpty(wallet.getEthAddress());
     }
 
     protected void cleanUp() {
@@ -274,7 +276,7 @@ public class EnjPlayer {
     }
 
     public String getEthereumAddress() {
-        return ethereumAddress;
+        return wallet == null ? "" : wallet.getEthAddress();
     }
 
     public String getLinkingCode() {
