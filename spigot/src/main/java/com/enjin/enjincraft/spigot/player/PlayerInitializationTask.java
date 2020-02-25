@@ -112,7 +112,6 @@ public class PlayerInitializationTask extends BukkitRunnable {
         TrustedPlatformClient client = bootstrap.getTrustedPlatformClient();
         HttpResponse<GraphQLResponse<User>> networkResponse = client
                 .getUsersService().createUserSync(new CreateUser()
-                        .appId(client.getAppId())
                         .name(playerUuid.toString()));
         if (!networkResponse.isSuccess())
             throw new NetworkException(networkResponse.code());
