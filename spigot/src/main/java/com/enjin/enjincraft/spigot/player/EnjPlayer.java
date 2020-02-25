@@ -12,7 +12,6 @@ import com.enjin.sdk.graphql.GraphQLResponse;
 import com.enjin.sdk.http.HttpResponse;
 import com.enjin.sdk.model.service.balances.Balance;
 import com.enjin.sdk.model.service.balances.GetBalances;
-import com.enjin.sdk.model.service.identities.DeleteIdentity;
 import com.enjin.sdk.model.service.identities.GetIdentities;
 import com.enjin.sdk.model.service.identities.Identity;
 import com.enjin.sdk.model.service.identities.UnlinkIdentity;
@@ -29,7 +28,6 @@ import org.bukkit.inventory.PlayerInventory;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -47,9 +45,6 @@ public class EnjPlayer {
     private Integer identityId;
     private Wallet wallet;
     private String linkingCode;
-    private BigDecimal enjBalance;
-    private BigDecimal ethBalance;
-    private BigDecimal enjAllowance;
     private TokenWallet tokenWallet;
 
     // State Fields
@@ -91,9 +86,6 @@ public class EnjPlayer {
             wallet = null;
             linkingCode = null;
             identityLoaded = false;
-            ethBalance = null;
-            enjBalance = null;
-            enjAllowance = null;
             tokenWallet = null;
             return;
         }
@@ -101,9 +93,6 @@ public class EnjPlayer {
         identityId = identity.getId();
         wallet = identity.getWallet();
         linkingCode = identity.getLinkingCode();
-        ethBalance = identity.getWallet().getEthBalance();
-        enjBalance = identity.getWallet().getEnjBalance();
-        enjAllowance = identity.getWallet().getEnjAllowance();
 
         identityLoaded = true;
 
@@ -284,15 +273,15 @@ public class EnjPlayer {
     }
 
     public BigDecimal getEnjBalance() {
-        return enjBalance;
+        return wallet == null ? BigDecimal.ZERO : wallet.getEnjBalance();
     }
 
     public BigDecimal getEthBalance() {
-        return ethBalance;
+        return wallet == null ? BigDecimal.ZERO : wallet.getEthBalance();
     }
 
     public BigDecimal getEnjAllowance() {
-        return enjAllowance;
+        return wallet == null ? BigDecimal.ZERO : wallet.getEnjAllowance();
     }
 
     public TokenWallet getTokenWallet() {
