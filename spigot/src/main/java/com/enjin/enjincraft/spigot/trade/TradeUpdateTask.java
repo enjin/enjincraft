@@ -53,7 +53,7 @@ public class TradeUpdateTask extends BukkitRunnable {
 
     private List<Transaction> getMostRecentTransaction(TradeSession session) throws IOException {
         HttpResponse<GraphQLResponse<List<Transaction>>> networkResponse = bootstrap.getTrustedPlatformClient()
-                .getRequestsService().getRequestsSync(new GetRequests()
+                .getRequestService().getRequestsSync(new GetRequests()
                         .requestId(session.getMostRecentRequestId()));
 
         if (!networkResponse.isSuccess())

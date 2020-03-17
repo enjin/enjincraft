@@ -115,7 +115,7 @@ public class TradeManager implements Listener {
             Optional<Player> invited = Optional.ofNullable(Bukkit.getPlayer(session.getInvitedUuid()));
 
             TrustedPlatformClient client = bootstrap.getTrustedPlatformClient();
-            client.getRequestsService().createRequestAsync(new CreateRequest()
+            client.getRequestService().createRequestAsync(new CreateRequest()
                     .appId(client.getAppId())
                     .identityId(session.getInvitedIdentityId())
                     .completeTrade(CompleteTradeData.builder()
@@ -163,7 +163,7 @@ public class TradeManager implements Listener {
         List<TokenValueData> playerTwoTokens = extractOffers(invitedOffer);
 
         TrustedPlatformClient client = bootstrap.getTrustedPlatformClient();
-        client.getRequestsService().createRequestAsync(new CreateRequest()
+        client.getRequestService().createRequestAsync(new CreateRequest()
                 .appId(client.getAppId())
                 .identityId(inviter.getIdentityId())
                 .createTrade(CreateTradeData.builder()

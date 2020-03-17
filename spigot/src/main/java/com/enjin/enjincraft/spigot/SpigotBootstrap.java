@@ -13,9 +13,10 @@ import com.enjin.enjincraft.spigot.trade.TradeManager;
 import com.enjin.enjincraft.spigot.trade.TradeUpdateTask;
 import com.enjin.enjincraft.spigot.util.MessageUtils;
 import com.enjin.sdk.TrustedPlatformClient;
+import com.enjin.sdk.TrustedPlatformClientBuilder;
 import com.enjin.sdk.graphql.GraphQLResponse;
 import com.enjin.sdk.http.HttpResponse;
-import com.enjin.sdk.model.service.auth.AuthResult;
+import com.enjin.sdk.model.service.auth.AuthTokens;
 import com.enjin.sdk.model.service.platform.PlatformDetails;
 import com.enjin.sdk.service.notifications.NotificationsService;
 import com.enjin.sdk.service.notifications.PusherNotificationService;
@@ -76,7 +77,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
             database = new Database(this);
 
             // Create the trusted platform client
-            trustedPlatformClient = TrustedPlatformClient.builder()
+            trustedPlatformClient = new TrustedPlatformClientBuilder()
                     .httpLogLevel(conf.isSdkDebugEnabled() ? BODY : NONE)
                     .baseUrl(conf.getBaseUrl())
                     .readTimeout(1, TimeUnit.MINUTES)
@@ -137,7 +138,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
     private void authenticateTPClient() {
         try {
             // Attempt to authenticate the client using an app secret
-            HttpResponse<AuthResult> networkResponse = trustedPlatformClient.authAppSync(
+            HttpResponse<GraphQLResponse<AuthTokens>> networkResponse = trustedPlatformClient.authAppSync(
                     conf.getAppId(),
                     conf.getAppSecret()
             );
@@ -166,7 +167,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
                 throw new GraphQLException(graphQLResponse.getErrors());
 
             platformDetails = graphQLResponse.getData();
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             throw new NetworkException(ex);
         }
     }

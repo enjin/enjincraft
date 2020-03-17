@@ -119,7 +119,7 @@ public class EnjPlayer {
 
         try {
             HttpResponse<GraphQLResponse<List<Balance>>> networkResponse = bootstrap.getTrustedPlatformClient()
-                    .getBalancesService().getBalancesSync(new GetBalances()
+                    .getBalanceService().getBalancesSync(new GetBalances()
                             .ethAddr(wallet.getEthAddress()));
             if (!networkResponse.isSuccess())
                 throw new NetworkException(networkResponse.code());
@@ -130,7 +130,7 @@ public class EnjPlayer {
 
             tokenWallet = new TokenWallet(bootstrap, graphQLResponse.getData());
             validateInventory();
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             bootstrap.log(ex);
         }
     }
@@ -164,7 +164,7 @@ public class EnjPlayer {
     public void reloadIdentity() {
         try {
             HttpResponse<GraphQLResponse<List<Identity>>> networkResponse = bootstrap.getTrustedPlatformClient()
-                    .getIdentitiesService().getIdentitiesSync(new GetIdentities()
+                    .getIdentityService().getIdentitiesSync(new GetIdentities()
                             .identityId(identityId));
             if (!networkResponse.isSuccess())
                 throw new NetworkException(networkResponse.code());
@@ -178,7 +178,7 @@ public class EnjPlayer {
                 identity = graphQLResponse.getData().get(0);
 
             loadIdentity(identity);
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             bootstrap.log(ex);
         }
     }
@@ -187,7 +187,7 @@ public class EnjPlayer {
         if (!isLinked())
             return;
 
-        bootstrap.getTrustedPlatformClient().getIdentitiesService()
+        bootstrap.getTrustedPlatformClient().getIdentityService()
                 .unlinkIdentitySync(new UnlinkIdentity().id(identityId));
     }
 

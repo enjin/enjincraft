@@ -107,7 +107,7 @@ public class CmdSend extends EnjCommand {
 
     private void send(Player sender, int senderId, int targetId, String tokenId, int amount) {
         TrustedPlatformClient client = bootstrap.getTrustedPlatformClient();
-        client.getRequestsService().createRequestAsync(new CreateRequest()
+        client.getRequestService().createRequestAsync(new CreateRequest()
                         .appId(client.getAppId())
                         .identityId(senderId)
                         .sendToken(SendTokenData.builder()
