@@ -136,19 +136,21 @@ public class SpigotBootstrap implements Bootstrap, Module {
     }
 
     private void authenticateTPClient() {
+        HttpResponse<GraphQLResponse<AuthTokens>> networkResponse;
+
         try {
             // Attempt to authenticate the client using an app secret
-            HttpResponse<GraphQLResponse<AuthTokens>> networkResponse = trustedPlatformClient.authAppSync(
+            networkResponse = trustedPlatformClient.authAppSync(
                     conf.getAppId(),
                     conf.getAppSecret()
             );
-
-            // Could not authenticate the client
-            if (!networkResponse.isSuccess()) {
-                throw new AuthenticationException(networkResponse.code());
-            }
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             throw new AuthenticationException(ex);
+        }
+
+        // Could not authenticate the client
+        if (!networkResponse.isSuccess()) {
+            throw new AuthenticationException(networkResponse.code());
         }
     }
 
