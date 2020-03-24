@@ -1,7 +1,7 @@
 package com.enjin.enjincraft.spigot.wallet;
 
-import com.enjin.sdk.model.service.balances.Balance;
-import com.enjin.sdk.model.service.tokens.Token;
+import com.enjin.sdk.models.balance.Balance;
+import com.enjin.sdk.models.token.Token;
 
 /**
  * Thread safe class that represents the current balance
@@ -20,10 +20,6 @@ public class MutableBalance {
 
     public MutableBalance(Balance balance) {
         this(balance.getId(), balance.getIndex(), balance.getValue());
-    }
-
-    public MutableBalance(Token token) {
-        this(token.getId(), token.getIndex(), token.getBalance());
     }
 
     public MutableBalance(String tokenId, String tokenIndex, Integer balance) {

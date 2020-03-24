@@ -4,7 +4,7 @@ import com.enjin.enjincraft.spigot.configuration.Conf;
 import com.enjin.enjincraft.spigot.configuration.TokenConf;
 import com.enjin.enjincraft.spigot.player.PlayerManagerApi;
 import com.enjin.sdk.TrustedPlatformClient;
-import com.enjin.sdk.service.notifications.NotificationsService;
+import com.enjin.sdk.services.notification.NotificationsService;
 
 public interface Bootstrap {
 

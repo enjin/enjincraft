@@ -5,7 +5,7 @@ import com.enjin.enjincraft.spigot.player.EnjPlayer;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
 
-import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Optional;
 
 public class PlaceholderApiExpansion extends PlaceholderExpansion {
@@ -97,13 +97,13 @@ public class PlaceholderApiExpansion extends PlaceholderExpansion {
 
     private String getEnjBalance(EnjPlayer player) {
         return player.getEnjBalance() == null ? "0" : player.getEnjBalance()
-                .setScale(2, BigDecimal.ROUND_HALF_DOWN)
+                .setScale(2, RoundingMode.HALF_DOWN)
                 .toString();
     }
 
     private String getEthBalance(EnjPlayer player) {
         return player.getEthBalance() == null ? "0" : player.getEthBalance()
-                .setScale(2, BigDecimal.ROUND_HALF_DOWN)
+                .setScale(2, RoundingMode.HALF_DOWN)
                 .toString();
     }
 

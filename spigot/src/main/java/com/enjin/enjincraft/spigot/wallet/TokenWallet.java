@@ -1,7 +1,7 @@
 package com.enjin.enjincraft.spigot.wallet;
 
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
-import com.enjin.sdk.model.service.balances.Balance;
+import com.enjin.sdk.models.balance.Balance;
 
 import java.util.ArrayList;
 import java.util.HashMap;

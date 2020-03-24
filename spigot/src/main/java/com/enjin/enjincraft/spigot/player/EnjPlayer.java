@@ -10,14 +10,14 @@ import com.enjin.enjincraft.spigot.wallet.MutableBalance;
 import com.enjin.enjincraft.spigot.wallet.TokenWallet;
 import com.enjin.sdk.graphql.GraphQLResponse;
 import com.enjin.sdk.http.HttpResponse;
-import com.enjin.sdk.model.service.balances.Balance;
-import com.enjin.sdk.model.service.balances.GetBalances;
-import com.enjin.sdk.model.service.identities.GetIdentities;
-import com.enjin.sdk.model.service.identities.Identity;
-import com.enjin.sdk.model.service.identities.UnlinkIdentity;
-import com.enjin.sdk.model.service.users.User;
-import com.enjin.sdk.model.service.wallets.Wallet;
-import com.enjin.sdk.service.notifications.NotificationsService;
+import com.enjin.sdk.models.balance.Balance;
+import com.enjin.sdk.models.balance.GetBalances;
+import com.enjin.sdk.models.identity.GetIdentities;
+import com.enjin.sdk.models.identity.Identity;
+import com.enjin.sdk.models.identity.UnlinkIdentity;
+import com.enjin.sdk.models.user.User;
+import com.enjin.sdk.models.wallet.Wallet;
+import com.enjin.sdk.services.notification.NotificationsService;
 import com.enjin.java_commons.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -36,15 +36,15 @@ public class EnjPlayer {
 
     // Bukkit Fields
     private SpigotBootstrap bootstrap;
-    private Player bukkitPlayer;
+    private Player          bukkitPlayer;
 
     // User Data
     private Integer userId;
 
     // Identity Data
-    private Integer identityId;
-    private Wallet wallet;
-    private String linkingCode;
+    private Integer     identityId;
+    private Wallet      wallet;
+    private String      linkingCode;
     private TokenWallet tokenWallet;
 
     // State Fields
@@ -52,9 +52,9 @@ public class EnjPlayer {
     private boolean identityLoaded;
 
     // Trade Fields
-    private List<EnjPlayer> sentTradeInvites = new ArrayList<>();
+    private List<EnjPlayer> sentTradeInvites     = new ArrayList<>();
     private List<EnjPlayer> receivedTradeInvites = new ArrayList<>();
-    private TradeView activeTradeView;
+    private TradeView       activeTradeView;
 
     public EnjPlayer(SpigotBootstrap bootstrap, Player player) {
         this.bootstrap = bootstrap;
@@ -74,8 +74,10 @@ public class EnjPlayer {
             userLoaded = true;
 
             Optional<Identity> optionalIdentity = user.getIdentities().stream()
-                    .filter(identity -> identity.getAppId().intValue() == bootstrap.getConfig().getAppId())
-                    .findFirst();
+                                                      .filter(identity -> identity.getAppId()
+                                                                                  .intValue() == bootstrap.getConfig()
+                                                                                                          .getAppId())
+                                                      .findFirst();
             optionalIdentity.ifPresent(identity -> identityId = identity.getId());
         }
     }
@@ -96,37 +98,37 @@ public class EnjPlayer {
 
         identityLoaded = true;
 
-        NotificationsService service = bootstrap.getNotificationsService();
-        boolean listening = service.isSubscribedToIdentity(identityId);
+        NotificationsService service   = bootstrap.getNotificationsService();
+        boolean              listening = service.isSubscribedToIdentity(identityId);
 
-        if (!listening)
-            service.subscribeToIdentity(identityId);
+        if (!listening) { service.subscribeToIdentity(identityId); }
 
         if (!isLinked()) {
             Bukkit.getScheduler().runTask(bootstrap.plugin(), this::removeTokenizedItems);
             return;
         }
 
-        if (identity.getWallet().getEnjAllowance() == null || identity.getWallet().getEnjAllowance().doubleValue() <= 0.0)
+        if (identity.getWallet().getEnjAllowance() == null || identity.getWallet()
+                                                                      .getEnjAllowance()
+                                                                      .doubleValue() <= 0.0) {
             Translation.WALLET_ALLOWANCENOTSET.send(bukkitPlayer);
+        }
 
         initWallet();
     }
 
     public void initWallet() {
-        if (wallet == null || StringUtils.isEmpty(wallet.getEthAddress()))
-            return;
+        if (wallet == null || StringUtils.isEmpty(wallet.getEthAddress())) { return; }
 
         try {
-            HttpResponse<GraphQLResponse<List<Balance>>> networkResponse = bootstrap.getTrustedPlatformClient()
-                    .getBalanceService().getBalancesSync(new GetBalances()
-                            .ethAddr(wallet.getEthAddress()));
-            if (!networkResponse.isSuccess())
-                throw new NetworkException(networkResponse.code());
+            HttpResponse<GraphQLResponse<List<Balance>>> networkResponse;
+            networkResponse = bootstrap.getTrustedPlatformClient()
+                                       .getBalanceService()
+                                       .getBalancesSync(new GetBalances().ethAddress(wallet.getEthAddress()));
+            if (!networkResponse.isSuccess()) { throw new NetworkException(networkResponse.code()); }
 
             GraphQLResponse<List<Balance>> graphQLResponse = networkResponse.body();
-            if (!graphQLResponse.isSuccess())
-                throw new GraphQLException(graphQLResponse.getErrors());
+            if (!graphQLResponse.isSuccess()) { throw new GraphQLException(graphQLResponse.getErrors()); }
 
             tokenWallet = new TokenWallet(bootstrap, graphQLResponse.getData());
             validateInventory();
@@ -137,24 +139,22 @@ public class EnjPlayer {
 
     public void validateInventory() {
         tokenWallet.getBalances().forEach(MutableBalance::reset);
-        if (bukkitPlayer == null)
-            return;
+        if (bukkitPlayer == null) { return; }
         PlayerInventory inventory = bukkitPlayer.getInventory();
         for (int i = inventory.getSize() - 1; i >= 0; i--) {
             ItemStack is = inventory.getItem(i);
-            String id = TokenUtils.getTokenID(is);
-            if (StringUtils.isEmpty(id))
-                continue;
+            String    id = TokenUtils.getTokenID(is);
+            if (StringUtils.isEmpty(id)) { continue; }
 
             MutableBalance balance = tokenWallet.getBalance(id);
-            if (balance == null)
-                continue;
+            if (balance == null) { continue; }
 
             if (balance.amountAvailableForWithdrawal() == 0) {
                 inventory.clear(i);
             } else {
-                if (balance.amountAvailableForWithdrawal() < is.getAmount())
+                if (balance.amountAvailableForWithdrawal() < is.getAmount()) {
                     is.setAmount(balance.amountAvailableForWithdrawal());
+                }
 
                 balance.withdraw(is.getAmount());
             }
@@ -163,19 +163,19 @@ public class EnjPlayer {
 
     public void reloadIdentity() {
         try {
-            HttpResponse<GraphQLResponse<List<Identity>>> networkResponse = bootstrap.getTrustedPlatformClient()
-                    .getIdentityService().getIdentitiesSync(new GetIdentities()
-                            .identityId(identityId));
-            if (!networkResponse.isSuccess())
-                throw new NetworkException(networkResponse.code());
+            HttpResponse<GraphQLResponse<List<Identity>>> networkResponse;
+            networkResponse = bootstrap.getTrustedPlatformClient()
+                                       .getIdentityService()
+                                       .getIdentitiesSync(new GetIdentities().identityId(identityId)
+                                                                             .withLinkingCode()
+                                                                             .withWallet());
+            if (!networkResponse.isSuccess()) { throw new NetworkException(networkResponse.code()); }
 
             GraphQLResponse<List<Identity>> graphQLResponse = networkResponse.body();
-            if (!graphQLResponse.isSuccess())
-                throw new GraphQLException(graphQLResponse.getErrors());
+            if (!graphQLResponse.isSuccess()) { throw new GraphQLException(graphQLResponse.getErrors()); }
 
             Identity identity = null;
-            if (!graphQLResponse.getData().isEmpty())
-                identity = graphQLResponse.getData().get(0);
+            if (!graphQLResponse.getData().isEmpty()) { identity = graphQLResponse.getData().get(0); }
 
             loadIdentity(identity);
         } catch (Exception ex) {
@@ -184,16 +184,14 @@ public class EnjPlayer {
     }
 
     public void unlink() throws IOException {
-        if (!isLinked())
-            return;
+        if (!isLinked()) { return; }
 
         bootstrap.getTrustedPlatformClient().getIdentityService()
-                .unlinkIdentitySync(new UnlinkIdentity().id(identityId));
+                 .unlinkIdentitySync(new UnlinkIdentity().id(identityId));
     }
 
     public void unlinked() {
-        if (!isLinked())
-            return;
+        if (!isLinked()) { return; }
 
         Translation.COMMAND_UNLINK_SUCCESS.send(bukkitPlayer);
         Translation.HINT_LINK.send(bukkitPlayer);
@@ -206,12 +204,10 @@ public class EnjPlayer {
         Inventory inventory = bukkitPlayer.getInventory();
         for (int i = 0; i < inventory.getSize(); i++) {
             ItemStack is = inventory.getItem(i);
-            if (is == null || is.getType() == Material.AIR)
-                continue;
+            if (is == null || is.getType() == Material.AIR) { continue; }
 
             String tokenId = TokenUtils.getTokenID(is);
-            if (!StringUtils.isEmpty(tokenId))
-                inventory.setItem(i, null);
+            if (!StringUtils.isEmpty(tokenId)) { inventory.setItem(i, null); }
         }
     }
 
@@ -233,10 +229,9 @@ public class EnjPlayer {
 
     protected void cleanUp() {
         PlayerInitializationTask.cleanUp(bukkitPlayer.getUniqueId());
-        NotificationsService service = bootstrap.getNotificationsService();
-        boolean listening = service.isSubscribedToIdentity(identityId);
-        if (listening)
-            service.unsubscribeToIdentity(identityId);
+        NotificationsService service   = bootstrap.getNotificationsService();
+        boolean              listening = service.isSubscribedToIdentity(identityId);
+        if (listening) { service.unsubscribeToIdentity(identityId); }
         bukkitPlayer = null;
     }
 

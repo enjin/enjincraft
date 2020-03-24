@@ -16,10 +16,11 @@ import com.enjin.sdk.TrustedPlatformClient;
 import com.enjin.sdk.TrustedPlatformClientBuilder;
 import com.enjin.sdk.graphql.GraphQLResponse;
 import com.enjin.sdk.http.HttpResponse;
-import com.enjin.sdk.model.service.auth.AuthTokens;
-import com.enjin.sdk.model.service.platform.PlatformDetails;
-import com.enjin.sdk.service.notifications.NotificationsService;
-import com.enjin.sdk.service.notifications.PusherNotificationService;
+import com.enjin.sdk.models.AuthTokens;
+import com.enjin.sdk.models.platform.GetPlatform;
+import com.enjin.sdk.models.platform.PlatformDetails;
+import com.enjin.sdk.services.notification.NotificationsService;
+import com.enjin.sdk.services.notification.PusherNotificationService;
 import com.enjin.java_commons.StringUtils;
 import io.sentry.Sentry;
 import io.sentry.jul.SentryHandler;
@@ -29,7 +30,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.Plugin;
 
-import java.io.*;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
@@ -158,7 +158,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
         try {
             // Fetch the platform details
             HttpResponse<GraphQLResponse<PlatformDetails>> networkResponse = trustedPlatformClient.getPlatformService()
-                    .getPlatformSync();
+                    .getPlatformSync(new GetPlatform().withNotificationDrivers());
 
             if (!networkResponse.isSuccess())
                 throw new NetworkException(networkResponse.code());
