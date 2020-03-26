@@ -26,7 +26,7 @@ public class LocaleArgumentProcessor extends AbstractArgumentProcessor<Locale> {
 
     @Override
     public Optional<Locale> parse(CommandSender sender, String arg) {
-        Optional result = Optional.empty();
+        Optional<Locale> result = Optional.empty();
 
         for (Locale locale : Locale.values()) {
             if (locale.locale().equalsIgnoreCase(arg) || Translation.localeNames().get(locale).equalsIgnoreCase(arg)) {

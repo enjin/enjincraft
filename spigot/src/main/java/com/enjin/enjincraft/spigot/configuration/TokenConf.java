@@ -37,8 +37,7 @@ public class TokenConf {
             if (!file.exists())
                 plugin.saveResource(file.getName(), false);
 
-            JsonParser parser = new JsonParser();
-            JsonElement element = parser.parse(new FileReader(file));
+            JsonElement element = JsonParser.parseReader(new FileReader(file));
 
             if (element instanceof JsonObject) {
                 root = element.getAsJsonObject();
