@@ -5,6 +5,7 @@ jar.archiveBaseName = 'EnjinCraft-Spigot'
 repositories {
     maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
     maven { url 'http://repo.extendedclip.com/content/repositories/placeholderapi/' }
+    maven { url 'https://repo.codemc.org/repository/maven-public/' }
 }
 
 dependencies {
@@ -14,10 +15,6 @@ dependencies {
     shadow deps.kyoriText
     shadow deps.kyoriTextLegacy
     shadow deps.kyoriTextAdapterBukkit
-
-    // Set to compileOnly to resolve issue with another project including a different version of GSON.
-    compileOnly deps.gson
-
     shadow deps.pusher
     shadow deps.okhttp
     shadow deps.okhttpUrlConnection
@@ -27,8 +24,12 @@ dependencies {
     shadow deps.nocatch
 
     implementation deps.minecraftCommons
+    implementation deps.nbtapi
 
     api deps.enjinSdk
+
+    // Set to compileOnly to resolve issue with another project including a different version of GSON.
+    compileOnly deps.gson
 }
 
 // Exclude GSON as this is fetched at runtime.

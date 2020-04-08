@@ -1,7 +1,7 @@
 package com.enjin.enjincraft.spigot.util;
 
 import com.enjin.enjincraft.spigot.configuration.TokenDefinition;
-import com.enjin.minecraft_commons.spigot.nbt.NBTItem;
+import de.tr7zw.changeme.nbtapi.NBTItem;
 import org.bukkit.inventory.ItemStack;
 
 public class TokenUtils {

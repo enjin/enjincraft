@@ -1,9 +1,9 @@
 package com.enjin.enjincraft.spigot.configuration;
 
-import com.enjin.minecraft_commons.spigot.nbt.NBTItem;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import de.tr7zw.changeme.nbtapi.NBTItem;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
@@ -19,7 +19,7 @@ public class TokenDefinition {
     public static final String NBT_ID = "tokenID";
 
     private String id;
-    private String displayName;
+    private String  displayName;
     private NBTItem nbtItemStack;
 
     public TokenDefinition(String id, JsonObject json) {
@@ -106,7 +106,7 @@ public class TokenDefinition {
     }
 
     public ItemStack getItemStackInstance() {
-        return nbtItemStack.getItemStack().clone();
+        return nbtItemStack.getItem().clone();
     }
 
 }

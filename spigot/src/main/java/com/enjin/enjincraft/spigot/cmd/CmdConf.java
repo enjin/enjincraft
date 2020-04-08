@@ -9,6 +9,9 @@ import com.enjin.enjincraft.spigot.i18n.Locale;
 import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import de.tr7zw.changeme.nbtapi.NBTContainer;
+import de.tr7zw.changeme.nbtapi.NBTItem;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -125,40 +128,45 @@ public class CmdConf extends EnjCommand {
             if (!held.getType().isItem())
                 return;
 
-            ItemMeta meta = held.getItemMeta();
-            String id = context.args.get(0);
+            NBTContainer nbt = NBTItem.convertItemtoNBT(held);
+            Bukkit.getLogger().info(nbt.toString());
 
-            JsonObject token = new JsonObject();
-            token.addProperty("material", held.getType().name());
+            // TODO: Serialize Item From NBT
 
-            if (meta.hasDisplayName())
-                token.addProperty("displayName", meta.getDisplayName());
-
-            if (meta.hasLore()) {
-                JsonArray lore = new JsonArray();
-                meta.getLore().forEach(lore::add);
-                if (lore.size() > 0)
-                    token.add("lore", lore);
-            }
-
-            if (meta instanceof BookMeta) {
-                BookMeta bookMeta = (BookMeta) meta;
-                if (bookMeta.hasPages()) {
-                    JsonArray pages = new JsonArray();
-                    bookMeta.getPages().forEach(pages::add);
-                    token.add("pages", pages);
-                }
-
-                if (bookMeta.hasTitle())
-                    token.addProperty("title", bookMeta.getTitle());
-
-                if (bookMeta.hasAuthor())
-                    token.addProperty("author", bookMeta.getAuthor());
-            }
-
-            TokenConf conf =  bootstrap.getTokenConf();
-            conf.getTokensRaw().add(id, token);
-            conf.save();
+//            ItemMeta meta = held.getItemMeta();
+//            String id = context.args.get(0);
+//
+//            JsonObject token = new JsonObject();
+//            token.addProperty("material", held.getType().name());
+//
+//            if (meta.hasDisplayName())
+//                token.addProperty("displayName", meta.getDisplayName());
+//
+//            if (meta.hasLore()) {
+//                JsonArray lore = new JsonArray();
+//                meta.getLore().forEach(lore::add);
+//                if (lore.size() > 0)
+//                    token.add("lore", lore);
+//            }
+//
+//            if (meta instanceof BookMeta) {
+//                BookMeta bookMeta = (BookMeta) meta;
+//                if (bookMeta.hasPages()) {
+//                    JsonArray pages = new JsonArray();
+//                    bookMeta.getPages().forEach(pages::add);
+//                    token.add("pages", pages);
+//                }
+//
+//                if (bookMeta.hasTitle())
+//                    token.addProperty("title", bookMeta.getTitle());
+//
+//                if (bookMeta.hasAuthor())
+//                    token.addProperty("author", bookMeta.getAuthor());
+//            }
+//
+//            TokenConf conf =  bootstrap.getTokenConf();
+//            conf.getTokensRaw().add(id, token);
+//            conf.save();
         }
 
         @Override
