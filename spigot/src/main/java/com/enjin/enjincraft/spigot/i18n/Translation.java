@@ -58,6 +58,8 @@ public enum Translation {
     COMMAND_LINK_INSTRUCTIONS_6("&7Enter the identity linking code shown below"),
     COMMAND_LINK_INSTRUCTIONS_7("&aLink Code: &6%s"),
 
+    COMMAND_DEVSEND_DESCRIPTION("Send a token from the developer wallet to a player."),
+
     COMMAND_SEND_DESCRIPTION("Send the held token to another player."),
     COMMAND_SEND_SUBMITTED("&aSend request submitted successfully. Please confirm the request in your wallet app."),
     COMMAND_SEND_MUSTHOLDITEM("&cYou must hold the tokenized item you wish to send."),

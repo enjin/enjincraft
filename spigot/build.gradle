@@ -11,16 +11,31 @@ dependencies {
     shadow deps.spigot
     shadow deps.placeholderApi
     shadow deps.sqlite
+    shadow deps.kyoriText
+    shadow deps.kyoriTextLegacy
+    shadow deps.kyoriTextAdapterBukkit
 
-    compileOnly deps.kyoriText
-    compileOnly deps.kyoriTextLegacy
-    compileOnly deps.kyoriTextAdapterBukkit
+    // Set to compileOnly to resolve issue with another project including a different version of GSON.
     compileOnly deps.gson
 
-    implementation deps.javaCommons
+    shadow deps.pusher
+    shadow deps.okhttp
+    shadow deps.okhttpUrlConnection
+    shadow deps.retrofit
+    shadow deps.retrofitGson
+    shadow deps.supportOptional
+    shadow deps.nocatch
+
     implementation deps.minecraftCommons
 
     api deps.enjinSdk
+}
+
+// Exclude GSON as this is fetched at runtime.
+shadowJar {
+    dependencies {
+        exclude(dependency("com.google.code.gson:gson"))
+    }
 }
 
 processResources {
