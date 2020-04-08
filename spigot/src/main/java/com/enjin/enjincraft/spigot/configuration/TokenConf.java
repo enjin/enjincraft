@@ -1,10 +1,10 @@
 package com.enjin.enjincraft.spigot.configuration;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import org.bukkit.plugin.Plugin;
-import com.google.gson.*;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -13,8 +13,8 @@ import java.util.Map;
 
 public class TokenConf {
 
-    public static final String FILE_NAME = "tokens.json";
-    public static final Gson PRETTY_PRINT = new GsonBuilder()
+    public static final String FILE_NAME    = "tokens.json";
+    public static final Gson   PRETTY_PRINT = new GsonBuilder()
             .setPrettyPrinting()
             .create();
 
@@ -37,7 +37,7 @@ public class TokenConf {
             if (!file.exists())
                 plugin.saveResource(file.getName(), false);
 
-            JsonElement element = JsonParser.parseReader(new FileReader(file));
+            JsonElement element = PRETTY_PRINT.fromJson(new FileReader(file), JsonElement.class);
 
             if (element instanceof JsonObject) {
                 root = element.getAsJsonObject();

@@ -26,6 +26,7 @@ public class CmdEnj extends EnjCommand implements CommandExecutor, TabCompleter 
         this.cmdHelp = new CmdHelp(bootstrap, this);
         this.addSubCommand(new CmdBalance(bootstrap, this));
         this.addSubCommand(new CmdConf(bootstrap, this));
+        this.addSubCommand(new CmdDevSend(bootstrap, this));
         this.addSubCommand(cmdHelp);
         this.addSubCommand(new CmdLink(bootstrap, this));
         this.addSubCommand(new CmdSend(bootstrap, this));

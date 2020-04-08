@@ -1,21 +1,25 @@
 buildscript {
     ext.versions = [
-            'javaCommons': '0.3.0-SNAPSHOT',
             'minecraftCommons': '0.1.0-SNAPSHOT',
             'enjinSdk': '1.0.0-SNAPSHOT',
             'kyoriText': '3.0.2',
             'kyoriTextAdapter': '3.0.3',
-            'gson': '2.8.2',
+            'gson': '2.8.0',
             'spigot': '1.13.2-R0.1-SNAPSHOT',
             'placeholderApi': '2.10.3',
             'sqlite': '3.28.0',
-            'sentry': '1.7.27'
+            'sentry': '1.7.27',
+
+            'pusher'          : '2.0.1',
+            'okhttp'          : '4.3.1',
+            'retrofit'        : '2.7.1',
+            'supportOptional' : '1.2',
+            'nocatch'         : '1.1'
     ]
 
     ext.deps = [
-            'javaCommons': "com.enjin:java_commons:${versions.javaCommons}",
             'minecraftCommons': "com.enjin.minecraft_commons:spigot:${versions.minecraftCommons}",
-            'enjinSdk': "com.enjin:sdk:${versions.enjinSdk}:all",
+            'enjinSdk': "com.enjin:sdk:${versions.enjinSdk}",
             'kyoriText': "net.kyori:text-api:${versions.kyoriText}",
             'kyoriTextLegacy': "net.kyori:text-serializer-legacy:${versions.kyoriText}",
             'kyoriTextAdapterBukkit': "net.kyori:text-adapter-bukkit:${versions.kyoriTextAdapter}",
@@ -23,7 +27,16 @@ buildscript {
             'spigot': "org.spigotmc:spigot-api:${versions.spigot}",
             'placeholderApi': "me.clip:placeholderapi:${versions.placeholderApi}",
             'sqlite': "org.xerial:sqlite-jdbc:${versions.sqlite}",
-            'sentry': "io.sentry:sentry:${versions.sentry}"
+            'sentry': "io.sentry:sentry:${versions.sentry}",
+
+            'pusher'                  : "com.pusher:pusher-java-client:${versions.pusher}",
+            'okhttp'                  : "com.squareup.okhttp3:okhttp:${versions.okhttp}",
+            'okhttpLoggingInterceptor': "com.squareup.okhttp3:logging-interceptor:${versions.okhttp}",
+            'okhttpUrlConnection'     : "com.squareup.okhttp3:okhttp-urlconnection:${versions.okhttp}",
+            'retrofit'                : "com.squareup.retrofit2:retrofit:${versions.retrofit}",
+            'retrofitGson'            : "com.squareup.retrofit2:converter-gson:${versions.retrofit}",
+            'supportOptional'         : "com.github.dmstocking:support-optional:${versions.supportOptional}",
+            'nocatch'                 : "com.github.micheljung:nocatch:${versions.nocatch}",
     ]
 
     ext.local = new Properties()
