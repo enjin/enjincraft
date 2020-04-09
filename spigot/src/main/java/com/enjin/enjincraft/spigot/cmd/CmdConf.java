@@ -3,20 +3,15 @@ package com.enjin.enjincraft.spigot.cmd;
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
 import com.enjin.enjincraft.spigot.cmd.arg.LocaleArgumentProcessor;
 import com.enjin.enjincraft.spigot.configuration.Conf;
-import com.enjin.enjincraft.spigot.configuration.TokenConf;
+import com.enjin.enjincraft.spigot.configuration.TokenModel;
 import com.enjin.enjincraft.spigot.enums.Permission;
 import com.enjin.enjincraft.spigot.i18n.Locale;
 import com.enjin.enjincraft.spigot.i18n.Translation;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import de.tr7zw.changeme.nbtapi.NBTContainer;
 import de.tr7zw.changeme.nbtapi.NBTItem;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.BookMeta;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -129,44 +124,12 @@ public class CmdConf extends EnjCommand {
                 return;
 
             NBTContainer nbt = NBTItem.convertItemtoNBT(held);
-            Bukkit.getLogger().info(nbt.toString());
-
-            // TODO: Serialize Item From NBT
-
-//            ItemMeta meta = held.getItemMeta();
-//            String id = context.args.get(0);
-//
-//            JsonObject token = new JsonObject();
-//            token.addProperty("material", held.getType().name());
-//
-//            if (meta.hasDisplayName())
-//                token.addProperty("displayName", meta.getDisplayName());
-//
-//            if (meta.hasLore()) {
-//                JsonArray lore = new JsonArray();
-//                meta.getLore().forEach(lore::add);
-//                if (lore.size() > 0)
-//                    token.add("lore", lore);
-//            }
-//
-//            if (meta instanceof BookMeta) {
-//                BookMeta bookMeta = (BookMeta) meta;
-//                if (bookMeta.hasPages()) {
-//                    JsonArray pages = new JsonArray();
-//                    bookMeta.getPages().forEach(pages::add);
-//                    token.add("pages", pages);
-//                }
-//
-//                if (bookMeta.hasTitle())
-//                    token.addProperty("title", bookMeta.getTitle());
-//
-//                if (bookMeta.hasAuthor())
-//                    token.addProperty("author", bookMeta.getAuthor());
-//            }
-//
-//            TokenConf conf =  bootstrap.getTokenConf();
-//            conf.getTokensRaw().add(id, token);
-//            conf.save();
+            String id = context.args.get(0);
+            TokenModel model = TokenModel.builder()
+                    .id(id)
+                    .nbt(nbt.toString())
+                    .build();
+            bootstrap.getTokenManager().saveToken(id, model);
         }
 
         @Override

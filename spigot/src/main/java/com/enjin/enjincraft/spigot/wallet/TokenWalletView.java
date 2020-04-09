@@ -1,7 +1,7 @@
 package com.enjin.enjincraft.spigot.wallet;
 
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
-import com.enjin.enjincraft.spigot.configuration.TokenDefinition;
+import com.enjin.enjincraft.spigot.configuration.TokenModel;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
 import com.enjin.enjincraft.spigot.util.StringUtils;
 import com.enjin.enjincraft.spigot.util.TokenUtils;
@@ -54,10 +54,11 @@ public class TokenWalletView extends ChestMenu {
             if (balance.amountAvailableForWithdrawal() == 0)
                 continue;
 
-            TokenDefinition def = bootstrap.getTokenConf().getTokens().get(balance.id());
-            if (def == null)
+            TokenModel model = bootstrap.getTokenManager().getToken(balance.id());
+            if (model == null)
                 continue;
-            ItemStack is = def.getItemStackInstance();
+
+            ItemStack is = model.getItemStack();
             is.setAmount(balance.amountAvailableForWithdrawal());
             component.setItem(index % getDimension().getWidth(), index / getDimension().getWidth(), is);
 

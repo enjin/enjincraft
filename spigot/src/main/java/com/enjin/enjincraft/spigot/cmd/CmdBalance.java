@@ -1,7 +1,7 @@
 package com.enjin.enjincraft.spigot.cmd;
 
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
-import com.enjin.enjincraft.spigot.configuration.TokenDefinition;
+import com.enjin.enjincraft.spigot.configuration.TokenModel;
 import com.enjin.enjincraft.spigot.enums.Permission;
 import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
@@ -55,11 +55,11 @@ public class CmdBalance extends EnjCommand {
         for (MutableBalance balance : enjPlayer.getTokenWallet().getBalances()) {
             if (balance == null || balance.balance() == 0)
                 continue;
-            TokenDefinition def = bootstrap.getTokenConf().getTokens().get(balance.id());
-            if (def == null)
+            TokenModel model = bootstrap.getTokenManager().getToken(balance.id());
+            if (model == null)
                 continue;
             itemCount++;
-            Translation.COMMAND_BALANCE_TOKENDISPLAY.send(sender, itemCount, def.getDisplayName(), balance.balance());
+            Translation.COMMAND_BALANCE_TOKENDISPLAY.send(sender, itemCount, model.getDisplayName(), balance.balance());
         }
 
         Translation.MISC_NEWLINE.send(sender);
