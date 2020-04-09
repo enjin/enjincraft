@@ -5,7 +5,7 @@ import com.enjin.enjincraft.spigot.NetworkException;
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
 import com.enjin.enjincraft.spigot.cmd.arg.PlayerArgumentProcessor;
 import com.enjin.enjincraft.spigot.cmd.arg.TokenDefinitionArgumentProcessor;
-import com.enjin.enjincraft.spigot.configuration.TokenDefinition;
+import com.enjin.enjincraft.spigot.configuration.TokenModel;
 import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
 import com.enjin.sdk.TrustedPlatformClient;
@@ -48,7 +48,7 @@ public class CmdDevSend extends EnjCommand {
         CommandSender             sender           = context.sender;
         Optional<Player>          optionalPlayer   = PlayerArgumentProcessor.INSTANCE.parse(sender,
                                                                                             context.args.get(0));
-        Optional<TokenDefinition> optionalTokenDef = TokenDefinitionArgumentProcessor.INSTANCE.parse(sender,
+        Optional<TokenModel> optionalTokenDef = TokenDefinitionArgumentProcessor.INSTANCE.parse(sender,
                                                                                                      context.args.get(1));
         Optional<Integer>         optionalAmount   = context.argToInt(2);
 
@@ -82,11 +82,11 @@ public class CmdDevSend extends EnjCommand {
             return;
         }
 
-        TokenDefinition tokenDef = optionalTokenDef.get();
+        TokenModel tokenModel = optionalTokenDef.get();
         Integer amount = optionalAmount.get();
 
         send(sender, bootstrap.getConfig().getDevIdentityId(), targetEnjPlayer.getIdentityId(),
-             tokenDef.getId(), amount);
+             tokenModel.getId(), amount);
     }
 
     private void send(CommandSender sender, int senderId, int targetId, String tokenId, int amount) {

@@ -2,7 +2,7 @@ package com.enjin.enjincraft.spigot;
 
 import com.enjin.enjincraft.spigot.cmd.CmdEnj;
 import com.enjin.enjincraft.spigot.configuration.Conf;
-import com.enjin.enjincraft.spigot.configuration.TokenConf;
+import com.enjin.enjincraft.spigot.configuration.TokenManager;
 import com.enjin.enjincraft.spigot.hooks.PlaceholderApiExpansion;
 import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.listeners.EnjEventListener;
@@ -41,7 +41,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
 
     private final EnjPlugin plugin;
     private Conf conf;
-    private TokenConf tokenConf;
+    private TokenManager tokenManager;
     private Database database;
     private Handler sentryHandler;
 
@@ -61,8 +61,8 @@ public class SpigotBootstrap implements Bootstrap, Module {
             if (!initConfig())
                 return;
 
-            tokenConf = new TokenConf(plugin);
-            tokenConf.load();
+            tokenManager = new TokenManager(plugin.getDataFolder());
+            tokenManager.loadTokens();
 
             if (!StringUtils.isEmpty(conf.getSentryUrl())) {
                 sentryHandler = new SentryHandler();
@@ -226,8 +226,8 @@ public class SpigotBootstrap implements Bootstrap, Module {
     }
 
     @Override
-    public TokenConf getTokenConf() {
-        return tokenConf;
+    public TokenManager getTokenManager() {
+        return tokenManager;
     }
 
     public Plugin plugin() {
