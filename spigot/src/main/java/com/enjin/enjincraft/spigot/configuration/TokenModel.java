@@ -62,4 +62,19 @@ public class TokenModel {
         return stack;
     }
 
+    public boolean addPermission(String permission) {
+        // Prevents duplicate permissions from being added
+        if (!assignablePermissions.contains(permission)) {
+            assignablePermissions.add(permission);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean removePermission(String permission) {
+        return assignablePermissions.remove(permission);
+    }
+
 }

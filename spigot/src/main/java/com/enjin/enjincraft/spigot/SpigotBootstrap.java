@@ -61,7 +61,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
             if (!initConfig())
                 return;
 
-            tokenManager = new TokenManager(plugin.getDataFolder());
+            tokenManager = new TokenManager(this, plugin.getDataFolder());
             tokenManager.loadTokens();
 
             if (!StringUtils.isEmpty(conf.getSentryUrl())) {
