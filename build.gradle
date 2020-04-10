@@ -14,7 +14,8 @@ buildscript {
             'retrofit'        : '2.7.1',
             'supportOptional' : '1.2',
             'nocatch'         : '1.1',
-            'nbtapi'          : '2.3.0'
+            'nbtapi'          : '2.3.0',
+            'vault'           : '1.7'
     ]
 
     ext.deps = [
@@ -36,7 +37,8 @@ buildscript {
             'retrofitGson'            : "com.squareup.retrofit2:converter-gson:${versions.retrofit}",
             'supportOptional'         : "com.github.dmstocking:support-optional:${versions.supportOptional}",
             'nocatch'                 : "com.github.micheljung:nocatch:${versions.nocatch}",
-            'nbtapi'                  : "de.tr7zw:item-nbt-api:${versions.nbtapi}"
+            'nbtapi'                  : "de.tr7zw:item-nbt-api:${versions.nbtapi}",
+            'vault'                   : "com.github.MilkBowl:VaultAPI:${versions.vault}"
     ]
 
     ext.local = new Properties()
