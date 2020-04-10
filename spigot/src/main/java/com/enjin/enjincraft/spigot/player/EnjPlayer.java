@@ -1,8 +1,10 @@
 package com.enjin.enjincraft.spigot.player;
 
+import com.enjin.enjincraft.spigot.EnjPlugin;
 import com.enjin.enjincraft.spigot.GraphQLException;
 import com.enjin.enjincraft.spigot.NetworkException;
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
+import com.enjin.enjincraft.spigot.configuration.TokenPermissionGraph;
 import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.trade.TradeView;
 import com.enjin.enjincraft.spigot.util.StringUtils;
@@ -19,6 +21,7 @@ import com.enjin.sdk.models.identity.UnlinkIdentity;
 import com.enjin.sdk.models.user.User;
 import com.enjin.sdk.models.wallet.Wallet;
 import com.enjin.sdk.services.notification.NotificationsService;
+import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -28,9 +31,7 @@ import org.bukkit.inventory.PlayerInventory;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class EnjPlayer {
 
@@ -50,6 +51,7 @@ public class EnjPlayer {
     // State Fields
     private boolean userLoaded;
     private boolean identityLoaded;
+    private HashSet<String> assignedPermissions = new HashSet<>();
 
     // Trade Fields
     private List<EnjPlayer> sentTradeInvites     = new ArrayList<>();
@@ -115,6 +117,44 @@ public class EnjPlayer {
         }
 
         initWallet();
+        initPermissions();
+    }
+
+    public void initPermissions() {
+        if (tokenWallet == null)
+            return;
+
+        // Assigns the permissions to the Enj player
+        TokenPermissionGraph graph = bootstrap.getTokenManager().getTokenPermissions();
+        for (String tokenId : tokenWallet.getBalancesMap().keySet()) {
+            Set<String> perms = graph.getTokenPermissions().get(tokenId);
+
+            if (perms != null)
+                assignedPermissions.addAll(perms); // Unions the two sets
+        }
+
+        // Adds the permissions through Vault
+        Permission perms = EnjPlugin.getPermissions();
+        for (String perm : assignedPermissions) {
+            perms.playerAddTransient(null, bukkitPlayer, perm);
+        }
+    }
+
+    public void permissionAdded(String perm, String tokenId) {
+        if (tokenWallet == null)
+            return;
+
+        Permission perms = EnjPlugin.getPermissions();
+        Set<String> tokens = tokenWallet.getBalancesMap().keySet();
+
+        // Checks if the player needs to be given the permission
+        if (!perms.playerHas(bukkitPlayer, perm) && tokens.contains(tokenId)) {
+            perms.playerAddTransient(null, bukkitPlayer, perm);
+        }
+    }
+
+    public void permissionRemoved(String perm, String tokenId) {
+
     }
 
     public void initWallet() {
@@ -233,6 +273,10 @@ public class EnjPlayer {
         boolean              listening = service.isSubscribedToIdentity(identityId);
         if (listening) { service.unsubscribeToIdentity(identityId); }
         bukkitPlayer = null;
+    }
+
+    public Set<String> getAssignedPermissions() {
+        return assignedPermissions;
     }
 
     public List<EnjPlayer> getSentTradeInvites() {

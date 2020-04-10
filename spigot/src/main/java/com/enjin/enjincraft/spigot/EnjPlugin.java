@@ -2,7 +2,9 @@ package com.enjin.enjincraft.spigot;
 
 import com.enjin.enjincraft.spigot.dependencies.DependencyConfig;
 import com.enjin.enjincraft.spigot.dependencies.DependencyManager;
+import net.milkbowl.vault.permission.Permission;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.InputStream;
@@ -12,6 +14,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 
 public class EnjPlugin extends JavaPlugin {
+
+    private static Permission perms = null;
 
     private SpigotBootstrap bootstrap;
 
@@ -24,12 +28,23 @@ public class EnjPlugin extends JavaPlugin {
         bootstrap = new SpigotBootstrap(this);
         EnjinCraft.register(bootstrap);
         bootstrap.setUp();
+        setupPermissions();
     }
 
     @Override
     public void onDisable() {
         bootstrap.tearDown();
         EnjinCraft.unregister();
+    }
+
+    private boolean setupPermissions() {
+        RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
+        perms = rsp.getProvider();
+        return perms != null;
+    }
+
+    public static Permission getPermissions() {
+        return perms;
     }
 
     public YamlConfiguration loadYamlResource(String resource, Charset charset) {

@@ -1,16 +1,15 @@
 package com.enjin.enjincraft.spigot.configuration;
 
+import com.enjin.enjincraft.spigot.SpigotBootstrap;
+import com.enjin.enjincraft.spigot.player.EnjPlayer;
+import com.enjin.enjincraft.spigot.player.PlayerManager;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class TokenManager {
 
@@ -19,10 +18,13 @@ public class TokenManager {
 
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
+    private SpigotBootstrap bootstrap;
     private File dir;
     private Map<String, TokenModel> tokenModels = new HashMap<>();
+    private TokenPermissionGraph permGraph = new TokenPermissionGraph();
 
-    public TokenManager(File dir) {
+    public TokenManager(SpigotBootstrap bootstrap, File dir) {
+        this.bootstrap = bootstrap;
         this.dir = new File(dir, "tokens");
     }
 
@@ -43,6 +45,7 @@ public class TokenManager {
                 TokenModel tokenModel = gson.fromJson(fr, TokenModel.class);
                 tokenModel.load();
                 tokenModels.put(tokenId, tokenModel);
+                permGraph.addToken(tokenModel);
             } catch (Exception e) {}
         }
     }
@@ -57,7 +60,30 @@ public class TokenManager {
             gson.toJson(tokenModel, fw);
             tokenModel.load();
             tokenModels.put(tokenId, tokenModel);
+            permGraph.addToken(tokenModel);
         } catch (Exception e) {}
+    }
+
+    public void addPermissionToToken(String perm, String tokenId) {
+        TokenModel tokenModel = tokenModels.get(tokenId);
+
+        if (tokenModel == null)
+            return;
+
+        // Checks if the permission was not added
+        if (!tokenModel.addPermission(perm))
+            return;
+
+        saveToken(tokenId, tokenModel);
+
+        // TODO: Signal to update player assigned permissions.
+        PlayerManager playerManager = bootstrap.getPlayerManager();
+        for (UUID uuid : playerManager.getPlayers().keySet()) {
+            Optional<EnjPlayer> player = playerManager.getPlayer(uuid);
+
+            if (player.isPresent())
+                player.get().permissionAdded(perm, tokenId);
+        }
     }
 
     public boolean hasToken(String tokenId) {
@@ -78,6 +104,10 @@ public class TokenManager {
 
     public Set<Map.Entry<String, TokenModel>> getEntries() {
         return tokenModels.entrySet();
+    }
+
+    public TokenPermissionGraph getTokenPermissions() {
+        return permGraph;
     }
 
 }
