@@ -9,7 +9,6 @@ import com.enjin.enjincraft.spigot.i18n.Locale;
 import com.enjin.enjincraft.spigot.i18n.Translation;
 import de.tr7zw.changeme.nbtapi.NBTContainer;
 import de.tr7zw.changeme.nbtapi.NBTItem;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -184,8 +183,8 @@ public class CmdConf extends EnjCommand {
                 if (context.args.size() != 2)
                     return;
 
-                String perm = context.args.get(0);
-                String tokenId = context.args.get(1);
+                String tokenId = context.args.get(0);
+                String perm = context.args.get(1);
 
                 bootstrap.getTokenManager().addPermissionToToken(perm, tokenId);
             }
@@ -216,16 +215,10 @@ public class CmdConf extends EnjCommand {
                 if (context.args.size() != 2)
                     return;
 
-                String perm = context.args.get(0);
-                String tokenId = context.args.get(1);
+                String tokenId = context.args.get(0);
+                String perm = context.args.get(1);
 
-                TokenModel tokenModel = bootstrap.getTokenManager().getToken(tokenId);
-
-                if (tokenModel == null)
-                    return;
-
-                tokenModel.removePermission(perm);
-                bootstrap.getTokenManager().saveToken(tokenId, tokenModel);
+                bootstrap.getTokenManager().removePermissionFromToken(perm, tokenId);
             }
 
             @Override

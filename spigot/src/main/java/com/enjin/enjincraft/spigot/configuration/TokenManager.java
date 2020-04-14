@@ -46,7 +46,9 @@ public class TokenManager {
                 tokenModel.load();
                 tokenModels.put(tokenId, tokenModel);
                 permGraph.addToken(tokenModel);
-            } catch (Exception e) {}
+            } catch (Exception e) {
+                bootstrap.log(e);
+            }
         }
     }
 
@@ -61,7 +63,24 @@ public class TokenManager {
             tokenModel.load();
             tokenModels.put(tokenId, tokenModel);
             permGraph.addToken(tokenModel);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            bootstrap.log(e);
+        }
+    }
+
+    public void updateTokenConf(String tokenId, TokenModel tokenModel) {
+        if (!dir.exists()) {
+            saveToken(tokenId, tokenModel);
+            return;
+        }
+
+        File file = new File(dir, String.format("%s%s", tokenId, JSON_EXT));
+
+        try (FileWriter fw = new FileWriter(file, false)) {
+            gson.toJson(tokenModel, fw);
+        } catch (Exception e) {
+            bootstrap.log(e);
+        }
     }
 
     public void addPermissionToToken(String perm, String tokenId) {
@@ -74,15 +93,37 @@ public class TokenManager {
         if (!tokenModel.addPermission(perm))
             return;
 
-        saveToken(tokenId, tokenModel);
+        permGraph.addTokenPerm(perm, tokenId);
+        updateTokenConf(tokenId, tokenModel);
 
-        // TODO: Signal to update player assigned permissions.
         PlayerManager playerManager = bootstrap.getPlayerManager();
         for (UUID uuid : playerManager.getPlayers().keySet()) {
             Optional<EnjPlayer> player = playerManager.getPlayer(uuid);
 
             if (player.isPresent())
-                player.get().permissionAdded(perm, tokenId);
+                player.get().addPermission(perm, tokenId);
+        }
+    }
+
+    public void removePermissionFromToken(String perm, String tokenId) {
+        TokenModel tokenModel = tokenModels.get(tokenId);
+
+        if (tokenModel == null)
+            return;
+
+        // Checks if the permission was not removed
+        if (!tokenModel.removePermission(perm))
+            return;
+
+        permGraph.removeTokenPerm(perm, tokenId);
+        updateTokenConf(tokenId, tokenModel);
+
+        PlayerManager playerManager = bootstrap.getPlayerManager();
+        for (UUID uuid : playerManager.getPlayers().keySet()) {
+            Optional<EnjPlayer> player = playerManager.getPlayer(uuid);
+
+            if (player.isPresent())
+                player.get().removePermission(perm);
         }
     }
 
