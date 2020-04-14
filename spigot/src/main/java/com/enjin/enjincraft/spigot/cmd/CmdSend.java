@@ -93,6 +93,12 @@ public class CmdSend extends EnjCommand {
         }
 
         MutableBalance balance = senderEnjPlayer.getTokenWallet().getBalance(tokenId);
+
+        if (balance == null) {
+            Translation.COMMAND_SEND_DOESNOTHAVETOKEN.send(sender);
+            return;
+        }
+
         balance.deposit(is.getAmount());
         sender.getInventory().clear(sender.getInventory().getHeldItemSlot());
 

@@ -64,6 +64,7 @@ public enum Translation {
     COMMAND_SEND_SUBMITTED("&aSend request submitted successfully. Please confirm the request in your wallet app."),
     COMMAND_SEND_MUSTHOLDITEM("&cYou must hold the tokenized item you wish to send."),
     COMMAND_SEND_ITEMNOTTOKEN("&cThe held item is not associated with a token."),
+    COMMAND_SEND_DOESNOTHAVETOKEN("&cYou can not send a token you do not have."),
 
     COMMAND_CONF_DESCRIPTION("Perform operations on the plugin configuration."),
     COMMAND_CONF_SET_DESCRIPTION("Set new value for config option."),
