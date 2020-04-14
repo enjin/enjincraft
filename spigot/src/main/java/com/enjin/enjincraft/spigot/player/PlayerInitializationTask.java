@@ -14,7 +14,6 @@ import com.enjin.sdk.models.user.GetUsers;
 import com.enjin.sdk.models.user.User;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -52,7 +51,7 @@ public class PlayerInitializationTask extends BukkitRunnable {
                 if (this.player.isUserLoaded() && !this.player.isIdentityLoaded()) {
                     loadIdentity();
                 } else if (this.player.isLoaded() && !isCancelled()) { cancel(); }
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 bootstrap.log(ex);
             }
         }
@@ -60,12 +59,12 @@ public class PlayerInitializationTask extends BukkitRunnable {
         this.inProgress = false;
     }
 
-    private void loadUser() throws IOException {
+    private void loadUser() {
         User user = getUser(player.getBukkitPlayer().getUniqueId());
         if (user != null) { this.player.loadUser(user); }
     }
 
-    private void loadIdentity() throws IOException {
+    private void loadIdentity() {
         Identity identity = getIdentity();
         if (identity != null) {
             // A new identity has been created
@@ -74,7 +73,7 @@ public class PlayerInitializationTask extends BukkitRunnable {
         }
     }
 
-    private User getUser(UUID playerUuid) throws IOException {
+    private User getUser(UUID playerUuid) {
         User user = fetchExistingUser(playerUuid);
 
         if (user == null) { user = createUser(playerUuid); }
@@ -82,7 +81,7 @@ public class PlayerInitializationTask extends BukkitRunnable {
         return user;
     }
 
-    private User fetchExistingUser(UUID playerUuid) throws IOException {
+    private User fetchExistingUser(UUID playerUuid) {
         // Fetch the User for the Player in question
         HttpResponse<GraphQLResponse<List<User>>> networkResponse = bootstrap.getTrustedPlatformClient()
                                                                              .getUserService()
@@ -101,7 +100,7 @@ public class PlayerInitializationTask extends BukkitRunnable {
         return user;
     }
 
-    private User createUser(UUID playerUuid) throws IOException {
+    private User createUser(UUID playerUuid) {
         // Create the User for the Player in question
         TrustedPlatformClient client = bootstrap.getTrustedPlatformClient();
         HttpResponse<GraphQLResponse<User>> networkResponse = client
@@ -115,7 +114,7 @@ public class PlayerInitializationTask extends BukkitRunnable {
         return graphQLResponse.getData();
     }
 
-    private Identity getIdentity() throws IOException {
+    private Identity getIdentity() {
         Identity identity = null;
 
         if (player.getIdentityId() == null) {
@@ -139,7 +138,7 @@ public class PlayerInitializationTask extends BukkitRunnable {
         return identity;
     }
 
-    private Identity createIdentity() throws IOException {
+    private Identity createIdentity() {
         TrustedPlatformClient client = bootstrap.getTrustedPlatformClient();
         // Create the Identity for the App ID and Player in question
         HttpResponse<GraphQLResponse<Identity>> networkResponse = client.getIdentityService()
