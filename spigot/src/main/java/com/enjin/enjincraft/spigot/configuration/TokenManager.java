@@ -13,6 +13,14 @@ import java.util.*;
 
 public class TokenManager {
 
+    // Status codes
+    public static final int PERM_ADDED_SUCCESS = 210;         // Permission was added
+    public static final int PERM_ADDED_DUPLICATEPERM = 410;   // Permission is a duplicate
+    public static final int PERM_ADDED_BLACKLISTED = 411;     // Permission is blacklisted
+    public static final int PERM_REMOVED_SUCCESS = 250;       // Permission was removed
+    public static final int PERM_REMOVED_NOPERMONTOKEN = 450; // Permission is not assigned
+    public static final int PERM_NOSUCHTOKEN = 400;           // The token does not exist
+
     public static final String JSON_EXT = ".json";
     public static final int JSON_EXT_LENGTH = JSON_EXT.length();
 
@@ -94,18 +102,18 @@ public class TokenManager {
         }
     }
 
-    public void addPermissionToToken(String perm, String tokenId) {
+    public int addPermissionToToken(String perm, String tokenId) {
         if (bootstrap.getConfig().getPermissionBlacklist().contains(perm))
-            return;
+            return PERM_ADDED_BLACKLISTED;
 
         TokenModel tokenModel = tokenModels.get(tokenId);
 
         if (tokenModel == null)
-            return;
+            return PERM_NOSUCHTOKEN;
 
         // Checks if the permission was not added
         if (!tokenModel.addPermission(perm))
-            return;
+            return PERM_ADDED_DUPLICATEPERM;
 
         permGraph.addTokenPerm(perm, tokenId);
         updateTokenConf(tokenId, tokenModel);
@@ -116,17 +124,19 @@ public class TokenManager {
 
             player.ifPresent(enjPlayer -> enjPlayer.addPermission(perm, tokenId));
         }
+
+        return PERM_ADDED_SUCCESS;
     }
 
-    public void removePermissionFromToken(String perm, String tokenId) {
+    public int removePermissionFromToken(String perm, String tokenId) {
         TokenModel tokenModel = tokenModels.get(tokenId);
 
         if (tokenModel == null)
-            return;
+            return PERM_NOSUCHTOKEN;
 
         // Checks if the permission was not removed
         if (!tokenModel.removePermission(perm))
-            return;
+            return PERM_REMOVED_NOPERMONTOKEN;
 
         permGraph.removeTokenPerm(perm, tokenId);
         updateTokenConf(tokenId, tokenModel);
@@ -137,6 +147,8 @@ public class TokenManager {
 
             player.ifPresent(enjPlayer -> enjPlayer.removePermission(perm));
         }
+
+        return PERM_REMOVED_SUCCESS;
     }
 
     public boolean hasToken(String tokenId) {

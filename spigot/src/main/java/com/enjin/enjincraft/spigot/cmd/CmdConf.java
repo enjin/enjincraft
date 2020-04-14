@@ -3,6 +3,7 @@ package com.enjin.enjincraft.spigot.cmd;
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
 import com.enjin.enjincraft.spigot.cmd.arg.LocaleArgumentProcessor;
 import com.enjin.enjincraft.spigot.configuration.Conf;
+import com.enjin.enjincraft.spigot.configuration.TokenManager;
 import com.enjin.enjincraft.spigot.configuration.TokenModel;
 import com.enjin.enjincraft.spigot.enums.Permission;
 import com.enjin.enjincraft.spigot.i18n.Locale;
@@ -121,7 +122,6 @@ public class CmdConf extends EnjCommand {
 
         @Override
         public Translation getUsageTranslation() {
-            // TODO: Update COMMAND_CONF_TOKEN_DESCRIPTION for parent
             return Translation.COMMAND_CONF_TOKEN_DESCRIPTION;
         }
 
@@ -159,8 +159,7 @@ public class CmdConf extends EnjCommand {
 
             @Override
             public Translation getUsageTranslation() {
-                // TODO: Update COMMAND_CONF_TOKEN_DESCRIPTION for create
-                return Translation.COMMAND_CONF_TOKEN_DESCRIPTION;
+                return Translation.COMMAND_CONF_TOKEN_CREATE_DESCRIPTION;
             }
 
         }
@@ -170,8 +169,8 @@ public class CmdConf extends EnjCommand {
             public CmdAddPerm(SpigotBootstrap bootstrap, EnjCommand parent) {
                 super(bootstrap, parent);
                 this.aliases.add("addperm");
-                this.requiredArgs.add("perm");
                 this.requiredArgs.add("token-id");
+                this.requiredArgs.add("perm");
                 this.requirements = CommandRequirements.builder()
                         .withPermission(Permission.CMD_CONF_TOKEN_ADDPERM)
                         .withAllowedSenderTypes(SenderType.PLAYER)
@@ -185,14 +184,29 @@ public class CmdConf extends EnjCommand {
 
                 String tokenId = context.args.get(0);
                 String perm = context.args.get(1);
+                Player sender = context.player;
 
-                bootstrap.getTokenManager().addPermissionToToken(perm, tokenId);
+                int status = bootstrap.getTokenManager().addPermissionToToken(perm, tokenId);
+
+                switch (status) {
+                    case TokenManager.PERM_ADDED_SUCCESS:
+                        Translation.COMMAND_CONF_TOKEN_ADDPERM_PERMADDED.send(sender);
+                        break;
+                    case TokenManager.PERM_NOSUCHTOKEN:
+                        Translation.COMMAND_CONF_TOKEN_ADDREVOKEPERM_NOSUCHTOKEN.send(sender);
+                        break;
+                    case TokenManager.PERM_ADDED_DUPLICATEPERM:
+                        Translation.COMMAND_CONF_TOKEN_ADDPERM_DUPLICATEPERM.send(sender);
+                        break;
+                    case TokenManager.PERM_ADDED_BLACKLISTED:
+                        Translation.COMMAND_CONF_TOKEN_ADDPERM_PERMREJECTED.send(sender);
+                        break;
+                }
             }
 
             @Override
             public  Translation getUsageTranslation() {
-                // TODO: Create and return a proper translation for this command
-                return null;
+                return Translation.COMMAND_CONF_TOKEN_ADDPERM_DESCRIPTION;
             }
 
         }
@@ -202,8 +216,8 @@ public class CmdConf extends EnjCommand {
             public CmdRevokePerm(SpigotBootstrap bootstrap, EnjCommand parent) {
                 super(bootstrap, parent);
                 this.aliases.add("revokeperm");
-                this.requiredArgs.add("perm");
                 this.requiredArgs.add("token-id");
+                this.requiredArgs.add("perm");
                 this.requirements = CommandRequirements.builder()
                         .withPermission(Permission.CMD_CONF_TOKEN_REVOKEPERM)
                         .withAllowedSenderTypes(SenderType.PLAYER)
@@ -217,14 +231,26 @@ public class CmdConf extends EnjCommand {
 
                 String tokenId = context.args.get(0);
                 String perm = context.args.get(1);
+                Player sender = context.player;
 
-                bootstrap.getTokenManager().removePermissionFromToken(perm, tokenId);
+                int status = bootstrap.getTokenManager().removePermissionFromToken(perm, tokenId);
+
+                switch (status) {
+                    case TokenManager.PERM_REMOVED_SUCCESS:
+                        Translation.COMMAND_CONF_TOKEN_REVOKEPERM_PERMREVOKED.send(sender);
+                        break;
+                    case TokenManager.PERM_NOSUCHTOKEN:
+                        Translation.COMMAND_CONF_TOKEN_ADDREVOKEPERM_NOSUCHTOKEN.send(sender);
+                        break;
+                    case TokenManager.PERM_REMOVED_NOPERMONTOKEN:
+                        Translation.COMMAND_CONF_TOKEN_REVOKEPERM_PERMNOTONTOKEN.send(sender);
+                        break;
+                }
             }
 
             @Override
             public  Translation getUsageTranslation() {
-                // TODO: Create and return a proper translation for this command
-                return null;
+                return Translation.COMMAND_CONF_TOKEN_REVOKEPERM_DESCRIPTION;
             }
 
         }
