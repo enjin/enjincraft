@@ -13,3 +13,5 @@ experimental:
   translate-console-messages: false
 interal:
   config-version: 1
+permission-blacklist:
+  - "minecraft.command.op"

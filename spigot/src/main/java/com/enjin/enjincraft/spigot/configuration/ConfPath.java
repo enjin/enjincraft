@@ -10,7 +10,8 @@ public enum ConfPath {
     DEBUG_SDK("debug.sdk"),
     DEBUG_PLUGIN("debug.plugin"),
     SENTRY_URL("debug.sentry"),
-    TRANSLATE_CONSOLE_MESSAGES("experimental.translate-console-messages");
+    TRANSLATE_CONSOLE_MESSAGES("experimental.translate-console-messages"),
+    PERMISSION_BLACKLIST("permission-blacklist");
 
     private String path;
 
