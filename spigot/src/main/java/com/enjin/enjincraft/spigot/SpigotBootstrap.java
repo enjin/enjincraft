@@ -39,6 +39,8 @@ import static okhttp3.logging.HttpLoggingInterceptor.Level.NONE;
 
 public class SpigotBootstrap implements Bootstrap, Module {
 
+    public static final long AUTHENTICATION_INTERVAL = TimeUnit.HOURS.toMillis(6) / 50;
+
     private final EnjPlugin plugin;
     private Conf conf;
     private TokenManager tokenManager;
@@ -84,6 +86,8 @@ public class SpigotBootstrap implements Bootstrap, Module {
                     .build();
 
             authenticateTPClient();
+            AuthenticationTask authenticationTask = new AuthenticationTask(this);
+            authenticationTask.runTaskTimerAsynchronously(plugin, AUTHENTICATION_INTERVAL, AUTHENTICATION_INTERVAL);
             fetchPlatformDetails();
             startNotificationService();
 
@@ -135,7 +139,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
         return true;
     }
 
-    private void authenticateTPClient() {
+    protected void authenticateTPClient() {
         HttpResponse<GraphQLResponse<AuthTokens>> networkResponse;
 
         try {
@@ -151,6 +155,8 @@ public class SpigotBootstrap implements Bootstrap, Module {
         // Could not authenticate the client
         if (!networkResponse.isSuccess()) {
             throw new AuthenticationException(networkResponse.code());
+        } else if (networkResponse.body().isSuccess()) {
+            getLogger().info("SDK Authenticated!");
         }
     }
 
