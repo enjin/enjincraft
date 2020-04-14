@@ -1,6 +1,7 @@
 package com.enjin.enjincraft.spigot.listeners;
 
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
+import com.enjin.enjincraft.spigot.configuration.TokenModel;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
 import com.enjin.enjincraft.spigot.wallet.MutableBalance;
 import com.enjin.sdk.models.notification.*;
@@ -107,21 +108,39 @@ public class EnjEventListener implements com.enjin.sdk.services.notification.Not
     }
 
     private void onBalanceUpdated(Event event) {
+        String balanceRaw = event.getData().getParam4();
         String ethAddr = event.getData().getParam1();
         String tokenId = event.getData().getParam2();
-        Integer balance = Integer.parseInt(event.getData().getParam4());
+        // Sets balance to zero if parameter is empty
+        Integer balance = balanceRaw.isEmpty() ? Integer.valueOf(0) : Integer.parseInt(event.getData().getParam4());
+
         EnjPlayer enjPlayer = bootstrap.getPlayerManager().getPlayer(ethAddr).orElse(null);
+        TokenModel tokenModel = bootstrap.getTokenManager().getToken(tokenId);
 
         if (enjPlayer == null || enjPlayer.getTokenWallet() == null)
             return;
 
         MutableBalance mBalance = enjPlayer.getTokenWallet().getBalance(tokenId);
 
-        if (mBalance == null) {
+        if (mBalance == null && balance > 0) {
             mBalance = new MutableBalance(tokenId, event.getData().getParam3(), balance);
             enjPlayer.getTokenWallet().setBalance(mBalance);
-        } else {
-            mBalance.set(balance);
+
+            // Adds the token's permissions to the player
+            for (String perm : tokenModel.getAssignablePermissions()) {
+                enjPlayer.addPermission(perm, tokenId);
+            }
+        } else if (mBalance != null) {
+            if (balance > 0) {
+                mBalance.set(balance);
+            } else {
+                enjPlayer.getTokenWallet().removeBalance(tokenId);
+
+                // Removes the token's permissions from the player
+                for (String perm : tokenModel.getAssignablePermissions()) {
+                    enjPlayer.removePermission(perm);
+                }
+            }
         }
 
         enjPlayer.validateInventory();

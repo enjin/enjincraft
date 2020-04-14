@@ -1,6 +1,5 @@
 package com.enjin.enjincraft.spigot.player;
 
-import com.enjin.enjincraft.spigot.EnjPlugin;
 import com.enjin.enjincraft.spigot.GraphQLException;
 import com.enjin.enjincraft.spigot.NetworkException;
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
@@ -21,7 +20,6 @@ import com.enjin.sdk.models.identity.UnlinkIdentity;
 import com.enjin.sdk.models.user.User;
 import com.enjin.sdk.models.wallet.Wallet;
 import com.enjin.sdk.services.notification.NotificationsService;
-import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -51,7 +49,7 @@ public class EnjPlayer {
     // State Fields
     private boolean userLoaded;
     private boolean identityLoaded;
-    private HashSet<String> assignedPermissions = new HashSet<>();
+    private EnjPermissionAttachment permissionAttachment;
 
     // Trade Fields
     private List<EnjPlayer> sentTradeInvites     = new ArrayList<>();
@@ -61,6 +59,7 @@ public class EnjPlayer {
     public EnjPlayer(SpigotBootstrap bootstrap, Player player) {
         this.bootstrap = bootstrap;
         this.bukkitPlayer = player;
+        this.permissionAttachment = new EnjPermissionAttachment(player, bootstrap.plugin());
     }
 
     public Player getBukkitPlayer() {
@@ -85,6 +84,8 @@ public class EnjPlayer {
     }
 
     public void loadIdentity(Identity identity) {
+        permissionAttachment.clear();
+
         if (identity == null) {
             identityId = null;
             wallet = null;
@@ -120,43 +121,6 @@ public class EnjPlayer {
         initPermissions();
     }
 
-    public void initPermissions() {
-        if (tokenWallet == null)
-            return;
-
-        // Assigns the permissions to the Enj player
-        TokenPermissionGraph graph = bootstrap.getTokenManager().getTokenPermissions();
-        for (String tokenId : tokenWallet.getBalancesMap().keySet()) {
-            Set<String> perms = graph.getTokenPermissions().get(tokenId);
-
-            if (perms != null)
-                assignedPermissions.addAll(perms); // Unions the two sets
-        }
-
-        // Adds the permissions through Vault
-        Permission perms = EnjPlugin.getPermissions();
-        for (String perm : assignedPermissions) {
-            perms.playerAddTransient(null, bukkitPlayer, perm);
-        }
-    }
-
-    public void permissionAdded(String perm, String tokenId) {
-        if (tokenWallet == null)
-            return;
-
-        Permission perms = EnjPlugin.getPermissions();
-        Set<String> tokens = tokenWallet.getBalancesMap().keySet();
-
-        // Checks if the player needs to be given the permission
-        if (!perms.playerHas(bukkitPlayer, perm) && tokens.contains(tokenId)) {
-            perms.playerAddTransient(null, bukkitPlayer, perm);
-        }
-    }
-
-    public void permissionRemoved(String perm, String tokenId) {
-
-    }
-
     public void initWallet() {
         if (wallet == null || StringUtils.isEmpty(wallet.getEthAddress())) { return; }
 
@@ -164,7 +128,9 @@ public class EnjPlayer {
             HttpResponse<GraphQLResponse<List<Balance>>> networkResponse;
             networkResponse = bootstrap.getTrustedPlatformClient()
                                        .getBalanceService()
-                                       .getBalancesSync(new GetBalances().ethAddress(wallet.getEthAddress()));
+                                       .getBalancesSync(new GetBalances()
+                                               .valGt(0)
+                                               .ethAddress(wallet.getEthAddress()));
             if (!networkResponse.isSuccess()) { throw new NetworkException(networkResponse.code()); }
 
             GraphQLResponse<List<Balance>> graphQLResponse = networkResponse.body();
@@ -187,9 +153,7 @@ public class EnjPlayer {
             if (StringUtils.isEmpty(id)) { continue; }
 
             MutableBalance balance = tokenWallet.getBalance(id);
-            if (balance == null) { continue; }
-
-            if (balance.amountAvailableForWithdrawal() == 0) {
+            if (balance == null || balance.amountAvailableForWithdrawal() == 0) {
                 inventory.clear(i);
             } else {
                 if (balance.amountAvailableForWithdrawal() < is.getAmount()) {
@@ -199,6 +163,52 @@ public class EnjPlayer {
                 balance.withdraw(is.getAmount());
             }
         }
+    }
+
+    public void initPermissions() {
+        if (tokenWallet == null)
+            return;
+
+        // Assigns the permissions to the Enjin player
+        TokenPermissionGraph graph = bootstrap.getTokenManager().getTokenPermissions();
+        for (String tokenId : tokenWallet.getBalancesMap().keySet()) {
+            Set<String> perms = graph.getTokenPermissions().get(tokenId);
+
+            if (perms != null)
+                permissionAttachment.addPermissions(perms);
+        }
+    }
+
+    public void addPermission(String perm, String tokenId) {
+        if (tokenWallet == null)
+            return;
+
+        if (bootstrap.getTokenManager().getToken(tokenId) == null)
+            return;
+
+        // Gets the tokens with the given permission from the permission graph
+        Set<String> permTokens = bootstrap.getTokenManager().getTokenPermissions().getPermissionTokens().get(perm);
+
+        // Checks if the player needs to be given the permission
+        if (!permissionAttachment.hasPermission(perm) && permTokens.contains(tokenId))
+            permissionAttachment.setPermission(perm);
+    }
+
+    public void removePermission(String perm) {
+        if (tokenWallet == null)
+            return;
+
+        Set<String> tokens = tokenWallet.getBalancesMap().keySet();
+
+        // Gets the tokens with the given permission from the permission graph
+        Set<String> permTokens = bootstrap.getTokenManager().getTokenPermissions().getPermissionTokens().get(perm);
+
+        // Retains only the player's tokens with the permission
+        tokens.retainAll(permTokens);
+
+        // Checks if the permission needs to be removed from the player
+        if (permissionAttachment.hasPermission(perm) && tokens.size() <= 0)
+            permissionAttachment.unsetPermission(perm);
     }
 
     public void reloadIdentity() {
@@ -273,10 +283,6 @@ public class EnjPlayer {
         boolean              listening = service.isSubscribedToIdentity(identityId);
         if (listening) { service.unsubscribeToIdentity(identityId); }
         bukkitPlayer = null;
-    }
-
-    public Set<String> getAssignedPermissions() {
-        return assignedPermissions;
     }
 
     public List<EnjPlayer> getSentTradeInvites() {
