@@ -39,15 +39,22 @@ public class TokenManager {
             if (file.isDirectory() || !file.getName().endsWith(".json"))
                 continue;
 
+            String tokenId = null;
+            TokenModel tokenModel = null;
+            boolean changed = false;
             try (FileReader fr = new FileReader(file)) {
                 String fileName = file.getName();
-                String tokenId = fileName.substring(0, fileName.length() - JSON_EXT_LENGTH);
-                TokenModel tokenModel = gson.fromJson(fr, TokenModel.class);
+                tokenId = fileName.substring(0, fileName.length() - JSON_EXT_LENGTH);
+                tokenModel = gson.fromJson(fr, TokenModel.class);
                 tokenModel.load();
+                changed = tokenModel.applyBlacklist(bootstrap.getConfig().getPermissionBlacklist());
                 tokenModels.put(tokenId, tokenModel);
                 permGraph.addToken(tokenModel);
             } catch (Exception e) {
                 bootstrap.log(e);
+            } finally {
+                if (changed)
+                    saveToken(tokenId, tokenModel);
             }
         }
     }
@@ -57,6 +64,8 @@ public class TokenManager {
             dir.mkdirs();
 
         File file = new File(dir, String.format("%s%s", tokenId, JSON_EXT));
+
+        tokenModel.applyBlacklist(bootstrap.getConfig().getPermissionBlacklist());
 
         try (FileWriter fw = new FileWriter(file, false)) {
             gson.toJson(tokenModel, fw);
@@ -76,6 +85,8 @@ public class TokenManager {
 
         File file = new File(dir, String.format("%s%s", tokenId, JSON_EXT));
 
+        tokenModel.applyBlacklist(bootstrap.getConfig().getPermissionBlacklist());
+
         try (FileWriter fw = new FileWriter(file, false)) {
             gson.toJson(tokenModel, fw);
         } catch (Exception e) {
@@ -84,6 +95,9 @@ public class TokenManager {
     }
 
     public void addPermissionToToken(String perm, String tokenId) {
+        if (bootstrap.getConfig().getPermissionBlacklist().contains(perm))
+            return;
+
         TokenModel tokenModel = tokenModels.get(tokenId);
 
         if (tokenModel == null)
@@ -100,8 +114,7 @@ public class TokenManager {
         for (UUID uuid : playerManager.getPlayers().keySet()) {
             Optional<EnjPlayer> player = playerManager.getPlayer(uuid);
 
-            if (player.isPresent())
-                player.get().addPermission(perm, tokenId);
+            player.ifPresent(enjPlayer -> enjPlayer.addPermission(perm, tokenId));
         }
     }
 
@@ -122,8 +135,7 @@ public class TokenManager {
         for (UUID uuid : playerManager.getPlayers().keySet()) {
             Optional<EnjPlayer> player = playerManager.getPlayer(uuid);
 
-            if (player.isPresent())
-                player.get().removePermission(perm);
+            player.ifPresent(enjPlayer -> enjPlayer.removePermission(perm));
         }
     }
 

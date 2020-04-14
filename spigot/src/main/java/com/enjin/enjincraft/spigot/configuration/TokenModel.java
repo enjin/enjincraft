@@ -49,6 +49,10 @@ public class TokenModel {
         displayName = nbtItem.getItem().getItemMeta().getDisplayName();
     }
 
+    protected boolean applyBlacklist(List<String> blacklist) {
+        return assignablePermissions.removeAll(blacklist);
+    }
+
     public ItemStack getItemStack() {
         ItemStack stack = nbtItem.getItem().clone();
         ItemMeta meta = stack.getItemMeta();
@@ -66,7 +70,6 @@ public class TokenModel {
         // Prevents duplicate permissions from being added
         if (!assignablePermissions.contains(permission)) {
             assignablePermissions.add(permission);
-
             return true;
         }
 
