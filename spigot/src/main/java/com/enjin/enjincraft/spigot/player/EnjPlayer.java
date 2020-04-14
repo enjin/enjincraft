@@ -280,8 +280,11 @@ public class EnjPlayer {
     protected void cleanUp() {
         PlayerInitializationTask.cleanUp(bukkitPlayer.getUniqueId());
         NotificationsService service   = bootstrap.getNotificationsService();
-        boolean              listening = service.isSubscribedToIdentity(identityId);
-        if (listening) { service.unsubscribeToIdentity(identityId); }
+        if (identityId != null) {
+            boolean listening = service.isSubscribedToIdentity(identityId);
+            if (listening)
+                service.unsubscribeToIdentity(identityId);
+        }
         bukkitPlayer = null;
     }
 
