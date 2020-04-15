@@ -1,7 +1,7 @@
 package com.enjin.enjincraft.spigot.listeners;
 
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
-import com.enjin.enjincraft.spigot.configuration.TokenModel;
+import com.enjin.enjincraft.spigot.token.TokenModel;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
 import com.enjin.enjincraft.spigot.wallet.MutableBalance;
 import com.enjin.sdk.models.notification.*;

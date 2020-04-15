@@ -1,4 +1,4 @@
-package com.enjin.enjincraft.spigot.configuration;
+package com.enjin.enjincraft.spigot.token;
 
 import com.google.gson.annotations.SerializedName;
 import de.tr7zw.changeme.nbtapi.NBTContainer;

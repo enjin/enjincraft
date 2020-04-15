@@ -2,7 +2,7 @@ package com.enjin.enjincraft.spigot;
 
 import com.enjin.enjincraft.spigot.cmd.CmdEnj;
 import com.enjin.enjincraft.spigot.configuration.Conf;
-import com.enjin.enjincraft.spigot.configuration.TokenManager;
+import com.enjin.enjincraft.spigot.token.TokenManager;
 import com.enjin.enjincraft.spigot.hooks.PlaceholderApiExpansion;
 import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.listeners.EnjEventListener;

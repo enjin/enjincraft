@@ -5,7 +5,7 @@ import com.enjin.enjincraft.spigot.NetworkException;
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
 import com.enjin.enjincraft.spigot.cmd.arg.PlayerArgumentProcessor;
 import com.enjin.enjincraft.spigot.cmd.arg.TokenDefinitionArgumentProcessor;
-import com.enjin.enjincraft.spigot.configuration.TokenModel;
+import com.enjin.enjincraft.spigot.token.TokenModel;
 import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
 import com.enjin.sdk.TrustedPlatformClient;
