@@ -3,17 +3,17 @@ package com.enjin.enjincraft.spigot.token;
 import com.google.gson.annotations.SerializedName;
 import de.tr7zw.changeme.nbtapi.NBTContainer;
 import de.tr7zw.changeme.nbtapi.NBTItem;
-import de.tr7zw.changeme.nbtapi.NBTReflectionUtil;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.ToString;
+import org.bukkit.World;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @ToString
 public class TokenModel {
@@ -33,13 +33,13 @@ public class TokenModel {
 
     @SerializedName("assignable-permissions")
     @Getter
-    private List<String> assignablePermissions;
+    private Map<String, List<String>> assignablePermissions;
 
     @Builder
-    public TokenModel(@NonNull String id, @NonNull String nbt, List<String> assignablePermissions) {
+    public TokenModel(@NonNull String id, @NonNull String nbt, HashMap<String, List<String>> assignablePermissions) {
         this.id = id;
         this.nbt = nbt;
-        this.assignablePermissions = assignablePermissions == null ? new ArrayList<>() : assignablePermissions;
+        this.assignablePermissions = assignablePermissions == null ? new HashMap<>() : assignablePermissions;
     }
 
     protected void load() {
@@ -49,8 +49,15 @@ public class TokenModel {
         displayName = nbtItem.getItem().getItemMeta().getDisplayName();
     }
 
-    protected boolean applyBlacklist(List<String> blacklist) {
-        return assignablePermissions.removeAll(blacklist);
+    protected boolean applyBlacklist(Collection<String> blacklist) {
+        AtomicBoolean result = new AtomicBoolean(true);
+
+        assignablePermissions.forEach((world, strings) -> {
+            if (!strings.removeAll(blacklist))
+                result.set(false);
+        });
+
+        return result.get();
     }
 
     public ItemStack getItemStack() {
@@ -66,18 +73,47 @@ public class TokenModel {
         return stack;
     }
 
-    public boolean addPermission(String permission) {
+    public boolean addPermission(String permission, String world) {
+        List<String> worldPerms = assignablePermissions.computeIfAbsent(world, k -> new ArrayList<>());
+
         // Prevents duplicate permissions from being added
-        if (!assignablePermissions.contains(permission)) {
-            assignablePermissions.add(permission);
+        if (!worldPerms.contains(permission)) {
+            worldPerms.add(permission);
             return true;
         }
 
         return false;
     }
 
-    public boolean removePermission(String permission) {
-        return assignablePermissions.remove(permission);
+    public boolean addPermissionToWorlds(String permission, Collection<String> worlds) {
+        AtomicBoolean result = new AtomicBoolean(true);
+
+        worlds.forEach(world -> {
+            if (addPermission(permission, world))
+                result.set(false);
+        });
+
+        return result.get();
+    }
+
+    public boolean removePermission(String permission, String world) {
+        List<String> worldPerms = assignablePermissions.get(world);
+
+        if (worldPerms != null)
+            return worldPerms.remove(permission);
+
+        return false;
+    }
+
+    public boolean removePermissionFromWorlds(String permission, Collection<String> worlds) {
+        AtomicBoolean result = new AtomicBoolean(true);
+
+        worlds.forEach(world -> {
+            if (!removePermission(permission, world))
+                result.set(false);
+        });
+
+        return result.get();
     }
 
 }
