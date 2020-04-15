@@ -179,14 +179,21 @@ public class CmdConf extends EnjCommand {
 
             @Override
             public void execute(CommandContext context) {
-                if (context.args.size() != 2)
+                if (context.args.size() < 2)
                     return;
 
                 String tokenId = context.args.get(0);
                 String perm = context.args.get(1);
+                List<String> worlds = context.args.size() >= 3 ? context.args.subList(2, context.args.size()) : null;
                 Player sender = context.player;
+                int status;
 
-                int status = bootstrap.getTokenManager().addPermissionToToken(perm, tokenId);
+                // Checks if permission is world based
+                if (worlds != null && !worlds.contains(TokenManager.GLOBAL)) {
+                    status = bootstrap.getTokenManager().addPermissionToToken(perm, tokenId, worlds);
+                } else {
+                    status = bootstrap.getTokenManager().addPermissionToToken(perm, tokenId, TokenManager.GLOBAL);
+                }
 
                 switch (status) {
                     case TokenManager.PERM_ADDED_SUCCESS:
@@ -226,14 +233,21 @@ public class CmdConf extends EnjCommand {
 
             @Override
             public void execute(CommandContext context) {
-                if (context.args.size() != 2)
+                if (context.args.size() < 2)
                     return;
 
                 String tokenId = context.args.get(0);
                 String perm = context.args.get(1);
+                List<String> worlds = context.args.size() >= 3 ? context.args.subList(2, context.args.size()) : null;
                 Player sender = context.player;
+                int status;
 
-                int status = bootstrap.getTokenManager().removePermissionFromToken(perm, tokenId);
+                // Checks if permission is world based
+                if (worlds != null && !worlds.contains(TokenManager.GLOBAL)) {
+                    status = bootstrap.getTokenManager().removePermissionFromToken(perm, tokenId, worlds);
+                } else {
+                    status = bootstrap.getTokenManager().removePermissionFromToken(perm, tokenId, TokenManager.GLOBAL);
+                }
 
                 switch (status) {
                     case TokenManager.PERM_REMOVED_SUCCESS:

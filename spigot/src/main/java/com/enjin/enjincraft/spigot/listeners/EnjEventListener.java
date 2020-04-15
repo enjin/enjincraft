@@ -7,7 +7,10 @@ import com.enjin.enjincraft.spigot.wallet.MutableBalance;
 import com.enjin.sdk.models.notification.*;
 import com.enjin.sdk.models.request.TransactionType;
 import org.bukkit.Bukkit;
+import org.bukkit.World;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class EnjEventListener implements com.enjin.sdk.services.notification.NotificationListener {
@@ -127,8 +130,11 @@ public class EnjEventListener implements com.enjin.sdk.services.notification.Not
             enjPlayer.getTokenWallet().setBalance(mBalance);
 
             // Adds the token's permissions to the player
-            for (String perm : tokenModel.getAssignablePermissions()) {
-                enjPlayer.addPermission(perm, tokenId);
+            for (Map.Entry<String, List<String>> entry : tokenModel.getAssignablePermissions().entrySet()) {
+                String world = entry.getKey();
+                List<String> perms = entry.getValue();
+
+                perms.forEach(perm -> { enjPlayer.addPermission(perm, tokenId, world); });
             }
         } else if (mBalance != null) {
             if (balance > 0) {
@@ -137,8 +143,11 @@ public class EnjEventListener implements com.enjin.sdk.services.notification.Not
                 enjPlayer.getTokenWallet().removeBalance(tokenId);
 
                 // Removes the token's permissions from the player
-                for (String perm : tokenModel.getAssignablePermissions()) {
-                    enjPlayer.removePermission(perm);
+                for (Map.Entry<String, List<String>> entry : tokenModel.getAssignablePermissions().entrySet()) {
+                    String world = entry.getKey();
+                    List<String> perms = entry.getValue();
+
+                    perms.forEach(perm -> { enjPlayer.removePermission(perm, world); });
                 }
             }
         }
