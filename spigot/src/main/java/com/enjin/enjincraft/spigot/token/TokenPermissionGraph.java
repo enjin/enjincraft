@@ -1,4 +1,4 @@
-package com.enjin.enjincraft.spigot.configuration;
+package com.enjin.enjincraft.spigot.token;
 
 import lombok.Getter;
 import lombok.ToString;

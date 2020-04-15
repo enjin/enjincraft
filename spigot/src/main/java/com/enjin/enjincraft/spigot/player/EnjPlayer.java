@@ -3,7 +3,7 @@ package com.enjin.enjincraft.spigot.player;
 import com.enjin.enjincraft.spigot.GraphQLException;
 import com.enjin.enjincraft.spigot.NetworkException;
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
-import com.enjin.enjincraft.spigot.configuration.TokenPermissionGraph;
+import com.enjin.enjincraft.spigot.token.TokenPermissionGraph;
 import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.trade.TradeView;
 import com.enjin.enjincraft.spigot.util.StringUtils;

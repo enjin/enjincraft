@@ -1,8 +1,8 @@
 package com.enjin.enjincraft.spigot.cmd.arg;
 
 import com.enjin.enjincraft.spigot.EnjinCraft;
-import com.enjin.enjincraft.spigot.configuration.TokenManager;
-import com.enjin.enjincraft.spigot.configuration.TokenModel;
+import com.enjin.enjincraft.spigot.token.TokenManager;
+import com.enjin.enjincraft.spigot.token.TokenModel;
 import org.bukkit.command.CommandSender;
 
 import java.util.List;

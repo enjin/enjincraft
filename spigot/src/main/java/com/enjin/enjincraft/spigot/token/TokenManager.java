@@ -1,4 +1,4 @@
-package com.enjin.enjincraft.spigot.configuration;
+package com.enjin.enjincraft.spigot.token;
 
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
@@ -65,6 +65,10 @@ public class TokenManager {
                     saveToken(tokenId, tokenModel);
             }
         }
+
+        LegacyTokenConverter legacyConverter = new LegacyTokenConverter(bootstrap);
+        if (legacyConverter.fileExists())
+            legacyConverter.process();
     }
 
     public void saveToken(String tokenId, TokenModel tokenModel) {
