@@ -3,8 +3,8 @@ package com.enjin.enjincraft.spigot.player;
 import com.enjin.enjincraft.spigot.GraphQLException;
 import com.enjin.enjincraft.spigot.NetworkException;
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
-import com.enjin.enjincraft.spigot.configuration.TokenManager;
-import com.enjin.enjincraft.spigot.configuration.TokenPermissionGraph;
+import com.enjin.enjincraft.spigot.token.TokenManager;
+import com.enjin.enjincraft.spigot.token.TokenPermissionGraph;
 import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.trade.TradeView;
 import com.enjin.enjincraft.spigot.util.StringUtils;
@@ -23,7 +23,6 @@ import com.enjin.sdk.models.wallet.Wallet;
 import com.enjin.sdk.services.notification.NotificationsService;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -98,17 +97,17 @@ public class EnjPlayer implements Listener {
     }
 
     public void loadIdentity(Identity identity) {
-        globalAttachment.clear();
-        worldAttachment.clear();
+        identityId = null;      // Assume player has no identity
+        wallet = null;          //
+        linkingCode = null;     //
+        identityLoaded = false; //
+        tokenWallet = null;     //
+        globalAttachment.clear();   // Clears all permissions
+        worldAttachment.clear();    //
+        worldPermissionMap.clear(); //
 
-        if (identity == null) {
-            identityId = null;
-            wallet = null;
-            linkingCode = null;
-            identityLoaded = false;
-            tokenWallet = null;
+        if (identity == null)
             return;
-        }
 
         identityId = identity.getId();
         wallet = identity.getWallet();
@@ -193,6 +192,7 @@ public class EnjPlayer implements Listener {
             if (worldPerms == null)
                 continue;
 
+            // Assigns global and world permissions
             worldPerms.forEach((world, perm) -> {
                 if (world.equals(TokenManager.GLOBAL)) {
                     globalAttachment.addPermissions(perm);
@@ -222,10 +222,15 @@ public class EnjPlayer implements Listener {
         if (bootstrap.getTokenManager().getToken(tokenId) == null)
             return;
 
-        if (world.equals(TokenManager.GLOBAL))
+        if (world.equals(TokenManager.GLOBAL)) {
             addGlobalPermission(perm, tokenId);
-        else
+            // Tries to remove any world permission, since global
+            worldPermissionMap.keySet().forEach(nonGlobal -> removeWorldPermission(perm, nonGlobal));
+        } else {
             addWorldPermission(perm, tokenId, world);
+            // Tries to remove any global permission, since local to world
+            removeGlobalPermission(perm);
+        }
     }
 
     private void addGlobalPermission(String perm, String tokenId) {
@@ -236,6 +241,9 @@ public class EnjPlayer implements Listener {
 
         // Gets the tokens with the given permission from the permission graph
         Set<String> permTokens = worldPerms.get(perm);
+
+        if (permTokens == null)
+            return;
 
         // Checks if the player needs to be given the permission
         if (!globalAttachment.hasPermission(perm) && permTokens.contains(tokenId))
@@ -248,13 +256,16 @@ public class EnjPlayer implements Listener {
         // Gets the tokens with the given permission from the permission graph
         Set<String> permTokens = worldPerms.get(perm);
 
+        if (permTokens == null)
+            return;
+
         // Checks if the player needs to be given the permission
         Set<String> perms = worldPermissionMap.computeIfAbsent(world, k -> new HashSet<>());
         if (!perms.contains(perm) && permTokens.contains(tokenId)) {
             perms.add(perm);
 
-            String current = bukkitPlayer.getWorld().getName();
-            if (current.equals(world))
+            String currentWorld = bukkitPlayer.getWorld().getName();
+            if (currentWorld.equals(world))
                 worldAttachment.setPermission(perm);
         }
     }
@@ -263,10 +274,13 @@ public class EnjPlayer implements Listener {
         if (tokenWallet == null)
             return;
 
-        if (world.equals(TokenManager.GLOBAL))
+        if (world.equals(TokenManager.GLOBAL)) {
             removeGlobalPermission(perm);
-        else
+            // Tries to remove any world permission too
+            worldPermissionMap.keySet().forEach(nonGlobal -> removeWorldPermission(perm, nonGlobal));
+        } else {
             removeWorldPermission(perm, world);
+        }
     }
 
     private void removeGlobalPermission(String perm) {
@@ -277,6 +291,9 @@ public class EnjPlayer implements Listener {
 
         // Gets the tokens with the given permission from the permission graph
         Set<String> permTokens = worldPerms.get(perm);
+
+        if (permTokens == null)
+            return;
 
         Set<String> tokens = tokenWallet.getBalancesMap().keySet();
 
@@ -298,6 +315,9 @@ public class EnjPlayer implements Listener {
         // Gets the tokens with the given permission from the permission graph
         Set<String> permTokens = worldPerms.get(perm);
 
+        if (permTokens == null)
+            return;
+
         Set<String> tokens = tokenWallet.getBalancesMap().keySet();
 
         // Retains only the player's tokens with the permission
@@ -309,9 +329,8 @@ public class EnjPlayer implements Listener {
         if (perms.contains(perm) && intersect.size() <= 0) {
             perms.remove(perm);
 
-            String current = bukkitPlayer.getWorld().getName();
-
-            if (current.equals(world))
+            String currentWorld = bukkitPlayer.getWorld().getName();
+            if (currentWorld.equals(world))
                 worldAttachment.unsetPermission(perm);
         }
     }

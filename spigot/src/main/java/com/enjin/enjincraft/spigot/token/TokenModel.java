@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.ToString;
-import org.bukkit.World;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -32,14 +31,13 @@ public class TokenModel {
     private String nbt;
 
     @SerializedName("assignable-permissions")
-    @Getter
-    private Map<String, List<String>> assignablePermissions;
+    private List<TokenPermission> assignablePermissions;
 
     @Builder
-    public TokenModel(@NonNull String id, @NonNull String nbt, HashMap<String, List<String>> assignablePermissions) {
+    public TokenModel(@NonNull String id, @NonNull String nbt, List<TokenPermission> assignablePermissions) {
         this.id = id;
         this.nbt = nbt;
-        this.assignablePermissions = assignablePermissions == null ? new HashMap<>() : assignablePermissions;
+        this.assignablePermissions = assignablePermissions == null ? new ArrayList<>() : assignablePermissions;
     }
 
     protected void load() {
@@ -52,8 +50,12 @@ public class TokenModel {
     protected boolean applyBlacklist(Collection<String> blacklist) {
         AtomicBoolean result = new AtomicBoolean(true);
 
-        assignablePermissions.forEach((world, strings) -> {
-            if (!strings.removeAll(blacklist))
+        blacklist.forEach(permission -> {
+            TokenPermission tokenPerm = new TokenPermission(permission, TokenManager.GLOBAL);
+            int idx = assignablePermissions.indexOf(tokenPerm);
+
+            // Checks if the blacklisted permission was not removed
+            if (idx >= 0 && !assignablePermissions.remove(tokenPerm))
                 result.set(false);
         });
 
@@ -73,47 +75,116 @@ public class TokenModel {
         return stack;
     }
 
-    public boolean addPermission(String permission, String world) {
-        List<String> worldPerms = assignablePermissions.computeIfAbsent(world, k -> new ArrayList<>());
+    public boolean addPermission(String permission) {
+        return addPermissionToWorld(permission, TokenManager.GLOBAL);
+    }
 
-        // Prevents duplicate permissions from being added
-        if (!worldPerms.contains(permission)) {
-            worldPerms.add(permission);
-            return true;
+    public boolean addPermissionToWorld(String permission, String world) {
+        TokenPermission tokenPerm = new TokenPermission(permission, world);
+        int idx = assignablePermissions.indexOf(tokenPerm);
+
+        if (idx < 0)
+            return assignablePermissions.add(tokenPerm);
+
+        TokenPermission other = assignablePermissions.get(idx);
+
+        // This permission is applied globally
+        if (world.equals(TokenManager.GLOBAL) && other.getWorlds().contains(TokenManager.GLOBAL)) {
+            return false;
+        } else if (world.equals(TokenManager.GLOBAL) && !other.getWorlds().contains(TokenManager.GLOBAL)) {
+            assignablePermissions.remove(idx);
+            return assignablePermissions.add(tokenPerm);
         }
 
-        return false;
+        other.getWorlds().remove(TokenManager.GLOBAL); // This permission is not applied globally
+
+        return other.addWorld(world);
     }
 
     public boolean addPermissionToWorlds(String permission, Collection<String> worlds) {
-        AtomicBoolean result = new AtomicBoolean(true);
+        TokenPermission tokenPerm = new TokenPermission(permission, worlds);
+        int idx = assignablePermissions.indexOf(tokenPerm);
 
-        worlds.forEach(world -> {
-            if (addPermission(permission, world))
-                result.set(false);
-        });
+        if (idx < 0)
+            return assignablePermissions.add(tokenPerm);
 
-        return result.get();
+        TokenPermission other = assignablePermissions.get(idx);
+
+        // This permission is applied globally
+        if (worlds.contains(TokenManager.GLOBAL) && other.getWorlds().contains(TokenManager.GLOBAL)) {
+            return false;
+        } else if (worlds.contains(TokenManager.GLOBAL) && !other.getWorlds().contains(TokenManager.GLOBAL)) {
+            assignablePermissions.remove(idx);
+            return assignablePermissions.add(tokenPerm);
+        }
+
+        other.getWorlds().remove(TokenManager.GLOBAL); // This permission is not applied globally
+
+        return other.addWorlds(worlds);
     }
 
-    public boolean removePermission(String permission, String world) {
-        List<String> worldPerms = assignablePermissions.get(world);
+    public boolean removePermission(String permission) {
+        return removePermissionFromWorld(permission, TokenManager.GLOBAL);
+    }
 
-        if (worldPerms != null)
-            return worldPerms.remove(permission);
+    public boolean removePermissionFromWorld(String permission, String world) {
+        TokenPermission tokenPerm = new TokenPermission(permission, world);
+        int idx = assignablePermissions.indexOf(tokenPerm);
 
-        return false;
+        if (idx < 0)
+            return false;
+        else if (world.equals(TokenManager.GLOBAL))
+            return assignablePermissions.remove(tokenPerm);
+
+        TokenPermission other = assignablePermissions.get(idx);
+
+        // Checks if the world was not removed
+        if (!other.getWorlds().remove(world))
+            return false;
+        else if (other.getWorlds().size() == 0)
+            assignablePermissions.remove(other);
+
+        return true;
     }
 
     public boolean removePermissionFromWorlds(String permission, Collection<String> worlds) {
-        AtomicBoolean result = new AtomicBoolean(true);
+        TokenPermission tokenPerm = new TokenPermission(permission, worlds);
+        int idx = assignablePermissions.indexOf(tokenPerm);
 
-        worlds.forEach(world -> {
-            if (!removePermission(permission, world))
-                result.set(false);
-        });
+        if (idx < 0)
+            return false;
+        else if (worlds.contains(TokenManager.GLOBAL))
+            return assignablePermissions.remove(tokenPerm);
 
-        return result.get();
+        TokenPermission other = assignablePermissions.get(idx);
+
+        // Checks if any worlds were not removed
+        if (!other.getWorlds().removeAll(worlds))
+            return false;
+        else if (other.getWorlds().size() == 0)
+            assignablePermissions.remove(other);
+
+        return true;
+    }
+
+    public Map<String, Set<String>> getAssignablePermissions() {
+        Map<String, Set<String>> permissionMap = new HashMap<>();
+
+        for (TokenPermission tokenPerm : assignablePermissions) {
+            String permission = tokenPerm.getPermission();
+            Set<String> worlds = tokenPerm.getWorlds();
+
+            if (worlds.contains(TokenManager.GLOBAL)) {
+                continue;
+            }
+
+            worlds.forEach(world -> {
+                Set<String> worldPerms = permissionMap.computeIfAbsent(world, k -> new HashSet<>());
+                worldPerms.add(permission);
+            });
+        }
+
+        return permissionMap;
     }
 
 }
