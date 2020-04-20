@@ -81,6 +81,7 @@ public enum Translation {
     COMMAND_CONF_TOKEN_REVOKEPERM_PERMREVOKED("&aPermission removed from token."),
     COMMAND_CONF_TOKEN_REVOKEPERM_PERMNOTONTOKEN("&cPermission not found on token."),
     COMMAND_CONF_TOKEN_ADDREVOKEPERM_NOSUCHTOKEN("&cToken not found."),
+    COMMAND_CONF_TOKEN_ADDREVOKEPERM_NOSUCHWORLD("&cWorld names are '*' (global); 'over-world'; 'nether'; 'end'."),
 
     COMMAND_TRADE_DESCRIPTION("Show help for trade sub-commands."),
     COMMAND_TRADE_INVITE_DESCRIPTION("Invite a player to trade tokens."),

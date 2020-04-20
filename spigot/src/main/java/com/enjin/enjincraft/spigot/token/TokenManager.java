@@ -23,8 +23,13 @@ public class TokenManager {
 
     public static final String JSON_EXT = ".json";
     public static final int JSON_EXT_LENGTH = JSON_EXT.length();
+    public static final String GLOBAL = "*";
 
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(TokenPermission.class, new TokenPermission.TokenPermissionSerializer())
+            .registerTypeAdapter(TokenPermission.class, new TokenPermission.TokenPermissionDeserializer())
+            .setPrettyPrinting()
+            .create();
 
     private SpigotBootstrap bootstrap;
     private File dir;
@@ -106,7 +111,7 @@ public class TokenManager {
         }
     }
 
-    public int addPermissionToToken(String perm, String tokenId) {
+    public int addPermissionToToken(String perm, String tokenId, String world) {
         if (bootstrap.getConfig().getPermissionBlacklist().contains(perm))
             return PERM_ADDED_BLACKLISTED;
 
@@ -116,43 +121,90 @@ public class TokenManager {
             return PERM_NOSUCHTOKEN;
 
         // Checks if the permission was not added
-        if (!tokenModel.addPermission(perm))
+        if (!tokenModel.addPermissionToWorld(perm, world))
             return PERM_ADDED_DUPLICATEPERM;
 
-        permGraph.addTokenPerm(perm, tokenId);
+        permGraph.addTokenPerm(perm, tokenId, world);
         updateTokenConf(tokenId, tokenModel);
 
-        PlayerManager playerManager = bootstrap.getPlayerManager();
-        for (UUID uuid : playerManager.getPlayers().keySet()) {
-            Optional<EnjPlayer> player = playerManager.getPlayer(uuid);
-
-            player.ifPresent(enjPlayer -> enjPlayer.addPermission(perm, tokenId));
-        }
+        addPermissionToPlayers(perm, tokenId, world);
 
         return PERM_ADDED_SUCCESS;
     }
 
-    public int removePermissionFromToken(String perm, String tokenId) {
+    public int addPermissionToToken(String perm, String tokenId, Collection<String> worlds) {
+        if (bootstrap.getConfig().getPermissionBlacklist().contains(perm))
+            return PERM_ADDED_BLACKLISTED;
+
+        TokenModel tokenModel = tokenModels.get(tokenId);
+
+        if (tokenModel == null)
+            return PERM_NOSUCHTOKEN;
+
+        // Checks if the permission was not added
+        if (!tokenModel.addPermissionToWorlds(perm, worlds))
+            return PERM_ADDED_DUPLICATEPERM;
+
+        permGraph.addTokenPerm(perm, tokenId, worlds);
+        updateTokenConf(tokenId, tokenModel);
+
+        worlds.forEach(world -> addPermissionToPlayers(perm, tokenId, world));
+
+        return PERM_ADDED_SUCCESS;
+    }
+
+    private void addPermissionToPlayers(String perm, String tokenId, String world) {
+        PlayerManager playerManager = bootstrap.getPlayerManager();
+        for (UUID uuid : playerManager.getPlayers().keySet()) {
+            Optional<EnjPlayer> player = playerManager.getPlayer(uuid);
+
+            player.ifPresent(enjPlayer -> enjPlayer.addPermission(perm, tokenId, world));
+        }
+    }
+
+    public int removePermissionFromToken(String perm, String tokenId, String world) {
         TokenModel tokenModel = tokenModels.get(tokenId);
 
         if (tokenModel == null)
             return PERM_NOSUCHTOKEN;
 
         // Checks if the permission was not removed
-        if (!tokenModel.removePermission(perm))
+        if (!tokenModel.removePermissionFromWorld(perm, world))
             return PERM_REMOVED_NOPERMONTOKEN;
 
-        permGraph.removeTokenPerm(perm, tokenId);
+        permGraph.removeTokenPerm(perm, tokenId, world);
         updateTokenConf(tokenId, tokenModel);
 
+        removePermissionFromPlayers(perm, world);
+
+        return PERM_REMOVED_SUCCESS;
+    }
+
+    public int removePermissionFromToken(String perm, String tokenId, Collection<String> worlds) {
+        TokenModel tokenModel = tokenModels.get(tokenId);
+
+        if (tokenModel == null)
+            return PERM_NOSUCHTOKEN;
+
+        // Checks if the permission was not removed
+        if (!tokenModel.removePermissionFromWorlds(perm, worlds))
+            return PERM_REMOVED_NOPERMONTOKEN;
+
+        permGraph.removeTokenPerm(perm, tokenId, worlds);
+        updateTokenConf(tokenId, tokenModel);
+
+        worlds.forEach(world -> removePermissionFromPlayers(perm, world));
+
+        return PERM_REMOVED_SUCCESS;
+    }
+
+    private void removePermissionFromPlayers(String perm, String world) {
         PlayerManager playerManager = bootstrap.getPlayerManager();
         for (UUID uuid : playerManager.getPlayers().keySet()) {
             Optional<EnjPlayer> player = playerManager.getPlayer(uuid);
 
-            player.ifPresent(enjPlayer -> enjPlayer.removePermission(perm));
+            player.ifPresent(enjPlayer -> enjPlayer.removePermission(perm, world));
         }
-
-        return PERM_REMOVED_SUCCESS;
     }
 
     public boolean hasToken(String tokenId) {
