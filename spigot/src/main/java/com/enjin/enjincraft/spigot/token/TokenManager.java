@@ -76,7 +76,7 @@ public class TokenManager {
             legacyConverter.process();
     }
 
-    public void saveToken(String tokenId, TokenModel tokenModel) {
+    public boolean saveToken(String tokenId, TokenModel tokenModel) {
         if (!dir.exists())
             dir.mkdirs();
 
@@ -91,7 +91,10 @@ public class TokenManager {
             permGraph.addToken(tokenModel);
         } catch (Exception e) {
             bootstrap.log(e);
+            return false;
         }
+
+        return true;
     }
 
     public void updateTokenConf(String tokenId, TokenModel tokenModel) {
