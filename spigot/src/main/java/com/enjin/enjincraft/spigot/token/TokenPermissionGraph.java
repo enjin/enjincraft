@@ -17,7 +17,7 @@ public class TokenPermissionGraph {
     }
 
     protected void addToken(TokenModel tokenModel) {
-        addToken(tokenModel.getAssignablePermissions(), tokenModel.getId());
+        addToken(tokenModel.getPermissionsMap(), tokenModel.getId());
     }
 
     protected void addTokenPerm(String perm, String tokenId, String world) {
@@ -73,7 +73,7 @@ public class TokenPermissionGraph {
     }
 
     protected void removeToken(TokenModel tokenModel) {
-        removeToken(tokenModel.getAssignablePermissions(), tokenModel.getId());
+        removeToken(tokenModel.getPermissionsMap(), tokenModel.getId());
     }
 
     protected void removeTokenPerm(String perm, String tokenId, String world) {

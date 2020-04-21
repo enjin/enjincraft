@@ -129,7 +129,7 @@ public class EnjEventListener implements com.enjin.sdk.services.notification.Not
             enjPlayer.getTokenWallet().setBalance(mBalance);
 
             // Adds the token's permissions to the player
-            for (Map.Entry<String, Set<String>> entry : tokenModel.getAssignablePermissions().entrySet()) {
+            for (Map.Entry<String, Set<String>> entry : tokenModel.getPermissionsMap().entrySet()) {
                 String world = entry.getKey();
                 Set<String> perms = entry.getValue();
 
@@ -142,7 +142,7 @@ public class EnjEventListener implements com.enjin.sdk.services.notification.Not
                 enjPlayer.getTokenWallet().removeBalance(tokenId);
 
                 // Removes the token's permissions from the player
-                for (Map.Entry<String, Set<String>> entry : tokenModel.getAssignablePermissions().entrySet()) {
+                for (Map.Entry<String, Set<String>> entry : tokenModel.getPermissionsMap().entrySet()) {
                     String world = entry.getKey();
                     Set<String> perms = entry.getValue();
 

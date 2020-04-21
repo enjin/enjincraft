@@ -76,6 +76,10 @@ public enum Translation {
     COMMAND_TOKEN_CREATE_DESCRIPTION("Add a token definition for the held item and provided id to the config."),
     COMMAND_TOKEN_CREATE_SUCCESS("&aToken created."),
     COMMAND_TOKEN_CREATE_FAILED("&cToken was not created."),
+    COMMAND_TOKEN_CREATE_DUPLICATE("&cToken id already exists."),
+    COMMAND_TOKEN_UPDATE_DESCRIPTION("Update a token's definition with the held item and the token's id."),
+    COMMAND_TOKEN_UPDATE_SUCCESS("&aToken updated."),
+    COMMAND_TOKEN_UPDATE_FAILED("&cToken was not updated."),
     COMMAND_TOKEN_TOINV_DESCRIPTION("Add a non-tokenized copy of the token to your inventory."),
     COMMAND_TOKEN_TOINV_SUCCESS("&aThe item was added to your inventory."),
     COMMAND_TOKEN_TOINV_FAILED("&cNo space in inventory to add the item to."),
@@ -91,6 +95,7 @@ public enum Translation {
     COMMAND_TOKEN_REVOKEPERM_PERMREVOKED("&aPermission removed from token."),
     COMMAND_TOKEN_REVOKEPERM_PERMNOTONTOKEN("&cPermission not found on token."),
     COMMAND_TOKEN_NOSUCHTOKEN("&cToken not found."),
+    COMMAND_TOKEN_NOHELDITEM("&cMust hold an item to use as a token."),
 
     COMMAND_TRADE_DESCRIPTION("Show help for trade sub-commands."),
     COMMAND_TRADE_INVITE_DESCRIPTION("Invite a player to trade tokens."),

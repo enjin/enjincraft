@@ -186,7 +186,18 @@ public class TokenModel {
         return true;
     }
 
-    public Map<String, Set<String>> getAssignablePermissions() {
+    public List<TokenPermission> getAssignablePermissions() {
+        List<TokenPermission> permissions = new ArrayList<>(assignablePermissions.size());
+
+        assignablePermissions.forEach(permission -> {
+            TokenPermission copy = new TokenPermission(permission.getPermission(), permission.getWorlds());
+            permissions.add(copy);
+        });
+
+        return permissions;
+    }
+
+    public Map<String, Set<String>> getPermissionsMap() {
         Map<String, Set<String>> permissionMap = new HashMap<>();
 
         for (TokenPermission tokenPerm : assignablePermissions) {
