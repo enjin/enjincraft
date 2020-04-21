@@ -76,7 +76,7 @@ public enum Translation {
     COMMAND_TOKEN_CREATE_DESCRIPTION("Add a token definition for the held item and provided id to the config."),
     COMMAND_TOKEN_CREATE_SUCCESS("&aToken created."),
     COMMAND_TOKEN_CREATE_FAILED("&cToken was not created."),
-    COMMAND_TOKEN_TOINV_DESCRIPTION(""),
+    COMMAND_TOKEN_TOINV_DESCRIPTION("Add a non-tokenized copy of the token to your inventory."),
     COMMAND_TOKEN_TOINV_SUCCESS("&aThe item was added to your inventory."),
     COMMAND_TOKEN_TOINV_FAILED("&cNo space in inventory to add the item to."),
     COMMAND_TOKEN_NICKNAME_DESCRIPTION("Add a nickname to a token for command usages."),
