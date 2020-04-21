@@ -78,6 +78,25 @@ public class TokenModel {
         return stack;
     }
 
+    public ItemStack getItemStack(boolean raw) {
+        ItemStack is;
+
+        if (raw) {
+            is = new NBTItem(NBTItem.convertNBTtoItem(nbtContainer)) .getItem() .clone();
+            ItemMeta meta = is.getItemMeta();
+
+            meta.setUnbreakable(true);
+            meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+            meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+
+            is.setItemMeta(meta);
+        } else {
+            is = getItemStack();
+        }
+
+        return is;
+    }
+
     public boolean addPermission(String permission) {
         return addPermissionToWorld(permission, TokenManager.GLOBAL);
     }

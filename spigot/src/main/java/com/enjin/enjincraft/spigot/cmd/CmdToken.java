@@ -12,6 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
 import java.util.List;
+import java.util.Map;
 
 public class CmdToken extends EnjCommand {
 
@@ -24,6 +25,7 @@ public class CmdToken extends EnjCommand {
                 .withAllowedSenderTypes(SenderType.PLAYER)
                 .build();
         this.subCommands.add(new CmdCreate(bootstrap, this));
+        this.subCommands.add(new CmdToInv(bootstrap, this));
         this.subCommands.add(new CmdNickname(bootstrap, this));
         this.subCommands.add(new CmdAddPerm(bootstrap, this));
         this.subCommands.add(new CmdRevokePerm(bootstrap, this));
@@ -93,6 +95,47 @@ public class CmdToken extends EnjCommand {
 
     }
 
+    public class CmdToInv extends EnjCommand {
+
+        public CmdToInv(SpigotBootstrap bootstrap, EnjCommand parent) {
+            super(bootstrap, parent);
+            this.aliases.add("toinv");
+            this.aliases.add("give");
+            this.requiredArgs.add("token-id");
+            this.requirements = CommandRequirements.builder()
+                    .withPermission(Permission.CMD_TOKEN_CREATE)
+                    .withAllowedSenderTypes(SenderType.PLAYER)
+                    .build();
+        }
+
+        @Override
+        public void execute(CommandContext context) {
+            if (context.args.size() != 1)
+                return;
+
+            String id = context.args.get(0);
+            Player sender = context.player;
+
+            TokenModel tokenModel = bootstrap.getTokenManager().getToken(id);
+
+            if (tokenModel == null)
+                Translation.COMMAND_TOKEN_NOSUCHTOKEN.send(sender);
+
+            PlayerInventory inventory = sender.getInventory();
+            Map<Integer, ItemStack> leftOver = inventory.addItem(tokenModel.getItemStack(true));
+
+            if (leftOver.isEmpty())
+                Translation.COMMAND_TOKEN_TOINV_SUCCESS.send(sender);
+            else
+                Translation.COMMAND_TOKEN_TOINV_FAILED.send(sender);
+        }
+
+        @Override
+        public Translation getUsageTranslation() {
+            return Translation.COMMAND_TOKEN_TOINV_DESCRIPTION;
+        }
+    }
+
     public class CmdNickname extends EnjCommand {
 
         public CmdNickname(SpigotBootstrap bootstrap, EnjCommand parent) {
@@ -135,7 +178,7 @@ public class CmdToken extends EnjCommand {
 
         @Override
         public Translation getUsageTranslation() {
-            return null;
+            return Translation.COMMAND_TOKEN_NICKNAME_DESCRIPTION;
         }
     }
 
