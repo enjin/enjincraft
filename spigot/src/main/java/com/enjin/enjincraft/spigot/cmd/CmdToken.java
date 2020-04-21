@@ -54,7 +54,7 @@ public class CmdToken extends EnjCommand {
 
         @Override
         public void execute(CommandContext context) {
-            if (context.args.size() != 1 && context.args.size() != 2)
+            if (context.args.size() < 1 || context.args.size() > 2)
                 return;
 
             String tokenId = context.args.get(0);
