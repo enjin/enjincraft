@@ -66,33 +66,30 @@ public class TokenModel {
     }
 
     public ItemStack getItemStack() {
-        ItemStack stack = nbtItem.getItem().clone();
-        ItemMeta meta = stack.getItemMeta();
-
-        meta.setUnbreakable(true);
-        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-        meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
-
-        stack.setItemMeta(meta);
-
-        return stack;
+        return getItemStack(false);
     }
 
     public ItemStack getItemStack(boolean raw) {
         ItemStack is;
 
         if (raw) {
-            is = new NBTItem(NBTItem.convertNBTtoItem(nbtContainer)) .getItem() .clone();
-            ItemMeta meta = is.getItemMeta();
+            NBTItem item = new NBTItem(NBTItem.convertNBTtoItem(nbtContainer));
 
-            meta.setUnbreakable(true);
-            meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-            meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+            if (item.hasKey(NBT_ID))
+                item.removeKey(NBT_ID);
 
-            is.setItemMeta(meta);
+            is = item.getItem().clone();
         } else {
-            is = getItemStack();
+            is = nbtItem.getItem().clone();
         }
+
+        ItemMeta meta = is.getItemMeta();
+
+        meta.setUnbreakable(true);
+        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+        meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+
+        is.setItemMeta(meta);
 
         return is;
     }

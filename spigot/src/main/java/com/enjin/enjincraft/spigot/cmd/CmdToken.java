@@ -118,8 +118,10 @@ public class CmdToken extends EnjCommand {
 
             TokenModel tokenModel = bootstrap.getTokenManager().getToken(id);
 
-            if (tokenModel == null)
+            if (tokenModel == null) {
                 Translation.COMMAND_TOKEN_NOSUCHTOKEN.send(sender);
+                return;
+            }
 
             PlayerInventory inventory = sender.getInventory();
             Map<Integer, ItemStack> leftOver = inventory.addItem(tokenModel.getItemStack(true));
