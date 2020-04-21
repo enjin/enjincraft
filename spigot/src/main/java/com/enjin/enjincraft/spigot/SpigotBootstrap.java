@@ -17,7 +17,7 @@ import com.enjin.sdk.TrustedPlatformClient;
 import com.enjin.sdk.TrustedPlatformClientBuilder;
 import com.enjin.sdk.graphql.GraphQLResponse;
 import com.enjin.sdk.http.HttpResponse;
-import com.enjin.sdk.models.AuthTokens;
+import com.enjin.sdk.models.AccessToken;
 import com.enjin.sdk.models.platform.GetPlatform;
 import com.enjin.sdk.models.platform.PlatformDetails;
 import com.enjin.sdk.services.notification.NotificationsService;
@@ -140,7 +140,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
     }
 
     protected void authenticateTPClient() {
-        HttpResponse<GraphQLResponse<AuthTokens>> networkResponse;
+        HttpResponse<GraphQLResponse<AccessToken>> networkResponse;
 
         try {
             // Attempt to authenticate the client using an app secret
