@@ -24,6 +24,7 @@ public class CmdToken extends EnjCommand {
                 .withAllowedSenderTypes(SenderType.PLAYER)
                 .build();
         this.subCommands.add(new CmdCreate(bootstrap, this));
+        this.subCommands.add(new CmdNickname(bootstrap, this));
         this.subCommands.add(new CmdAddPerm(bootstrap, this));
         this.subCommands.add(new CmdRevokePerm(bootstrap, this));
     }
@@ -51,26 +52,38 @@ public class CmdToken extends EnjCommand {
 
         @Override
         public void execute(CommandContext context) {
-            if (context.args.size() != 1)
+            if (context.args.size() != 1 && context.args.size() != 2)
                 return;
 
+            String tokenId = context.args.get(0);
+            String alternateId = context.args.size() == 2 ? context.args.get(1) : null;
             Player sender = context.player;
             PlayerInventory inventory = sender.getInventory();
             ItemStack held = inventory.getItemInMainHand();
+
             if (!held.getType().isItem())
                 return;
 
             NBTContainer nbt = NBTItem.convertItemtoNBT(held);
-            String id = context.args.get(0);
             TokenModel model = TokenModel.builder()
-                    .id(id)
+                    .id(tokenId)
+                    .alternateId(alternateId)
                     .nbt(nbt.toString())
                     .build();
 
-            if (bootstrap.getTokenManager().saveToken(id, model))
-                Translation.COMMAND_TOKEN_CREATE_SUCCESS.send(sender);
-            else
-                Translation.COMMAND_TOKEN_CREATE_FAILED.send(sender);
+            int result = bootstrap.getTokenManager().saveToken(model);
+
+            switch (result) {
+                case TokenManager.TOKEN_CREATE_SUCCESS:
+                    Translation.COMMAND_TOKEN_CREATE_SUCCESS.send(sender);
+                    break;
+                case TokenManager.TOKEN_CREATE_FAILED:
+                    Translation.COMMAND_TOKEN_CREATE_FAILED.send(sender);
+                    break;
+                case TokenManager.TOKEN_DUPLICATENICKNAME:
+                    Translation.COMMAND_TOKEN_NICKNAME_DUPLICATE.send(sender);
+                    break;
+            }
         }
 
         @Override
@@ -80,12 +93,58 @@ public class CmdToken extends EnjCommand {
 
     }
 
+    public class CmdNickname extends EnjCommand {
+
+        public CmdNickname(SpigotBootstrap bootstrap, EnjCommand parent) {
+            super(bootstrap, parent);
+            this.aliases.add("nickname");
+            this.requiredArgs.add("token-id");
+            this.requiredArgs.add("alt-id");
+            this.requirements = CommandRequirements.builder()
+                    .withPermission(Permission.CMD_TOKEN_CREATE)
+                    .withAllowedSenderTypes(SenderType.PLAYER)
+                    .build();
+        }
+
+        @Override
+        public void execute(CommandContext context) {
+            if (context.args.size() != 2)
+                return;
+
+            String tokenId = context.args.get(0);
+            String alternateId = context.args.get(1);
+            Player sender = context.player;
+
+            int result = bootstrap.getTokenManager().updateAlternateId(tokenId, alternateId);
+
+            switch (result) {
+                case TokenManager.TOKEN_UPDATE_SUCCESS:
+                    Translation.COMMAND_TOKEN_NICKNAME_SUCCESS.send(sender);
+                    break;
+                case TokenManager.TOKEN_NOSUCHTOKEN:
+                    Translation.COMMAND_TOKEN_NOSUCHTOKEN.send(sender);
+                    break;
+                case TokenManager.TOKEN_DUPLICATENICKNAME:
+                    Translation.COMMAND_TOKEN_NICKNAME_DUPLICATE.send(sender);
+                    break;
+                case TokenManager.TOKEN_HASNICKNAME:
+                    Translation.COMMAND_TOKEN_NICKNAME_HAS.send(sender);
+                    break;
+            }
+        }
+
+        @Override
+        public Translation getUsageTranslation() {
+            return null;
+        }
+    }
+
     public class CmdAddPerm extends EnjCommand {
 
         public CmdAddPerm(SpigotBootstrap bootstrap, EnjCommand parent) {
             super(bootstrap, parent);
             this.aliases.add("addperm");
-            this.requiredArgs.add("token-id");
+            this.requiredArgs.add("id");
             this.requiredArgs.add("perm");
             this.requirements = CommandRequirements.builder()
                     .withPermission(Permission.CMD_TOKEN_ADDPERM)
@@ -98,7 +157,7 @@ public class CmdToken extends EnjCommand {
             if (context.args.size() < 2)
                 return;
 
-            String tokenId = context.args.get(0);
+            String id = context.args.get(0);
             String perm = context.args.get(1);
             List<String> worlds = context.args.size() >= 3 ? context.args.subList(2, context.args.size()) : null;
             Player sender = context.player;
@@ -106,16 +165,16 @@ public class CmdToken extends EnjCommand {
 
             // Checks if permission is world based
             if (worlds != null && !worlds.contains(TokenManager.GLOBAL))
-                status = bootstrap.getTokenManager().addPermissionToToken(perm, tokenId, worlds);
+                status = bootstrap.getTokenManager().addPermissionToToken(perm, id, worlds);
             else
-                status = bootstrap.getTokenManager().addPermissionToToken(perm, tokenId, TokenManager.GLOBAL);
+                status = bootstrap.getTokenManager().addPermissionToToken(perm, id, TokenManager.GLOBAL);
 
             switch (status) {
                 case TokenManager.PERM_ADDED_SUCCESS:
                     Translation.COMMAND_TOKEN_ADDPERM_PERMADDED.send(sender);
                     break;
-                case TokenManager.PERM_NOSUCHTOKEN:
-                    Translation.COMMAND_TOKEN_ADDREVOKEPERM_NOSUCHTOKEN.send(sender);
+                case TokenManager.TOKEN_NOSUCHTOKEN:
+                    Translation.COMMAND_TOKEN_NOSUCHTOKEN.send(sender);
                     break;
                 case TokenManager.PERM_ADDED_DUPLICATEPERM:
                     Translation.COMMAND_TOKEN_ADDPERM_DUPLICATEPERM.send(sender);
@@ -138,7 +197,7 @@ public class CmdToken extends EnjCommand {
         public CmdRevokePerm(SpigotBootstrap bootstrap, EnjCommand parent) {
             super(bootstrap, parent);
             this.aliases.add("revokeperm");
-            this.requiredArgs.add("token-id");
+            this.requiredArgs.add("id");
             this.requiredArgs.add("perm");
             this.requirements = CommandRequirements.builder()
                     .withPermission(Permission.CMD_TOKEN_REVOKEPERM)
@@ -151,7 +210,7 @@ public class CmdToken extends EnjCommand {
             if (context.args.size() < 2)
                 return;
 
-            String tokenId = context.args.get(0);
+            String id = context.args.get(0);
             String perm = context.args.get(1);
             List<String> worlds = context.args.size() >= 3 ? context.args.subList(2, context.args.size()) : null;
             Player sender = context.player;
@@ -159,16 +218,16 @@ public class CmdToken extends EnjCommand {
 
             // Checks if permission is world based
             if (worlds != null && !worlds.contains(TokenManager.GLOBAL))
-                status = bootstrap.getTokenManager().removePermissionFromToken(perm, tokenId, worlds);
+                status = bootstrap.getTokenManager().removePermissionFromToken(perm, id, worlds);
             else
-                status = bootstrap.getTokenManager().removePermissionFromToken(perm, tokenId, TokenManager.GLOBAL);
+                status = bootstrap.getTokenManager().removePermissionFromToken(perm, id, TokenManager.GLOBAL);
 
             switch (status) {
                 case TokenManager.PERM_REMOVED_SUCCESS:
                     Translation.COMMAND_TOKEN_REVOKEPERM_PERMREVOKED.send(sender);
                     break;
-                case TokenManager.PERM_NOSUCHTOKEN:
-                    Translation.COMMAND_TOKEN_ADDREVOKEPERM_NOSUCHTOKEN.send(sender);
+                case TokenManager.TOKEN_NOSUCHTOKEN:
+                    Translation.COMMAND_TOKEN_NOSUCHTOKEN.send(sender);
                     break;
                 case TokenManager.PERM_REMOVED_NOPERMONTOKEN:
                     Translation.COMMAND_TOKEN_REVOKEPERM_PERMNOTONTOKEN.send(sender);

@@ -14,12 +14,17 @@ import java.util.*;
 public class TokenManager {
 
     // Status codes
+    public static final int TOKEN_CREATE_SUCCESS = 200;       // Token was created
+    public static final int TOKEN_UPDATE_SUCCESS = 201;       // Token was updated
+    public static final int TOKEN_CREATE_FAILED = 400;        // Token was not created
+    public static final int TOKEN_NOSUCHTOKEN = 401;          // The token does not exist
+    public static final int TOKEN_DUPLICATENICKNAME = 402;    // Token alternate id already exists
+    public static final int TOKEN_HASNICKNAME = 403;          // Token has alternate
     public static final int PERM_ADDED_SUCCESS = 210;         // Permission was added
     public static final int PERM_ADDED_DUPLICATEPERM = 410;   // Permission is a duplicate
     public static final int PERM_ADDED_BLACKLISTED = 411;     // Permission is blacklisted
     public static final int PERM_REMOVED_SUCCESS = 250;       // Permission was removed
     public static final int PERM_REMOVED_NOPERMONTOKEN = 450; // Permission is not assigned
-    public static final int PERM_NOSUCHTOKEN = 400;           // The token does not exist
 
     public static final String JSON_EXT = ".json";
     public static final int JSON_EXT_LENGTH = JSON_EXT.length();
@@ -34,6 +39,7 @@ public class TokenManager {
     private SpigotBootstrap bootstrap;
     private File dir;
     private Map<String, TokenModel> tokenModels = new HashMap<>();
+    private Map<String, String> alternateIds = new HashMap<>();
     private TokenPermissionGraph permGraph = new TokenPermissionGraph();
 
     public TokenManager(SpigotBootstrap bootstrap, File dir) {
@@ -52,22 +58,19 @@ public class TokenManager {
             if (file.isDirectory() || !file.getName().endsWith(".json"))
                 continue;
 
-            String tokenId = null;
             TokenModel tokenModel = null;
             boolean changed = false;
             try (FileReader fr = new FileReader(file)) {
-                String fileName = file.getName();
-                tokenId = fileName.substring(0, fileName.length() - JSON_EXT_LENGTH);
                 tokenModel = gson.fromJson(fr, TokenModel.class);
                 tokenModel.load();
                 changed = tokenModel.applyBlacklist(bootstrap.getConfig().getPermissionBlacklist());
-                tokenModels.put(tokenId, tokenModel);
+                tokenModels.put(tokenModel.getId(), tokenModel);
                 permGraph.addToken(tokenModel);
             } catch (Exception e) {
                 bootstrap.log(e);
             } finally {
                 if (changed)
-                    saveToken(tokenId, tokenModel);
+                    saveToken(tokenModel);
             }
         }
 
@@ -76,34 +79,43 @@ public class TokenManager {
             legacyConverter.process();
     }
 
-    public boolean saveToken(String tokenId, TokenModel tokenModel) {
+    public int saveToken(TokenModel tokenModel) {
+        // Prevents tokens with the same alternate id from existing
+        String alternateId = tokenModel.getAlternateId();
+        String otherToken = alternateIds.get(alternateId);
+        if (alternateId != null && otherToken != null && !otherToken.equals(tokenModel.getId()))
+            return TOKEN_DUPLICATENICKNAME;
+
         if (!dir.exists())
             dir.mkdirs();
 
-        File file = new File(dir, String.format("%s%s", tokenId, JSON_EXT));
+        File file = new File(dir, String.format("%s%s", tokenModel.getId(), JSON_EXT));
 
         tokenModel.applyBlacklist(bootstrap.getConfig().getPermissionBlacklist());
 
         try (FileWriter fw = new FileWriter(file, false)) {
             gson.toJson(tokenModel, fw);
             tokenModel.load();
-            tokenModels.put(tokenId, tokenModel);
+            tokenModels.put(tokenModel.getId(), tokenModel);
             permGraph.addToken(tokenModel);
+
+            if (tokenModel.getAlternateId() != null)
+                alternateIds.put(tokenModel.getAlternateId(), tokenModel.getId());
         } catch (Exception e) {
             bootstrap.log(e);
-            return false;
+            return TOKEN_CREATE_FAILED;
         }
 
-        return true;
+        return TOKEN_CREATE_SUCCESS;
     }
 
-    public void updateTokenConf(String tokenId, TokenModel tokenModel) {
+    public void updateTokenConf(TokenModel tokenModel) {
         if (!dir.exists()) {
-            saveToken(tokenId, tokenModel);
+            saveToken(tokenModel);
             return;
         }
 
-        File file = new File(dir, String.format("%s%s", tokenId, JSON_EXT));
+        File file = new File(dir, String.format("%s%s", tokenModel.getId(), JSON_EXT));
 
         tokenModel.applyBlacklist(bootstrap.getConfig().getPermissionBlacklist());
 
@@ -114,44 +126,66 @@ public class TokenManager {
         }
     }
 
-    public int addPermissionToToken(String perm, String tokenId, String world) {
-        if (bootstrap.getConfig().getPermissionBlacklist().contains(perm))
-            return PERM_ADDED_BLACKLISTED;
+    public int updateAlternateId(String tokenId, String alternateId) {
+        if (!tokenModels.containsKey(tokenId))
+            return TOKEN_NOSUCHTOKEN;
 
         TokenModel tokenModel = tokenModels.get(tokenId);
 
+        if (tokenModel.getAlternateId() != null && alternateId.equals(tokenModel.getAlternateId()))
+            return TOKEN_HASNICKNAME;
+        else if (alternateIds.containsKey(alternateId))
+            return TOKEN_DUPLICATENICKNAME;
+
+        if (tokenModel.getAlternateId() != null)
+            alternateIds.remove(tokenModel.getAlternateId());
+
+        tokenModel.setAlternateId(alternateId);
+        alternateIds.put(alternateId, tokenId);
+
+        updateTokenConf(tokenModel);
+
+        return TOKEN_UPDATE_SUCCESS;
+    }
+
+    public int addPermissionToToken(String perm, String id, String world) {
+        if (bootstrap.getConfig().getPermissionBlacklist().contains(perm))
+            return PERM_ADDED_BLACKLISTED;
+
+        TokenModel tokenModel = getToken(id);
+
         if (tokenModel == null)
-            return PERM_NOSUCHTOKEN;
+            return TOKEN_NOSUCHTOKEN;
 
         // Checks if the permission was not added
         if (!tokenModel.addPermissionToWorld(perm, world))
             return PERM_ADDED_DUPLICATEPERM;
 
-        permGraph.addTokenPerm(perm, tokenId, world);
-        updateTokenConf(tokenId, tokenModel);
+        permGraph.addTokenPerm(perm, tokenModel.getId(), world);
+        updateTokenConf(tokenModel);
 
-        addPermissionToPlayers(perm, tokenId, world);
+        addPermissionToPlayers(perm, tokenModel.getId(), world);
 
         return PERM_ADDED_SUCCESS;
     }
 
-    public int addPermissionToToken(String perm, String tokenId, Collection<String> worlds) {
+    public int addPermissionToToken(String perm, String id, Collection<String> worlds) {
         if (bootstrap.getConfig().getPermissionBlacklist().contains(perm))
             return PERM_ADDED_BLACKLISTED;
 
-        TokenModel tokenModel = tokenModels.get(tokenId);
+        TokenModel tokenModel = getToken(id);
 
         if (tokenModel == null)
-            return PERM_NOSUCHTOKEN;
+            return TOKEN_NOSUCHTOKEN;
 
         // Checks if the permission was not added
         if (!tokenModel.addPermissionToWorlds(perm, worlds))
             return PERM_ADDED_DUPLICATEPERM;
 
-        permGraph.addTokenPerm(perm, tokenId, worlds);
-        updateTokenConf(tokenId, tokenModel);
+        permGraph.addTokenPerm(perm, tokenModel.getId(), worlds);
+        updateTokenConf(tokenModel);
 
-        worlds.forEach(world -> addPermissionToPlayers(perm, tokenId, world));
+        worlds.forEach(world -> addPermissionToPlayers(perm, tokenModel.getId(), world));
 
         return PERM_ADDED_SUCCESS;
     }
@@ -165,36 +199,36 @@ public class TokenManager {
         }
     }
 
-    public int removePermissionFromToken(String perm, String tokenId, String world) {
-        TokenModel tokenModel = tokenModels.get(tokenId);
+    public int removePermissionFromToken(String perm, String id, String world) {
+        TokenModel tokenModel = getToken(id);
 
         if (tokenModel == null)
-            return PERM_NOSUCHTOKEN;
+            return TOKEN_NOSUCHTOKEN;
 
         // Checks if the permission was not removed
         if (!tokenModel.removePermissionFromWorld(perm, world))
             return PERM_REMOVED_NOPERMONTOKEN;
 
-        permGraph.removeTokenPerm(perm, tokenId, world);
-        updateTokenConf(tokenId, tokenModel);
+        permGraph.removeTokenPerm(perm, tokenModel.getId(), world);
+        updateTokenConf(tokenModel);
 
         removePermissionFromPlayers(perm, world);
 
         return PERM_REMOVED_SUCCESS;
     }
 
-    public int removePermissionFromToken(String perm, String tokenId, Collection<String> worlds) {
-        TokenModel tokenModel = tokenModels.get(tokenId);
+    public int removePermissionFromToken(String perm, String id, Collection<String> worlds) {
+        TokenModel tokenModel = getToken(id);
 
         if (tokenModel == null)
-            return PERM_NOSUCHTOKEN;
+            return TOKEN_NOSUCHTOKEN;
 
         // Checks if the permission was not removed
         if (!tokenModel.removePermissionFromWorlds(perm, worlds))
             return PERM_REMOVED_NOPERMONTOKEN;
 
-        permGraph.removeTokenPerm(perm, tokenId, worlds);
-        updateTokenConf(tokenId, tokenModel);
+        permGraph.removeTokenPerm(perm, tokenModel.getId(), worlds);
+        updateTokenConf(tokenModel);
 
         worlds.forEach(world -> removePermissionFromPlayers(perm, world));
 
@@ -210,24 +244,38 @@ public class TokenManager {
         }
     }
 
-    public boolean hasToken(String tokenId) {
-        return tokenModels.containsKey(tokenId);
+    public boolean hasToken(String id) {
+        if (hasAlternateId(id))
+            return true;
+
+        return tokenModels.containsKey(id);
     }
 
-    public TokenModel getToken(String tokenId) {
-        return tokenModels.get(tokenId);
+    public boolean hasAlternateId(String id) {
+        return alternateIds.containsKey(id);
+    }
+
+    public TokenModel getToken(String id) {
+        if (hasAlternateId(id))
+            id = alternateIds.get(id);
+
+        return tokenModels.get(id);
     }
 
     public Set<String> getTokenIds() {
-        return tokenModels.keySet();
+        return new HashSet<>(tokenModels.keySet());
     }
 
-    public Collection<TokenModel> getTokens() {
-        return tokenModels.values();
+    public Set<String> getAlternateIds() {
+        return new HashSet<>(alternateIds.keySet());
+    }
+
+    public Set<TokenModel> getTokens() {
+        return new HashSet<>(tokenModels.values());
     }
 
     public Set<Map.Entry<String, TokenModel>> getEntries() {
-        return tokenModels.entrySet();
+        return new HashSet<>(tokenModels.entrySet());
     }
 
     public TokenPermissionGraph getTokenPermissions() {

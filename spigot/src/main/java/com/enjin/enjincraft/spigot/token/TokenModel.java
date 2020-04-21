@@ -3,10 +3,7 @@ package com.enjin.enjincraft.spigot.token;
 import com.google.gson.annotations.SerializedName;
 import de.tr7zw.changeme.nbtapi.NBTContainer;
 import de.tr7zw.changeme.nbtapi.NBTItem;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.ToString;
+import lombok.*;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -28,14 +25,20 @@ public class TokenModel {
     private String id;
 
     @Getter
+    @Setter(AccessLevel.PROTECTED)
+    @SerializedName("alternate-id")
+    private String alternateId;
+
+    @Getter
     private String nbt;
 
     @SerializedName("assignable-permissions")
     private List<TokenPermission> assignablePermissions;
 
     @Builder
-    public TokenModel(@NonNull String id, @NonNull String nbt, List<TokenPermission> assignablePermissions) {
+    public TokenModel(@NonNull String id, String alternateId, @NonNull String nbt, List<TokenPermission> assignablePermissions) {
         this.id = id;
+        this.alternateId = alternateId;
         this.nbt = nbt;
         this.assignablePermissions = assignablePermissions == null ? new ArrayList<>() : assignablePermissions;
     }

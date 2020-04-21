@@ -103,9 +103,10 @@ public class LegacyTokenConverter {
 
             TokenModel tokenModel = TokenModel.builder()
                     .id(tokenId)
+                    .alternateId(null)
                     .nbt(nbt.toString())
                     .build();
-            tokenManager.saveToken(tokenId, tokenModel);
+            tokenManager.saveToken(tokenModel);
         }
     }
 
