@@ -5,6 +5,7 @@ import com.enjin.enjincraft.spigot.enums.Permission;
 import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.token.TokenManager;
 import com.enjin.enjincraft.spigot.token.TokenModel;
+import com.enjin.enjincraft.spigot.token.TokenPermission;
 import de.tr7zw.changeme.nbtapi.NBTContainer;
 import de.tr7zw.changeme.nbtapi.NBTItem;
 import org.bukkit.entity.Player;
@@ -25,6 +26,7 @@ public class CmdToken extends EnjCommand {
                 .withAllowedSenderTypes(SenderType.PLAYER)
                 .build();
         this.subCommands.add(new CmdCreate(bootstrap, this));
+        this.subCommands.add(new CmdUpdate(bootstrap, this));
         this.subCommands.add(new CmdToInv(bootstrap, this));
         this.subCommands.add(new CmdNickname(bootstrap, this));
         this.subCommands.add(new CmdAddPerm(bootstrap, this));
@@ -63,8 +65,17 @@ public class CmdToken extends EnjCommand {
             PlayerInventory inventory = sender.getInventory();
             ItemStack held = inventory.getItemInMainHand();
 
-            if (!held.getType().isItem())
+            TokenManager tokenManager = bootstrap.getTokenManager();
+
+            if (tokenManager.hasToken(tokenId)) {
+                Translation.COMMAND_TOKEN_CREATE_DUPLICATE.send(sender);
                 return;
+            }
+
+            if (!held.getType().isItem()) {
+                Translation.COMMAND_TOKEN_NOHELDITEM.send(sender);
+                return;
+            }
 
             NBTContainer nbt = NBTItem.convertItemtoNBT(held);
             TokenModel model = TokenModel.builder()
@@ -73,7 +84,7 @@ public class CmdToken extends EnjCommand {
                     .nbt(nbt.toString())
                     .build();
 
-            int result = bootstrap.getTokenManager().saveToken(model);
+            int result = tokenManager.saveToken(model);
 
             switch (result) {
                 case TokenManager.TOKEN_CREATE_SUCCESS:
@@ -93,6 +104,76 @@ public class CmdToken extends EnjCommand {
             return Translation.COMMAND_TOKEN_CREATE_DESCRIPTION;
         }
 
+    }
+
+    public class CmdUpdate extends EnjCommand {
+
+        public CmdUpdate(SpigotBootstrap bootstrap, EnjCommand parent) {
+            super(bootstrap, parent);
+            this.aliases.add("update");
+            this.requiredArgs.add("id");
+            this.requirements = CommandRequirements.builder()
+                    .withPermission(Permission.CMD_TOKEN_CREATE)
+                    .withAllowedSenderTypes(SenderType.PLAYER)
+                    .build();
+        }
+
+        @Override
+        public void execute(CommandContext context) {
+            if (context.args.size() != 1)
+                return;
+
+            String id = context.args.get(0);
+            Player sender = context.player;
+
+            TokenManager tokenManager = bootstrap.getTokenManager();
+            TokenModel tokenModel = tokenManager.getToken(id);
+
+            if (tokenModel == null) {
+                Translation.COMMAND_TOKEN_NOSUCHTOKEN.send(sender);
+                return;
+            }
+
+            PlayerInventory inventory = sender.getInventory();
+            ItemStack held = inventory.getItemInMainHand();
+
+            if (!held.getType().isItem()) {
+                Translation.COMMAND_TOKEN_NOHELDITEM.send(sender);
+                return;
+            }
+
+            List<TokenPermission> permissions = tokenModel.getAssignablePermissions();
+
+            NBTContainer nbt = NBTItem.convertItemtoNBT(held);
+            TokenModel newModel = TokenModel.builder()
+                    .id(tokenModel.getId())
+                    .alternateId(tokenModel.getAlternateId())
+                    .nbt(nbt.toString())
+                    .assignablePermissions(permissions)
+                    .build();
+
+            int result = tokenManager.updateTokenConf(newModel);
+
+            switch (result) {
+                case TokenManager.TOKEN_UPDATE_SUCCESS:
+                    Translation.COMMAND_TOKEN_UPDATE_SUCCESS.send(sender);
+                    break;
+                case TokenManager.TOKEN_UPDATE_FAILED:
+                    Translation.COMMAND_TOKEN_UPDATE_FAILED.send(sender);
+                    break;
+                case TokenManager.TOKEN_CREATE_SUCCESS:
+                    Translation.COMMAND_TOKEN_CREATE_SUCCESS.send(sender);
+                    break;
+                case TokenManager.TOKEN_CREATE_FAILED:
+                    Translation.COMMAND_TOKEN_CREATE_FAILED.send(sender);
+                    break;
+            }
+        }
+
+        @Override
+        public Translation getUsageTranslation() {
+            return Translation.COMMAND_TOKEN_UPDATE_DESCRIPTION;
+        }
     }
 
     public class CmdToInv extends EnjCommand {
@@ -165,6 +246,9 @@ public class CmdToken extends EnjCommand {
             switch (result) {
                 case TokenManager.TOKEN_UPDATE_SUCCESS:
                     Translation.COMMAND_TOKEN_NICKNAME_SUCCESS.send(sender);
+                    break;
+                case TokenManager.TOKEN_UPDATE_FAILED:
+                    Translation.COMMAND_TOKEN_UPDATE_FAILED.send(sender);
                     break;
                 case TokenManager.TOKEN_NOSUCHTOKEN:
                     Translation.COMMAND_TOKEN_NOSUCHTOKEN.send(sender);

@@ -17,9 +17,10 @@ public class TokenManager {
     public static final int TOKEN_CREATE_SUCCESS = 200;       // Token was created
     public static final int TOKEN_UPDATE_SUCCESS = 201;       // Token was updated
     public static final int TOKEN_CREATE_FAILED = 400;        // Token was not created
-    public static final int TOKEN_NOSUCHTOKEN = 401;          // The token does not exist
-    public static final int TOKEN_DUPLICATENICKNAME = 402;    // Token alternate id already exists
-    public static final int TOKEN_HASNICKNAME = 403;          // Token has alternate
+    public static final int TOKEN_UPDATE_FAILED = 401;        // Token was not updated
+    public static final int TOKEN_NOSUCHTOKEN = 402;          // The token does not exist
+    public static final int TOKEN_DUPLICATENICKNAME = 403;    // Token alternate id already exists
+    public static final int TOKEN_HASNICKNAME = 404;          // Token has alternate
     public static final int PERM_ADDED_SUCCESS = 210;         // Permission was added
     public static final int PERM_ADDED_DUPLICATEPERM = 410;   // Permission is a duplicate
     public static final int PERM_ADDED_BLACKLISTED = 411;     // Permission is blacklisted
@@ -109,20 +110,39 @@ public class TokenManager {
         return TOKEN_CREATE_SUCCESS;
     }
 
-    public void updateTokenConf(TokenModel tokenModel) {
-        if (!dir.exists()) {
-            saveToken(tokenModel);
-            return;
-        }
+    public int updateTokenConf(TokenModel tokenModel) {
+        TokenModel oldModel = tokenModels.get(tokenModel.getId());
+
+        if (!dir.exists() || oldModel == null)
+            return saveToken(tokenModel);
 
         File file = new File(dir, String.format("%s%s", tokenModel.getId(), JSON_EXT));
 
         tokenModel.applyBlacklist(bootstrap.getConfig().getPermissionBlacklist());
 
+        boolean newNbt = !tokenModel.getNbt().equals(oldModel.getNbt());
+
         try (FileWriter fw = new FileWriter(file, false)) {
             gson.toJson(tokenModel, fw);
+            tokenModel.load();
+            tokenModels.put(tokenModel.getId(), tokenModel);
         } catch (Exception e) {
             bootstrap.log(e);
+            return TOKEN_UPDATE_FAILED;
+        }
+
+        if (newNbt)
+            updateTokenOnPlayers(tokenModel.getId());
+
+        return TOKEN_UPDATE_SUCCESS;
+    }
+
+    private void updateTokenOnPlayers(String tokenId) {
+        PlayerManager playerManager = bootstrap.getPlayerManager();
+        for (UUID uuid : playerManager.getPlayers().keySet()) {
+            Optional<EnjPlayer> player = playerManager.getPlayer(uuid);
+
+            player.ifPresent(enjPlayer -> enjPlayer.updateToken(tokenId));
         }
     }
 
@@ -143,9 +163,7 @@ public class TokenManager {
         tokenModel.setAlternateId(alternateId);
         alternateIds.put(alternateId, tokenId);
 
-        updateTokenConf(tokenModel);
-
-        return TOKEN_UPDATE_SUCCESS;
+        return updateTokenConf(tokenModel);
     }
 
     public int addPermissionToToken(String perm, String id, String world) {
@@ -162,9 +180,12 @@ public class TokenManager {
             return PERM_ADDED_DUPLICATEPERM;
 
         permGraph.addTokenPerm(perm, tokenModel.getId(), world);
-        updateTokenConf(tokenModel);
 
+        int status = updateTokenConf(tokenModel);
         addPermissionToPlayers(perm, tokenModel.getId(), world);
+
+        if (status != TOKEN_UPDATE_SUCCESS)
+            return status;
 
         return PERM_ADDED_SUCCESS;
     }
@@ -183,9 +204,12 @@ public class TokenManager {
             return PERM_ADDED_DUPLICATEPERM;
 
         permGraph.addTokenPerm(perm, tokenModel.getId(), worlds);
-        updateTokenConf(tokenModel);
 
+        int status = updateTokenConf(tokenModel);
         worlds.forEach(world -> addPermissionToPlayers(perm, tokenModel.getId(), world));
+
+        if (status != TOKEN_UPDATE_SUCCESS)
+            return status;
 
         return PERM_ADDED_SUCCESS;
     }
@@ -210,9 +234,12 @@ public class TokenManager {
             return PERM_REMOVED_NOPERMONTOKEN;
 
         permGraph.removeTokenPerm(perm, tokenModel.getId(), world);
-        updateTokenConf(tokenModel);
 
+        int status = updateTokenConf(tokenModel);
         removePermissionFromPlayers(perm, world);
+
+        if (status != TOKEN_UPDATE_SUCCESS)
+            return status;
 
         return PERM_REMOVED_SUCCESS;
     }
@@ -228,9 +255,12 @@ public class TokenManager {
             return PERM_REMOVED_NOPERMONTOKEN;
 
         permGraph.removeTokenPerm(perm, tokenModel.getId(), worlds);
-        updateTokenConf(tokenModel);
 
+        int status = updateTokenConf(tokenModel);
         worlds.forEach(world -> removePermissionFromPlayers(perm, world));
+
+        if (status != TOKEN_UPDATE_SUCCESS)
+            return status;
 
         return PERM_REMOVED_SUCCESS;
     }

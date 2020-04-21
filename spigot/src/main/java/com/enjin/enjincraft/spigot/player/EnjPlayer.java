@@ -4,6 +4,7 @@ import com.enjin.enjincraft.spigot.GraphQLException;
 import com.enjin.enjincraft.spigot.NetworkException;
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
 import com.enjin.enjincraft.spigot.token.TokenManager;
+import com.enjin.enjincraft.spigot.token.TokenModel;
 import com.enjin.enjincraft.spigot.token.TokenPermissionGraph;
 import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.trade.TradeView;
@@ -21,6 +22,7 @@ import com.enjin.sdk.models.identity.UnlinkIdentity;
 import com.enjin.sdk.models.user.User;
 import com.enjin.sdk.models.wallet.Wallet;
 import com.enjin.sdk.services.notification.NotificationsService;
+import de.tr7zw.changeme.nbtapi.NBTItem;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -175,6 +177,48 @@ public class EnjPlayer implements Listener {
                 }
 
                 balance.withdraw(is.getAmount());
+
+                TokenModel tokenModel = bootstrap.getTokenManager().getToken(id);
+                String itemNBT = NBTItem.convertItemtoNBT(is).toString();
+
+                if (!itemNBT.equals(tokenModel.getNbt())) {
+                    ItemStack newStack = tokenModel.getItemStack();
+                    newStack.setAmount(is.getAmount());
+                    inventory.setItem(i, newStack);
+                }
+            }
+        }
+    }
+
+    public void updateToken(String id) {
+        if (bukkitPlayer == null || tokenWallet == null)
+            return;
+
+        TokenModel tokenModel = bootstrap.getTokenManager().getToken(id);
+
+        if (tokenModel == null)
+            return;
+
+        tokenWallet.getBalances().forEach(MutableBalance::reset);
+        MutableBalance balance = tokenWallet.getBalance(tokenModel.getId());
+
+        if (balance == null || balance.balance() == 0)
+            return;
+
+        PlayerInventory inventory = bukkitPlayer.getInventory();
+
+        for (int i = 0; i < inventory.getSize(); i++) {
+            ItemStack is = inventory.getItem(i);
+            id = TokenUtils.getTokenID(is);
+
+            if (!StringUtils.isEmpty(id) && id.equals(tokenModel.getId())) {
+                String itemNBT = NBTItem.convertItemtoNBT(is).toString();
+
+                if (!itemNBT.equals(tokenModel.getNbt())) {
+                    ItemStack newStack = tokenModel.getItemStack();
+                    newStack.setAmount(is.getAmount());
+                    inventory.setItem(i, newStack);
+                }
             }
         }
     }
