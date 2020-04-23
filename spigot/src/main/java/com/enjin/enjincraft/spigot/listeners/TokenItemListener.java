@@ -76,12 +76,12 @@ public class TokenItemListener implements Listener {
         ItemStack held = event.getCursor();
 
         if (held != null && held.getType() != Material.AIR)
-            InventoryClickHolding(event, held);
+            inventoryClickHolding(event, held);
         else if (clk != null && clk.getType() != Material.AIR)
-            InventoryClickClicked(event, clk);
+            inventoryClickClicked(event, clk);
     }
 
-    private void InventoryClickClicked(InventoryClickEvent event, ItemStack is) {
+    private void inventoryClickClicked(InventoryClickEvent event, ItemStack is) {
         String tokenId = TokenUtils.getTokenID(is);
 
         if (StringUtils.isEmpty(tokenId))
@@ -105,7 +105,7 @@ public class TokenItemListener implements Listener {
         event.setCancelled(true);
     }
 
-    private void InventoryClickHolding(InventoryClickEvent event, ItemStack is) {
+    private void inventoryClickHolding(InventoryClickEvent event, ItemStack is) {
         String tokenId = TokenUtils.getTokenID(is);
 
         if (StringUtils.isEmpty(tokenId))
@@ -192,10 +192,10 @@ public class TokenItemListener implements Listener {
         Entity entity = event.getRightClicked();
 
         if (entity instanceof ItemFrame)
-            InteractItemFrame(event, (ItemFrame) entity);
+            interactItemFrame(event, (ItemFrame) entity);
     }
 
-    private void InteractItemFrame(PlayerInteractEntityEvent event, ItemFrame itemFrame) {
+    private void interactItemFrame(PlayerInteractEntityEvent event, ItemFrame itemFrame) {
         ItemStack held = event.getPlayer().getInventory().getItemInMainHand();
 
         if (held.getType() == Material.AIR || itemFrame.getItem().getType() != Material.AIR)
