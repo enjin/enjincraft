@@ -6,6 +6,7 @@ import com.enjin.enjincraft.spigot.util.StringUtils;
 import com.enjin.enjincraft.spigot.util.TokenUtils;
 import com.enjin.enjincraft.spigot.wallet.MutableBalance;
 import com.enjin.enjincraft.spigot.wallet.TokenWallet;
+import com.enjin.minecraft_commons.spigot.ui.AbstractMenu;
 import org.bukkit.Material;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -67,6 +68,10 @@ public class TokenItemListener implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
+        Player player = (Player) event.getView().getPlayer();
+        if (AbstractMenu.hasAnyMenu(player))
+            return;
+
         ItemStack clk = event.getCurrentItem();
         ItemStack held = event.getCursor();
 
@@ -84,12 +89,18 @@ public class TokenItemListener implements Listener {
 
         Inventory clkInv = event.getClickedInventory();
 
-        /* TODO: Ought to check if the token belongs to the player and if not
-         *       is the player linked?
-         */
-
-        if (!(clkInv instanceof PlayerInventory) || event.getAction() != InventoryAction.MOVE_TO_OTHER_INVENTORY)
+        if (!(clkInv instanceof PlayerInventory) || event.getAction() != InventoryAction.MOVE_TO_OTHER_INVENTORY) {
             return;
+        } else if (event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
+            Inventory top = event.getView().getTopInventory();
+
+            /* Condition is associated with the standard player inventory view which allows the player to use
+             * hot-key move/equip items within their own inventory. The top inventory is the assumed to be the
+             * 2x2 crafting menu.
+             */
+            if (top instanceof CraftingInventory && top.getSize() == 5)
+                return;
+        }
 
         event.setCancelled(true);
     }
@@ -110,6 +121,10 @@ public class TokenItemListener implements Listener {
 
     @EventHandler
     public void onInventoryDrag(InventoryDragEvent event) {
+        Player player = (Player) event.getView().getPlayer();
+        if (AbstractMenu.hasAnyMenu(player))
+            return;
+
         Inventory top = event.getView().getTopInventory();
         Inventory bottom = event.getView().getBottomInventory();
 
@@ -134,8 +149,6 @@ public class TokenItemListener implements Listener {
                 return;
 
             String tokenId = TokenUtils.getTokenID(is);
-
-            // TODO: Ought to check if the token belongs to the player
 
             if (!StringUtils.isEmpty(tokenId) && (rawSlot < playerLower || rawSlot >= playerUpper))
                 otherModified.set(true);
@@ -163,7 +176,7 @@ public class TokenItemListener implements Listener {
     public void onArmorStandInteract(PlayerArmorStandManipulateEvent event) {
         ItemStack held = event.getPlayerItem();
 
-        if (held.getType() == Material.AIR || event.getArmorStandItem().getType() != Material.AIR)
+        if (held.getType() == Material.AIR)
             return;
 
         String tokenId = TokenUtils.getTokenID(held);
