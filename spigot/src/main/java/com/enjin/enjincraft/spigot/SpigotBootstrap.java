@@ -22,6 +22,7 @@ import com.enjin.sdk.models.platform.GetPlatform;
 import com.enjin.sdk.models.platform.PlatformDetails;
 import com.enjin.sdk.services.notification.NotificationsService;
 import com.enjin.sdk.services.notification.PusherNotificationService;
+import com.enjin.sdk.utils.LoggerProvider;
 import io.sentry.Sentry;
 import io.sentry.jul.SentryHandler;
 import net.kyori.text.TextComponent;
@@ -32,6 +33,7 @@ import org.bukkit.plugin.Plugin;
 
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Handler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static okhttp3.logging.HttpLoggingInterceptor.Level.BODY;
@@ -183,7 +185,9 @@ public class SpigotBootstrap implements Bootstrap, Module {
     private void startNotificationService() {
         try {
             // Start the notification service and register a listener
-            notificationsService = new PusherNotificationService(platformDetails);
+            notificationsService = new PusherNotificationService(new LoggerProvider(getLogger(),
+                                                                                    conf.isSdkDebugEnabled(),
+                                                                                    Level.INFO), platformDetails);
             notificationsService.start();
             notificationsService.registerListener(new EnjEventListener(this));
             notificationsService.subscribeToApp(conf.getAppId());
