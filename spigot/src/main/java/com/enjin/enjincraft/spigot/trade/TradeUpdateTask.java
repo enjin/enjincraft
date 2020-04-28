@@ -68,7 +68,15 @@ public class TradeUpdateTask extends BukkitRunnable {
     }
 
     private TokenEvent getTokenEvent(Transaction transaction) {
-        return transaction.getEvents().stream()
+        if (transaction == null)
+            return null;
+
+        List<TokenEvent> events = transaction.getEvents();
+
+        if (events == null)
+            return null;
+
+        return events.stream()
                 .filter(e -> e.getEvent() == TokenEventType.CREATE_TRADE
                         || e.getEvent() == TokenEventType.COMPLETE_TRADE)
                 .findFirst().orElse(null);
