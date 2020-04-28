@@ -8,7 +8,6 @@ import com.enjin.sdk.models.notification.*;
 import com.enjin.sdk.models.request.TransactionType;
 import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.Optional;
@@ -158,9 +157,7 @@ public class EnjEventListener implements com.enjin.sdk.services.notification.Not
         int id = identity.get("id").getAsInt();
 
         Optional<EnjPlayer> playerOptional = bootstrap.getPlayerManager().getPlayer(id);
-        playerOptional.ifPresent(player -> {
-            Bukkit.getScheduler().runTaskAsynchronously(bootstrap.plugin(), player::unlinked);
-        });
+        playerOptional.ifPresent(player -> Bukkit.getScheduler().runTaskAsynchronously(bootstrap.plugin(), player::unlinked));
     }
 
     private void onTokenUpdated(NotificationEvent event) {
@@ -261,7 +258,7 @@ public class EnjEventListener implements com.enjin.sdk.services.notification.Not
                 String world = entry.getKey();
                 Set<String> perms = entry.getValue();
 
-                perms.forEach(perm -> { enjPlayer.addPermission(perm, tokenId, world); });
+                perms.forEach(perm -> enjPlayer.addPermission(perm, tokenId, world));
             }
         } else if (mBalance != null) {
             int balance = mBalance.balance() + balanceDelta;
@@ -276,7 +273,7 @@ public class EnjEventListener implements com.enjin.sdk.services.notification.Not
                     String world = entry.getKey();
                     Set<String> perms = entry.getValue();
 
-                    perms.forEach(perm -> { enjPlayer.removePermission(perm, world); });
+                    perms.forEach(perm -> enjPlayer.removePermission(perm, world));
                 }
             }
         }
