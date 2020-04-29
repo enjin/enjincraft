@@ -11,6 +11,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
@@ -64,6 +65,16 @@ public class TokenItemListener implements Listener {
         Item item = event.getItemDrop();
         String id = TokenUtils.getTokenID(item.getItemStack());
         event.setCancelled(id != null);
+    }
+
+    @EventHandler
+    public void onPlayerPickupItem(EntityPickupItemEvent event) {
+        if (!(event.getEntity() instanceof Player))
+            return;
+
+        Player player = (Player) event.getEntity();
+        if (AbstractMenu.hasAnyMenu(player))
+            event.setCancelled(true);
     }
 
     @EventHandler
