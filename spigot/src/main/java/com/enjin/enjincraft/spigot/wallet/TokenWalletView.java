@@ -11,6 +11,7 @@ import com.enjin.minecraft_commons.spigot.ui.menu.ChestMenu;
 import com.enjin.minecraft_commons.spigot.ui.menu.component.SimpleMenuComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -22,6 +23,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class TokenWalletView extends ChestMenu {
@@ -64,17 +66,43 @@ public class TokenWalletView extends ChestMenu {
 
             addComponent(Position.of(0, 0), component);
             component.addAction(is, player -> {
-                if (balance.amountAvailableForWithdrawal() > 0) {
+                PlayerInventory inventory = player.getInventory();
+
+                if (balance.amountAvailableForWithdrawal() > 0 && slotAvailable(inventory, balance.id())) {
                     balance.withdraw(1);
                     ItemStack clone = is.clone();
                     clone.setAmount(1);
-                    player.getInventory().addItem(clone);
+                    inventory.addItem(clone);
                     repopulate(player);
                 }
             }, ClickType.LEFT);
 
             index++;
         }
+    }
+
+    private boolean slotAvailable(PlayerInventory inventory, String tokenId) {
+        boolean slotAvailable = false;
+        int capacity = inventory.getSize() - (inventory.getArmorContents().length + inventory.getExtraContents().length);
+
+        for (int i = 0; i < capacity && !slotAvailable; i++) {
+            ItemStack content = inventory.getItem(i);
+
+            if (content == null || content.getType() == Material.AIR) {
+                slotAvailable = true;
+                continue;
+            }
+
+            String contentId = TokenUtils.getTokenID(content);
+
+            if (StringUtils.isEmpty(contentId))
+                continue;
+
+            if (contentId.equals(tokenId) && content.getAmount() < content.getMaxStackSize())
+                slotAvailable = true;
+        }
+
+        return slotAvailable;
     }
 
     public void repopulate(Player player) {
