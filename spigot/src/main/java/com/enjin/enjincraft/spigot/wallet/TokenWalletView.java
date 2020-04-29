@@ -23,7 +23,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public class TokenWalletView extends ChestMenu {
