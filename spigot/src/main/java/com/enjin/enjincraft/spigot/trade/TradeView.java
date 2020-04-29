@@ -283,13 +283,10 @@ public class TradeView extends ChestMenu {
             otherTradeView.destroy();
         }
 
-        if (!tradeApproved) {
-            returnItems(player);
+        if (!tradeApproved && otherTradeView == null)
+            informViewerOfCancellation();
 
-            if (otherTradeView == null)
-                informViewerOfCancellation();
-        }
-
+        returnItems(player);
         destroy();
     }
 
