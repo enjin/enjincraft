@@ -22,7 +22,6 @@ dependencies {
     shadow deps.retrofitGson
     shadow deps.supportOptional
     shadow deps.nocatch
-    shadow deps.vault
 
     implementation deps.minecraftCommons
     implementation deps.nbtapi
