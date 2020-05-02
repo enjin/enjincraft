@@ -139,6 +139,10 @@ public class TokenManager {
 
     private void updateTokenOnPlayers(String tokenId) {
         PlayerManager playerManager = bootstrap.getPlayerManager();
+
+        if (playerManager == null)
+            return;
+
         for (UUID uuid : playerManager.getPlayers().keySet()) {
             Optional<EnjPlayer> player = playerManager.getPlayer(uuid);
 
