@@ -62,9 +62,56 @@ public class TokenItemListener implements Listener {
 
     @EventHandler
     public void onPlayerDropItem(PlayerDropItemEvent event) {
-        Item item = event.getItemDrop();
-        String id = TokenUtils.getTokenID(item.getItemStack());
-        event.setCancelled(id != null);
+        ItemStack is = event.getItemDrop().getItemStack();
+        String id = TokenUtils.getTokenID(is);
+
+        Optional<EnjPlayer> optionalPlayer = bootstrap.getPlayerManager().getPlayer(event.getPlayer());
+
+        if (!optionalPlayer.isPresent() || StringUtils.isEmpty(id))
+            return;
+
+        event.setCancelled(true);
+
+        PlayerInventory inventory = event.getPlayer().getInventory();
+        int size = inventory.getSize() - (inventory.getArmorContents().length + inventory.getExtraContents().length);
+        int idx = -1;
+
+        // Checks for available space
+        for (int i = 0; i < size; i++) {
+            ItemStack inventoryItem = inventory.getItem(i);
+
+            if (inventoryItem == null || inventoryItem.getType() == Material.AIR)
+                return;
+
+            String inventoryId = TokenUtils.getTokenID(inventoryItem);
+
+            // Gets the first available non-tokenized item
+            if (StringUtils.isEmpty(inventoryId) && idx < 0) {
+                idx = i;
+                continue;
+            }
+
+            if (TokenUtils.canCombineStacks(is, inventoryItem))
+                return;
+        }
+
+        Player player = event.getPlayer();
+
+        // Returns token to wallet if inventory cannot be changed
+        if (idx < 0) {
+            try {
+                TokenWallet wallet = optionalPlayer.get().getTokenWallet();
+                MutableBalance balance = wallet.getBalance(id);
+                balance.deposit(is.getAmount());
+            } catch (Exception e) {
+                bootstrap.log(e);
+            }
+
+            return;
+        }
+
+        player.getWorld().dropItemNaturally(player.getLocation(), inventory.getItem(idx));
+        inventory.clear(idx);
     }
 
     @EventHandler

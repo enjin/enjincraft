@@ -21,4 +21,17 @@ public class TokenUtils {
         return null;
     }
 
+    public static boolean canCombineStacks(ItemStack first, ItemStack second) {
+        String firstId = getTokenID(first);
+        String secondId = getTokenID(second);
+
+        if (StringUtils.isEmpty(firstId) || StringUtils.isEmpty(secondId) || !firstId.equals(secondId))
+            return false;
+
+        int maxStackSize = first.getMaxStackSize();
+        return maxStackSize == second.getMaxStackSize()
+                && first.getType() == second.getType()
+                && first.getAmount() + second.getAmount() <= maxStackSize;
+    }
+
 }
