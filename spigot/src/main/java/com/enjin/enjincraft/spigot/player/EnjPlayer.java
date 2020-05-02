@@ -152,7 +152,7 @@ public class EnjPlayer implements Listener {
             GraphQLResponse<List<Balance>> graphQLResponse = networkResponse.body();
             if (!graphQLResponse.isSuccess()) { throw new GraphQLException(graphQLResponse.getErrors()); }
 
-            tokenWallet = new TokenWallet(bootstrap, graphQLResponse.getData());
+            tokenWallet = new TokenWallet(graphQLResponse.getData());
             validateInventory();
         } catch (Exception ex) {
             bootstrap.log(ex);
@@ -199,10 +199,9 @@ public class EnjPlayer implements Listener {
         if (tokenModel == null)
             return;
 
-        tokenWallet.getBalances().forEach(MutableBalance::reset);
         MutableBalance balance = tokenWallet.getBalance(tokenModel.getId());
 
-        if (balance == null || balance.balance() == 0)
+        if (balance == null || balance.withdrawn() == 0)
             return;
 
         PlayerInventory inventory = bukkitPlayer.getInventory();

@@ -1,6 +1,5 @@
 package com.enjin.enjincraft.spigot.wallet;
 
-import com.enjin.enjincraft.spigot.SpigotBootstrap;
 import com.enjin.sdk.models.balance.Balance;
 
 import java.util.ArrayList;
@@ -13,12 +12,9 @@ public class TokenWallet {
 
     private Map<String, MutableBalance> balances;
 
-    public TokenWallet(SpigotBootstrap bootstrap, List<Balance> balances) {
+    public TokenWallet(List<Balance> balances) {
         this.balances = new ConcurrentHashMap<>();
-        balances.forEach(balance -> {
-            if (bootstrap.getTokenManager().hasToken(balance.getId()) && balance.getValue() > 0)
-                this.balances.put(balance.getId(), new MutableBalance(balance));
-        });
+        balances.forEach(balance -> this.balances.put(balance.getId(), new MutableBalance(balance)));
     }
 
     public MutableBalance removeBalance(String id) {
