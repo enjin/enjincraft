@@ -25,18 +25,9 @@ public class TokenDefinitionArgumentProcessor extends AbstractArgumentProcessor<
 
     @Override
     public Optional<TokenModel> parse(CommandSender sender, String arg) {
-        Optional<TokenModel> result = Optional.empty();
-        String lowerCaseArg = arg.toLowerCase();
         TokenManager tokenManager = EnjinCraft.bootstrap().get().getTokenManager();
 
-        for (Map.Entry<String, TokenModel> entry : tokenManager.getEntries()) {
-            if (entry.getKey().toLowerCase().equals(lowerCaseArg)) {
-                result = Optional.of(entry.getValue());
-                break;
-            }
-        }
-
-        return result;
+        return Optional.ofNullable(tokenManager.getToken(arg));
     }
 
 }

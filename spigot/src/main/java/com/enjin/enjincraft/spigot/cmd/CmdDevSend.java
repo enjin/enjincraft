@@ -45,36 +45,41 @@ public class CmdDevSend extends EnjCommand {
 
     @Override
     public void execute(CommandContext context) {
-        CommandSender             sender           = context.sender;
-        Optional<Player>          optionalPlayer   = PlayerArgumentProcessor.INSTANCE.parse(sender,
-                                                                                            context.args.get(0));
-        Optional<TokenModel> optionalTokenDef = TokenDefinitionArgumentProcessor.INSTANCE.parse(sender,
-                                                                                                     context.args.get(1));
-        Optional<Integer>         optionalAmount   = context.argToInt(2);
+        CommandSender        sender           = context.sender;
+        String               playerName       = context.args.get(0);
+        String               id               = context.args.get(1);
+        Optional<Player>     optionalPlayer   = PlayerArgumentProcessor.INSTANCE.parse(sender, playerName);
+        Optional<TokenModel> optionalTokenDef = TokenDefinitionArgumentProcessor.INSTANCE.parse(sender, id);
+        Optional<Integer>    optionalAmount;
 
         if (!optionalPlayer.isPresent()) {
-            Translation.ERRORS_PLAYERNOTONLINE.send(sender);
+            Translation.ERRORS_PLAYERNOTONLINE.send(sender, playerName);
             return;
         }
 
         if (!optionalTokenDef.isPresent()) {
-            // TODO: Add Translation
+            Translation.COMMAND_DEVSEND_INVALIDTOKEN.send(sender);
             return;
         }
 
-        if (!optionalAmount.isPresent()) {
-            // TODO: Add Translation
+        try {
+            optionalAmount   = context.argToInt(2);
+
+            if (!optionalAmount.isPresent() || optionalAmount.get() <= 0)
+                throw new IllegalArgumentException();
+        } catch (Exception e) {
+            Translation.COMMAND_DEVSEND_INVALIDAMOUNT.send(sender);
             return;
         }
 
         Player target = optionalPlayer.get();
         if (!target.isOnline()) {
-            Translation.ERRORS_PLAYERNOTONLINE.send(sender, context.args.get(0));
+            Translation.ERRORS_PLAYERNOTONLINE.send(sender, playerName);
             return;
         }
 
         Optional<EnjPlayer> optionalEnjPlayer = bootstrap.getPlayerManager().getPlayer(target);
-        if (!optionalPlayer.isPresent()) { return; }
+        if (!optionalEnjPlayer.isPresent()) { return; }
         EnjPlayer targetEnjPlayer = optionalEnjPlayer.get();
 
         if (!targetEnjPlayer.isLinked()) {

@@ -59,6 +59,8 @@ public enum Translation {
     COMMAND_LINK_INSTRUCTIONS_7("&aLink Code: &6%s"),
 
     COMMAND_DEVSEND_DESCRIPTION("Send a token from the developer wallet to a player."),
+    COMMAND_DEVSEND_INVALIDAMOUNT("&cA valid amount to send must be specified."),
+    COMMAND_DEVSEND_INVALIDTOKEN("&cA valid id for the token must be specified."),
 
     COMMAND_SEND_DESCRIPTION("Send the held token to another player."),
     COMMAND_SEND_SUBMITTED("&aSend request submitted successfully. Please confirm the request in your wallet app."),
