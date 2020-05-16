@@ -1,0 +1,96 @@
+Key,English,Serbian
+internal.locale,en_US,sr_SP
+internal.language,English,Srpski
+internal.version,1,1
+COMMAND.API.BADUSAGE,&cInvalid command usage!,&cNevažeća upotreba komande!
+COMMAND.API.USAGE,USAGE: %s,UPOTREBA: %s
+COMMAND.API.REQUIREMENTS.INVALIDPLAYER,&cThis command cannot be used by players.,&cOva komanda ne može biti korišćena od strane igrača.
+COMMAND.API.REQUIREMENTS.INVALIDCONSOLE,&cThis command cannot be used by the console.,&cKonzola ne podržava ovu komandu.
+COMMAND.API.REQUIREMENTS.INVALIDREMOTE,&cThis command cannot be used by RCON.,&cOva komanda ne radi na daljinu.
+COMMAND.API.REQUIREMENTS.INVALIDBLOCK,&cThis command cannot be used by command blocks.,&cOva komanda ne može da bude iskorišćena od strane komandnih blokova.
+COMMAND.API.REQUIREMENTS.NOPERMISSION,&cYou do not have the permission required for this command: &6%s,&cNemate dozvolu koja je potrebna za ovu naredbu: &6%s
+COMMAND.ROOT.DESCRIPTION,Show information about the plugin and authors.,Prikaži podatke o pluginu i autorima.
+COMMAND.ROOT.DETAILS,&7Running &6%s &cv%s&7.<br>&7Use &6%s &7to view available commands.,&7U toku &6%s &c%s&7.<br>&7Koristi &6%s &7da vidiš raspoložive komande.
+COMMAND.BALANCE.DESCRIPTION,"Show wallet address, eth, enj, and token balances.","Prikaži adresu novčanika, ETH, ENJ, i stanje tokena."
+COMMAND.BALANCE.WALLETADDRESS,&6Wallet Address: &d%s,&6Adresa novčanika: &d%s
+COMMAND.BALANCE.IDENTITYID,&6Identity ID: &d%s,&6Identifikacioni broj: &d%s
+COMMAND.BALANCE.ENJBALANCE,&a[ %s ENJ ],&a[ %s ENJ ]
+COMMAND.BALANCE.ETHBALANCE,&a[ %s ETH ],&a[ %s ETH ]
+COMMAND.BALANCE.TOKENDISPLAY,&6%s. &5%s &a(qty. %s),&6%s. &5%s &a(qty. %s)
+COMMAND.BALANCE.NOTOKENS,&l&6No tokens found in your wallet.,&l&6Nijedan token nije pronađen u Vašem novčaniku.
+COMMAND.BALANCE.TOKENCOUNT,&l&6Found %s tokens in your wallet.,&l&6Pronađeni %s tokeni u Vašem novčaniku.
+COMMAND.HELP.DESCRIPTION,Show list of commands with their usage.,Prikaži listu komandi i njihovu upotrebu.
+COMMAND.LINK.DESCRIPTION,Show linking code or linked address.,Prikaži kod za povezivanje ili adresu za povezivanje.
+COMMAND.LINK.NULLWALLET,&cUnable to show your wallet address.,&cNije moguće prikazati adresu vašeg novčanika.
+COMMAND.LINK.SHOWWALLET,&aYour account is linked to the wallet address: &6%s,&aVaš nalog je povezan sa adresom novčanika: &6%s
+COMMAND.LINK.NULLCODE,&cUnable to show your identity linking code.,&cNije moguće pokazati kod za povezivanje identiteta.
+COMMAND.LINK.INSTRUCTIONS.1,&6To link your account follow the steps below:,"&6Da biste povezali svoj nalog, sledite dole navedene korake:"
+COMMAND.LINK.INSTRUCTIONS.2,&7Download the Enjin Wallet app for Android or iOS,&7Preuzmite Enjin Wallet aplikaciju Android or iOS
+COMMAND.LINK.INSTRUCTIONS.3,&7Browse to the Linked Apps section,&7Pređite na odeljak Povezane aplikacije
+COMMAND.LINK.INSTRUCTIONS.4,&7Click the 'LINK APP' button,&7Kliknite 'LINK APP' dugme
+COMMAND.LINK.INSTRUCTIONS.5,&7Select the wallet you wish to link,&7Izaberite novčanik koji želite da povežete
+COMMAND.LINK.INSTRUCTIONS.6,&7Enter the identity linking code shown below,&7Unesite kod za povezivanje identiteta prikazan dole
+COMMAND.LINK.INSTRUCTIONS.7,&aLink Code: &6%s,&aIndentifikacioni kod: &6%s
+COMMAND.DEVSEND.DESCRIPTION,Send a token from the developer wallet to a player.,Pošalji igraču token iz developerovog novčanika.
+COMMAND.DEVSEND.INVALIDAMOUNT,&cA valid amount to send must be specified.,Mora biti naveden važeći iznos za slanje.
+COMMAND.DEVSEND.INVALIDTOKEN,&cA valid id for the token must be specified.,Mora biti naveden važeći identifikacioni broj tokena.
+COMMAND.SEND.DESCRIPTION,Send the held token to another player.,Pošalji token drugom igraču.
+COMMAND.SEND.SUBMITTED,&aSend request submitted successfully. Please confirm the request in your wallet app.,&aSlanje zahteva uspešno poslato. Potvrdi zahtev u aplikaciji za novčanik.
+COMMAND.SEND.MUSTHOLDITEM,&cYou must hold the tokenized item you wish to send.,&cMorate držati tokenizovanu stavku koju želite da pošaljete.
+COMMAND.SEND.ITEMNOTTOKEN,&cThe held item is not associated with a token.,&cStavka koja se zadržava nije povezana sa tokenom.
+COMMAND.SEND.DOESNOTHAVETOKEN,&cYou can not send a token you do not have.,Nije moguće slanje tokena nemate.
+COMMAND.CONF.DESCRIPTION,Perform operations on the plugin configuration.,Izvrši konfiguraciju plugina.
+COMMAND.CONF.SET.DESCRIPTION,Set new value for config option.,Podesi novu vrednost za opciju za konfiguraciju.
+COMMAND.CONF.SET.LANG.DESCRIPTION,Set the default language to use.,Podesi podrazumevani jezik za korišćenje.
+COMMAND.CONF.SET.LANG.NOTFOUND,&cThat is not a valid language option.,&cTa jezična opcija nije moguća.
+COMMAND.CONF.SET.LANG.SUCCESS,&aYou have set the server language to &6%s!,&aPodesili ste jezik servera na &6%s!
+COMMAND.TOKEN.DESCRIPTION,Perform operations on token definitions.,Izvršite operacije po definiciji tokena.
+COMMAND.TOKEN.CREATE.DESCRIPTION,Add a token definition for the held item and provided id to the config.,Dodajte definiciju tokena za predmet koji posedujete i dodajte identifikaciju konfiguracije predmeta.
+COMMAND.TOKEN.CREATE.SUCCESS,&aToken created.,Token je kreiran.
+COMMAND.TOKEN.CREATE.FAILED,&cToken was not created.,Token nije kreiran.
+COMMAND.TOKEN.CREATE.DUPLICATE,&cToken id already exists.,Tokenov identifikacioni broj već postoji.
+COMMAND.TOKEN.UPDATE.DESCRIPTION,Update a token's definition with the held item and the token's id.,Ažurirajte definiciju tokena pomoću zadržanog predmeta i identifikacionog broja tokena.
+COMMAND.TOKEN.UPDATE.SUCCESS,&aToken updated.,Token je ažuriran.
+COMMAND.TOKEN.UPDATE.FAILED,&cToken was not updated.,Token nije ažuriran.
+COMMAND.TOKEN.TOINV.DESCRIPTION,Add a non-tokenized copy of the token to your inventory.,Dodaj netokenizovanu kopiju tokena u svoj inventar.
+COMMAND.TOKEN.TOINV.SUCCESS,&aThe item was added to your inventory.,Predmet je dodat u Vaš inventar.
+COMMAND.TOKEN.TOINV.FAILED,&cNo space in inventory to add the item to.,Nema mesta u invertaru u koji se predmet može dodati.
+COMMAND.TOKEN.NICKNAME.DESCRIPTION,Add a nickname to a token for command usages.,Dodaj nadimak tokenu za korišćenje komandi.
+COMMAND.TOKEN.NICKNAME.SUCCESS,&aToken nickname added.,Tokenov nadimak je dodat.
+COMMAND.TOKEN.NICKNAME.DUPLICATE,&cToken nickname already exists.,Tokenov nadimak već postoji.
+COMMAND.TOKEN.NICKNAME.HAS,&cThe token already has the nickname.,Token već ima nadimak.
+COMMAND.TOKEN.ADDPERM.DESCRIPTION,Add a permission to a token by referencing the token's id.,Dodajte dozvolu tokenu referenciranjem identifikacionog broja tokena.
+COMMAND.TOKEN.ADDPERM.PERMADDED,&aPermission added to token.,Dozvola je dodata tokenu.
+COMMAND.TOKEN.ADDPERM.PERMREJECTED,&cPermission is blacklisted for tokens.,Dozvola je na crnoj listi za tokene.
+COMMAND.TOKEN.ADDPERM.DUPLICATEPERM,&cPermission already on token.,Dozvola već u tokenu.
+COMMAND.TOKEN.REVOKEPERM.DESCRIPTION,Remove a permission from a token by referencing the token's id.,Uklonite dozvolu iz tokena referenciranjem identifikacionog broja tokena.
+COMMAND.TOKEN.REVOKEPERM.PERMREVOKED,&aPermission removed from token.,Dozvola  je oduzeta tokenu.
+COMMAND.TOKEN.REVOKEPERM.PERMNOTONTOKEN,&cPermission not found on token.,Dozvola nije pronađena u tokenu.
+COMMAND.TOKEN.NOSUCHTOKEN,&cToken not found.,Tokn nije pronađen.
+COMMAND.TOKEN.NOHELDITEM,&cMust hold an item to use as a token.,Morate posedovati predmet koja se koristi kao token.
+COMMAND.TRADE.DESCRIPTION,Show help for trade sub-commands.,Prikaži pomoć za pod-komande za trgovinu.
+COMMAND.TRADE.INVITE.DESCRIPTION,Invite a player to trade tokens.,Pozovi igrača da trguje žetonima.
+COMMAND.TRADE.ACCEPT.DESCRIPTION,Accept another player's trade invite.,Prihvati poziv za trgovinu od strane drugog igrača.
+COMMAND.TRADE.DECLINE.DESCRIPTION,Decline another player's trade invite.,Odbij poziv za trgovinu od strane drugog igrača.
+COMMAND.TRADE.NOOPENINVITE,&cNo open trade invite from &6%s,&cNema poziva za trgovinu &6%s
+COMMAND.TRADE.DECLINED.SENDER,&aYou have declined &6%s's &atrade invite.,&aOdbili ste &6%s's &apoziv za trgovinu.
+COMMAND.TRADE.DECLINED.TARGET,&6%s &chas declined your trade invite.,&6%s &cje odbio Vaš poziv za trgovinu.
+COMMAND.TRADE.ALREADYINVITED,&cYou have already invited &6%s &cto trade.,&cVeć ste pozvali &6%s &cto trgovinu.
+COMMAND.TRADE.WANTSTOTRADE,&6%s &awants to trade with you.,&6%s &aželi da trguje sa Vama.
+COMMAND.TRADE.INVITESENT,&aTrade invite sent to &6%s!,&aPozivnica za trgovinu je poslata igraču &6%s!
+COMMAND.TRADE.INVITEDTOTRADE,&6%s &7has invited you to trade.,&6%s &7Vas je pozvao da trgujete.
+COMMAND.TRADE.CONFIRM.ACTION,&6Please confirm the trade in your wallet app.,&6Potvrdi trgovinu u novčaniku.
+COMMAND.TRADE.CONFIRM.WAIT,&6Please wait while the other player confirms the trade.,&6Pričekajte dok drugi igrač potvrdi trgovinu.
+COMMAND.TRADE.COMPLETE,&6Your trade is complete!,&6Trgovina je završena!
+COMMAND.UNLINK.DESCRIPTION,Removes link between wallet and player account.,Uklanja link između novčanika i naloga igrača!
+COMMAND.UNLINK.SUCCESS,&aThe wallet has been unlinked from your account!,&aNovčanik više nije povezan sa Vašim nalogom!
+COMMAND.WALLET.DESCRIPTION,"Open your wallet inventory to view, check out, and return items.",Otvorite popis novčanika da biste pregledali i vraćali predmete.
+HINT.LINK,&cType &6'/enj link' &cfor instructions on how to link your Enjin Wallet.,&cType &6'/enj link' &cza uputstva o tome kako da povežete svoj Enjin novčanik.
+IDENTITY.NOTLOADED,&cYour player data is loading. Try again momentarily.,&cPodaci o Vašem plejeru se učitavaju. Pokušajte ponovo za koji trenutak.
+ERRORS.EXCEPTION,&cERROR: &7%s,&cGREŠKA: &7%s
+ERRORS.CHOOSEOTHERPLAYER,&cYou must specify a player other than yourself.,&cMorate navesti još nekog igrača pored sebe.
+ERRORS.PLAYERNOTONLINE,&6%s &cis not online.,&6%s &cnije na vezi.
+MISC.NEWLINE,,
+WALLET.NOTLINKED.SELF,&cYou have not linked a wallet to your identity.,&cNiste povezali novčanik sa svojim identitetom.
+WALLET.NOTLINKED.OTHER,&6%s &chas not linked a wallet.,&6%s &cnije povezao novčanik.
+WALLET.ALLOWANCENOTSET,&cYou must confirm the approve request in your wallet before you can send or trade tokens.,"&cDa biste mogli da pošaljete ili trgujete žetonima, morate da odobrite zahtev za dodatak u svom novčaniku."

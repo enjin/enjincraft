@@ -1,10 +1,5 @@
-package com.enjin.enjincraft.spigot.i18n;
+package com.enjin.enjincraft.translations;
 
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.plugin.Plugin;
-
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
@@ -41,15 +36,6 @@ public enum Locale {
                 return locale;
         }
 
-        return en_US;
-    }
-
-    public YamlConfiguration loadLocaleResource(Plugin plugin) {
-        InputStream is = plugin.getResource(String.format("lang/%s.yml", name()));
-
-        if (is == null)
-            return null;
-
-        return YamlConfiguration.loadConfiguration(new InputStreamReader(is, charset()));
+        return null;
     }
 }

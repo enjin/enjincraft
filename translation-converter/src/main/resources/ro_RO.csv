@@ -1,0 +1,96 @@
+Key,English,Romanian
+internal.locale,en_US,ro_RO
+internal.language,English,Română
+internal.version,1,1
+COMMAND.API.BADUSAGE,&cInvalid command usage!,&cUtilizare invalidă a comenzii!
+COMMAND.API.USAGE,USAGE: %s,UTILIZARE: %s
+COMMAND.API.REQUIREMENTS.INVALIDPLAYER,&cThis command cannot be used by players.,&cAceastă comandă nu poate fi utilizată de către jucători.
+COMMAND.API.REQUIREMENTS.INVALIDCONSOLE,&cThis command cannot be used by the console.,&Această comandă nu poate fi utilizată în consolă.
+COMMAND.API.REQUIREMENTS.INVALIDREMOTE,&cThis command cannot be used by RCON.,&cAceastă comandă nu poate fi utilizată prin RCON.
+COMMAND.API.REQUIREMENTS.INVALIDBLOCK,&cThis command cannot be used by command blocks.,&cAceastă comandă nu poate fi utilizată în blocuri de comandă.
+COMMAND.API.REQUIREMENTS.NOPERMISSION,&cYou do not have the permission required for this command: &6%s,&cNu aveți permisiunea necesară pentru această comandă: &6%s
+COMMAND.ROOT.DESCRIPTION,Show information about the plugin and authors.,Afișează informații despre plugin și autori.
+COMMAND.ROOT.DETAILS,&7Running &6%s &cv%s&7.<br>&7Use &6%s &7to view available commands.,&7Rulare &6%s &cv%s&7.<br>&7Folosiți &6%s &7pentru vizualizarea comenzilor disponibile.
+COMMAND.BALANCE.DESCRIPTION,"Show wallet address, eth, enj, and token balances.","Afișează adresa portofelului și soldul ETH, ENJ și al tokenilor."
+COMMAND.BALANCE.WALLETADDRESS,&6Wallet Address: &d%s,&6Adresa Portofelului: &d%s
+COMMAND.BALANCE.IDENTITYID,&6Identity ID: &d%s,&6ID de Identitate: &d%s
+COMMAND.BALANCE.ENJBALANCE,&a[ %s ENJ ],&a[ %s ENJ ]
+COMMAND.BALANCE.ETHBALANCE,&a[ %s ETH ],&a[ %s ETH ]
+COMMAND.BALANCE.TOKENDISPLAY,&6%s. &5%s &a(qty. %s),&6%s. &5%s &a(qty. %s)
+COMMAND.BALANCE.NOTOKENS,&l&6No tokens found in your wallet.,&l&6Niciun token nu a fost găsit în portofel.
+COMMAND.BALANCE.TOKENCOUNT,&l&6Found %s tokens in your wallet.,&l&6S-au găsit %s tokenuri în portofel.
+COMMAND.HELP.DESCRIPTION,Show list of commands with their usage.,Afișează lista comenzilor împreună cu utilizarea lor.
+COMMAND.LINK.DESCRIPTION,Show linking code or linked address.,Afișează codul de legătură sau adresa legată.
+COMMAND.LINK.NULLWALLET,&cUnable to show your wallet address.,&cNu s-a putut afișa adresa portofelului dvs.
+COMMAND.LINK.SHOWWALLET,&aYour account is linked to the wallet address: &6%s,&aContul dvs. este legat de adresa: &6%s
+COMMAND.LINK.NULLCODE,&cUnable to show your identity linking code.,&cNu s-a putut afișa codul de legătură al indentității dvs.
+COMMAND.LINK.INSTRUCTIONS.1,&6To link your account follow the steps below:,&6Pentru a vă lega contul urmați următorii pași:
+COMMAND.LINK.INSTRUCTIONS.2,&7Download the Enjin Wallet app for Android or iOS,&7Descărcați aplicația Enjin Wallet pentru Android sau iOS
+COMMAND.LINK.INSTRUCTIONS.3,&7Browse to the Linked Apps section,&7Navigați la secțiunea Aplicații Legate
+COMMAND.LINK.INSTRUCTIONS.4,&7Click the 'LINK APP' button,&7Apăsați butonul 'LEGARE APLICAȚIE'
+COMMAND.LINK.INSTRUCTIONS.5,&7Select the wallet you wish to link,&7Selectați portofelul pe care doriți să îl legați
+COMMAND.LINK.INSTRUCTIONS.6,&7Enter the identity linking code shown below,&7Introduceți codul de legătura afișat mai jos
+COMMAND.LINK.INSTRUCTIONS.7,&aLink Code: &6%s,&aCod de Legătură: &6%s
+COMMAND.DEVSEND.DESCRIPTION,Send a token from the developer wallet to a player.,Trimiteți un token din portofelul developerului către un jucător.
+COMMAND.DEVSEND.INVALIDAMOUNT,&cA valid amount to send must be specified.,&cO sumă validă de trimis trebuie specificată.
+COMMAND.DEVSEND.INVALIDTOKEN,&cA valid id for the token must be specified.,&cUn ID valid pentru token trebuie specificat.
+COMMAND.SEND.DESCRIPTION,Send the held token to another player.,Trimiteți tokenul deținut către un alt jucător.
+COMMAND.SEND.SUBMITTED,&aSend request submitted successfully. Please confirm the request in your wallet app.,&aCererea de trimitere a fost depusă cu succes. Vă rugăm să confirmați cererea în aplicația portofel.
+COMMAND.SEND.MUSTHOLDITEM,&cYou must hold the tokenized item you wish to send.,&cTrebuie să dețineți obiectul token pe care doriți să îl trimiteți.
+COMMAND.SEND.ITEMNOTTOKEN,&cThe held item is not associated with a token.,&cObiectul deținut nu este asociat cu un token.
+COMMAND.SEND.DOESNOTHAVETOKEN,&cYou can not send a token you do not have.,&cNu puteți să trimiteți un token pe care nu îl dețineți.
+COMMAND.CONF.DESCRIPTION,Perform operations on the plugin configuration.,Executați operații pe configurația plugin-ului.
+COMMAND.CONF.SET.DESCRIPTION,Set new value for config option.,Setați o valoare nouă pentru opțiunea de configurare.
+COMMAND.CONF.SET.LANG.DESCRIPTION,Set the default language to use.,Setați limba implicită de utilizare.
+COMMAND.CONF.SET.LANG.NOTFOUND,&cThat is not a valid language option.,&cAceasta nu este o opțiune validă de limbă.
+COMMAND.CONF.SET.LANG.SUCCESS,&aYou have set the server language to &6%s!,&aAți setat limba serverului ca fiind &6%s!
+COMMAND.TOKEN.DESCRIPTION,Perform operations on token definitions.,Executați operații pe definițiile de token.
+COMMAND.TOKEN.CREATE.DESCRIPTION,Add a token definition for the held item and provided id to the config.,Adăugați o definiție de token pentru obiectul deținut și furnizați IDul către configurație.
+COMMAND.TOKEN.CREATE.SUCCESS,&aToken created.,&aToken creat.
+COMMAND.TOKEN.CREATE.FAILED,&cToken was not created.,&cTokenul nu a fost creat.
+COMMAND.TOKEN.CREATE.DUPLICATE,&cToken id already exists.,&cID token deja existent.
+COMMAND.TOKEN.UPDATE.DESCRIPTION,Update a token's definition with the held item and the token's id.,Actualizați definiția unui token cu obiectul deținut și IDul tokenului. 
+COMMAND.TOKEN.UPDATE.SUCCESS,&aToken updated.,&aToken actualizat.
+COMMAND.TOKEN.UPDATE.FAILED,&cToken was not updated.,&cTokenul nu a fost actualizat.
+COMMAND.TOKEN.TOINV.DESCRIPTION,Add a non-tokenized copy of the token to your inventory.,Adăugați o copie non-tokenizată a tokenului la inventarul dvs.
+COMMAND.TOKEN.TOINV.SUCCESS,&aThe item was added to your inventory.,&aObiectul a fost adăugat la inventarul dvs.
+COMMAND.TOKEN.TOINV.FAILED,&cNo space in inventory to add the item to.,&cNu mai există spațiu în inventar pentru a adăuga obiectul.
+COMMAND.TOKEN.NICKNAME.DESCRIPTION,Add a nickname to a token for command usages.,Adăugați o abreviere unui token pentru folosirea în comenzi.
+COMMAND.TOKEN.NICKNAME.SUCCESS,&aToken nickname added.,&aAbreviera tokenului a fost adăugată.
+COMMAND.TOKEN.NICKNAME.DUPLICATE,&cToken nickname already exists.,&cAbreviera tokenului este folosită.
+COMMAND.TOKEN.NICKNAME.HAS,&cThe token already has the nickname.,&Tokenul deja are acestă abreviere.
+COMMAND.TOKEN.ADDPERM.DESCRIPTION,Add a permission to a token by referencing the token's id.,Adăugați o permisiune unui token prin folosirea ID-ului acestuia.
+COMMAND.TOKEN.ADDPERM.PERMADDED,&aPermission added to token.,&aPermisiune adăugată tokenului.
+COMMAND.TOKEN.ADDPERM.PERMREJECTED,&cPermission is blacklisted for tokens.,&cPermisiunea este interzisă tokenurilor.
+COMMAND.TOKEN.ADDPERM.DUPLICATEPERM,&cPermission already on token.,&cPermisiunea este deja aplicată tokenului.
+COMMAND.TOKEN.REVOKEPERM.DESCRIPTION,Remove a permission from a token by referencing the token's id.,Eliminați o permisiune de la un token prin folosirea ID-ului acestuia.
+COMMAND.TOKEN.REVOKEPERM.PERMREVOKED,&aPermission removed from token.,&cPermisiunea tokenului a fost eliminată.
+COMMAND.TOKEN.REVOKEPERM.PERMNOTONTOKEN,&cPermission not found on token.,&c Permisiune negăsită pe acest token.
+COMMAND.TOKEN.NOSUCHTOKEN,&cToken not found.,&cTokenul nu a fost găsit.
+COMMAND.TOKEN.NOHELDITEM,&cMust hold an item to use as a token.,&cTrebuie să dețineți un obiect pentru a îl folosi ca token.
+COMMAND.TRADE.DESCRIPTION,Show help for trade sub-commands.,Afișarea ajutorului pentru sub-comeznile de schimb.
+COMMAND.TRADE.INVITE.DESCRIPTION,Invite a player to trade tokens.,Invitați un jucător să facă schimb de tokenuri.
+COMMAND.TRADE.ACCEPT.DESCRIPTION,Accept another player's trade invite.,Accepți inivtația unui jucător la schimb.
+COMMAND.TRADE.DECLINE.DESCRIPTION,Decline another player's trade invite.,Respingeți inivitația unui jucător la schimb.
+COMMAND.TRADE.NOOPENINVITE,&cNo open trade invite from &6%s,&cNicio invitație de schimb deschisă de la &6%s
+COMMAND.TRADE.DECLINED.SENDER,&aYou have declined &6%s's &atrade invite.,&aAți respins cerea de schimb de la &6%s.
+COMMAND.TRADE.DECLINED.TARGET,&6%s &chas declined your trade invite.,&6%s &cv-a respins cererea de schimb.
+COMMAND.TRADE.ALREADYINVITED,&cYou have already invited &6%s &cto trade.,&cAți invitat deja pe &6%s &cpentru a face schimb
+COMMAND.TRADE.WANTSTOTRADE,&6%s &awants to trade with you.,&6%s &adorește să facă schimb cu dvs.
+COMMAND.TRADE.INVITESENT,&aTrade invite sent to &6%s!,&aInvitație de schimb trimsă lui &6%s!
+COMMAND.TRADE.INVITEDTOTRADE,&6%s &7has invited you to trade.,&6%s &7v-a invitat să faceți schimb.
+COMMAND.TRADE.CONFIRM.ACTION,&6Please confirm the trade in your wallet app.,&6Vă rugăm să confirmați schimbul în aplicația portofel.
+COMMAND.TRADE.CONFIRM.WAIT,&6Please wait while the other player confirms the trade.,&6Vă rugăm să așteptați până când celălalt jucător confirmă schimbul.
+COMMAND.TRADE.COMPLETE,&6Your trade is complete!,&6Schimbul dvs. este complet!
+COMMAND.UNLINK.DESCRIPTION,Removes link between wallet and player account.,Eliminați legătura dintre portofel și cont.
+COMMAND.UNLINK.SUCCESS,&aThe wallet has been unlinked from your account!,&aLegătura dintre portofelul și contul dvs. a fost eliminată!
+COMMAND.WALLET.DESCRIPTION,"Open your wallet inventory to view, check out, and return items.","Deschideți inventarul portofelului pentru a vizualiza, verifica și a returna obiecte."
+HINT.LINK,&cType &6'/enj link' &cfor instructions on how to link your Enjin Wallet.,&cTastați &6'/enj link' &cpentru instrucțiuni referitoarea la legarea Portofelul Enjin.
+IDENTITY.NOTLOADED,&cYour player data is loading. Try again momentarily.,&cDatele jucătorului se încarcă. Încercați din nou momentan.
+ERRORS.EXCEPTION,&cERROR: &7%s,&cEROARE: &7%s
+ERRORS.CHOOSEOTHERPLAYER,&cYou must specify a player other than yourself.,&cTrebuie să specificați un alt jucător decât dvs.
+ERRORS.PLAYERNOTONLINE,&6%s &cis not online.,&6%s &cnu este online.
+MISC.NEWLINE,,
+WALLET.NOTLINKED.SELF,&cYou have not linked a wallet to your identity.,&cNu ați legat un portofel de identitatea dvs.
+WALLET.NOTLINKED.OTHER,&6%s &chas not linked a wallet.,&6%s &cnu a legat un portofel.
+WALLET.ALLOWANCENOTSET,&cYou must confirm the approve request in your wallet before you can send or trade tokens.,&cTrebuie să confirmați cererea de aprobare în portofelul dvs. înainte să puteți trimite sau schimba tokenuri.

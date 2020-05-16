@@ -1,0 +1,96 @@
+Key,English,Korean
+internal.locale,en_US,ko_KR
+internal.language,English,한국어
+internal.version,1,1
+COMMAND.API.BADUSAGE,&cInvalid command usage!,&c유효하지 않은 명령어 사용입니다!
+COMMAND.API.USAGE,USAGE: %s,USAGE: %s
+COMMAND.API.REQUIREMENTS.INVALIDPLAYER,&cThis command cannot be used by players.,&c이 명령어는 게임 유저들이 사용할 수 없습니다.
+COMMAND.API.REQUIREMENTS.INVALIDCONSOLE,&cThis command cannot be used by the console.,&c이 명령어를 콘솔에서 사용할 수 없습니다.
+COMMAND.API.REQUIREMENTS.INVALIDREMOTE,&cThis command cannot be used by RCON.,&c이 명령어는 원격으로 사용할 수 없습니다.
+COMMAND.API.REQUIREMENTS.INVALIDBLOCK,&cThis command cannot be used by command blocks.,&c이 명령어는 명령어 블록으로 사용할 수 없습니다.
+COMMAND.API.REQUIREMENTS.NOPERMISSION,&cYou do not have the permission required for this command: &6%s,&c이 명령어에 필요한 권한이 없습니다: &6%s
+COMMAND.ROOT.DESCRIPTION,Show information about the plugin and authors.,플러그인과 저자 관련 내용 보기.
+COMMAND.ROOT.DETAILS,&7Running &6%s &cv%s&7.<br>&7Use &6%s &7to view available commands.,&7러닝 &6%s &cv%s&7.<br>&6%s &7을 &7사용하여 가능한 명령어 보기.
+COMMAND.BALANCE.DESCRIPTION,"Show wallet address, eth, enj, and token balances.","지갑 주소, 이더리움, 엔진, 및 토큰 잔액 보기."
+COMMAND.BALANCE.WALLETADDRESS,&6Wallet Address: &d%s,&6지갑 주소: &d%s
+COMMAND.BALANCE.IDENTITYID,&6Identity ID: &d%s,&6아이덴티티 ID: &d%s
+COMMAND.BALANCE.ENJBALANCE,&a[ %s ENJ ],&a[ %s ENJ ]
+COMMAND.BALANCE.ETHBALANCE,&a[ %s ETH ],&a[ %s ETH ]
+COMMAND.BALANCE.TOKENDISPLAY,&6%s. &5%s &a(qty. %s),&6%s. &5%s &a(qty. %s)
+COMMAND.BALANCE.NOTOKENS,&l&6No tokens found in your wallet.,&l&6지갑에 토큰이 없습니다.
+COMMAND.BALANCE.TOKENCOUNT,&l&6Found %s tokens in your wallet.,&l&6지갑에 %s 토큰이 있습니다.
+COMMAND.HELP.DESCRIPTION,Show list of commands with their usage.,사용량을 포함한 명령어 목록 보기.
+COMMAND.LINK.DESCRIPTION,Show linking code or linked address.,링크 코드나 링크된 주소 보기.
+COMMAND.LINK.NULLWALLET,&cUnable to show your wallet address.,&c지갑 주소를 볼 수 없습니다.
+COMMAND.LINK.SHOWWALLET,&aYour account is linked to the wallet address: &6%s,&a계정은 지갑 주소와 연동되었습니다: &6%s
+COMMAND.LINK.NULLCODE,&cUnable to show your identity linking code.,&c아이덴티티 링크 코드를 볼 수 없습니다.
+COMMAND.LINK.INSTRUCTIONS.1,&6To link your account follow the steps below:,&6계정 연동을 하기 위해 다음 단계를 완성하면 됩니다:
+COMMAND.LINK.INSTRUCTIONS.2,&7Download the Enjin Wallet app for Android or iOS,&7안드로이드나 iOS용 엔진 지갑 앱을 다운로드 하세요
+COMMAND.LINK.INSTRUCTIONS.3,&7Browse to the Linked Apps section,&7링크 앱 (Linked Apps) 섹션으로 가세요
+COMMAND.LINK.INSTRUCTIONS.4,&7Click the 'LINK APP' button,&7’LINK APP’ 버튼을 클릭하세요
+COMMAND.LINK.INSTRUCTIONS.5,&7Select the wallet you wish to link,&7연동하고 싶은 지갑을 선택하세요
+COMMAND.LINK.INSTRUCTIONS.6,&7Enter the identity linking code shown below,&7아래 보이는 아이덴티티 링크 코드를 입력하세요
+COMMAND.LINK.INSTRUCTIONS.7,&aLink Code: &6%s,&링크 코드: &6%s
+COMMAND.DEVSEND.DESCRIPTION,Send a token from the developer wallet to a player.,개발자 지갑에서 플레이어에게 토큰 보내기
+COMMAND.DEVSEND.INVALIDAMOUNT,&cA valid amount to send must be specified.,&cA 보내려고 하는 유효 금액을 정해야합니다
+COMMAND.DEVSEND.INVALIDTOKEN,&cA valid id for the token must be specified.,&cA 토큰의 유효한 ID를 정해야합니다
+COMMAND.SEND.DESCRIPTION,Send the held token to another player.,보유 토큰을 다른 유저에게 보내기.
+COMMAND.SEND.SUBMITTED,&aSend request submitted successfully. Please confirm the request in your wallet app.,&a전송 요청이 성공적으로 제출됐습니다. 지갑 앱에서 요청을 승인해주세요.
+COMMAND.SEND.MUSTHOLDITEM,&cYou must hold the tokenized item you wish to send.,&c보내려 하는 토큰 아이템을 소유하고 계셔야 합니다.
+COMMAND.SEND.ITEMNOTTOKEN,&cThe held item is not associated with a token.,&c해당 아이템은 토큰과 연결되지 않았습니다.
+COMMAND.SEND.DOESNOTHAVETOKEN,&cYou can not send a token you do not have.,&c 보유하고 있지 않은 토큰을 전송할 수 없습니다
+COMMAND.CONF.DESCRIPTION,Perform operations on the plugin configuration.,플러그인 구성에서 작업 수행하기.
+COMMAND.CONF.SET.DESCRIPTION,Set new value for config option.,구성 옵션에 새로운 밸류 설정하기
+COMMAND.CONF.SET.LANG.DESCRIPTION,Set the default language to use.,사용할 기본 언어를 설정하세요.
+COMMAND.CONF.SET.LANG.NOTFOUND,&cThat is not a valid language option.,&c 유효한 언어 옵션이 아닙니다
+COMMAND.CONF.SET.LANG.SUCCESS,&aYou have set the server language to &6%s!,&a서버 언어를 &6%s로 설정했습니다!
+COMMAND.TOKEN.DESCRIPTION,Perform operations on token definitions.,토큰 정의 업무 수행하기
+COMMAND.TOKEN.CREATE.DESCRIPTION,Add a token definition for the held item and provided id to the config.,보유하고 있는 아이템의 토큰 정의와 제공된 id를 구성에 추가하세요
+COMMAND.TOKEN.CREATE.SUCCESS,&aToken created.,&a 토큰이 생성되었습니다
+COMMAND.TOKEN.CREATE.FAILED,&cToken was not created.,&c 토큰이 생성되지 않았습니다
+COMMAND.TOKEN.CREATE.DUPLICATE,&cToken id already exists.,&c 이미 토큰 id가 존재합니다
+COMMAND.TOKEN.UPDATE.DESCRIPTION,Update a token's definition with the held item and the token's id.,보유 중인 아이템과 토큰 id로 토큰 정의를 업데이트하세요
+COMMAND.TOKEN.UPDATE.SUCCESS,&aToken updated.,&a 토큰이 업데이트 되었습니다
+COMMAND.TOKEN.UPDATE.FAILED,&cToken was not updated.,&c 토큰이 업데이트 되지 않았습니다
+COMMAND.TOKEN.TOINV.DESCRIPTION,Add a non-tokenized copy of the token to your inventory.,인벤토리에 토큰화되지 않은 토큰 카피(복사본)를 추가하세요
+COMMAND.TOKEN.TOINV.SUCCESS,&aThe item was added to your inventory.,&a 아이템은 인벤토리에 추가되었습니다
+COMMAND.TOKEN.TOINV.FAILED,&cNo space in inventory to add the item to.,&c 인벤토리에 아이템을 추가할 공간이 없습니다
+COMMAND.TOKEN.NICKNAME.DESCRIPTION,Add a nickname to a token for command usages.,명령어 사용을 위해 토큰 닉네임을 정해주세요
+COMMAND.TOKEN.NICKNAME.SUCCESS,&aToken nickname added.,&a 토큰 닉네임이 추가되었습니다
+COMMAND.TOKEN.NICKNAME.DUPLICATE,&cToken nickname already exists.,&c 토큰 닉네임이 이미 존재합니다
+COMMAND.TOKEN.NICKNAME.HAS,&cThe token already has the nickname.,&c 토큰이 이미 닉네임을 가지고 있습니다
+COMMAND.TOKEN.ADDPERM.DESCRIPTION,Add a permission to a token by referencing the token's id.,토큰 id를 언급하여 토큰에 사용 권한을 추가하세요
+COMMAND.TOKEN.ADDPERM.PERMADDED,&aPermission added to token.,&a 토큰에 사용 권한이 추가되었습니다
+COMMAND.TOKEN.ADDPERM.PERMREJECTED,&cPermission is blacklisted for tokens.,&c 토큰에 사용 권한이 블랙리스트 되었습니다
+COMMAND.TOKEN.ADDPERM.DUPLICATEPERM,&cPermission already on token.,&c 토큰에 이미 사용 권한이 있습니다
+COMMAND.TOKEN.REVOKEPERM.DESCRIPTION,Remove a permission from a token by referencing the token's id.,토큰 id 를 언급하여 토큰에서 사용 권한을 제거하세요
+COMMAND.TOKEN.REVOKEPERM.PERMREVOKED,&aPermission removed from token.,&a 토큰에서 사용 권한이 제거되었습니다
+COMMAND.TOKEN.REVOKEPERM.PERMNOTONTOKEN,&cPermission not found on token.,&c 토큰에서 사용 권한을 찾을 수 없습니다
+COMMAND.TOKEN.NOSUCHTOKEN,&cToken not found.,&c 토큰을 찾을 수 없습니다
+COMMAND.TOKEN.NOHELDITEM,&cMust hold an item to use as a token.,&c 토큰으로 사용할 아이템을 보유하고 있어야 합니다.
+COMMAND.TRADE.DESCRIPTION,Show help for trade sub-commands.,거래 서브 커맨드 돕기 보기.
+COMMAND.TRADE.INVITE.DESCRIPTION,Invite a player to trade tokens.,토큰 거래를 위해 유저 초대하기.
+COMMAND.TRADE.ACCEPT.DESCRIPTION,Accept another player's trade invite.,다른 유저의 거래 초대 수락하기.
+COMMAND.TRADE.DECLINE.DESCRIPTION,Decline another player's trade invite.,다른 유저의 거래 초대 거절하기.
+COMMAND.TRADE.NOOPENINVITE,&cNo open trade invite from &6%s,&c &6%s에서 열려있는 거래 초대가 없습니다
+COMMAND.TRADE.DECLINED.SENDER,&aYou have declined &6%s's &atrade invite.,&a 당신은 &6%s의 &a거래 초대를 거절했습니다.
+COMMAND.TRADE.DECLINED.TARGET,&6%s &chas declined your trade invite.,&6%s &c가/이 당신의 거래 초대를 거절했습니다.
+COMMAND.TRADE.ALREADYINVITED,&cYou have already invited &6%s &cto trade.,&c이미 &6%s &c를/을 거래에 초대했습니다
+COMMAND.TRADE.WANTSTOTRADE,&6%s &awants to trade with you.,&6%s &a 가/이 거래를 원합니다.
+COMMAND.TRADE.INVITESENT,&aTrade invite sent to &6%s!,&a거래 초대를 &6%s에게 보냈습니다!
+COMMAND.TRADE.INVITEDTOTRADE,&6%s &7has invited you to trade.,&6%s &7에서 거래 초대를 보내왔습니다.
+COMMAND.TRADE.CONFIRM.ACTION,&6Please confirm the trade in your wallet app.,&6지갑 앱에서 거래를 승인하세요.
+COMMAND.TRADE.CONFIRM.WAIT,&6Please wait while the other player confirms the trade.,&6상대방 유저가 거래를 승인할때까지 잠시 기다려주세요.
+COMMAND.TRADE.COMPLETE,&6Your trade is complete!,&6거래가 완료되었습니다!
+COMMAND.UNLINK.DESCRIPTION,Removes link between wallet and player account.,지갑과 유저 계정 간 연동을 없앱니다.
+COMMAND.UNLINK.SUCCESS,&aThe wallet has been unlinked from your account!,&a계정에서 지갑이 비연동 되었습니다!
+COMMAND.WALLET.DESCRIPTION,"Open your wallet inventory to view, check out, and return items.","지갑 인벤토리를 열어 아이템 보기, 체크아웃, 돌려주기를 할 수 있습니다."
+HINT.LINK,&cType &6'/enj link' &cfor instructions on how to link your Enjin Wallet.,&c 다음을 &6'/enj link' &c 입력하면 엔진 지갑 연결하는 방법을 볼 수 있습니다.
+IDENTITY.NOTLOADED,&cYour player data is loading. Try again momentarily.,&c유저 데이터가 로딩 중입니다. 잠시 후 다시 시도해주세요.
+ERRORS.EXCEPTION,&cERROR: &7%s,&cERROR: &7%s
+ERRORS.CHOOSEOTHERPLAYER,&cYou must specify a player other than yourself.,&c본인이 아닌 다른 유저를 지정해주세요.
+ERRORS.PLAYERNOTONLINE,&6%s &cis not online.,&6%s &c는/은 현재 온라인 상태가 아닙니다.
+MISC.NEWLINE,,
+WALLET.NOTLINKED.SELF,&cYou have not linked a wallet to your identity.,&c아이덴티티에 지갑을 연동하지 않았습니다.
+WALLET.NOTLINKED.OTHER,&6%s &chas not linked a wallet.,&6%s &c는/은 아직 지갑을 연결하지 않았습니다.
+WALLET.ALLOWANCENOTSET,&cYou must confirm the approve request in your wallet before you can send or trade tokens.,&c지갑 내 금액 요청을 승인해야 토큰을 전송하거나 거래할 수 있습니다.

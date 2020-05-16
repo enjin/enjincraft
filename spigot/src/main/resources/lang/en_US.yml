@@ -2,35 +2,56 @@ internal:
   locale: "en_US"
   language: "English"
   version: 1
+IDENTITY:
+  NOTLOADED: "&cYour player data is loading. Try again momentarily."
+ERRORS:
+  CHOOSEOTHERPLAYER: "&cYou must specify a player other than yourself."
+  EXCEPTION: "&cERROR: &7%s"
+  PLAYERNOTONLINE: "&6%s &cis not online."
+WALLET:
+  ALLOWANCENOTSET: "&cYou must confirm the approve request in your wallet before you can send or trade tokens."
+  NOTLINKED:
+    OTHER: "&6%s &chas not linked a wallet."
+    SELF: "&cYou have not linked a wallet to your identity."
+HINT:
+  LINK: "&cType &6'/enj link' &cfor instructions on how to link your Enjin Wallet."
+MISC:
+  NEWLINE: ""
 COMMAND:
-  API:
-    BADUSAGE: "&cInvalid command usage!"
-    USAGE: "USAGE: %s"
-    REQUIREMENTS:
-      INVALIDPLAYER: "&cThis command cannot be used by players."
-      INVALIDCONSOLE: "&cThis command cannot be used by the console."
-      INVALIDREMOTE: "&cThis command cannot be used by RCON."
-      INVALIDBLOCK: "&cThis command cannot be used by command blocks."
-      NOPERMISSION: "&cYou do not have the permission required for this command: &6%s"
+  HELP:
+    DESCRIPTION: "Show list of commands with their usage."
+  TRADE:
+    INVITESENT: "&aTrade invite sent to &6%s!"
+    WANTSTOTRADE: "&6%s &awants to trade with you."
+    ACCEPT:
+      DESCRIPTION: "Accept another player's trade invite."
+    COMPLETE: "&6Your trade is complete!"
+    INVITEDTOTRADE: "&6%s &7has invited you to trade."
+    DESCRIPTION: "Show help for trade sub-commands."
+    NOOPENINVITE: "&cNo open trade invite from &6%s"
+    INVITE:
+      DESCRIPTION: "Invite a player to trade tokens."
+    CONFIRM:
+      ACTION: "&6Please confirm the trade in your wallet app."
+      WAIT: "&6Please wait while the other player confirms the trade."
+    DECLINED:
+      TARGET: "&6%s &chas declined your trade invite."
+      SENDER: "&aYou have declined &6%s's &atrade invite."
+    DECLINE:
+      DESCRIPTION: "Decline another player's trade invite."
+    ALREADYINVITED: "&cYou have already invited &6%s &cto trade."
   ROOT:
     DESCRIPTION: "Show information about the plugin and authors."
     DETAILS: "&7Running &6%s &cv%s&7.<br>&7Use &6%s &7to view available commands."
-  BALANCE:
-    DESCRIPTION: "Show wallet address, ETH, ENJ, and token balances."
-    WALLETADDRESS: "&6Wallet Address: &d%s"
-    IDENTITYID: "&6Identity ID: &d%s"
-    ENJBALANCE: "&a[ %s ENJ ]"
-    ETHBALANCE: "&a[ %s ETH ]"
-    TOKENDISPLAY: "&6%s. &5%s &a(qty. %s)"
-    NOTOKENS: "&l&6No tokens found in your wallet."
-    TOKENCOUNT: "&l&6Found %s tokens in your wallet."
-  HELP:
-    DESCRIPTION: "Show list of commands with their usage."
+  WALLET:
+    DESCRIPTION: "Open your wallet inventory to view, check out, and return items."
+  DEVSEND:
+    INVALIDTOKEN: "&cA valid id for the token must be specified."
+    DESCRIPTION: "Send a token from the developer wallet to a player."
+    INVALIDAMOUNT: "&cA valid amount to send must be specified."
   LINK:
-    DESCRIPTION: "Show linking code or linked address."
-    NULLWALLET: "&cUnable to show your wallet address."
     SHOWWALLET: "&aYour account is linked to the wallet address: &6%s"
-    NULLCODE: "&cUnable to show your identity linking code."
+    DESCRIPTION: "Show linking code or linked address."
     INSTRUCTIONS:
       1: "&6To link your account follow the steps below:"
       2: "&7Download the Enjin Wallet app for Android or iOS"
@@ -39,54 +60,71 @@ COMMAND:
       5: "&7Select the wallet you wish to link"
       6: "&7Enter the identity linking code shown below"
       7: "&aLink Code: &6%s"
-  SEND:
-    DESCRIPTION: "Send the held token to another player."
-    SUBMITTED: "&aSend request submitted successfully. Please confirm the request in your wallet app."
-    MUSTHOLDITEM: "&cYou must hold the tokenized item you wish to send."
-    ITEMNOTTOKEN: "&cThe held item is not associated with a token."
+    NULLCODE: "&cUnable to show your identity linking code."
+    NULLWALLET: "&cUnable to show your wallet address."
+  UNLINK:
+    SUCCESS: "&aThe wallet has been unlinked from your account!"
+    DESCRIPTION: "Removes link between wallet and player account."
+  API:
+    REQUIREMENTS:
+      NOPERMISSION: "&cYou do not have the permission required for this command: &6%s"
+      INVALIDBLOCK: "&cThis command cannot be used by command blocks."
+      INVALIDCONSOLE: "&cThis command cannot be used by the console."
+      INVALIDREMOTE: "&cThis command cannot be used by RCON."
+      INVALIDPLAYER: "&cThis command cannot be used by players."
+    USAGE: "USAGE: %s"
+    BADUSAGE: "&cInvalid command usage!"
   CONF:
-    DESCRIPTION: "Perform operations on the plugin configuration."
     SET:
       DESCRIPTION: "Set new value for config option."
       LANG:
-        DESCRIPTION: "Set the default language to use."
         NOTFOUND: "&cThat is not a valid language option."
         SUCCESS: "&aYou have set the server language to &6%s!"
-  TRADE:
-    DESCRIPTION: "Show help for trade sub-commands."
-    INVITE:
-      DESCRIPTION: "Invite a player to trade tokens."
-    ACCEPT:
-      DESCRIPTION: "Accept another player's trade invite."
-    DECLINE:
-      DESCRIPTION: "Decline another player's trade invite."
-    NOOPENINVITE: "&cNo open trade invite from &6%s"
-    DECLINED:
-      SENDER: "&aYou have declined &6%s's &atrade invite."
-      TARGET: "&6%s &chas declined your trade invite."
-    ALREADYINVITED: "&cYou have already invited &6%s &cto trade."
-    WANTSTOTRADE: "&6%s &awants to trade with you."
-    INVITESENT: "&aTrade invite sent to &6%s!"
-    INVITEDTOTRADE: "&6%s &7has invited you to trade."
-    CONFIRM:
-      ACTION: "&6Please confirm the trade in your wallet app."
-      WAIT: "&6Please wait while the other player confirms the trade."
-    COMPLETE: "&6Your trade is complete!"
-  UNLINK:
-    DESCRIPTION: "Removes link between wallet and player account."
-    SUCCESS: "&aThe wallet has been unlinked from your account!"
-  WALLET:
-    DESCRIPTION: "Open your wallet inventory to view, check out, and return items."
-HINT:
-  LINK: "&cType &6'/enj link' &cfor instructions on how to link your Enjin Wallet."
-IDENTITY:
-  NOTLOADED: "&cYour player data is loading. Try again momentarily."
-ERRORS:
-  EXCEPTION: "&cERROR: &7%s"
-  CHOOSEOTHERPLAYER: "&cYou must specify a player other than yourself."
-  PLAYERNOTONLINE: "&6%s &cis not online."
-WALLET:
-  NOTLINKED:
-    SELF: "&cYou have not linked a wallet to your identity."
-    OTHER: "&6%s &chas not linked a wallet."
-  ALLOWANCENOTSET: "&cYou must approve the allowance request in your wallet before you can send or trade tokens."
+        DESCRIPTION: "Set the default language to use."
+    DESCRIPTION: "Perform operations on the plugin configuration."
+  TOKEN:
+    REVOKEPERM:
+      DESCRIPTION: "Remove a permission from a token by referencing the token's id."
+      PERMREVOKED: "&aPermission removed from token."
+      PERMNOTONTOKEN: "&cPermission not found on token."
+    TOINV:
+      SUCCESS: "&aThe item was added to your inventory."
+      FAILED: "&cNo space in inventory to add the item to."
+      DESCRIPTION: "Add a non-tokenized copy of the token to your inventory."
+    NICKNAME:
+      SUCCESS: "&aToken nickname added."
+      DUPLICATE: "&cToken nickname already exists."
+      DESCRIPTION: "Add a nickname to a token for command usages."
+      HAS: "&cThe token already has the nickname."
+    ADDPERM:
+      DUPLICATEPERM: "&cPermission already on token."
+      DESCRIPTION: "Add a permission to a token by referencing the token's id."
+      PERMREJECTED: "&cPermission is blacklisted for tokens."
+      PERMADDED: "&aPermission added to token."
+    CREATE:
+      SUCCESS: "&aToken created."
+      DUPLICATE: "&cToken id already exists."
+      FAILED: "&cToken was not created."
+      DESCRIPTION: "Add a token definition for the held item and provided id to the config."
+    DESCRIPTION: "Perform operations on token definitions."
+    UPDATE:
+      SUCCESS: "&aToken updated."
+      FAILED: "&cToken was not updated."
+      DESCRIPTION: "Update a token's definition with the held item and the token's id."
+    NOHELDITEM: "&cMust hold an item to use as a token."
+    NOSUCHTOKEN: "&cToken not found."
+  SEND:
+    DESCRIPTION: "Send the held token to another player."
+    SUBMITTED: "&aSend request submitted successfully. Please confirm the request in your wallet app."
+    DOESNOTHAVETOKEN: "&cYou can not send a token you do not have."
+    ITEMNOTTOKEN: "&cThe held item is not associated with a token."
+    MUSTHOLDITEM: "&cYou must hold the tokenized item you wish to send."
+  BALANCE:
+    IDENTITYID: "&6Identity ID: &d%s"
+    NOTOKENS: "&l&6No tokens found in your wallet."
+    DESCRIPTION: "Show wallet address, eth, enj, and token balances."
+    TOKENDISPLAY: "&6%s. &5%s &a(qty. %s)"
+    WALLETADDRESS: "&6Wallet Address: &d%s"
+    TOKENCOUNT: "&l&6Found %s tokens in your wallet."
+    ENJBALANCE: "&a[ %s ENJ ]"
+    ETHBALANCE: "&a[ %s ETH ]"

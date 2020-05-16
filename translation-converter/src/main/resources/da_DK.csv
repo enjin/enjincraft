@@ -1,0 +1,96 @@
+Key,English,Danish
+internal.locale,en_US,da_DK
+internal.language,English,Dansk
+internal.version,1,1
+COMMAND.API.BADUSAGE,&cInvalid command usage!,&cUgyldig kommando!
+COMMAND.API.USAGE,USAGE: %s,USAGE: %s
+COMMAND.API.REQUIREMENTS.INVALIDPLAYER,&cThis command cannot be used by players.,&cDenne kommando kan ikke bruges af spillere.
+COMMAND.API.REQUIREMENTS.INVALIDCONSOLE,&cThis command cannot be used by the console.,&cDenne kommado kan ikke bruges af konsollen.
+COMMAND.API.REQUIREMENTS.INVALIDREMOTE,&cThis command cannot be used by RCON.,&cDenne kommando kan ikke bruges eksternt.
+COMMAND.API.REQUIREMENTS.INVALIDBLOCK,&cThis command cannot be used by command blocks.,&cDenne kommando kan ikke bruges af kommandoblokke.
+COMMAND.API.REQUIREMENTS.NOPERMISSION,&cYou do not have the permission required for this command: &6%s,&cDu har ikke den nødvendige tilladelse til denne kommando: &6%s
+COMMAND.ROOT.DESCRIPTION,Show information about the plugin and authors.,Vis information om plugin og udgiver.
+COMMAND.ROOT.DETAILS,&7Running &6%s &cv%s&7.<br>&7Use &6%s &7to view available commands.,&7Kører &6%s &cv%s&7.<br>&7Brug &6%s &7for at se tilgængelige kommandoer.
+COMMAND.BALANCE.DESCRIPTION,"Show wallet address, eth, enj, and token balances.","Vis tegnebog adresse, ETH, ENJ, og token saldo."
+COMMAND.BALANCE.WALLETADDRESS,&6Wallet Address: &d%s,&6Tegnebog adresse: &d%s
+COMMAND.BALANCE.IDENTITYID,&6Identity ID: &d%s,&6Identitet ID: &d%s
+COMMAND.BALANCE.ENJBALANCE,&a[ %s ENJ ],&a[ %s ENJ ]
+COMMAND.BALANCE.ETHBALANCE,&a[ %s ETH ],&a[ %s ETH ]
+COMMAND.BALANCE.TOKENDISPLAY,&6%s. &5%s &a(qty. %s),&6%s. &5%s &a(qty. %s)
+COMMAND.BALANCE.NOTOKENS,&l&6No tokens found in your wallet.,&l&6Der kunne ikke findes nogle tokens i din tegnebog.
+COMMAND.BALANCE.TOKENCOUNT,&l&6Found %s tokens in your wallet.,&l&6Fandt %s tokens i din tegnebog.
+COMMAND.HELP.DESCRIPTION,Show list of commands with their usage.,Vis liste over kommandoer og deres brug.
+COMMAND.LINK.DESCRIPTION,Show linking code or linked address.,Vis linkingskode eller tilknyttet adresse.
+COMMAND.LINK.NULLWALLET,&cUnable to show your wallet address.,&cDin tegnebog adresse kunne ikke vises.
+COMMAND.LINK.SHOWWALLET,&aYour account is linked to the wallet address: &6%s,&aDin konto er knyttet til tegnebogens adresse: &6%s
+COMMAND.LINK.NULLCODE,&cUnable to show your identity linking code.,&cKan ikke vise din identitets linkingskode.
+COMMAND.LINK.INSTRUCTIONS.1,&6To link your account follow the steps below:,&6Følg nedenstående trin for at linke din konto:
+COMMAND.LINK.INSTRUCTIONS.2,&7Download the Enjin Wallet app for Android or iOS,&7Download appen Enjin Wallet til Android eller iOS
+COMMAND.LINK.INSTRUCTIONS.3,&7Browse to the Linked Apps section,&7Gå til sektionen Linked apps
+COMMAND.LINK.INSTRUCTIONS.4,&7Click the 'LINK APP' button,&7Klik på knappen 'LINK APP'
+COMMAND.LINK.INSTRUCTIONS.5,&7Select the wallet you wish to link,"&7Vælg den tegnebog, du vil linke"
+COMMAND.LINK.INSTRUCTIONS.6,&7Enter the identity linking code shown below,&7Indtast identitets linkingskode vist nedenfor
+COMMAND.LINK.INSTRUCTIONS.7,&aLink Code: &6%s,&aLink kode: &6%s
+COMMAND.DEVSEND.DESCRIPTION,Send a token from the developer wallet to a player.,Send et token fra udviklerens tegnebog til en spiller
+COMMAND.DEVSEND.INVALIDAMOUNT,&cA valid amount to send must be specified.,"&cDer skal angives et gyldigt antal, der skal sendes."
+COMMAND.DEVSEND.INVALIDTOKEN,&cA valid id for the token must be specified.,&cEt gyldigt id for tokenet skal specificeres.
+COMMAND.SEND.DESCRIPTION,Send the held token to another player.,Send token til en anden spiller.
+COMMAND.SEND.SUBMITTED,&aSend request submitted successfully. Please confirm the request in your wallet app.,&aAnmodning sendt med succes. Bekræft venligst anmodningen i din tegnebog app.
+COMMAND.SEND.MUSTHOLDITEM,&cYou must hold the tokenized item you wish to send.,"&cDu skal holde den tokeniserede vare, du vil sende."
+COMMAND.SEND.ITEMNOTTOKEN,&cThe held item is not associated with a token.,&cDen holdte vare er ikke knyttet til et token.
+COMMAND.SEND.DOESNOTHAVETOKEN,&cYou can not send a token you do not have.,Du kan ikke sende et token du ikke har.
+COMMAND.CONF.DESCRIPTION,Perform operations on the plugin configuration.,Udfør handlinger på plugin-konfigurationen.
+COMMAND.CONF.SET.DESCRIPTION,Set new value for config option.,Indstil ny værdi for konfigurationsindstillingen.
+COMMAND.CONF.SET.LANG.DESCRIPTION,Set the default language to use.,"Indstil standardsproget, der skal bruges."
+COMMAND.CONF.SET.LANG.NOTFOUND,&cThat is not a valid language option.,&cDette er ikke en gyldig sprog mulighed.
+COMMAND.CONF.SET.LANG.SUCCESS,&aYou have set the server language to &6%s!,&aDu har sat server sproget til &6%s!
+COMMAND.TOKEN.DESCRIPTION,Perform operations on token definitions.,Udfør handlinger på token definitioner.
+COMMAND.TOKEN.CREATE.DESCRIPTION,Add a token definition for the held item and provided id to the config.,Tilføj en token definition for den holdte vare og angivet id til konfigurationen.
+COMMAND.TOKEN.CREATE.SUCCESS,&aToken created.,&aToken oprettet.
+COMMAND.TOKEN.CREATE.FAILED,&cToken was not created.,&cToken blev ikke oprettet.
+COMMAND.TOKEN.CREATE.DUPLICATE,&cToken id already exists.,&cToken id findes allerede.
+COMMAND.TOKEN.UPDATE.DESCRIPTION,Update a token's definition with the held item and the token's id.,Opdater en token's definition med den holdte vare og token's id.
+COMMAND.TOKEN.UPDATE.SUCCESS,&aToken updated.,&aToken opdateret.
+COMMAND.TOKEN.UPDATE.FAILED,&cToken was not updated.,&cToken blev ikke opdateret.
+COMMAND.TOKEN.TOINV.DESCRIPTION,Add a non-tokenized copy of the token to your inventory.,Føj en ikke-tokeniseret kopi af token til din beholdning. 
+COMMAND.TOKEN.TOINV.SUCCESS,&aThe item was added to your inventory.,&aVaren blev føjet til din beholdning.
+COMMAND.TOKEN.TOINV.FAILED,&cNo space in inventory to add the item to.,&cDer er ingen plads i beholdningen at tilføje varen til.
+COMMAND.TOKEN.NICKNAME.DESCRIPTION,Add a nickname to a token for command usages.,Føj et kaldenavn til et token til kommandobrug.
+COMMAND.TOKEN.NICKNAME.SUCCESS,&aToken nickname added.,&aToken navn tilføjet.
+COMMAND.TOKEN.NICKNAME.DUPLICATE,&cToken nickname already exists.,&cToken navn findes allerede.
+COMMAND.TOKEN.NICKNAME.HAS,&cThe token already has the nickname.,&cTokenet har allerede navnet.
+COMMAND.TOKEN.ADDPERM.DESCRIPTION,Add a permission to a token by referencing the token's id.,Føj tilladelse til et token ved at henvise til tokenets id.
+COMMAND.TOKEN.ADDPERM.PERMADDED,&aPermission added to token.,&aTilladelse tilføjet til token.
+COMMAND.TOKEN.ADDPERM.PERMREJECTED,&cPermission is blacklisted for tokens.,&cTilladelse er sortlistet for tokens.
+COMMAND.TOKEN.ADDPERM.DUPLICATEPERM,&cPermission already on token.,&cTilladelse allerede på token.
+COMMAND.TOKEN.REVOKEPERM.DESCRIPTION,Remove a permission from a token by referencing the token's id.,Fjern en tilladelse fra et token ved at henvise til tokenets id.
+COMMAND.TOKEN.REVOKEPERM.PERMREVOKED,&aPermission removed from token.,&aTilladelse fjernet fra token.
+COMMAND.TOKEN.REVOKEPERM.PERMNOTONTOKEN,&cPermission not found on token.,&cTilladelse ikke fundet på token.
+COMMAND.TOKEN.NOSUCHTOKEN,&cToken not found.,&cToken ikke fundet.
+COMMAND.TOKEN.NOHELDITEM,&cMust hold an item to use as a token.,&cSkal holde en vare som skal bruges som et token.
+COMMAND.TRADE.DESCRIPTION,Show help for trade sub-commands.,Vis hjælp til underkommandoer for handel.
+COMMAND.TRADE.INVITE.DESCRIPTION,Invite a player to trade tokens.,Inviter en spiller til at handle tokens.
+COMMAND.TRADE.ACCEPT.DESCRIPTION,Accept another player's trade invite.,Accepter en anden spillers handelsinvitation.
+COMMAND.TRADE.DECLINE.DESCRIPTION,Decline another player's trade invite.,Afvis en anden spillers handelsinvitation.
+COMMAND.TRADE.NOOPENINVITE,&cNo open trade invite from &6%s,&cIngen åben handel inviteret fra &6%s
+COMMAND.TRADE.DECLINED.SENDER,&aYou have declined &6%s's &atrade invite.,&aDu har afvist &6%s's &ahandels invitation.
+COMMAND.TRADE.DECLINED.TARGET,&6%s &chas declined your trade invite.,&6%s &char afvist din handelsinvitation.
+COMMAND.TRADE.ALREADYINVITED,&cYou have already invited &6%s &cto trade.,&cDu har allerede inviteret &6%s &ctil at handle.
+COMMAND.TRADE.WANTSTOTRADE,&6%s &awants to trade with you.,&6%s &avil handle med dig.
+COMMAND.TRADE.INVITESENT,&aTrade invite sent to &6%s!,&aHandelsinvitation sendt til &6%s!
+COMMAND.TRADE.INVITEDTOTRADE,&6%s &7has invited you to trade.,&6%s &7har inviteret dig til at handle.
+COMMAND.TRADE.CONFIRM.ACTION,&6Please confirm the trade in your wallet app.,&6Bekræft handelen med din tegnebog-app.
+COMMAND.TRADE.CONFIRM.WAIT,&6Please wait while the other player confirms the trade.,"&6Vent venligst, mens den anden spiller bekræfter handlen."
+COMMAND.TRADE.COMPLETE,&6Your trade is complete!,&6Din handel er afsluttet!
+COMMAND.UNLINK.DESCRIPTION,Removes link between wallet and player account.,Fjerner linket mellem tegnebog og spillerkonto.
+COMMAND.UNLINK.SUCCESS,&aThe wallet has been unlinked from your account!,&aTegnebogen er fjernet fra din konto!
+COMMAND.WALLET.DESCRIPTION,"Open your wallet inventory to view, check out, and return items.","Åbn din tegnebogsbeholdning for at se, tjek ud og returnere genstande."
+HINT.LINK,&cType &6'/enj link' &cfor instructions on how to link your Enjin Wallet.,"&cType &6'/enj link' &cfor instruktioner i, hvordan du forbinder din Enjin-tegnebog."
+IDENTITY.NOTLOADED,&cYour player data is loading. Try again momentarily.,&cDine spillerdata indlæses. Prøv igen om et øjeblik.
+ERRORS.EXCEPTION,&cERROR: &7%s,&cFEJL: &7%s
+ERRORS.CHOOSEOTHERPLAYER,&cYou must specify a player other than yourself.,&cDu skal specificere en anden spiller end dig selv.
+ERRORS.PLAYERNOTONLINE,&6%s &cis not online.,&6%s &cer ikke online.
+MISC.NEWLINE,,
+WALLET.NOTLINKED.SELF,&cYou have not linked a wallet to your identity.,&cDu har ikke knyttet en tegnebog til din identitet.
+WALLET.NOTLINKED.OTHER,&6%s &chas not linked a wallet.,&6%s &chas ikke knyttet en tegnebog.
+WALLET.ALLOWANCENOTSET,&cYou must confirm the approve request in your wallet before you can send or trade tokens.,"&cDu skal godkende lommepenge anmodningen i din tegnebog, før du kan sende eller handle tokens."

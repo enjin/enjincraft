@@ -1,0 +1,96 @@
+Key,English
+internal.locale,en_US
+internal.language,English
+internal.version,1
+COMMAND.API.BADUSAGE,&cInvalid command usage!
+COMMAND.API.USAGE,USAGE: %s
+COMMAND.API.REQUIREMENTS.INVALIDPLAYER,&cThis command cannot be used by players.
+COMMAND.API.REQUIREMENTS.INVALIDCONSOLE,&cThis command cannot be used by the console.
+COMMAND.API.REQUIREMENTS.INVALIDREMOTE,&cThis command cannot be used by RCON.
+COMMAND.API.REQUIREMENTS.INVALIDBLOCK,&cThis command cannot be used by command blocks.
+COMMAND.API.REQUIREMENTS.NOPERMISSION,&cYou do not have the permission required for this command: &6%s
+COMMAND.ROOT.DESCRIPTION,Show information about the plugin and authors.
+COMMAND.ROOT.DETAILS,&7Running &6%s &cv%s&7.<br>&7Use &6%s &7to view available commands.
+COMMAND.BALANCE.DESCRIPTION,"Show wallet address, eth, enj, and token balances."
+COMMAND.BALANCE.WALLETADDRESS,&6Wallet Address: &d%s
+COMMAND.BALANCE.IDENTITYID,&6Identity ID: &d%s
+COMMAND.BALANCE.ENJBALANCE,&a[ %s ENJ ]
+COMMAND.BALANCE.ETHBALANCE,&a[ %s ETH ]
+COMMAND.BALANCE.TOKENDISPLAY,&6%s. &5%s &a(qty. %s)
+COMMAND.BALANCE.NOTOKENS,&l&6No tokens found in your wallet.
+COMMAND.BALANCE.TOKENCOUNT,&l&6Found %s tokens in your wallet.
+COMMAND.HELP.DESCRIPTION,Show list of commands with their usage.
+COMMAND.LINK.DESCRIPTION,Show linking code or linked address.
+COMMAND.LINK.NULLWALLET,&cUnable to show your wallet address.
+COMMAND.LINK.SHOWWALLET,&aYour account is linked to the wallet address: &6%s
+COMMAND.LINK.NULLCODE,&cUnable to show your identity linking code.
+COMMAND.LINK.INSTRUCTIONS.1,&6To link your account follow the steps below:
+COMMAND.LINK.INSTRUCTIONS.2,&7Download the Enjin Wallet app for Android or iOS
+COMMAND.LINK.INSTRUCTIONS.3,&7Browse to the Linked Apps section
+COMMAND.LINK.INSTRUCTIONS.4,&7Click the 'LINK APP' button
+COMMAND.LINK.INSTRUCTIONS.5,&7Select the wallet you wish to link
+COMMAND.LINK.INSTRUCTIONS.6,&7Enter the identity linking code shown below
+COMMAND.LINK.INSTRUCTIONS.7,&aLink Code: &6%s
+COMMAND.DEVSEND.DESCRIPTION,Send a token from the developer wallet to a player.
+COMMAND.DEVSEND.INVALIDAMOUNT,&cA valid amount to send must be specified.
+COMMAND.DEVSEND.INVALIDTOKEN,&cA valid id for the token must be specified.
+COMMAND.SEND.DESCRIPTION,Send the held token to another player.
+COMMAND.SEND.SUBMITTED,&aSend request submitted successfully. Please confirm the request in your wallet app.
+COMMAND.SEND.MUSTHOLDITEM,&cYou must hold the tokenized item you wish to send.
+COMMAND.SEND.ITEMNOTTOKEN,&cThe held item is not associated with a token.
+COMMAND.SEND.DOESNOTHAVETOKEN,&cYou can not send a token you do not have.
+COMMAND.CONF.DESCRIPTION,Perform operations on the plugin configuration.
+COMMAND.CONF.SET.DESCRIPTION,Set new value for config option.
+COMMAND.CONF.SET.LANG.DESCRIPTION,Set the default language to use.
+COMMAND.CONF.SET.LANG.NOTFOUND,&cThat is not a valid language option.
+COMMAND.CONF.SET.LANG.SUCCESS,&aYou have set the server language to &6%s!
+COMMAND.TOKEN.DESCRIPTION,Perform operations on token definitions.
+COMMAND.TOKEN.CREATE.DESCRIPTION,Add a token definition for the held item and provided id to the config.
+COMMAND.TOKEN.CREATE.SUCCESS,&aToken created.
+COMMAND.TOKEN.CREATE.FAILED,&cToken was not created.
+COMMAND.TOKEN.CREATE.DUPLICATE,&cToken id already exists.
+COMMAND.TOKEN.UPDATE.DESCRIPTION,Update a token's definition with the held item and the token's id.
+COMMAND.TOKEN.UPDATE.SUCCESS,&aToken updated.
+COMMAND.TOKEN.UPDATE.FAILED,&cToken was not updated.
+COMMAND.TOKEN.TOINV.DESCRIPTION,Add a non-tokenized copy of the token to your inventory.
+COMMAND.TOKEN.TOINV.SUCCESS,&aThe item was added to your inventory.
+COMMAND.TOKEN.TOINV.FAILED,&cNo space in inventory to add the item to.
+COMMAND.TOKEN.NICKNAME.DESCRIPTION,Add a nickname to a token for command usages.
+COMMAND.TOKEN.NICKNAME.SUCCESS,&aToken nickname added.
+COMMAND.TOKEN.NICKNAME.DUPLICATE,&cToken nickname already exists.
+COMMAND.TOKEN.NICKNAME.HAS,&cThe token already has the nickname.
+COMMAND.TOKEN.ADDPERM.DESCRIPTION,Add a permission to a token by referencing the token's id.
+COMMAND.TOKEN.ADDPERM.PERMADDED,&aPermission added to token.
+COMMAND.TOKEN.ADDPERM.PERMREJECTED,&cPermission is blacklisted for tokens.
+COMMAND.TOKEN.ADDPERM.DUPLICATEPERM,&cPermission already on token.
+COMMAND.TOKEN.REVOKEPERM.DESCRIPTION,Remove a permission from a token by referencing the token's id.
+COMMAND.TOKEN.REVOKEPERM.PERMREVOKED,&aPermission removed from token.
+COMMAND.TOKEN.REVOKEPERM.PERMNOTONTOKEN,&cPermission not found on token.
+COMMAND.TOKEN.NOSUCHTOKEN,&cToken not found.
+COMMAND.TOKEN.NOHELDITEM,&cMust hold an item to use as a token.
+COMMAND.TRADE.DESCRIPTION,Show help for trade sub-commands.
+COMMAND.TRADE.INVITE.DESCRIPTION,Invite a player to trade tokens.
+COMMAND.TRADE.ACCEPT.DESCRIPTION,Accept another player's trade invite.
+COMMAND.TRADE.DECLINE.DESCRIPTION,Decline another player's trade invite.
+COMMAND.TRADE.NOOPENINVITE,&cNo open trade invite from &6%s
+COMMAND.TRADE.DECLINED.SENDER,&aYou have declined &6%s's &atrade invite.
+COMMAND.TRADE.DECLINED.TARGET,&6%s &chas declined your trade invite.
+COMMAND.TRADE.ALREADYINVITED,&cYou have already invited &6%s &cto trade.
+COMMAND.TRADE.WANTSTOTRADE,&6%s &awants to trade with you.
+COMMAND.TRADE.INVITESENT,&aTrade invite sent to &6%s!
+COMMAND.TRADE.INVITEDTOTRADE,&6%s &7has invited you to trade.
+COMMAND.TRADE.CONFIRM.ACTION,&6Please confirm the trade in your wallet app.
+COMMAND.TRADE.CONFIRM.WAIT,&6Please wait while the other player confirms the trade.
+COMMAND.TRADE.COMPLETE,&6Your trade is complete!
+COMMAND.UNLINK.DESCRIPTION,Removes link between wallet and player account.
+COMMAND.UNLINK.SUCCESS,&aThe wallet has been unlinked from your account!
+COMMAND.WALLET.DESCRIPTION,"Open your wallet inventory to view, check out, and return items."
+HINT.LINK,&cType &6'/enj link' &cfor instructions on how to link your Enjin Wallet.
+IDENTITY.NOTLOADED,&cYour player data is loading. Try again momentarily.
+ERRORS.EXCEPTION,&cERROR: &7%s
+ERRORS.CHOOSEOTHERPLAYER,&cYou must specify a player other than yourself.
+ERRORS.PLAYERNOTONLINE,&6%s &cis not online.
+MISC.NEWLINE,
+WALLET.NOTLINKED.SELF,&cYou have not linked a wallet to your identity.
+WALLET.NOTLINKED.OTHER,&6%s &chas not linked a wallet.
+WALLET.ALLOWANCENOTSET,&cYou must confirm the approve request in your wallet before you can send or trade tokens.

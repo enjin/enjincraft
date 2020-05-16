@@ -1,0 +1,96 @@
+Key,English,Japanese
+internal.locale,en_US,ja_JP
+internal.language,English,日本語
+internal.version,1,1
+COMMAND.API.BADUSAGE,&cInvalid command usage!,&cこのコマンドは無効です。
+COMMAND.API.USAGE,USAGE: %s,USAGE: %s
+COMMAND.API.REQUIREMENTS.INVALIDPLAYER,&cThis command cannot be used by players.,&cplayerは、このコマンドを使用できません。
+COMMAND.API.REQUIREMENTS.INVALIDCONSOLE,&cThis command cannot be used by the console.,&cコンソールは、このコマンドを使用できません。
+COMMAND.API.REQUIREMENTS.INVALIDREMOTE,&cThis command cannot be used by RCON.,&cRCONは、このコマンドを使用できません。
+COMMAND.API.REQUIREMENTS.INVALIDBLOCK,&cThis command cannot be used by command blocks.,&cコマンドブロックは、このコマンドを使用できません。
+COMMAND.API.REQUIREMENTS.NOPERMISSION,&cYou do not have the permission required for this command: &6%s,&cこのコマンドへのアクセス権がありません: &6%s
+COMMAND.ROOT.DESCRIPTION,Show information about the plugin and authors.,プラグインと著作者の情報を表示する。
+COMMAND.ROOT.DETAILS,&7Running &6%s &cv%s&7.<br>&7Use &6%s &7to view available commands.,&7&6%s &cv%s&7が実行中。<br>&7 &6%s &7を実行して、利用可能なコマンドを見る。
+COMMAND.BALANCE.DESCRIPTION,"Show wallet address, eth, enj, and token balances.",Wallet Address、ETH・ENJ・その他tokenの残高を表示。
+COMMAND.BALANCE.WALLETADDRESS,&6Wallet Address: &d%s,&6Wallet Address: &d%s
+COMMAND.BALANCE.IDENTITYID,&6Identity ID: &d%s,&6Identity ID: &d%s
+COMMAND.BALANCE.ENJBALANCE,&a[ %s ENJ ],&a[ %s ENJ ]
+COMMAND.BALANCE.ETHBALANCE,&a[ %s ETH ],&a[ %s ETH ]
+COMMAND.BALANCE.TOKENDISPLAY,&6%s. &5%s &a(qty. %s),&6%s. &5%s &a(qty. %s)
+COMMAND.BALANCE.NOTOKENS,&l&6No tokens found in your wallet.,&l&6Walletにtokenがありません。
+COMMAND.BALANCE.TOKENCOUNT,&l&6Found %s tokens in your wallet.,&l&6Walletに、%s tokensがあります。
+COMMAND.HELP.DESCRIPTION,Show list of commands with their usage.,コマンドとその使用方法を表示。
+COMMAND.LINK.DESCRIPTION,Show linking code or linked address.,Linking codeまたはlinked addressを表示。
+COMMAND.LINK.NULLWALLET,&cUnable to show your wallet address.,&cWallet Addressを表示できません。
+COMMAND.LINK.SHOWWALLET,&aYour account is linked to the wallet address: &6%s,&aあなたのaccountは、&6%sのWallet Addressにリンクしています。
+COMMAND.LINK.NULLCODE,&cUnable to show your identity linking code.,&cidentity linking codeを取得できません。
+COMMAND.LINK.INSTRUCTIONS.1,&6To link your account follow the steps below:,&6以下の手順で、accountへリンクさせてください。
+COMMAND.LINK.INSTRUCTIONS.2,&7Download the Enjin Wallet app for Android or iOS,&7AndroidまたはiOSの、Enjin Walletアプリをダウンロードしてください。
+COMMAND.LINK.INSTRUCTIONS.3,&7Browse to the Linked Apps section,&7「リンクされたアプリ」画面を表示。
+COMMAND.LINK.INSTRUCTIONS.4,&7Click the 'LINK APP' button,&7「LINK APP」のボタンをクリック。
+COMMAND.LINK.INSTRUCTIONS.5,&7Select the wallet you wish to link,&7リンクさせたいWalletを選択。
+COMMAND.LINK.INSTRUCTIONS.6,&7Enter the identity linking code shown below,&7以下のIdentity Linking Codeを入力。
+COMMAND.LINK.INSTRUCTIONS.7,&aLink Code: &6%s,&aLink Code: &6%s。
+COMMAND.DEVSEND.DESCRIPTION,Send a token from the developer wallet to a player.,開発者のWalletからplayerへ、tokenを送信。
+COMMAND.DEVSEND.INVALIDAMOUNT,&cA valid amount to send must be specified.,&cA 正しいamountを入力してください。
+COMMAND.DEVSEND.INVALIDTOKEN,&cA valid id for the token must be specified.,&cA 正しいtokenのidを入力してください。
+COMMAND.SEND.DESCRIPTION,Send the held token to another player.,所持しているtokenを、他のplayerに送る。
+COMMAND.SEND.SUBMITTED,&aSend request submitted successfully. Please confirm the request in your wallet app.,&aSend requestは正しく送信されました。Walletアプリから、リクエストを承認してください。
+COMMAND.SEND.MUSTHOLDITEM,&cYou must hold the tokenized item you wish to send.,&cトークン化されたitemを送るには、そのitemを所持している必要があります。
+COMMAND.SEND.ITEMNOTTOKEN,&cThe held item is not associated with a token.,&cそのitemは、tokenと連携していません。
+COMMAND.SEND.DOESNOTHAVETOKEN,&cYou can not send a token you do not have.,&c所持していないtokenは、送信できません。
+COMMAND.CONF.DESCRIPTION,Perform operations on the plugin configuration.,プラグインの操作を行う。
+COMMAND.CONF.SET.DESCRIPTION,Set new value for config option.,config optionの新しい値を設定。
+COMMAND.CONF.SET.LANG.DESCRIPTION,Set the default language to use.,デフォルト言語を設定。
+COMMAND.CONF.SET.LANG.NOTFOUND,&cThat is not a valid language option.,&cこれは正しい言語オプションではありません。
+COMMAND.CONF.SET.LANG.SUCCESS,&aYou have set the server language to &6%s!,&aサーバーの言語を、&6%sに設定しました!
+COMMAND.TOKEN.DESCRIPTION,Perform operations on token definitions.,token definitionの操作を行う。
+COMMAND.TOKEN.CREATE.DESCRIPTION,Add a token definition for the held item and provided id to the config.,token definitionをitemへ追加し、そのIDをconfigへ送る。
+COMMAND.TOKEN.CREATE.SUCCESS,&aToken created.,&aTokenが作成されました。
+COMMAND.TOKEN.CREATE.FAILED,&cToken was not created.,&cTokenが作成されませんでした。
+COMMAND.TOKEN.CREATE.DUPLICATE,&cToken id already exists.,&cToken idは既に存在しています。
+COMMAND.TOKEN.UPDATE.DESCRIPTION,Update a token's definition with the held item and the token's id.,token definitionを、所持しているitemとtoken idで更新。
+COMMAND.TOKEN.UPDATE.SUCCESS,&aToken updated.,&aTokenは更新されました。
+COMMAND.TOKEN.UPDATE.FAILED,&cToken was not updated.,&cTokenは更新されませんでした。
+COMMAND.TOKEN.TOINV.DESCRIPTION,Add a non-tokenized copy of the token to your inventory.,トークン化されていないitemを、inventoryへ追加。
+COMMAND.TOKEN.TOINV.SUCCESS,&aThe item was added to your inventory.,&aitemがinventoryへ追加されました。
+COMMAND.TOKEN.TOINV.FAILED,&cNo space in inventory to add the item to.,&c itemを追加する、inventoryの容量がありません。
+COMMAND.TOKEN.NICKNAME.DESCRIPTION,Add a nickname to a token for command usages.,コマンド入力のために、tokenのnicknameを設定する。
+COMMAND.TOKEN.NICKNAME.SUCCESS,&aToken nickname added.,&aTokenにnicknameが追加されました。
+COMMAND.TOKEN.NICKNAME.DUPLICATE,&cToken nickname already exists.,&cそのtokenには、同じnicknameがすでに使われています。
+COMMAND.TOKEN.NICKNAME.HAS,&cThe token already has the nickname.,&cそのTokenは、すでにnicknameを持っています。
+COMMAND.TOKEN.ADDPERM.DESCRIPTION,Add a permission to a token by referencing the token's id.,tokenのidを参照して、permissionを追加する。
+COMMAND.TOKEN.ADDPERM.PERMADDED,&aPermission added to token.,&aTokenにpermissionが追加されました。
+COMMAND.TOKEN.ADDPERM.PERMREJECTED,&cPermission is blacklisted for tokens.,&cPermissionがブラックリストされ、tokenに追加できませんでした。
+COMMAND.TOKEN.ADDPERM.DUPLICATEPERM,&cPermission already on token.,&cPermissionはすでに追加されています。
+COMMAND.TOKEN.REVOKEPERM.DESCRIPTION,Remove a permission from a token by referencing the token's id.,tokenのidを参照して、permissionを削除する。
+COMMAND.TOKEN.REVOKEPERM.PERMREVOKED,&aPermission removed from token.,&atokenからpermissionを削除されました。
+COMMAND.TOKEN.REVOKEPERM.PERMNOTONTOKEN,&cPermission not found on token.,&ctokenのpermissionが見つかりませんでした。
+COMMAND.TOKEN.NOSUCHTOKEN,&cToken not found.,&cTokenが見つかりませんでした。
+COMMAND.TOKEN.NOHELDITEM,&cMust hold an item to use as a token.,&cTokenとして使用するには、itemに紐づいている必要があります。
+COMMAND.TRADE.DESCRIPTION,Show help for trade sub-commands.,サブコマンドを表示する。
+COMMAND.TRADE.INVITE.DESCRIPTION,Invite a player to trade tokens.,tokenの取引にplayerを招待する。
+COMMAND.TRADE.ACCEPT.DESCRIPTION,Accept another player's trade invite.,他playerからの招待を承認する。
+COMMAND.TRADE.DECLINE.DESCRIPTION,Decline another player's trade invite.,他playerからの招待を拒否する。
+COMMAND.TRADE.NOOPENINVITE,&cNo open trade invite from &6%s,&c &6%sから受けている招待はありません。
+COMMAND.TRADE.DECLINED.SENDER,&aYou have declined &6%s's &atrade invite.,&a &6%sからの&a取引招待を拒否しました。
+COMMAND.TRADE.DECLINED.TARGET,&6%s &chas declined your trade invite.,&6%s &cは取引を拒否しました。
+COMMAND.TRADE.ALREADYINVITED,&cYou have already invited &6%s &cto trade.,&c &6%sは、すでに取引に招待されています。
+COMMAND.TRADE.WANTSTOTRADE,&6%s &awants to trade with you.,&6%s &aは、あなたと取引したがっています。
+COMMAND.TRADE.INVITESENT,&aTrade invite sent to &6%s!,&a取引の招待が、&6%sへ送られました!
+COMMAND.TRADE.INVITEDTOTRADE,&6%s &7has invited you to trade.,&6%s &7が、あなたを取引に招待しました。
+COMMAND.TRADE.CONFIRM.ACTION,&6Please confirm the trade in your wallet app.,&6Walletアプリで、取引を承認してください。
+COMMAND.TRADE.CONFIRM.WAIT,&6Please wait while the other player confirms the trade.,&6他のplayerが取引を承認するまで、しばらくお待ちください。
+COMMAND.TRADE.COMPLETE,&6Your trade is complete!,&6取引が完了しました!
+COMMAND.UNLINK.DESCRIPTION,Removes link between wallet and player account.,Walletとplayer accountのリンクを削除する。
+COMMAND.UNLINK.SUCCESS,&aThe wallet has been unlinked from your account!,&aあなたのaccountから、walletのリンクが解除されました。
+COMMAND.WALLET.DESCRIPTION,"Open your wallet inventory to view, check out, and return items.",Walletを開いて、itemの確認・取引・返却をしてください。
+HINT.LINK,&cType &6'/enj link' &cfor instructions on how to link your Enjin Wallet.,&c&6'/enj link'をタイプすると、&cEnjin Walletとリンクさせる方法を確認できます。
+IDENTITY.NOTLOADED,&cYour player data is loading. Try again momentarily.,&cplayerのdataをロードしています。しばらくしてからもう一度お試しください。
+ERRORS.EXCEPTION,&cERROR: &7%s,&cERROR: &7%s
+ERRORS.CHOOSEOTHERPLAYER,&cYou must specify a player other than yourself.,&c自分以外のplayerを選択してください。
+ERRORS.PLAYERNOTONLINE,&6%s &cis not online.,&6%s &cisはオンラインでありません。
+MISC.NEWLINE,,
+WALLET.NOTLINKED.SELF,&cYou have not linked a wallet to your identity.,&cwalletがidentityにリンクされていません。
+WALLET.NOTLINKED.OTHER,&6%s &chas not linked a wallet.,walletが&6%s &cにリンクされていません。
+WALLET.ALLOWANCENOTSET,&cYou must confirm the approve request in your wallet before you can send or trade tokens.,&ctokensを取引する前に、walletでrequestを承認する必要があります。

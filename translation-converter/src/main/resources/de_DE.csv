@@ -1,0 +1,96 @@
+Key,English,German
+internal.locale,en_US,de_DE
+internal.language,English,Deutsch
+internal.version,1,1
+COMMAND.API.BADUSAGE,&cInvalid command usage!,&cUngültiger Befehl!
+COMMAND.API.USAGE,USAGE: %s,Anwendung: %s
+COMMAND.API.REQUIREMENTS.INVALIDPLAYER,&cThis command cannot be used by players.,&cDieser Befehl kann von Spielern nicht benutzt werden.
+COMMAND.API.REQUIREMENTS.INVALIDCONSOLE,&cThis command cannot be used by the console.,&cDieser Befehl kann von dieser Konsole nicht benutzt werden.
+COMMAND.API.REQUIREMENTS.INVALIDREMOTE,&cThis command cannot be used by RCON.,&cDieser Befehl kann nicht von RCON benutzt werden.
+COMMAND.API.REQUIREMENTS.INVALIDBLOCK,&cThis command cannot be used by command blocks.,&cDieser Befehl kann nicht von Befehlsblöcken benutzt werden.
+COMMAND.API.REQUIREMENTS.NOPERMISSION,&cYou do not have the permission required for this command: &6%s,"&cDu hast nicht die benötigte Erlaubnis, diesen Befehl auszuführen: &6%s"
+COMMAND.ROOT.DESCRIPTION,Show information about the plugin and authors.,Zeige Informationen über das Plugin und Autoren.
+COMMAND.ROOT.DETAILS,&7Running &6%s &cv%s&7.<br>&7Use &6%s &7to view available commands.,&7Ausführen von &6%s &cv%s&7.<br>&7Benutze &6%s &7um verfügbare Befehle anzuzeigen.
+COMMAND.BALANCE.DESCRIPTION,"Show wallet address, eth, enj, and token balances.","Zeige Wallet Address, ETH, ENJ, und Token Guthaben."
+COMMAND.BALANCE.WALLETADDRESS,&6Wallet Address: &d%s,&6Wallet Address: &d%s
+COMMAND.BALANCE.IDENTITYID,&6Identity ID: &d%s,&6Identität ID: &d%s
+COMMAND.BALANCE.ENJBALANCE,&a[ %s ENJ ],&a[ %s ENJ ]
+COMMAND.BALANCE.ETHBALANCE,&a[ %s ETH ],&a[ %s ETH ]
+COMMAND.BALANCE.TOKENDISPLAY,&6%s. &5%s &a(qty. %s),&6%s. &5%s &a(qty. %s)
+COMMAND.BALANCE.NOTOKENS,&l&6No tokens found in your wallet.,&l&6Keine Tokens in deinem Wallet gefunden.
+COMMAND.BALANCE.TOKENCOUNT,&l&6Found %s tokens in your wallet.,&l&6 %s Tokens in deinem Wallet gefunden.
+COMMAND.HELP.DESCRIPTION,Show list of commands with their usage.,Zeige Liste von Befehlen mit deren Anwendung.
+COMMAND.LINK.DESCRIPTION,Show linking code or linked address.,Zeige Link Code oder verbundene Wallet Address.
+COMMAND.LINK.NULLWALLET,&cUnable to show your wallet address.,&cDeine Wallet Address kann nicht angezeigt werden.
+COMMAND.LINK.SHOWWALLET,&aYour account is linked to the wallet address: &6%s,&aDein Account ist jetzt mit dieser Wallet Address verbunden: &6%s
+COMMAND.LINK.NULLCODE,&cUnable to show your identity linking code.,&cDein Link Code kann nicht angezeigt werden.
+COMMAND.LINK.INSTRUCTIONS.1,&6To link your account follow the steps below:,"&6Um deinen Account zu verbinden, folge diesen Schritten:"
+COMMAND.LINK.INSTRUCTIONS.2,&7Download the Enjin Wallet app for Android or iOS,&7Lade die Enjin Wallet App für Android oder iOS herunter
+COMMAND.LINK.INSTRUCTIONS.3,&7Browse to the Linked Apps section,&7Finde den 'Verlinkte Apps' Bereich
+COMMAND.LINK.INSTRUCTIONS.4,&7Click the 'LINK APP' button,&7Drücke auf 'Verlinke App'
+COMMAND.LINK.INSTRUCTIONS.5,&7Select the wallet you wish to link,"&7Wähle das Wallet, das du verbinden möchtest"
+COMMAND.LINK.INSTRUCTIONS.6,&7Enter the identity linking code shown below,&7Gebe dazu den unten angezeigten Link Code ein
+COMMAND.LINK.INSTRUCTIONS.7,&aLink Code: &6%s,&aLink Code: &6%s
+COMMAND.DEVSEND.DESCRIPTION,Send a token from the developer wallet to a player.,Sende einen Token vom Entwickler Wallet zum Spieler
+COMMAND.DEVSEND.INVALIDAMOUNT,&cA valid amount to send must be specified.,&cA gültige zu sendende Menge muss angegeben werden 
+COMMAND.DEVSEND.INVALIDTOKEN,&cA valid id for the token must be specified.,&cA gültige ID für den Token muss angeben werden
+COMMAND.SEND.DESCRIPTION,Send the held token to another player.,Sende den Token an einen anderen Spieler.
+COMMAND.SEND.SUBMITTED,&aSend request submitted successfully. Please confirm the request in your wallet app.,&aSendeanfrage erfolgreich übermittelt. Bitte bestätige die Anfrage in deiner Wallet App.
+COMMAND.SEND.MUSTHOLDITEM,&cYou must hold the tokenized item you wish to send.,"&cDas Item muss dir gehören, um es senden zu können."
+COMMAND.SEND.ITEMNOTTOKEN,&cThe held item is not associated with a token.,&cDas Item ist kein Token.
+COMMAND.SEND.DOESNOTHAVETOKEN,&cYou can not send a token you do not have.,"&cDu kannst keinen Token senden, den du nicht besitzt."
+COMMAND.CONF.DESCRIPTION,Perform operations on the plugin configuration.,Bestätige die Änderungen der Plugin Konfiguration.
+COMMAND.CONF.SET.DESCRIPTION,Set new value for config option.,Ändere den Wert der Option.
+COMMAND.CONF.SET.LANG.DESCRIPTION,Set the default language to use.,Stelle die Standardsprache ein.
+COMMAND.CONF.SET.LANG.NOTFOUND,&cThat is not a valid language option.,&cDas ist keine gültige Sprachoption
+COMMAND.CONF.SET.LANG.SUCCESS,&aYou have set the server language to &6%s!,&aDu hast die Server Sprache auf &6%s eingestellt!
+COMMAND.TOKEN.DESCRIPTION,Perform operations on token definitions.,Führen Sie Aktionen an Token-Definitionen aus.
+COMMAND.TOKEN.CREATE.DESCRIPTION,Add a token definition for the held item and provided id to the config.,Fügen Sie eine Token-Definition für das Item und die angegebene ID zur Konfiguration hinzu.
+COMMAND.TOKEN.CREATE.SUCCESS,&aToken created.,&aToken erstellt.
+COMMAND.TOKEN.CREATE.FAILED,&cToken was not created.,&cToken wurde nicht erstellt.
+COMMAND.TOKEN.CREATE.DUPLICATE,&cToken id already exists.,&cToken ID existiert bereits.
+COMMAND.TOKEN.UPDATE.DESCRIPTION,Update a token's definition with the held item and the token's id.,Aktualisieren Sie die Definition eines Tokens mit dem gehaltenen Item und der Token ID.
+COMMAND.TOKEN.UPDATE.SUCCESS,&aToken updated.,&aToken aktualisiert.
+COMMAND.TOKEN.UPDATE.FAILED,&cToken was not updated.,&cToken wurde nicht aktualisiert.
+COMMAND.TOKEN.TOINV.DESCRIPTION,Add a non-tokenized copy of the token to your inventory.,Fügen Sie eine nicht tokenisierte Kopie des Tokens zu Ihrem Inventar hinzu.
+COMMAND.TOKEN.TOINV.SUCCESS,&aThe item was added to your inventory.,&aDas Item wurde deinem Inventar hinzugefügt.
+COMMAND.TOKEN.TOINV.FAILED,&cNo space in inventory to add the item to.,&cKein Platz im Inventar zum Hinzufügen des Items.
+COMMAND.TOKEN.NICKNAME.DESCRIPTION,Add a nickname to a token for command usages.,Fügen Sie einem Token für Befehlsverwendungen einen Spitznamen hinzu.
+COMMAND.TOKEN.NICKNAME.SUCCESS,&aToken nickname added.,&aToken Spitzname hinzugefügt.
+COMMAND.TOKEN.NICKNAME.DUPLICATE,&cToken nickname already exists.,&cToken Spitzname existiert bereits.
+COMMAND.TOKEN.NICKNAME.HAS,&cThe token already has the nickname.,&cDer Token hat bereits den Spitznamen.
+COMMAND.TOKEN.ADDPERM.DESCRIPTION,Add a permission to a token by referencing the token's id.,"Fügen Sie eine Erlaubnis zu einem Token hinzu, indem Sie auf die Token ID verweisen."
+COMMAND.TOKEN.ADDPERM.PERMADDED,&aPermission added to token.,&aErlaubnis zum Token hinzugefügt.
+COMMAND.TOKEN.ADDPERM.PERMREJECTED,&cPermission is blacklisted for tokens.,&cErlaubnis steht auf der schwarzen Liste für Tokens.
+COMMAND.TOKEN.ADDPERM.DUPLICATEPERM,&cPermission already on token.,&cErlaubnis bereits auf Token.
+COMMAND.TOKEN.REVOKEPERM.DESCRIPTION,Remove a permission from a token by referencing the token's id.,"Entfernen Sie eine Erlaubnis von einem Token, indem Sie auf die Token ID verweisen."
+COMMAND.TOKEN.REVOKEPERM.PERMREVOKED,&aPermission removed from token.,&aErlaubnis von Token entfernt.
+COMMAND.TOKEN.REVOKEPERM.PERMNOTONTOKEN,&cPermission not found on token.,&cErlaubnis nicht auf Token gefunden.
+COMMAND.TOKEN.NOSUCHTOKEN,&cToken not found.,&cToken nicht gefunden.
+COMMAND.TOKEN.NOHELDITEM,&cMust hold an item to use as a token.,"&cMuss Item halten, um als Token zu nutzen."
+COMMAND.TRADE.DESCRIPTION,Show help for trade sub-commands.,Zeige Hilfe für Tausch Sub-commands.
+COMMAND.TRADE.INVITE.DESCRIPTION,Invite a player to trade tokens.,"Lade einen Spieler ein, Tokens zu tauschen."
+COMMAND.TRADE.ACCEPT.DESCRIPTION,Accept another player's trade invite.,Nehme eine Tausch-Einladung eines anderen Spielers an.
+COMMAND.TRADE.DECLINE.DESCRIPTION,Decline another player's trade invite.,Lehne eine Tausch-Einladung eines anderen Spielers ab.
+COMMAND.TRADE.NOOPENINVITE,&cNo open trade invite from &6%s,&cKeine offene Tausch-Einladung von &6%s
+COMMAND.TRADE.DECLINED.SENDER,&aYou have declined &6%s's &atrade invite.,&aDu hast &6%s's &aTausch-Einladung abgelehnt.
+COMMAND.TRADE.DECLINED.TARGET,&6%s &chas declined your trade invite.,&6%s &chat deine Tausch-Einladung abgelehnt.
+COMMAND.TRADE.ALREADYINVITED,&cYou have already invited &6%s &cto trade.,&cDu hast &6%s &cschon zum Tauschen eingeladen.
+COMMAND.TRADE.WANTSTOTRADE,&6%s &awants to trade with you.,&6%s &awill mit dir tauschen.
+COMMAND.TRADE.INVITESENT,&aTrade invite sent to &6%s!,&aTausch-Einladung an &6%sgesendet!
+COMMAND.TRADE.INVITEDTOTRADE,&6%s &7has invited you to trade.,&6%s &7hat dir eine Tausch-Einladung gesendet.
+COMMAND.TRADE.CONFIRM.ACTION,&6Please confirm the trade in your wallet app.,&6Bitte bestätige den Tausch in deiner Wallet App.
+COMMAND.TRADE.CONFIRM.WAIT,&6Please wait while the other player confirms the trade.,&6Bitte warte während der andere Spieler den Tausch bestätigt.
+COMMAND.TRADE.COMPLETE,&6Your trade is complete!,&6Euer Tausch wurde abgeschlossen!
+COMMAND.UNLINK.DESCRIPTION,Removes link between wallet and player account.,Hebt die Verbindung zwischen Wallet und Spieler Account auf.
+COMMAND.UNLINK.SUCCESS,&aThe wallet has been unlinked from your account!,&aDas Wallet wurde von deinem Spieler Account getrennt!
+COMMAND.WALLET.DESCRIPTION,"Open your wallet inventory to view, check out, and return items.","Öffne dein Wallet-Inventar um Items anzuzeigen, herauszunehmen, und wieder zurückzulegen."
+HINT.LINK,&cType &6'/enj link' &cfor instructions on how to link your Enjin Wallet.,"&cGebe &6'/enj link' &cein, um eine Anleitung für die Verknüpfung des Enjin Wallets anzuzeigen."
+IDENTITY.NOTLOADED,&cYour player data is loading. Try again momentarily.,&cDeine Spielerdaten laden. Versuche es gleich noch einmal.
+ERRORS.EXCEPTION,&cERROR: &7%s,&cERROR: &7%s
+ERRORS.CHOOSEOTHERPLAYER,&cYou must specify a player other than yourself.,&cDu musst einen anderen Spieler als dich selbst angeben.
+ERRORS.PLAYERNOTONLINE,&6%s &cis not online.,&6%s &cist nicht online.
+MISC.NEWLINE,,
+WALLET.NOTLINKED.SELF,&cYou have not linked a wallet to your identity.,&cDu hast kein Wallet mit deiner Identität verbunden.
+WALLET.NOTLINKED.OTHER,&6%s &chas not linked a wallet.,&6%s &chat kein Wallet verbunden.
+WALLET.ALLOWANCENOTSET,&cYou must confirm the approve request in your wallet before you can send or trade tokens.,"&cDu musst die Zustimmung in deinem Wallet erteilen, bevor du Tokens senden oder tauschen kannst."

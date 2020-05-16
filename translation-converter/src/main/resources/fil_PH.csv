@@ -1,0 +1,96 @@
+Key,English,Filipino
+internal.locale,en_US,fil_PH
+internal.language,English,Pilipino
+internal.version,1,1
+COMMAND.API.BADUSAGE,&cInvalid command usage!,&cHindi wastong pag utos!
+COMMAND.API.USAGE,USAGE: %s,PAG GAMIT: %s
+COMMAND.API.REQUIREMENTS.INVALIDPLAYER,&cThis command cannot be used by players.,&cAng utos na ito ay hindi maaaring gamitin ng mga manlalaro.
+COMMAND.API.REQUIREMENTS.INVALIDCONSOLE,&cThis command cannot be used by the console.,&cAng utos na ito ay hindi maaaring gamitin ng console.
+COMMAND.API.REQUIREMENTS.INVALIDREMOTE,&cThis command cannot be used by RCON.,&cAng utos na ito ay hindi maaaring gamitin nang RCON.
+COMMAND.API.REQUIREMENTS.INVALIDBLOCK,&cThis command cannot be used by command blocks.,&cAng utos na ito ay hindi maaaring gamitin ng mga command blocks.
+COMMAND.API.REQUIREMENTS.NOPERMISSION,&cYou do not have the permission required for this command: &6%s,&cWala kang pahintulot na kinakailangang para sa command na ito: &6%s
+COMMAND.ROOT.DESCRIPTION,Show information about the plugin and authors.,Ipakita ang impormasyon tungkol sa plugin at ang mga may-akda.
+COMMAND.ROOT.DETAILS,&7Running &6%s &cv%s&7.<br>&7Use &6%s &7to view available commands.,&7Umaandar &6%s &cv%s&7.<br>&7Gamitin &6%s &7upang tingnan ang magagamit na mga command.
+COMMAND.BALANCE.DESCRIPTION,"Show wallet address, eth, enj, and token balances.","Ipakita ang address ng pitaka, ETH, ENJ, at balanse ng token."
+COMMAND.BALANCE.WALLETADDRESS,&6Wallet Address: &d%s,&6Address ng Pitaka: &d%s
+COMMAND.BALANCE.IDENTITYID,&6Identity ID: &d%s,&6Identity ID: &d%s
+COMMAND.BALANCE.ENJBALANCE,&a[ %s ENJ ],&a[ %s ENJ ]
+COMMAND.BALANCE.ETHBALANCE,&a[ %s ETH ],&a[ %s ETH ]
+COMMAND.BALANCE.TOKENDISPLAY,&6%s. &5%s &a(qty. %s),&6%s. &5%s &a(qty. %s)
+COMMAND.BALANCE.NOTOKENS,&l&6No tokens found in your wallet.,&l&6Walang mga token na natagpuan sa iyong pitaka.
+COMMAND.BALANCE.TOKENCOUNT,&l&6Found %s tokens in your wallet.,&l&6May natagpuan %s mga token sa iyong pitaka.
+COMMAND.HELP.DESCRIPTION,Show list of commands with their usage.,Ipakita ang listahan ng mga command at ang pag gamit sa kanila.
+COMMAND.LINK.DESCRIPTION,Show linking code or linked address.,Ipakita ang pang-link na code o naka-link na address.
+COMMAND.LINK.NULLWALLET,&cUnable to show your wallet address.,&cHindi maipakita ang address ng iyong pitaka.
+COMMAND.LINK.SHOWWALLET,&aYour account is linked to the wallet address: &6%s,&aAng iyong account ay naka-link sa address ng pitaka: &6%s
+COMMAND.LINK.NULLCODE,&cUnable to show your identity linking code.,&cHindi maipakita ang iyong identity linking code.
+COMMAND.LINK.INSTRUCTIONS.1,&6To link your account follow the steps below:,&6Upang mai-link ang iyong account sundin ang mga hakbang:
+COMMAND.LINK.INSTRUCTIONS.2,&7Download the Enjin Wallet app for Android or iOS,&7I-download ang Enjin Wallet app para sa Android o iOS
+COMMAND.LINK.INSTRUCTIONS.3,&7Browse to the Linked Apps section,&7Mag-browse sa Linked Apps section.
+COMMAND.LINK.INSTRUCTIONS.4,&7Click the 'LINK APP' button,&7I-click ang 'LINK APP' na pindutan.
+COMMAND.LINK.INSTRUCTIONS.5,&7Select the wallet you wish to link,&7Piliin ang pitaka na nais mong mai-link
+COMMAND.LINK.INSTRUCTIONS.6,&7Enter the identity linking code shown below,&7Ipasok ang identity linking code na ipinapakita
+COMMAND.LINK.INSTRUCTIONS.7,&aLink Code: &6%s,&aLink Code: &6%s
+COMMAND.DEVSEND.DESCRIPTION,Send a token from the developer wallet to a player.,Magpadala ng token galing sa pitaka ng developer papunta sa manlalaro.
+COMMAND.DEVSEND.INVALIDAMOUNT,&cA valid amount to send must be specified.,&cBalidong halaga na gustong ipadala ay dapat itukoy.
+COMMAND.DEVSEND.INVALIDTOKEN,&cA valid id for the token must be specified.,&cBalidong id ng token ay dapat itukoy.
+COMMAND.SEND.DESCRIPTION,Send the held token to another player.,Ipadala ang token na hawak sa ibang manlalaro.
+COMMAND.SEND.SUBMITTED,&aSend request submitted successfully. Please confirm the request in your wallet app.,&aMatagumpay na isunumite ang request. Mangyaring kumpirmahin ang request sa iyong pitaka.
+COMMAND.SEND.MUSTHOLDITEM,&cYou must hold the tokenized item you wish to send.,&cKailangan hawak ang tokenized item na nais mong ipadala
+COMMAND.SEND.ITEMNOTTOKEN,&cThe held item is not associated with a token.,&cAng hawak na item ay hindi nauugnay sa token. 
+COMMAND.SEND.DOESNOTHAVETOKEN,&cYou can not send a token you do not have.,&cHindi pwede ipadala ang token na hindi mo hawak.
+COMMAND.CONF.DESCRIPTION,Perform operations on the plugin configuration.,Magsagawa ng mga operasyon sa plugin configuration.
+COMMAND.CONF.SET.DESCRIPTION,Set new value for config option.,Itakda ang bagong numero para sa config option.
+COMMAND.CONF.SET.LANG.DESCRIPTION,Set the default language to use.,Itakda ang wika na gagamitin.
+COMMAND.CONF.SET.LANG.NOTFOUND,&cThat is not a valid language option.,&cIyon ay wika na hindi pwedeng piliin.
+COMMAND.CONF.SET.LANG.SUCCESS,&aYou have set the server language to &6%s!,&aItinakda mo ang wika ng server sa &6%s!
+COMMAND.TOKEN.DESCRIPTION,Perform operations on token definitions.,Magsagawa ng mga operasyon sa mga token definitions.
+COMMAND.TOKEN.CREATE.DESCRIPTION,Add a token definition for the held item and provided id to the config.,Gumawa ng token definition para sa hawak na item at itinakdang id sa config.
+COMMAND.TOKEN.CREATE.SUCCESS,&aToken created.,&aToken ay nilikha.
+COMMAND.TOKEN.CREATE.FAILED,&cToken was not created.,&cToken ay hindi nalikha
+COMMAND.TOKEN.CREATE.DUPLICATE,&cToken id already exists.,&cMayroon nang Token id
+COMMAND.TOKEN.UPDATE.DESCRIPTION,Update a token's definition with the held item and the token's id.,I-update ang definition ng token gamit ang hawak na item at id ng token.
+COMMAND.TOKEN.UPDATE.SUCCESS,&aToken updated.,&aAng token ay na-update
+COMMAND.TOKEN.UPDATE.FAILED,&cToken was not updated.,&cAng token ay hindi na-update
+COMMAND.TOKEN.TOINV.DESCRIPTION,Add a non-tokenized copy of the token to your inventory.,Magdagdag ng non-tokenized copy ng token sa iyong imbentaryo.
+COMMAND.TOKEN.TOINV.SUCCESS,&aThe item was added to your inventory.,&aAng item ay naidagdag sa iyong imbentaryo.
+COMMAND.TOKEN.TOINV.FAILED,&cNo space in inventory to add the item to.,&cWalang espasyo sa imbentaryo upang maidagdag ang item.
+COMMAND.TOKEN.NICKNAME.DESCRIPTION,Add a nickname to a token for command usages.,Magdagdag ng palayaw sa isang token para sa command usages.
+COMMAND.TOKEN.NICKNAME.SUCCESS,&aToken nickname added.,&aToken nickname ay naitala
+COMMAND.TOKEN.NICKNAME.DUPLICATE,&cToken nickname already exists.,&cMayroon nang katulad na Token nickname
+COMMAND.TOKEN.NICKNAME.HAS,&cThe token already has the nickname.,&cAng token ay ginagamit na ang nickname
+COMMAND.TOKEN.ADDPERM.DESCRIPTION,Add a permission to a token by referencing the token's id.,Magdagdag ng permiso sa token sa pamamagitan ng pag reperensiya sa id ng token.
+COMMAND.TOKEN.ADDPERM.PERMADDED,&aPermission added to token.,&aPermiso ay idinagdag sa token.
+COMMAND.TOKEN.ADDPERM.PERMREJECTED,&cPermission is blacklisted for tokens.,&cPermiso ay naka-blacklist para sa mga token.
+COMMAND.TOKEN.ADDPERM.DUPLICATEPERM,&cPermission already on token.,&cPermiso ay nasa token na.
+COMMAND.TOKEN.REVOKEPERM.DESCRIPTION,Remove a permission from a token by referencing the token's id.,Tanggaling ang permiso sa isang token sa pamamagitan ng pag reperensiya ng token id.
+COMMAND.TOKEN.REVOKEPERM.PERMREVOKED,&aPermission removed from token.,&aPermiso ay tinanggal sa token.
+COMMAND.TOKEN.REVOKEPERM.PERMNOTONTOKEN,&cPermission not found on token.,&cPermiso ay hindi mahanap sa token.
+COMMAND.TOKEN.NOSUCHTOKEN,&cToken not found.,&cToken ay hindi mahanap
+COMMAND.TOKEN.NOHELDITEM,&cMust hold an item to use as a token.,&cKailangang humawak ng isang item na gagamitin bilang isang token.
+COMMAND.TRADE.DESCRIPTION,Show help for trade sub-commands.,Magpakita ng listahan para sa trade sub-commands.
+COMMAND.TRADE.INVITE.DESCRIPTION,Invite a player to trade tokens.,Anyayahan ang isang manlalaro na makipagkalakalan ng mga token.
+COMMAND.TRADE.ACCEPT.DESCRIPTION,Accept another player's trade invite.,Tanggapin ang paanyaya ng ibang manlalaro na makipagkalakalan.
+COMMAND.TRADE.DECLINE.DESCRIPTION,Decline another player's trade invite.,Tanggihan ang imbitasyon ng mga ibang manlalaro na makipagkalakalan.
+COMMAND.TRADE.NOOPENINVITE,&cNo open trade invite from &6%s,&cWalang imbitasyon na makipagkalakalan galing kay &6%s
+COMMAND.TRADE.DECLINED.SENDER,&aYou have declined &6%s's &atrade invite.,&aTinanggihan ang imbitasyon ni &6%s sa &apakikipagkalakaran.
+COMMAND.TRADE.DECLINED.TARGET,&6%s &chas declined your trade invite.,&6%s &cay tinanggihan ang iyong imbitasyon sa pakikipagkalakalan.
+COMMAND.TRADE.ALREADYINVITED,&cYou have already invited &6%s &cto trade.,&cInimbitahan mo na si &6%s &cmakipagkalakalan.
+COMMAND.TRADE.WANTSTOTRADE,&6%s &awants to trade with you.,&6%s &aay gustong makipagkalakalan sa iyo.
+COMMAND.TRADE.INVITESENT,&aTrade invite sent to &6%s!,&aImbitasyong sa pakikipagkalakalan ay ipinadala kay &6%s!
+COMMAND.TRADE.INVITEDTOTRADE,&6%s &7has invited you to trade.,&6%s &7ay inimbitahan ka makipagkalakalan.
+COMMAND.TRADE.CONFIRM.ACTION,&6Please confirm the trade in your wallet app.,&6Mangyaring kumpirmahin ang kalakalan sa iyong pitaka.
+COMMAND.TRADE.CONFIRM.WAIT,&6Please wait while the other player confirms the trade.,&6Mangyaring maghintay habang kinukumpirma ng iyong kalaro ang kalakalan.
+COMMAND.TRADE.COMPLETE,&6Your trade is complete!,&6Naganap na ang kalakalan!
+COMMAND.UNLINK.DESCRIPTION,Removes link between wallet and player account.,Tinatanggal ang link ng pitaka at account ng manlalaro.
+COMMAND.UNLINK.SUCCESS,&aThe wallet has been unlinked from your account!,&aNatanggal na ang link ng pitaka sa iyong account!
+COMMAND.WALLET.DESCRIPTION,"Open your wallet inventory to view, check out, and return items.","Buksan ang imbentaryo ng iyong pitaka upang tingnan, suriin, at ibalik ang mga item."
+HINT.LINK,&cType &6'/enj link' &cfor instructions on how to link your Enjin Wallet.,&cType &6'/enj link' &cpara sa mga instruction kung paano i-link ang iyong Enjin Wallet.
+IDENTITY.NOTLOADED,&cYour player data is loading. Try again momentarily.,&cNaglo-load ang iyong player data. Subukan muli ng ilang sandali.
+ERRORS.EXCEPTION,&cERROR: &7%s,&cERROR: &7%s
+ERRORS.CHOOSEOTHERPLAYER,&cYou must specify a player other than yourself.,&cDapat mong tukuyin ang isang manlalaro maliban sa iyong sarili.
+ERRORS.PLAYERNOTONLINE,&6%s &cis not online.,&6%s &cay hindi online.
+MISC.NEWLINE,,
+WALLET.NOTLINKED.SELF,&cYou have not linked a wallet to your identity.,&cHindi mo pa naiugnay ang pitaka sa iyong identity.
+WALLET.NOTLINKED.OTHER,&6%s &chas not linked a wallet.,&6%s &cay hindi naka-link ang pitaka
+WALLET.ALLOWANCENOTSET,&cYou must confirm the approve request in your wallet before you can send or trade tokens.,&cKailangan aprubahan ang request sa pitaka bago makapagpadala o makipagkalakalan ng mga token.
