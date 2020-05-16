@@ -1,0 +1,19 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+dependencies {
+    shadow 'com.opencsv:opencsv:5.1'
+    compile 'com.opencsv:opencsv:5.1'
+}
+
+mainClassName = 'com.enjin.enjincraft.translations.FileConverter'
+
+run {
+    doFirst {
+        File file = file(new File(projectDir, '/build/translations'))
+        file.mkdirs()
+        workingDir = file
+    }
+}
