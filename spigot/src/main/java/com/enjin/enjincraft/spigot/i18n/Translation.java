@@ -180,7 +180,13 @@ public enum Translation {
 
     public String translation(Locale locale) {
         YamlConfiguration lang = LOCALE_CONFIGS.getOrDefault(locale, LOCALE_CONFIGS.get(DEFAULT_LOCALE));
-        return lang.getString(path(), defaultTranslation());
+
+        String out = lang.getString(path(), defaultTranslation());
+
+        if (out == null || (this != Translation.MISC_NEWLINE && out.isEmpty()))
+            out = defaultTranslation();
+
+        return out;
     }
 
     public int version() {
