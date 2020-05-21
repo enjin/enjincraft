@@ -3,6 +3,7 @@ package com.enjin.enjincraft.spigot.token;
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
 import com.enjin.enjincraft.spigot.player.PlayerManager;
+import com.enjin.sdk.services.notification.NotificationsService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -65,8 +66,7 @@ public class TokenManager {
                 tokenModel = gson.fromJson(fr, TokenModel.class);
                 tokenModel.load();
                 changed = tokenModel.applyBlacklist(bootstrap.getConfig().getPermissionBlacklist());
-                tokenModels.put(tokenModel.getId(), tokenModel);
-                permGraph.addToken(tokenModel);
+                saveTokenInternally(tokenModel);
             } catch (Exception e) {
                 bootstrap.log(e);
             } finally {
@@ -97,8 +97,7 @@ public class TokenManager {
         try (FileWriter fw = new FileWriter(file, false)) {
             gson.toJson(tokenModel, fw);
             tokenModel.load();
-            tokenModels.put(tokenModel.getId(), tokenModel);
-            permGraph.addToken(tokenModel);
+            saveTokenInternally(tokenModel);
 
             if (tokenModel.getAlternateId() != null)
                 alternateIds.put(tokenModel.getAlternateId(), tokenModel.getId());
@@ -108,6 +107,12 @@ public class TokenManager {
         }
 
         return TOKEN_CREATE_SUCCESS;
+    }
+
+    private void saveTokenInternally(TokenModel tokenModel) {
+        tokenModels.put(tokenModel.getId(), tokenModel);
+        permGraph.addToken(tokenModel);
+        subscribeToToken(tokenModel);
     }
 
     public int updateTokenConf(TokenModel tokenModel) {
@@ -314,6 +319,21 @@ public class TokenManager {
 
     public TokenPermissionGraph getTokenPermissions() {
         return permGraph;
+    }
+
+    public void subscribeToTokens() {
+        for (Map.Entry<String, TokenModel> entry : tokenModels.entrySet()) {
+            subscribeToToken(entry.getValue());
+        }
+    }
+
+    private void subscribeToToken(TokenModel tokenModel) {
+        if (tokenModel == null)
+            return;
+
+        NotificationsService service = bootstrap.getNotificationsService();
+        if (service != null && !service.isSubscribedToToken(tokenModel.getId()))
+            service.subscribeToToken(tokenModel.getId());
     }
 
 }
