@@ -37,7 +37,7 @@ import java.util.Optional;
 
 public class TradeView extends ChestMenu implements EnjTokenView {
 
-    public static final int LARGE_INV_ROW_LENGTH = 9;
+    public static final int INV_WIDTH = 9;
 
     private SpigotBootstrap bootstrap;
 
@@ -192,7 +192,7 @@ public class TradeView extends ChestMenu implements EnjTokenView {
         for (int y = 0; y < 4; y++) {
             for (int x = 0; x < 4; x++) {
                 InventoryView view = this.viewer.getBukkitPlayer().getOpenInventory();
-                ItemStack item = view.getItem(x + (y * LARGE_INV_ROW_LENGTH));
+                ItemStack item = view.getItem(x + (y * INV_WIDTH));
                 if (item != null && item.getType() != Material.AIR)
                     items.add(item);
             }
@@ -213,7 +213,7 @@ public class TradeView extends ChestMenu implements EnjTokenView {
 
         for (int y = 0; y < rows; y++) {
             for (int x = 0; x < cols; x++) {
-                int slot = x + (y * LARGE_INV_ROW_LENGTH);
+                int slot = x + (y * INV_WIDTH);
                 InventoryView view = this.viewer.getBukkitPlayer().getOpenInventory();
                 ItemStack is = view.getItem(slot);
 
