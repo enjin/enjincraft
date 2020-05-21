@@ -31,43 +31,43 @@ COMMAND.LINK.INSTRUCTIONS.4,&7Click the 'LINK APP' button,&7Pressione o botão '
 COMMAND.LINK.INSTRUCTIONS.5,&7Select the wallet you wish to link,&7Selecione a carteira no qual você deseja vincular
 COMMAND.LINK.INSTRUCTIONS.6,&7Enter the identity linking code shown below,&7Introduza o código de vinculação de identidade exibido abaixo
 COMMAND.LINK.INSTRUCTIONS.7,&aLink Code: &6%s,&aCódigo de identidade: &6%s
-COMMAND.DEVSEND.DESCRIPTION,Send a token from the developer wallet to a player.,
-COMMAND.DEVSEND.INVALIDAMOUNT,&cA valid amount to send must be specified.,
-COMMAND.DEVSEND.INVALIDTOKEN,&cA valid id for the token must be specified.,
+COMMAND.DEVSEND.DESCRIPTION,Send a token from the developer wallet to a player.,Envie um token da carteira de desenvolvedor para um jogador.
+COMMAND.DEVSEND.INVALIDAMOUNT,&cA valid amount to send must be specified.,&cUma quantidade válida para enviar deve ser especificada.
+COMMAND.DEVSEND.INVALIDTOKEN,&cA valid id for the token must be specified.,&cUm token id válido deve ser especificado.
 COMMAND.SEND.DESCRIPTION,Send the held token to another player.,Enviar o token para outro jogador.
 COMMAND.SEND.SUBMITTED,&aSend request submitted successfully. Please confirm the request in your wallet app.,"&aSolicitação de envio registrada com sucesso. Por favor, confirme a solicitação em sua carteira."
 COMMAND.SEND.MUSTHOLDITEM,&cYou must hold the tokenized item you wish to send.,&cVocê deve ter o item tokenizado que deseja enviar.
 COMMAND.SEND.ITEMNOTTOKEN,&cThe held item is not associated with a token.,&cEste item não está vinculado a nenhum token.
-COMMAND.SEND.DOESNOTHAVETOKEN,&cYou can not send a token you do not have.,
+COMMAND.SEND.DOESNOTHAVETOKEN,&cYou can not send a token you do not have.,&cVocê não pode enviar um token que não possui.
 COMMAND.CONF.DESCRIPTION,Perform operations on the plugin configuration.,Executar operações na configuração do plug-in.
 COMMAND.CONF.SET.DESCRIPTION,Set new value for config option.,Definir novo valor para a opção de configuração.
 COMMAND.CONF.SET.LANG.DESCRIPTION,Set the default language to use.,Definir o idioma de utilização padrão.
 COMMAND.CONF.SET.LANG.NOTFOUND,&cThat is not a valid language option.,&cEsta não é uma opção de idioma válida.
 COMMAND.CONF.SET.LANG.SUCCESS,&aYou have set the server language to &6%s!,&aVocê definiu o idioma do servidor para&6%s!
-COMMAND.TOKEN.DESCRIPTION,Perform operations on token definitions.,
-COMMAND.TOKEN.CREATE.DESCRIPTION,Add a token definition for the held item and provided id to the config.,
-COMMAND.TOKEN.CREATE.SUCCESS,&aToken created.,
-COMMAND.TOKEN.CREATE.FAILED,&cToken was not created.,
-COMMAND.TOKEN.CREATE.DUPLICATE,&cToken id already exists.,
-COMMAND.TOKEN.UPDATE.DESCRIPTION,Update a token's definition with the held item and the token's id.,
-COMMAND.TOKEN.UPDATE.SUCCESS,&aToken updated.,
-COMMAND.TOKEN.UPDATE.FAILED,&cToken was not updated.,
-COMMAND.TOKEN.TOINV.DESCRIPTION,Add a non-tokenized copy of the token to your inventory.,
-COMMAND.TOKEN.TOINV.SUCCESS,&aThe item was added to your inventory.,
-COMMAND.TOKEN.TOINV.FAILED,&cNo space in inventory to add the item to.,
-COMMAND.TOKEN.NICKNAME.DESCRIPTION,Add a nickname to a token for command usages.,
-COMMAND.TOKEN.NICKNAME.SUCCESS,&aToken nickname added.,
-COMMAND.TOKEN.NICKNAME.DUPLICATE,&cToken nickname already exists.,
-COMMAND.TOKEN.NICKNAME.HAS,&cThe token already has the nickname.,
-COMMAND.TOKEN.ADDPERM.DESCRIPTION,Add a permission to a token by referencing the token's id.,
-COMMAND.TOKEN.ADDPERM.PERMADDED,&aPermission added to token.,
-COMMAND.TOKEN.ADDPERM.PERMREJECTED,&cPermission is blacklisted for tokens.,
-COMMAND.TOKEN.ADDPERM.DUPLICATEPERM,&cPermission already on token.,
-COMMAND.TOKEN.REVOKEPERM.DESCRIPTION,Remove a permission from a token by referencing the token's id.,
-COMMAND.TOKEN.REVOKEPERM.PERMREVOKED,&aPermission removed from token.,
-COMMAND.TOKEN.REVOKEPERM.PERMNOTONTOKEN,&cPermission not found on token.,
-COMMAND.TOKEN.NOSUCHTOKEN,&cToken not found.,
-COMMAND.TOKEN.NOHELDITEM,&cMust hold an item to use as a token.,
+COMMAND.TOKEN.DESCRIPTION,Perform operations on token definitions.,Execute operações nas definições do token.
+COMMAND.TOKEN.CREATE.DESCRIPTION,Add a token definition for the held item and provided id to the config.,Adicione uma definição de token para o item e id fornecido para a configuração.
+COMMAND.TOKEN.CREATE.SUCCESS,&aToken created.,&aToken criado.
+COMMAND.TOKEN.CREATE.FAILED,&cToken was not created.,&cToken não foi criado.
+COMMAND.TOKEN.CREATE.DUPLICATE,&cToken id already exists.,&cEste token id já existe.
+COMMAND.TOKEN.UPDATE.DESCRIPTION,Update a token's definition with the held item and the token's id.,Atualize a definição de um token com o item e o ID do token.
+COMMAND.TOKEN.UPDATE.SUCCESS,&aToken updated.,&aToken atualizado.
+COMMAND.TOKEN.UPDATE.FAILED,&cToken was not updated.,&cToken não foi atualizado.
+COMMAND.TOKEN.TOINV.DESCRIPTION,Add a non-tokenized copy of the token to your inventory.,Adicione uma cópia não tokenizada do token em seu inventário.
+COMMAND.TOKEN.TOINV.SUCCESS,&aThe item was added to your inventory.,&aO item foi adicionado em seu inventário.
+COMMAND.TOKEN.TOINV.FAILED,&cNo space in inventory to add the item to.,&cNão há espaço no inventário para adicionar o item.
+COMMAND.TOKEN.NICKNAME.DESCRIPTION,Add a nickname to a token for command usages.,Adicione um apelido a um token para usos do comando.
+COMMAND.TOKEN.NICKNAME.SUCCESS,&aToken nickname added.,&aApelido de token adicionado.
+COMMAND.TOKEN.NICKNAME.DUPLICATE,&cToken nickname already exists.,&cEste apelido de token já existe.
+COMMAND.TOKEN.NICKNAME.HAS,&cThe token already has the nickname.,&cO token já tem o apelido.
+COMMAND.TOKEN.ADDPERM.DESCRIPTION,Add a permission to a token by referencing the token's id.,Adicione a permissão de um token referenciando o ID deste token.
+COMMAND.TOKEN.ADDPERM.PERMADDED,&aPermission added to token.,&aPermissão adicionada ao token.
+COMMAND.TOKEN.ADDPERM.PERMREJECTED,&cPermission is blacklisted for tokens.,&cPermissão está na lista negra para tokens.
+COMMAND.TOKEN.ADDPERM.DUPLICATEPERM,&cPermission already on token.,&cPermissão já está no token.
+COMMAND.TOKEN.REVOKEPERM.DESCRIPTION,Remove a permission from a token by referencing the token's id.,Remova a permissão de um token referenciando o ID deste token.
+COMMAND.TOKEN.REVOKEPERM.PERMREVOKED,&aPermission removed from token.,&aPermissão removida do token.
+COMMAND.TOKEN.REVOKEPERM.PERMNOTONTOKEN,&cPermission not found on token.,&cPermissão não encontrada no token.
+COMMAND.TOKEN.NOSUCHTOKEN,&cToken not found.,&cToken não encontrado.
+COMMAND.TOKEN.NOHELDITEM,&cMust hold an item to use as a token.,&cDeve ter um item para usá-lo como token.
 COMMAND.TRADE.DESCRIPTION,Show help for trade sub-commands.,Exibir ajuda para sub comandos de troca.
 COMMAND.TRADE.INVITE.DESCRIPTION,Invite a player to trade tokens.,Convidar um jogador para trocar tokens.
 COMMAND.TRADE.ACCEPT.DESCRIPTION,Accept another player's trade invite.,Aceitar o convite de troca de outro jogador.

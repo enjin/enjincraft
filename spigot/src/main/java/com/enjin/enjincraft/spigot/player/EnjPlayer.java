@@ -273,6 +273,8 @@ public class EnjPlayer implements Listener {
         PlayerInventory inventory = bukkitPlayer.getInventory();
         ItemStack is = null;
         switch (slot) {
+            case HAND:
+                break;
             case OFF_HAND:
                 is = inventory.getItemInOffHand();
                 break;
@@ -299,6 +301,8 @@ public class EnjPlayer implements Listener {
     private void setEquipment(EquipmentSlot slot, ItemStack is) {
         PlayerInventory inventory = bukkitPlayer.getInventory();
         switch (slot) {
+            case HAND:
+                break;
             case OFF_HAND:
                 inventory.setItemInOffHand(is);
                 break;

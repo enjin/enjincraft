@@ -15,3 +15,5 @@ interal:
   config-version: 1
 permission-blacklist:
   - "minecraft.command.op"
+  - "minecraft.command.deop"
+  - "minecraft.command.stop"
