@@ -1,10 +1,12 @@
 package com.enjin.enjincraft.spigot.wallet;
 
+import com.enjin.enjincraft.spigot.EnjTokenView;
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
 import com.enjin.enjincraft.spigot.token.TokenModel;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
 import com.enjin.enjincraft.spigot.util.StringUtils;
 import com.enjin.enjincraft.spigot.util.TokenUtils;
+import com.enjin.minecraft_commons.spigot.ui.AbstractMenu;
 import com.enjin.minecraft_commons.spigot.ui.Dimension;
 import com.enjin.minecraft_commons.spigot.ui.Position;
 import com.enjin.minecraft_commons.spigot.ui.menu.ChestMenu;
@@ -25,7 +27,7 @@ import org.bukkit.inventory.PlayerInventory;
 import java.util.List;
 import java.util.Optional;
 
-public class TokenWalletView extends ChestMenu {
+public class TokenWalletView extends ChestMenu implements EnjTokenView {
 
     public static final String WALLET_VIEW_NAME = "Enjin Wallet";
 
@@ -41,7 +43,14 @@ public class TokenWalletView extends ChestMenu {
         init();
     }
 
+    @Override
+    public void validateInventory() {
+        repopulate(owner.getBukkitPlayer());
+    }
+
     private void init() {
+        owner.setActiveWalletView(this);
+        setCloseConsumer(this::closeMenuAction);
         populate();
     }
 
@@ -148,5 +157,12 @@ public class TokenWalletView extends ChestMenu {
     protected void onClose(Player player) {
         HandlerList.unregisterAll(this);
         super.onClose(player);
+    }
+
+    private void closeMenuAction(Player player, AbstractMenu menu) {
+        if (player != owner.getBukkitPlayer() || this != owner.getActiveWalletView())
+            return;
+
+        owner.setActiveWalletView(null);
     }
 }

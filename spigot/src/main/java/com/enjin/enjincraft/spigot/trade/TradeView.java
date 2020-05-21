@@ -1,15 +1,19 @@
 package com.enjin.enjincraft.spigot.trade;
 
+import com.enjin.enjincraft.spigot.EnjTokenView;
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
 import com.enjin.enjincraft.spigot.enums.TargetPlayer;
 import com.enjin.enjincraft.spigot.enums.Trader;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
+import com.enjin.enjincraft.spigot.token.TokenModel;
 import com.enjin.enjincraft.spigot.util.MessageUtils;
 import com.enjin.enjincraft.spigot.util.StringUtils;
 import com.enjin.enjincraft.spigot.util.TokenUtils;
+import com.enjin.enjincraft.spigot.wallet.MutableBalance;
 import com.enjin.minecraft_commons.spigot.ui.*;
 import com.enjin.minecraft_commons.spigot.ui.menu.ChestMenu;
 import com.enjin.minecraft_commons.spigot.ui.menu.component.SimpleMenuComponent;
+import de.tr7zw.changeme.nbtapi.NBTItem;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
 import org.bukkit.ChatColor;
@@ -29,8 +33,11 @@ import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-public class TradeView extends ChestMenu {
+public class TradeView extends ChestMenu implements EnjTokenView {
+
+    public static final int LARGE_INV_ROW_LENGTH = 9;
 
     private SpigotBootstrap bootstrap;
 
@@ -185,7 +192,7 @@ public class TradeView extends ChestMenu {
         for (int y = 0; y < 4; y++) {
             for (int x = 0; x < 4; x++) {
                 InventoryView view = this.viewer.getBukkitPlayer().getOpenInventory();
-                ItemStack item = view.getItem(x + (y * 9));
+                ItemStack item = view.getItem(x + (y * LARGE_INV_ROW_LENGTH));
                 if (item != null && item.getType() != Material.AIR)
                     items.add(item);
             }
@@ -196,6 +203,57 @@ public class TradeView extends ChestMenu {
 
     public void open() {
         open(this.viewer.getBukkitPlayer());
+    }
+
+    @Override
+    public void validateInventory() {
+        Dimension dimension = viewerItemsComponent.getDimension();
+        int rows = dimension.getHeight();
+        int cols = dimension.getWidth();
+
+        for (int y = 0; y < rows; y++) {
+            for (int x = 0; x < cols; x++) {
+                int slot = x + (y * LARGE_INV_ROW_LENGTH);
+                InventoryView view = this.viewer.getBukkitPlayer().getOpenInventory();
+                ItemStack is = view.getItem(slot);
+
+                if (is == null || is.getType() == Material.AIR)
+                    continue;
+
+                String id = TokenUtils.getTokenID(is);
+
+                if (StringUtils.isEmpty(id))
+                    continue;
+
+                MutableBalance balance = viewer.getTokenWallet().getBalance(id);
+                if (balance == null || balance.amountAvailableForWithdrawal() == 0) {
+                    view.setItem(slot, null);
+                    updateSlotWithHandler(slot, is, null);
+                } else {
+                    if (balance.amountAvailableForWithdrawal() < is.getAmount()) {
+                        is.setAmount(balance.amountAvailableForWithdrawal());
+                    }
+
+                    balance.withdraw(is.getAmount());
+
+                    TokenModel tokenModel = bootstrap.getTokenManager().getToken(id);
+                    String itemNBT = NBTItem.convertItemtoNBT(is).toString();
+
+                    if (!itemNBT.equals(tokenModel.getNbt())) {
+                        ItemStack newStack = tokenModel.getItemStack();
+                        newStack.setAmount(is.getAmount());
+
+                        view.setItem(slot, newStack);
+                        updateSlotWithHandler(slot, is, newStack);
+                    }
+                }
+            }
+        }
+    }
+
+    private void updateSlotWithHandler(int slot, ItemStack oldItem, ItemStack newItem) {
+        Optional<SlotUpdateHandler> slotUpdateHandler = viewerItemsComponent.getSlotUpdateHandler();
+        slotUpdateHandler.ifPresent(handler -> handler.handle(viewer.getBukkitPlayer(), slot, oldItem, newItem));
     }
 
     private ItemStack getPlayerHead(Player player, TargetPlayer target) {
@@ -260,7 +318,6 @@ public class TradeView extends ChestMenu {
             if (StringUtils.isEmpty(id))
                 event.setResult(Event.Result.DENY);
         } else {
-            bootstrap.debug("Menu Clicked");
             super.onInventoryClick(event);
         }
     }

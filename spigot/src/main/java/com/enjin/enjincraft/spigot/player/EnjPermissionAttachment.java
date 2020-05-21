@@ -1,6 +1,6 @@
 package com.enjin.enjincraft.spigot.player;
 
-import com.github.nocatch.NoCatch;
+import lombok.SneakyThrows;
 import org.bukkit.permissions.Permissible;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.plugin.Plugin;
@@ -15,7 +15,7 @@ public class EnjPermissionAttachment {
 
     static {
         Class<?> clazz = PermissionAttachment.class;
-        permissionsField = NoCatch.noCatch(() -> clazz.getDeclaredField("permissions"));
+        permissionsField = getDeclaredField(clazz,"permissions");
         permissionsField.setAccessible(true);
     }
 
@@ -49,12 +49,18 @@ public class EnjPermissionAttachment {
         attachment.unsetPermission(permission);
     }
 
+    @SneakyThrows(IllegalAccessException.class)
     public void clear() {
         if (attachment != null)
             attachment.remove();
 
         attachment = permissible.addAttachment(plugin);
-        permissions = (Map<String, Boolean>) NoCatch.noCatch(() -> permissionsField.get(attachment));
+        permissions = (Map<String, Boolean>) permissionsField.get(attachment);
+    }
+
+    @SneakyThrows(NoSuchFieldException.class)
+    private static Field getDeclaredField(Class clazz, String name) {
+        return clazz.getDeclaredField(name);
     }
 
 }
