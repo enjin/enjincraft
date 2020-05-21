@@ -12,14 +12,12 @@ buildscript {
             'pusher'          : '2.0.1',
             'okhttp'          : '4.3.1',
             'retrofit'        : '2.7.1',
-            'supportOptional' : '1.2',
-            'nocatch'         : '1.1',
             'nbtapi'          : '2.3.0'
     ]
 
     ext.deps = [
             'minecraftCommons'        : "com.enjin.minecraft_commons:spigot:${versions.minecraftCommons}",
-            'enjinSdk'                : "com.enjin:sdk:${versions.enjinSdk}",
+            'enjinSdk'                : "com.enjin:blockchain-sdk:${versions.enjinSdk}",
             'kyoriText'               : "net.kyori:text-api:${versions.kyoriText}",
             'kyoriTextLegacy'         : "net.kyori:text-serializer-legacy:${versions.kyoriText}",
             'kyoriTextAdapterBukkit'  : "net.kyori:text-adapter-bukkit:${versions.kyoriTextAdapter}",
@@ -34,8 +32,6 @@ buildscript {
             'okhttpUrlConnection'     : "com.squareup.okhttp3:okhttp-urlconnection:${versions.okhttp}",
             'retrofit'                : "com.squareup.retrofit2:retrofit:${versions.retrofit}",
             'retrofitGson'            : "com.squareup.retrofit2:converter-gson:${versions.retrofit}",
-            'supportOptional'         : "com.github.dmstocking:support-optional:${versions.supportOptional}",
-            'nocatch'                 : "com.github.micheljung:nocatch:${versions.nocatch}",
             'nbtapi'                  : "de.tr7zw:item-nbt-api:${versions.nbtapi}"
     ]
 

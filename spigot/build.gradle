@@ -20,8 +20,6 @@ dependencies {
     shadow deps.okhttpUrlConnection
     shadow deps.retrofit
     shadow deps.retrofitGson
-    shadow deps.supportOptional
-    shadow deps.nocatch
 
     implementation deps.minecraftCommons
     implementation deps.nbtapi

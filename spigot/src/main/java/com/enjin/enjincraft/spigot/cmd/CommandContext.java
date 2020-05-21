@@ -4,7 +4,6 @@ import com.enjin.enjincraft.spigot.Bootstrap;
 import com.enjin.enjincraft.spigot.cmd.arg.PlayerArgumentProcessor;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
 import com.enjin.enjincraft.spigot.player.UnregisteredPlayerException;
-import com.github.nocatch.NoCatch;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -49,7 +48,7 @@ public class CommandContext {
     public Optional<Integer> argToInt(int index) {
         Optional<Integer> result = Optional.empty();
         if (index < args.size())
-            result = Optional.ofNullable(NoCatch.noCatch(() -> Integer.parseInt(args.get(index))));
+            result = Optional.of(Integer.parseInt(args.get(index)));
         return result;
     }
 

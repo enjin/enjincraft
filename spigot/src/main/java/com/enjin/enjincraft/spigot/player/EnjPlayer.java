@@ -12,6 +12,8 @@ import com.enjin.enjincraft.spigot.util.StringUtils;
 import com.enjin.enjincraft.spigot.util.TokenUtils;
 import com.enjin.enjincraft.spigot.wallet.MutableBalance;
 import com.enjin.enjincraft.spigot.wallet.TokenWallet;
+import com.enjin.enjincraft.spigot.wallet.TokenWalletView;
+import com.enjin.minecraft_commons.spigot.ui.AbstractMenu;
 import com.enjin.sdk.graphql.GraphQLResponse;
 import com.enjin.sdk.http.HttpResponse;
 import com.enjin.sdk.models.balance.Balance;
@@ -29,9 +31,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -63,6 +63,9 @@ public class EnjPlayer implements Listener {
     private List<EnjPlayer> sentTradeInvites     = new ArrayList<>();
     private List<EnjPlayer> receivedTradeInvites = new ArrayList<>();
     private TradeView       activeTradeView;
+
+    // Wallet Fields
+    private TokenWalletView activeWalletView;
 
     public EnjPlayer(SpigotBootstrap bootstrap, Player player) {
         this.bootstrap = bootstrap;
@@ -160,13 +163,59 @@ public class EnjPlayer implements Listener {
     }
 
     public void validateInventory() {
+        if (bukkitPlayer == null)
+            return;
+
         tokenWallet.getBalances().forEach(MutableBalance::reset);
-        if (bukkitPlayer == null) { return; }
-        PlayerInventory inventory = bukkitPlayer.getInventory();
+
+        validateInventory(bukkitPlayer.getInventory());
+
+        if (AbstractMenu.hasAnyMenu(bukkitPlayer)) {
+            if (activeTradeView != null)
+                activeTradeView.validateInventory();
+            else if (activeWalletView != null)
+                activeWalletView.validateInventory();
+        }
+
+        // Handles tokens in the player's cursor
+        InventoryView view   = bukkitPlayer.getOpenInventory();
+        ItemStack is = view.getCursor();
+        if (is != null && is.getType() != Material.AIR) {
+            String id = TokenUtils.getTokenID(is);
+
+            if (!StringUtils.isEmpty(id)) {
+                MutableBalance balance = tokenWallet.getBalance(id);
+                if (balance == null || balance.amountAvailableForWithdrawal() == 0) {
+                    view.setCursor(null);
+                } else {
+                    if (balance.amountAvailableForWithdrawal() < is.getAmount()) {
+                        is.setAmount(balance.amountAvailableForWithdrawal());
+                    }
+
+                    balance.withdraw(is.getAmount());
+
+                    TokenModel tokenModel = bootstrap.getTokenManager().getToken(id);
+                    String itemNBT = NBTItem.convertItemtoNBT(is).toString();
+
+                    if (!itemNBT.equals(tokenModel.getNbt())) {
+                        ItemStack newStack = tokenModel.getItemStack();
+                        newStack.setAmount(is.getAmount());
+                        view.setCursor(newStack);
+                    }
+                }
+            }
+        }
+    }
+
+    private void validateInventory(PlayerInventory inventory) {
+        if (inventory == null)
+            return;
+
         for (int i = inventory.getSize() - 1; i >= 0; i--) {
             ItemStack is = inventory.getItem(i);
             String    id = TokenUtils.getTokenID(is);
-            if (StringUtils.isEmpty(id)) { continue; }
+            if (StringUtils.isEmpty(id))
+                continue;
 
             MutableBalance balance = tokenWallet.getBalance(id);
             if (balance == null || balance.amountAvailableForWithdrawal() == 0) {
@@ -187,6 +236,87 @@ public class EnjPlayer implements Listener {
                     inventory.setItem(i, newStack);
                 }
             }
+        }
+
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            ItemStack is = getEquipmentSlot(slot);
+            if (is == null || is.getType() == Material.AIR)
+                continue;
+
+            String id = TokenUtils.getTokenID(is);
+            if (StringUtils.isEmpty(id))
+                continue;
+
+            MutableBalance balance = tokenWallet.getBalance(id);
+            if (balance == null || balance.amountAvailableForWithdrawal() == 0) {
+                setEquipmentSlot(slot, null);
+            } else {
+                if (balance.amountAvailableForWithdrawal() < is.getAmount()) {
+                    is.setAmount(balance.amountAvailableForWithdrawal());
+                }
+
+                balance.withdraw(is.getAmount());
+
+                TokenModel tokenModel = bootstrap.getTokenManager().getToken(id);
+                String itemNBT = NBTItem.convertItemtoNBT(is).toString();
+
+                if (!itemNBT.equals(tokenModel.getNbt())) {
+                    ItemStack newStack = tokenModel.getItemStack();
+                    newStack.setAmount(is.getAmount());
+                    setEquipmentSlot(slot, newStack);
+                }
+            }
+        }
+    }
+
+    private ItemStack getEquipmentSlot(EquipmentSlot slot) {
+        PlayerInventory inventory = bukkitPlayer.getInventory();
+        ItemStack is = null;
+        switch (slot) {
+            case OFF_HAND:
+                is = inventory.getItemInOffHand();
+                break;
+            case CHEST:
+                is = inventory.getChestplate();
+                break;
+            case LEGS:
+                is = inventory.getLeggings();
+                break;
+            case HEAD:
+                is = inventory.getHelmet();
+                break;
+            case FEET:
+                is = inventory.getBoots();
+                break;
+            default:
+                bootstrap.debug(String.format("Unsupported equipment slot type \"%s\"", slot.name()));
+                break;
+        }
+
+        return is;
+    }
+
+    private void setEquipmentSlot(EquipmentSlot slot, ItemStack is) {
+        PlayerInventory inventory = bukkitPlayer.getInventory();
+        switch (slot) {
+            case OFF_HAND:
+                inventory.setItemInOffHand(is);
+                break;
+            case CHEST:
+                inventory.setChestplate(is);
+                break;
+            case LEGS:
+                inventory.setLeggings(is);
+                break;
+            case HEAD:
+                inventory.setHelmet(is);
+                break;
+            case FEET:
+                inventory.setBoots(is);
+                break;
+            default:
+                bootstrap.debug(String.format("Unsupported equipment slot type \"%s\"", slot.name()));
+                break;
         }
     }
 
@@ -470,6 +600,14 @@ public class EnjPlayer implements Listener {
 
     public void setActiveTradeView(TradeView activeTradeView) {
         this.activeTradeView = activeTradeView;
+    }
+
+    public TokenWalletView getActiveWalletView() {
+        return activeWalletView;
+    }
+
+    public void setActiveWalletView(TokenWalletView activeWalletView) {
+        this.activeWalletView = activeWalletView;
     }
 
     public Integer getUserId() {
