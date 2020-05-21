@@ -239,7 +239,7 @@ public class EnjPlayer implements Listener {
         }
 
         for (EquipmentSlot slot : EquipmentSlot.values()) {
-            ItemStack is = getEquipmentSlot(slot);
+            ItemStack is = getEquipment(slot);
             if (is == null || is.getType() == Material.AIR)
                 continue;
 
@@ -249,7 +249,7 @@ public class EnjPlayer implements Listener {
 
             MutableBalance balance = tokenWallet.getBalance(id);
             if (balance == null || balance.amountAvailableForWithdrawal() == 0) {
-                setEquipmentSlot(slot, null);
+                setEquipment(slot, null);
             } else {
                 if (balance.amountAvailableForWithdrawal() < is.getAmount()) {
                     is.setAmount(balance.amountAvailableForWithdrawal());
@@ -263,13 +263,13 @@ public class EnjPlayer implements Listener {
                 if (!itemNBT.equals(tokenModel.getNbt())) {
                     ItemStack newStack = tokenModel.getItemStack();
                     newStack.setAmount(is.getAmount());
-                    setEquipmentSlot(slot, newStack);
+                    setEquipment(slot, newStack);
                 }
             }
         }
     }
 
-    private ItemStack getEquipmentSlot(EquipmentSlot slot) {
+    private ItemStack getEquipment(EquipmentSlot slot) {
         PlayerInventory inventory = bukkitPlayer.getInventory();
         ItemStack is = null;
         switch (slot) {
@@ -296,7 +296,7 @@ public class EnjPlayer implements Listener {
         return is;
     }
 
-    private void setEquipmentSlot(EquipmentSlot slot, ItemStack is) {
+    private void setEquipment(EquipmentSlot slot, ItemStack is) {
         PlayerInventory inventory = bukkitPlayer.getInventory();
         switch (slot) {
             case OFF_HAND:
