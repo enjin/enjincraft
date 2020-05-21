@@ -191,6 +191,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
             notificationsService.start();
             notificationsService.registerListener(new EnjEventListener(this));
             notificationsService.subscribeToApp(conf.getAppId());
+            tokenManager.subscribeToTokens();
         } catch (Exception ex) {
             throw new NotificationServiceException(ex);
         }

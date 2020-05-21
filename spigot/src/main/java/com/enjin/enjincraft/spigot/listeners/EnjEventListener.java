@@ -161,7 +161,7 @@ public class EnjEventListener implements com.enjin.sdk.services.notification.Not
     }
 
     private void onTokenUpdated(NotificationEvent event) {
-        if (!event.getChannel().contains("app"))
+        if (!event.getChannel().contains("token"))
             return;
 
         TransactionType type = getTransactionType(event);
