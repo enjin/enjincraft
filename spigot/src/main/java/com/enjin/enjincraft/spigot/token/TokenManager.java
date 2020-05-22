@@ -66,7 +66,7 @@ public class TokenManager {
                 tokenModel = gson.fromJson(fr, TokenModel.class);
                 tokenModel.load();
                 changed = tokenModel.applyBlacklist(bootstrap.getConfig().getPermissionBlacklist());
-                saveTokenInternally(tokenModel);
+                cacheAndSubscribe(tokenModel);
             } catch (Exception e) {
                 bootstrap.log(e);
             } finally {
@@ -97,7 +97,7 @@ public class TokenManager {
         try (FileWriter fw = new FileWriter(file, false)) {
             gson.toJson(tokenModel, fw);
             tokenModel.load();
-            saveTokenInternally(tokenModel);
+            cacheAndSubscribe(tokenModel);
 
             if (tokenModel.getAlternateId() != null)
                 alternateIds.put(tokenModel.getAlternateId(), tokenModel.getId());
@@ -109,7 +109,7 @@ public class TokenManager {
         return TOKEN_CREATE_SUCCESS;
     }
 
-    private void saveTokenInternally(TokenModel tokenModel) {
+    private void cacheAndSubscribe(TokenModel tokenModel) {
         tokenModels.put(tokenModel.getId(), tokenModel);
         permGraph.addToken(tokenModel);
         subscribeToToken(tokenModel);
