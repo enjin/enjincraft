@@ -2,6 +2,7 @@ package com.enjin.enjincraft.spigot.util;
 
 import com.enjin.enjincraft.spigot.token.TokenModel;
 import de.tr7zw.changeme.nbtapi.NBTItem;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 public class TokenUtils {
@@ -11,7 +12,7 @@ public class TokenUtils {
     }
 
     public static String getTokenID(ItemStack is) {
-        if (is != null) {
+        if (is != null && is.getType() != Material.AIR) {
             NBTItem nbt = new NBTItem(is);
 
             if (nbt.hasKey(TokenModel.NBT_ID))

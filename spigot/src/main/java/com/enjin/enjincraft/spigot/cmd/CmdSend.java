@@ -16,7 +16,6 @@ import com.enjin.sdk.models.request.CreateRequest;
 import com.enjin.sdk.models.request.Transaction;
 import com.enjin.sdk.models.request.data.SendTokenData;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -78,16 +77,13 @@ public class CmdSend extends EnjCommand {
             return;
         }
 
-        ItemStack is = sender.getInventory().getItemInMainHand();
+        ItemStack is      = sender.getInventory().getItemInMainHand();
+        String    tokenId = TokenUtils.getTokenID(is);
 
-        if (is.getType() == Material.AIR) {
+        if (tokenId == null) {
             Translation.COMMAND_SEND_MUSTHOLDITEM.send(sender);
             return;
-        }
-
-        String tokenId = TokenUtils.getTokenID(is);
-
-        if (StringUtils.isEmpty(tokenId)) {
+        } else if (StringUtils.isEmpty(tokenId)) {
             Translation.COMMAND_SEND_ITEMNOTTOKEN.send(sender);
             return;
         }

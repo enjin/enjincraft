@@ -63,7 +63,7 @@ public class TokenItemListener implements Listener {
     @EventHandler
     public void onPlayerDropItem(PlayerDropItemEvent event) {
         ItemStack is = event.getItemDrop().getItemStack();
-        String id = TokenUtils.getTokenID(is);
+        String    id = TokenUtils.getTokenID(is);
 
         Optional<EnjPlayer> optionalPlayer = bootstrap.getPlayerManager().getPlayer(event.getPlayer());
 
@@ -79,14 +79,11 @@ public class TokenItemListener implements Listener {
         // Checks for available space
         for (int i = 0; i < size; i++) {
             ItemStack inventoryItem = inventory.getItem(i);
+            String    inventoryId   = TokenUtils.getTokenID(inventoryItem);
 
-            if (inventoryItem == null || inventoryItem.getType() == Material.AIR)
+            if (inventoryId == null) {
                 return;
-
-            String inventoryId = TokenUtils.getTokenID(inventoryItem);
-
-            // Gets the first available non-tokenized item
-            if (StringUtils.isEmpty(inventoryId) && idx < 0) {
+            } else if (StringUtils.isEmpty(inventoryId) && idx < 0) { // Gets the first available non-tokenized item
                 idx = i;
                 continue;
             }
@@ -203,9 +200,6 @@ public class TokenItemListener implements Listener {
 
         // Checks if a token was placed outside the player's inventory
         newItems.forEach((rawSlot, is) -> {
-            if (is == null || is.getType() == Material.AIR)
-                return;
-
             String tokenId = TokenUtils.getTokenID(is);
 
             if (!StringUtils.isEmpty(tokenId) && (rawSlot < playerLower || rawSlot >= playerUpper))
@@ -220,7 +214,7 @@ public class TokenItemListener implements Listener {
         CraftingInventory inventory = event.getInventory();
         for (int i = inventory.getSize() - 1; i >= 0; i--) {
             ItemStack is = inventory.getItem(i);
-            String id = TokenUtils.getTokenID(is);
+            String    id = TokenUtils.getTokenID(is);
 
             if (StringUtils.isEmpty(id))
                 continue;
@@ -232,12 +226,8 @@ public class TokenItemListener implements Listener {
 
     @EventHandler
     public void onArmorStandInteract(PlayerArmorStandManipulateEvent event) {
-        ItemStack held = event.getPlayerItem();
-
-        if (held.getType() == Material.AIR)
-            return;
-
-        String tokenId = TokenUtils.getTokenID(held);
+        ItemStack held    = event.getPlayerItem();
+        String    tokenId = TokenUtils.getTokenID(held);
 
         if (StringUtils.isEmpty(tokenId))
             return;
@@ -256,7 +246,7 @@ public class TokenItemListener implements Listener {
     private void interactItemFrame(PlayerInteractEntityEvent event, ItemFrame itemFrame) {
         ItemStack held = event.getPlayer().getInventory().getItemInMainHand();
 
-        if (held.getType() == Material.AIR || itemFrame.getItem().getType() != Material.AIR)
+        if (itemFrame.getItem().getType() != Material.AIR)
             return;
 
         String tokenId = TokenUtils.getTokenID(held);
