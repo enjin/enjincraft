@@ -13,7 +13,6 @@ import com.enjin.minecraft_commons.spigot.ui.menu.ChestMenu;
 import com.enjin.minecraft_commons.spigot.ui.menu.component.SimpleMenuComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -94,17 +93,15 @@ public class TokenWalletView extends ChestMenu implements EnjTokenView {
         int capacity = inventory.getSize() - (inventory.getArmorContents().length + inventory.getExtraContents().length);
 
         for (int i = 0; i < capacity && !slotAvailable; i++) {
-            ItemStack content = inventory.getItem(i);
+            ItemStack content   = inventory.getItem(i);
+            String    contentId = TokenUtils.getTokenID(content);
 
-            if (content == null || content.getType() == Material.AIR) {
+            if (contentId == null) {
                 slotAvailable = true;
                 continue;
-            }
-
-            String contentId = TokenUtils.getTokenID(content);
-
-            if (StringUtils.isEmpty(contentId))
+            } else if (StringUtils.isEmpty(contentId)) {
                 continue;
+            }
 
             if (contentId.equals(tokenId) && content.getAmount() < content.getMaxStackSize())
                 slotAvailable = true;
@@ -137,18 +134,16 @@ public class TokenWalletView extends ChestMenu implements EnjTokenView {
     public void onTokenDeposit(InventoryClickEvent event) {
         if (event.getClickedInventory() instanceof PlayerInventory) {
             ItemStack current = event.getCurrentItem();
-            if (current != null) {
-                String id = TokenUtils.getTokenID(current);
-                if (!StringUtils.isEmpty(id)) {
-                    Optional<EnjPlayer> optionalPlayer = bootstrap.getPlayerManager().getPlayer((Player) event.getWhoClicked());
-                    if (!optionalPlayer.isPresent())
-                        return;
-                    EnjPlayer player = optionalPlayer.get();
-                    MutableBalance balance = player.getTokenWallet().getBalance(id);
-                    balance.deposit(current.getAmount());
-                    current.setAmount(0);
-                    Bukkit.getScheduler().scheduleSyncDelayedTask(bootstrap.plugin(), () -> repopulate((Player) event.getWhoClicked()));
-                }
+            String    id      = TokenUtils.getTokenID(current);
+            if (!StringUtils.isEmpty(id)) {
+                Optional<EnjPlayer> optionalPlayer = bootstrap.getPlayerManager().getPlayer((Player) event.getWhoClicked());
+                if (!optionalPlayer.isPresent())
+                    return;
+                EnjPlayer player = optionalPlayer.get();
+                MutableBalance balance = player.getTokenWallet().getBalance(id);
+                balance.deposit(current.getAmount());
+                current.setAmount(0);
+                Bukkit.getScheduler().scheduleSyncDelayedTask(bootstrap.plugin(), () -> repopulate((Player) event.getWhoClicked()));
             }
         }
     }

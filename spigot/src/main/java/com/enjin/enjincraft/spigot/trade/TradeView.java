@@ -193,7 +193,8 @@ public class TradeView extends ChestMenu implements EnjTokenView {
             for (int x = 0; x < 4; x++) {
                 InventoryView view = this.viewer.getBukkitPlayer().getOpenInventory();
                 ItemStack item = view.getItem(x + (y * INV_WIDTH));
-                if (item != null && item.getType() != Material.AIR)
+                String    id   = TokenUtils.getTokenID(item);
+                if (!StringUtils.isEmpty(id))
                     items.add(item);
             }
         }
@@ -215,12 +216,8 @@ public class TradeView extends ChestMenu implements EnjTokenView {
             for (int x = 0; x < cols; x++) {
                 int slot = x + (y * INV_WIDTH);
                 InventoryView view = this.viewer.getBukkitPlayer().getOpenInventory();
-                ItemStack is = view.getItem(slot);
-
-                if (is == null || is.getType() == Material.AIR)
-                    continue;
-
-                String id = TokenUtils.getTokenID(is);
+                ItemStack     is   = view.getItem(slot);
+                String        id   = TokenUtils.getTokenID(is);
 
                 if (StringUtils.isEmpty(id))
                     continue;
@@ -310,11 +307,10 @@ public class TradeView extends ChestMenu implements EnjTokenView {
     public void onInventoryClick(InventoryClickEvent event) {
         if (event.getClickedInventory() instanceof PlayerInventory) {
             ItemStack is = event.getCurrentItem();
+            String    id = TokenUtils.getTokenID(is);
 
-            if (is == null || is.getType() == Material.AIR)
+            if (id == null)
                 return;
-
-            String id = TokenUtils.getTokenID(is);
             if (StringUtils.isEmpty(id))
                 event.setResult(Event.Result.DENY);
         } else {

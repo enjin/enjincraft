@@ -26,7 +26,6 @@ import com.enjin.sdk.models.wallet.Wallet;
 import com.enjin.sdk.services.notification.NotificationsService;
 import de.tr7zw.changeme.nbtapi.NBTItem;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -178,30 +177,27 @@ public class EnjPlayer implements Listener {
         }
 
         // Handles tokens in the player's cursor
-        InventoryView view   = bukkitPlayer.getOpenInventory();
-        ItemStack is = view.getCursor();
-        if (is != null && is.getType() != Material.AIR) {
-            String id = TokenUtils.getTokenID(is);
+        InventoryView view = bukkitPlayer.getOpenInventory();
+        ItemStack     is   = view.getCursor();
+        String        id   = TokenUtils.getTokenID(is);
+        if (!StringUtils.isEmpty(id)) {
+            MutableBalance balance = tokenWallet.getBalance(id);
+            if (balance == null || balance.amountAvailableForWithdrawal() == 0) {
+                view.setCursor(null);
+            } else {
+                if (balance.amountAvailableForWithdrawal() < is.getAmount()) {
+                    is.setAmount(balance.amountAvailableForWithdrawal());
+                }
 
-            if (!StringUtils.isEmpty(id)) {
-                MutableBalance balance = tokenWallet.getBalance(id);
-                if (balance == null || balance.amountAvailableForWithdrawal() == 0) {
-                    view.setCursor(null);
-                } else {
-                    if (balance.amountAvailableForWithdrawal() < is.getAmount()) {
-                        is.setAmount(balance.amountAvailableForWithdrawal());
-                    }
+                balance.withdraw(is.getAmount());
 
-                    balance.withdraw(is.getAmount());
+                TokenModel tokenModel = bootstrap.getTokenManager().getToken(id);
+                String itemNBT = NBTItem.convertItemtoNBT(is).toString();
 
-                    TokenModel tokenModel = bootstrap.getTokenManager().getToken(id);
-                    String itemNBT = NBTItem.convertItemtoNBT(is).toString();
-
-                    if (!itemNBT.equals(tokenModel.getNbt())) {
-                        ItemStack newStack = tokenModel.getItemStack();
-                        newStack.setAmount(is.getAmount());
-                        view.setCursor(newStack);
-                    }
+                if (!itemNBT.equals(tokenModel.getNbt())) {
+                    ItemStack newStack = tokenModel.getItemStack();
+                    newStack.setAmount(is.getAmount());
+                    view.setCursor(newStack);
                 }
             }
         }
@@ -240,10 +236,7 @@ public class EnjPlayer implements Listener {
 
         for (EquipmentSlot slot : EquipmentSlot.values()) {
             ItemStack is = getEquipment(slot);
-            if (is == null || is.getType() == Material.AIR)
-                continue;
-
-            String id = TokenUtils.getTokenID(is);
+            String    id = TokenUtils.getTokenID(is);
             if (StringUtils.isEmpty(id))
                 continue;
 
@@ -342,7 +335,7 @@ public class EnjPlayer implements Listener {
 
         for (int i = 0; i < inventory.getSize(); i++) {
             ItemStack is = inventory.getItem(i);
-            id = TokenUtils.getTokenID(is);
+            id           = TokenUtils.getTokenID(is);
 
             if (!StringUtils.isEmpty(id) && id.equals(tokenModel.getId())) {
                 String itemNBT = NBTItem.convertItemtoNBT(is).toString();
@@ -554,10 +547,8 @@ public class EnjPlayer implements Listener {
     public void removeTokenizedItems() {
         Inventory inventory = bukkitPlayer.getInventory();
         for (int i = 0; i < inventory.getSize(); i++) {
-            ItemStack is = inventory.getItem(i);
-            if (is == null || is.getType() == Material.AIR) { continue; }
-
-            String tokenId = TokenUtils.getTokenID(is);
+            ItemStack is      = inventory.getItem(i);
+            String    tokenId = TokenUtils.getTokenID(is);
             if (!StringUtils.isEmpty(tokenId)) { inventory.setItem(i, null); }
         }
     }
