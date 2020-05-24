@@ -14,7 +14,7 @@ EnjinCraft uses Gradle to manage dependencies and building.
 
 #### Requirements
 * Java 8 JDK or newer
-* Git or Git enabled tools
+* Git
 
 #### Building
 
@@ -38,7 +38,8 @@ If you make any changes or improvements to the plugin which you believe would be
 
 The project consists of the following modules.
 
-* server - implementation for the spigot server platform.
+* spigot - implementation for the spigot server platform.
+* translation-converter - converts translation CSV files to YML format.
 
 ## License
 
