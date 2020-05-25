@@ -9,6 +9,7 @@ import com.enjin.enjincraft.spigot.token.TokenModel;
 import com.enjin.enjincraft.spigot.util.MessageUtils;
 import com.enjin.enjincraft.spigot.util.StringUtils;
 import com.enjin.enjincraft.spigot.util.TokenUtils;
+import com.enjin.enjincraft.spigot.util.UiUtils;
 import com.enjin.enjincraft.spigot.wallet.MutableBalance;
 import com.enjin.minecraft_commons.spigot.ui.*;
 import com.enjin.minecraft_commons.spigot.ui.menu.ChestMenu;
@@ -140,21 +141,12 @@ public class TradeView extends ChestMenu implements EnjTokenView {
         this.otherStatusComponent.setItem(Position.of(0, 0), getPlayerHead(other.getBukkitPlayer(), TargetPlayer.OTHER));
         this.otherStatusComponent.setItem(Position.of(3, 0), unreadyPane);
 
-        // Place the horizontal separator
-        Component horizontalBarrier = new SimpleMenuComponent(new Dimension(9, 1));
-        for (int i = 0; i < horizontalBarrier.getDimension().getWidth(); i++) {
-            ((SimpleMenuComponent) horizontalBarrier).setItem(Position.of(i, 0), createSeparatorItemStack());
-        }
-
-        // Place the upper vertical separator
-        Component verticalBarrierTop = new SimpleMenuComponent(new Dimension(1, 4));
-        for (int i = 0; i < verticalBarrierTop.getDimension().getHeight(); i++) {
-            ((SimpleMenuComponent) verticalBarrierTop).setItem(Position.of(0, i), createSeparatorItemStack());
-        }
-
-        // Place the lower vertical separator
-        Component verticalBarrierBottom = new SimpleMenuComponent(new Dimension(1, 1));
-        ((SimpleMenuComponent) verticalBarrierBottom).setItem(Position.of(0, 0), createSeparatorItemStack());
+        // Creates the horizontal separator
+        Component horizontalBarrier = UiUtils.createSeparator(new Dimension(9, 1));
+        // Creates the upper vertical separator
+        Component verticalBarrierTop = UiUtils.createSeparator(new Dimension(1, 4));
+        // Creates the lower vertical separator
+        Component verticalBarrierBottom = UiUtils.createSeparator(new Dimension(1, 1));
 
         addComponent(Position.of(0, 0), this.viewerItemsComponent);
         addComponent(Position.of(0, 5), this.viewerStatusComponent);
@@ -261,14 +253,6 @@ public class TradeView extends ChestMenu implements EnjTokenView {
         SkullMeta meta = (SkullMeta) stack.getItemMeta();
         meta.setOwningPlayer(player);
         meta.setDisplayName(target == TargetPlayer.SELF ? "You" : player.getName());
-        stack.setItemMeta(meta);
-        return stack;
-    }
-
-    private ItemStack createSeparatorItemStack() {
-        ItemStack stack = new ItemStack(Material.IRON_BARS);
-        ItemMeta meta = stack.getItemMeta();
-        meta.setDisplayName(ChatColor.DARK_PURPLE + "|");
         stack.setItemMeta(meta);
         return stack;
     }
