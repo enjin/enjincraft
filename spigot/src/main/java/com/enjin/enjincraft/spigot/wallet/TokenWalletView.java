@@ -56,6 +56,8 @@ public class TokenWalletView extends ChestMenu implements EnjTokenView {
     private void populate() {
         List<MutableBalance> balances = owner.getTokenWallet().getBalances();
 
+        component.removeAllActions();
+
         int index = 0;
         for (MutableBalance balance : balances) {
             if (index == component.size())
@@ -67,12 +69,12 @@ public class TokenWalletView extends ChestMenu implements EnjTokenView {
             if (model == null)
                 continue;
 
+            Position position = Position.of(index % getDimension().getWidth(), index / getDimension().getWidth());
             ItemStack is = model.getItemStack();
             is.setAmount(balance.amountAvailableForWithdrawal());
-            component.setItem(index % getDimension().getWidth(), index / getDimension().getWidth(), is);
+            component.setItem(position, is);
 
-            addComponent(Position.of(0, 0), component);
-            component.addAction(is, player -> {
+            component.addAction(position, player -> {
                 PlayerInventory inventory = player.getInventory();
 
                 if (balance.amountAvailableForWithdrawal() > 0 && slotAvailable(inventory, balance.id())) {
@@ -86,6 +88,8 @@ public class TokenWalletView extends ChestMenu implements EnjTokenView {
 
             index++;
         }
+
+        addComponent(Position.of(0, 0), component);
     }
 
     private boolean slotAvailable(PlayerInventory inventory, String tokenId) {

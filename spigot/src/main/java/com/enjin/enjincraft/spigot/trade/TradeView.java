@@ -86,8 +86,9 @@ public class TradeView extends ChestMenu implements EnjTokenView {
         this.viewerStatusComponent = new SimpleMenuComponent(new Dimension(4, 1));
         this.viewerStatusComponent.setItem(Position.of(0, 0), getPlayerHead(viewer.getBukkitPlayer(), TargetPlayer.SELF));
 
-        this.viewerStatusComponent.setItem(Position.of(1, 0), readyItem);
-        this.viewerStatusComponent.addAction(readyItem, p -> {
+        Position readyPosition = Position.of(1, 0);
+        this.viewerStatusComponent.setItem(readyPosition, readyItem);
+        this.viewerStatusComponent.addAction(readyPosition, p -> {
             try {
                 this.playerReady = true;
                 setItem(p, this.viewerStatusComponent, Position.of(3, 0), readyPane);
@@ -117,8 +118,10 @@ public class TradeView extends ChestMenu implements EnjTokenView {
                 bootstrap.log(ex);
             }
         }, ClickType.LEFT, ClickType.RIGHT);
-        this.viewerStatusComponent.setItem(Position.of(2, 0), unreadyItem);
-        this.viewerStatusComponent.addAction(unreadyItem, p -> {
+
+        Position unreadyPosition = Position.of(2, 0);
+        this.viewerStatusComponent.setItem(unreadyPosition, unreadyItem);
+        this.viewerStatusComponent.addAction(unreadyPosition, p -> {
             this.playerReady = false;
             setItem(p, this.viewerStatusComponent, Position.of(3, 0), unreadyPane);
             p.updateInventory();
