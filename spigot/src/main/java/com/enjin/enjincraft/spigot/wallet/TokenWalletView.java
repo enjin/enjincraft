@@ -125,6 +125,10 @@ public class TokenWalletView extends ChestMenu implements EnjTokenView {
             index++;
         }
 
+        // Puts the view at the nearest empty page if multiple pages were lost when repopulating
+        if (currentPage > inventoryPagedComponent.getPageCount())
+            currentPage = inventoryPagedComponent.getPageCount();
+
         drawInventory();
     }
 
