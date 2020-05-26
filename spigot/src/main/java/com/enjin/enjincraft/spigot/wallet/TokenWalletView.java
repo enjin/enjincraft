@@ -212,6 +212,9 @@ public class TokenWalletView extends ChestMenu implements EnjTokenView {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onTokenDeposit(InventoryClickEvent event) {
+        if (owner.getBukkitPlayer() != event.getWhoClicked())
+            return;
+
         if (event.getClickedInventory() instanceof PlayerInventory) {
             ItemStack current = event.getCurrentItem();
             String    id      = TokenUtils.getTokenID(current);
