@@ -292,6 +292,9 @@ public class TradeView extends ChestMenu implements EnjTokenView {
     @Override
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
+        if (viewer.getBukkitPlayer() != event.getWhoClicked())
+            return;
+
         if (event.getClickedInventory() instanceof PlayerInventory) {
             ItemStack is = event.getCurrentItem();
             String    id = TokenUtils.getTokenID(is);
