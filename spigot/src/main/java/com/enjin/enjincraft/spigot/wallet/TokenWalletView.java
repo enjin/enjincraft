@@ -93,8 +93,8 @@ public class TokenWalletView extends ChestMenu implements EnjTokenView {
         // Creates the navigation separator
         Component separator = UiUtils.createSeparator(new Dimension(WIDTH, 1));
 
-        addComponent(Position.of(0, 0), navigationComponent);
-        addComponent(Position.of(0, 1), separator);
+        addComponent(Position.of(0, 5), navigationComponent);
+        addComponent(Position.of(0, 4), separator);
 
         populate();
     }
@@ -150,7 +150,7 @@ public class TokenWalletView extends ChestMenu implements EnjTokenView {
             }
         }
 
-        addComponent(Position.of(0, 2), inventoryViewComponent);
+        addComponent(Position.of(0, 0), inventoryViewComponent);
     }
 
     protected void addWithdrawAction(Position position, MutableBalance balance, ItemStack is) {
