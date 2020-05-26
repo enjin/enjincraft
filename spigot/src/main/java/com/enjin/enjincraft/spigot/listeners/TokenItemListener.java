@@ -78,12 +78,12 @@ public class TokenItemListener implements Listener {
 
         // Checks for available space
         for (int i = 0; i < size; i++) {
-            ItemStack item   = inventory.getItem(i);
-            String    itemId = TokenUtils.getTokenID(item);
-
-            if (itemId == null) {
+            ItemStack item = inventory.getItem(i);
+            if (item == null || item.getType() == Material.AIR)
                 return;
-            } else if (StringUtils.isEmpty(itemId) && idx < 0) { // Gets the first available non-tokenized item
+
+            String itemId = TokenUtils.getTokenID(item);
+            if (StringUtils.isEmpty(itemId) && idx < 0) { // Gets the first available non-tokenized item
                 idx = i;
                 continue;
             }
