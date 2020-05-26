@@ -1,6 +1,6 @@
 buildscript {
     ext.versions = [
-            'minecraftCommons': '0.1.1-SNAPSHOT',
+            'minecraftCommons': '1.0.0-SNAPSHOT',
             'enjinSdk'        : '1.0.0-SNAPSHOT',
             'kyoriText'       : '3.0.2',
             'kyoriTextAdapter': '3.0.3',
@@ -16,7 +16,7 @@ buildscript {
     ]
 
     ext.deps = [
-            'minecraftCommons'        : "com.enjin.minecraft_commons:spigot:${versions.minecraftCommons}",
+            'minecraftCommons'        : "com.enjin:spigot-commons:${versions.minecraftCommons}",
             'enjinSdk'                : "com.enjin:blockchain-sdk:${versions.enjinSdk}",
             'kyoriText'               : "net.kyori:text-api:${versions.kyoriText}",
             'kyoriTextLegacy'         : "net.kyori:text-serializer-legacy:${versions.kyoriText}",
@@ -40,10 +40,8 @@ buildscript {
     if (file.exists()) local.load(file.newDataInputStream())
 
     repositories {
-        jcenter();
-        gradlePluginPortal()
         mavenCentral()
-        maven { url 'https://plugins.gradle.org/m2/' }
+        gradlePluginPortal()
     }
 }
 
@@ -60,7 +58,6 @@ allprojects {
     version = '1.0.0-SNAPSHOT'
 
     repositories {
-        jcenter()
         mavenLocal()
         mavenCentral()
         maven { url 'https://oss.sonatype.org/content/groups/public/' }
