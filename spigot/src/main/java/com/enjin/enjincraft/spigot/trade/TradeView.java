@@ -11,6 +11,7 @@ import com.enjin.enjincraft.spigot.util.StringUtils;
 import com.enjin.enjincraft.spigot.util.TokenUtils;
 import com.enjin.enjincraft.spigot.util.UiUtils;
 import com.enjin.enjincraft.spigot.wallet.MutableBalance;
+import com.enjin.enjincraft.spigot.wallet.TokenWallet;
 import com.enjin.minecraft_commons.spigot.ui.*;
 import com.enjin.minecraft_commons.spigot.ui.menu.ChestMenu;
 import com.enjin.minecraft_commons.spigot.ui.menu.component.SimpleMenuComponent;
@@ -35,6 +36,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class TradeView extends ChestMenu implements EnjTokenView {
@@ -346,7 +348,7 @@ public class TradeView extends ChestMenu implements EnjTokenView {
                     is.setAmount(amount);
 
                     updateSlotWithHandler(slot, is, is);
-                    
+
                     if (currItem.getAmount() <= 0) {
                         event.getClickedInventory().setItem(event.getSlot(), null);
                         return;
@@ -420,17 +422,31 @@ public class TradeView extends ChestMenu implements EnjTokenView {
 
     private void returnItems(Player player) {
         Inventory playerInventory = player.getInventory();
-        Inventory inventory = getInventory(player, false);
+        Inventory inventory       = getInventory(player, false);
         if (inventory != null) {
+            List<ItemStack> items = new ArrayList<>();
+
             for (int y = 0; y < this.viewerItemsComponent.getDimension().getHeight(); y++) {
                 for (int x = 0; x < this.viewerItemsComponent.getDimension().getWidth(); x++) {
                     ItemStack item = inventory.getItem(x + (y * getDimension().getWidth()));
-                    if (item != null && item.getType() != Material.AIR) {
-                        playerInventory.addItem(item);
-                    }
+                    String    id   = TokenUtils.getTokenID(item);
+                    if (!StringUtils.isEmpty(id))
+                        items.add(item);
+                }
+            }
+
+            Map<Integer, ItemStack> leftOver = playerInventory.addItem(items.toArray(new ItemStack[] {}));
+            if (leftOver.size() > 0) {
+                TokenWallet tokenWallet = viewer.getTokenWallet();
+                for (Map.Entry<Integer, ItemStack> entry : leftOver.entrySet()) {
+                    ItemStack is = entry.getValue();
+                    MutableBalance balance = tokenWallet.getBalance(TokenUtils.getTokenID(is));
+                    balance.deposit(is.getAmount());
                 }
             }
         }
+
+
     }
 
     private void informViewerOfCancellation() {
