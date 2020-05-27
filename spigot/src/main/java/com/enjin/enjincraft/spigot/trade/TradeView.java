@@ -24,6 +24,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
@@ -209,7 +210,7 @@ public class TradeView extends ChestMenu implements EnjTokenView {
 
         for (int y = 0; y < rows; y++) {
             for (int x = 0; x < cols; x++) {
-                int slot = x + (y * INV_WIDTH);
+                int           slot = x + (y * INV_WIDTH);
                 InventoryView view = this.viewer.getBukkitPlayer().getOpenInventory();
                 ItemStack     is   = view.getItem(slot);
                 String        id   = TokenUtils.getTokenID(is);
@@ -299,12 +300,96 @@ public class TradeView extends ChestMenu implements EnjTokenView {
             ItemStack is = event.getCurrentItem();
             String    id = TokenUtils.getTokenID(is);
 
-            if (id == null)
+            if (id == null) {
                 return;
-            if (StringUtils.isEmpty(id))
+            } else if (StringUtils.isEmpty(id)) {
                 event.setResult(Event.Result.DENY);
+                return;
+            }
+
+            if (event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY)
+                moveToTradeInventory(event);
         } else {
             super.onInventoryClick(event);
+
+            if (event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY)
+                moveToPlayerInventory(event);
+        }
+    }
+
+    private void moveToTradeInventory(InventoryClickEvent event) {
+        event.setCancelled(true);
+
+        InventoryView view = this.viewer.getBukkitPlayer().getOpenInventory();
+        ItemStack currItem = event.getCurrentItem();
+        String    currId   = TokenUtils.getTokenID(currItem);
+        Dimension dimension = viewerItemsComponent.getDimension();
+        int rows = dimension.getHeight();
+        int cols = dimension.getWidth();
+
+        for (int y = 0; y < rows; y++) {
+            for (int x = 0; x < cols; x++) {
+                int       slot = x + (y * INV_WIDTH);
+                ItemStack is   = view.getItem(slot);
+                String    id   = TokenUtils.getTokenID(is);
+
+                if (id == null) {
+                    // Transfers the whole stack
+                    view.setItem(slot, event.getCurrentItem());
+                    updateSlotWithHandler(slot, is, event.getCurrentItem());
+                    event.getClickedInventory().setItem(event.getSlot(), null);
+                    return;
+                } else if (id.equals(currId)) {
+                    // Combines what is possible with the other stack
+                    int amount = Math.min(is.getMaxStackSize(), is.getAmount() + currItem.getAmount());
+                    currItem.setAmount(currItem.getAmount() - (amount - is.getAmount()));
+                    is.setAmount(amount);
+
+                    updateSlotWithHandler(slot, is, is);
+                    
+                    if (currItem.getAmount() <= 0) {
+                        event.getClickedInventory().setItem(event.getSlot(), null);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    private void moveToPlayerInventory(InventoryClickEvent event) {
+        event.setCancelled(true);
+
+        PlayerInventory playerInventory = viewer.getBukkitPlayer().getInventory();
+        ItemStack currItem = event.getCurrentItem();
+        String    currId   = TokenUtils.getTokenID(currItem);
+
+        if (StringUtils.isEmpty(currId))
+            return;
+
+        for (int i = 0; i < playerInventory.getStorageContents().length; i++) {
+            ItemStack is = playerInventory.getItem(i);
+            String    id = TokenUtils.getTokenID(is);
+
+            if (id == null) {
+                // Transfers the whole stack
+                event.getClickedInventory().setItem(event.getSlot(), null);
+                updateSlotWithHandler(event.getSlot(), currItem, null);
+                playerInventory.setItem(i, currItem);
+                return;
+            } else if (id.equals(currId)) {
+                // Combines what is possible with the other stack
+                int amount = Math.min(is.getMaxStackSize(), is.getAmount() + currItem.getAmount());
+                currItem.setAmount(currItem.getAmount() - (amount - is.getAmount()));
+                is.setAmount(amount);
+
+                if (currItem.getAmount() > 0) {
+                    updateSlotWithHandler(event.getSlot(), currItem, currItem);
+                } else {
+                    event.getClickedInventory().setItem(event.getSlot(), null);
+                    updateSlotWithHandler(event.getSlot(), currItem, null);
+                    return;
+                }
+            }
         }
     }
 
