@@ -9,7 +9,9 @@ import com.enjin.enjincraft.spigot.token.TokenModel;
 import com.enjin.enjincraft.spigot.util.MessageUtils;
 import com.enjin.enjincraft.spigot.util.StringUtils;
 import com.enjin.enjincraft.spigot.util.TokenUtils;
+import com.enjin.enjincraft.spigot.util.UiUtils;
 import com.enjin.enjincraft.spigot.wallet.MutableBalance;
+import com.enjin.enjincraft.spigot.wallet.TokenWallet;
 import com.enjin.minecraft_commons.spigot.ui.*;
 import com.enjin.minecraft_commons.spigot.ui.menu.ChestMenu;
 import com.enjin.minecraft_commons.spigot.ui.menu.component.SimpleMenuComponent;
@@ -23,6 +25,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
@@ -33,6 +36,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class TradeView extends ChestMenu implements EnjTokenView {
@@ -140,21 +144,12 @@ public class TradeView extends ChestMenu implements EnjTokenView {
         this.otherStatusComponent.setItem(Position.of(0, 0), getPlayerHead(other.getBukkitPlayer(), TargetPlayer.OTHER));
         this.otherStatusComponent.setItem(Position.of(3, 0), unreadyPane);
 
-        // Place the horizontal separator
-        Component horizontalBarrier = new SimpleMenuComponent(new Dimension(9, 1));
-        for (int i = 0; i < horizontalBarrier.getDimension().getWidth(); i++) {
-            ((SimpleMenuComponent) horizontalBarrier).setItem(Position.of(i, 0), createSeparatorItemStack());
-        }
-
-        // Place the upper vertical separator
-        Component verticalBarrierTop = new SimpleMenuComponent(new Dimension(1, 4));
-        for (int i = 0; i < verticalBarrierTop.getDimension().getHeight(); i++) {
-            ((SimpleMenuComponent) verticalBarrierTop).setItem(Position.of(0, i), createSeparatorItemStack());
-        }
-
-        // Place the lower vertical separator
-        Component verticalBarrierBottom = new SimpleMenuComponent(new Dimension(1, 1));
-        ((SimpleMenuComponent) verticalBarrierBottom).setItem(Position.of(0, 0), createSeparatorItemStack());
+        // Creates the horizontal separator
+        Component horizontalBarrier = UiUtils.createSeparator(new Dimension(9, 1));
+        // Creates the upper vertical separator
+        Component verticalBarrierTop = UiUtils.createSeparator(new Dimension(1, 4));
+        // Creates the lower vertical separator
+        Component verticalBarrierBottom = UiUtils.createSeparator(new Dimension(1, 1));
 
         addComponent(Position.of(0, 0), this.viewerItemsComponent);
         addComponent(Position.of(0, 5), this.viewerStatusComponent);
@@ -217,7 +212,7 @@ public class TradeView extends ChestMenu implements EnjTokenView {
 
         for (int y = 0; y < rows; y++) {
             for (int x = 0; x < cols; x++) {
-                int slot = x + (y * INV_WIDTH);
+                int           slot = x + (y * INV_WIDTH);
                 InventoryView view = this.viewer.getBukkitPlayer().getOpenInventory();
                 ItemStack     is   = view.getItem(slot);
                 String        id   = TokenUtils.getTokenID(is);
@@ -265,14 +260,6 @@ public class TradeView extends ChestMenu implements EnjTokenView {
         return stack;
     }
 
-    private ItemStack createSeparatorItemStack() {
-        ItemStack stack = new ItemStack(Material.IRON_BARS);
-        ItemMeta meta = stack.getItemMeta();
-        meta.setDisplayName(ChatColor.DARK_PURPLE + "|");
-        stack.setItemMeta(meta);
-        return stack;
-    }
-
     private ItemStack createReadyItemStack() {
         ItemStack stack = new ItemStack(Material.HOPPER);
         ItemMeta meta = stack.getItemMeta();
@@ -308,16 +295,103 @@ public class TradeView extends ChestMenu implements EnjTokenView {
     @Override
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
+        if (viewer.getBukkitPlayer() != event.getWhoClicked())
+            return;
+
         if (event.getClickedInventory() instanceof PlayerInventory) {
             ItemStack is = event.getCurrentItem();
             String    id = TokenUtils.getTokenID(is);
 
-            if (id == null)
+            if (id == null) {
                 return;
-            if (StringUtils.isEmpty(id))
+            } else if (StringUtils.isEmpty(id)) {
                 event.setResult(Event.Result.DENY);
+                return;
+            }
+
+            if (event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY)
+                moveToTradeInventory(event);
         } else {
             super.onInventoryClick(event);
+
+            if (event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY)
+                moveToPlayerInventory(event);
+        }
+    }
+
+    private void moveToTradeInventory(InventoryClickEvent event) {
+        event.setCancelled(true);
+
+        InventoryView view = this.viewer.getBukkitPlayer().getOpenInventory();
+        ItemStack currItem = event.getCurrentItem();
+        String    currId   = TokenUtils.getTokenID(currItem);
+        Dimension dimension = viewerItemsComponent.getDimension();
+        int rows = dimension.getHeight();
+        int cols = dimension.getWidth();
+
+        for (int y = 0; y < rows; y++) {
+            for (int x = 0; x < cols; x++) {
+                int       slot = x + (y * INV_WIDTH);
+                ItemStack is   = view.getItem(slot);
+                String    id   = TokenUtils.getTokenID(is);
+
+                if (id == null) {
+                    // Transfers the whole stack
+                    view.setItem(slot, event.getCurrentItem());
+                    updateSlotWithHandler(slot, is, event.getCurrentItem());
+                    event.getClickedInventory().setItem(event.getSlot(), null);
+                    return;
+                } else if (id.equals(currId)) {
+                    // Combines what is possible with the other stack
+                    int amount = Math.min(is.getMaxStackSize(), is.getAmount() + currItem.getAmount());
+                    currItem.setAmount(currItem.getAmount() - (amount - is.getAmount()));
+                    is.setAmount(amount);
+
+                    updateSlotWithHandler(slot, is, is);
+
+                    if (currItem.getAmount() <= 0) {
+                        event.getClickedInventory().setItem(event.getSlot(), null);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    private void moveToPlayerInventory(InventoryClickEvent event) {
+        event.setCancelled(true);
+
+        PlayerInventory playerInventory = viewer.getBukkitPlayer().getInventory();
+        ItemStack currItem = event.getCurrentItem();
+        String    currId   = TokenUtils.getTokenID(currItem);
+
+        if (StringUtils.isEmpty(currId))
+            return;
+
+        for (int i = 0; i < playerInventory.getStorageContents().length; i++) {
+            ItemStack is = playerInventory.getItem(i);
+            String    id = TokenUtils.getTokenID(is);
+
+            if (id == null) {
+                // Transfers the whole stack
+                event.getClickedInventory().setItem(event.getSlot(), null);
+                updateSlotWithHandler(event.getSlot(), currItem, null);
+                playerInventory.setItem(i, currItem);
+                return;
+            } else if (id.equals(currId)) {
+                // Combines what is possible with the other stack
+                int amount = Math.min(is.getMaxStackSize(), is.getAmount() + currItem.getAmount());
+                currItem.setAmount(currItem.getAmount() - (amount - is.getAmount()));
+                is.setAmount(amount);
+
+                if (currItem.getAmount() > 0) {
+                    updateSlotWithHandler(event.getSlot(), currItem, currItem);
+                } else {
+                    event.getClickedInventory().setItem(event.getSlot(), null);
+                    updateSlotWithHandler(event.getSlot(), currItem, null);
+                    return;
+                }
+            }
         }
     }
 
@@ -348,17 +422,31 @@ public class TradeView extends ChestMenu implements EnjTokenView {
 
     private void returnItems(Player player) {
         Inventory playerInventory = player.getInventory();
-        Inventory inventory = getInventory(player, false);
+        Inventory inventory       = getInventory(player, false);
         if (inventory != null) {
+            List<ItemStack> items = new ArrayList<>();
+
             for (int y = 0; y < this.viewerItemsComponent.getDimension().getHeight(); y++) {
                 for (int x = 0; x < this.viewerItemsComponent.getDimension().getWidth(); x++) {
                     ItemStack item = inventory.getItem(x + (y * getDimension().getWidth()));
-                    if (item != null && item.getType() != Material.AIR) {
-                        playerInventory.addItem(item);
-                    }
+                    String    id   = TokenUtils.getTokenID(item);
+                    if (!StringUtils.isEmpty(id))
+                        items.add(item);
+                }
+            }
+
+            Map<Integer, ItemStack> leftOver = playerInventory.addItem(items.toArray(new ItemStack[] {}));
+            if (leftOver.size() > 0) {
+                TokenWallet tokenWallet = viewer.getTokenWallet();
+                for (Map.Entry<Integer, ItemStack> entry : leftOver.entrySet()) {
+                    ItemStack is = entry.getValue();
+                    MutableBalance balance = tokenWallet.getBalance(TokenUtils.getTokenID(is));
+                    balance.deposit(is.getAmount());
                 }
             }
         }
+
+
     }
 
     private void informViewerOfCancellation() {

@@ -333,7 +333,8 @@ public class EnjPlayer implements Listener {
 
         PlayerInventory inventory = bukkitPlayer.getInventory();
 
-        for (int i = 0; i < inventory.getSize(); i++) {
+        // Updates any token in storage
+        for (int i = 0; i < inventory.getStorageContents().length; i++) {
             ItemStack is = inventory.getItem(i);
             id           = TokenUtils.getTokenID(is);
 
@@ -342,9 +343,66 @@ public class EnjPlayer implements Listener {
 
                 if (!itemNBT.equals(tokenModel.getNbt())) {
                     ItemStack newStack = tokenModel.getItemStack();
-                    newStack.setAmount(is.getAmount());
+                    int amount = is.getAmount();
+
+                    if (amount > newStack.getMaxStackSize()) {
+                        balance.deposit(amount - newStack.getMaxStackSize());
+                        amount = newStack.getMaxStackSize();
+                    }
+
+                    newStack.setAmount(amount);
                     inventory.setItem(i, newStack);
                 }
+            }
+        }
+
+        // Updates any token in equipment
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            ItemStack is = getEquipment(slot);
+            id           = TokenUtils.getTokenID(is);
+
+            if (!StringUtils.isEmpty(id) && id.equals(tokenModel.getId())) {
+                String itemNBT = NBTItem.convertItemtoNBT(is).toString();
+
+                if (!itemNBT.equals(tokenModel.getNbt())) {
+                    ItemStack newStack = tokenModel.getItemStack();
+                    int amount = is.getAmount();
+
+                    if (amount > newStack.getMaxStackSize()) {
+                        balance.deposit(amount - newStack.getMaxStackSize());
+                        amount = newStack.getMaxStackSize();
+                    }
+
+                    newStack.setAmount(amount);
+
+                    if (slot == EquipmentSlot.OFF_HAND || slot == EquipmentSlot.HAND || is.getType() == newStack.getType()) {
+                        setEquipment(slot, newStack);
+                    } else {
+                        setEquipment(slot, null);
+                        balance.deposit(newStack.getAmount());
+                    }
+                }
+            }
+        }
+
+        // Updates any token in cursor
+        InventoryView view = bukkitPlayer.getOpenInventory();
+        ItemStack is = view.getCursor();
+        id           = TokenUtils.getTokenID(is);
+        if (!StringUtils.isEmpty(id) && id.equals(tokenModel.getId())) {
+            String itemNBT = NBTItem.convertItemtoNBT(is).toString();
+
+            if (!itemNBT.equals(tokenModel.getNbt())) {
+                ItemStack newStack = tokenModel.getItemStack();
+                int amount = is.getAmount();
+
+                if (amount > newStack.getMaxStackSize()) {
+                    balance.deposit(amount - newStack.getMaxStackSize());
+                    amount = newStack.getMaxStackSize();
+                }
+
+                newStack.setAmount(amount);
+                view.setCursor(newStack);
             }
         }
     }

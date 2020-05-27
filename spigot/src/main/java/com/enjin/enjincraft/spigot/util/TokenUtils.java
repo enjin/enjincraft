@@ -17,6 +17,8 @@ public class TokenUtils {
 
             if (nbt.hasKey(TokenModel.NBT_ID))
                 return nbt.getString(TokenModel.NBT_ID);
+
+            return "";
         }
 
         return null;

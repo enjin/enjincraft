@@ -143,8 +143,9 @@ public class PlayerInitializationTask extends BukkitRunnable {
         // Create the Identity for the App ID and Player in question
         HttpResponse<GraphQLResponse<Identity>> networkResponse = client.getIdentityService()
                                                                         .createIdentitySync(new CreateIdentity()
-                                                                                                    .appId(client.getAppId())
-                                                                                                    .userId(this.player.getUserId()));
+                                                                                .appId(client.getAppId())
+                                                                                .userId(this.player.getUserId())
+                                                                                .withLinkingCode());
         if (!networkResponse.isSuccess()) { throw new NetworkException(networkResponse.code()); }
 
         GraphQLResponse<Identity> graphQLResponse = networkResponse.body();
