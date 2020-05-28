@@ -29,6 +29,7 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class TokenWalletView extends ChestMenu implements EnjTokenView {
@@ -154,17 +155,53 @@ public class TokenWalletView extends ChestMenu implements EnjTokenView {
     }
 
     protected void addWithdrawAction(Position position, MutableBalance balance, ItemStack is) {
+        // Withdraws one token
         inventoryViewComponent.addAction(position, player -> {
-            PlayerInventory inventory = player.getInventory();
-
-            if (balance.amountAvailableForWithdrawal() > 0 && slotAvailable(inventory, balance.id())) {
-                balance.withdraw(1);
-                ItemStack clone = is.clone();
-                clone.setAmount(1);
-                inventory.addItem(clone);
-                repopulate(player);
-            }
+            withdraw(player, balance, is, 1);
         }, ClickType.LEFT);
+
+        // Withdraws a split stack
+        inventoryViewComponent.addAction(position, player -> {
+            int amount = (int) Math.ceil(Math.min(is.getAmount(), is.getMaxStackSize()) / 2.0);
+            withdraw(player, balance, is, amount);
+        }, ClickType.RIGHT);
+
+        // Withdraws a full stack
+        inventoryViewComponent.addAction(position, player -> {
+            int amount = Math.min(is.getAmount(), is.getMaxStackSize());
+            withdraw(player, balance, is, amount);
+        }, ClickType.SHIFT_LEFT, ClickType.SHIFT_RIGHT);
+    }
+
+    private void withdraw(Player player, MutableBalance balance, ItemStack is, int amount) {
+        if (amount == 0)
+            return;
+
+        PlayerInventory inventory = player.getInventory();
+        if (balance.amountAvailableForWithdrawal() >= amount) {
+            boolean changed = false;
+
+            ItemStack clone = is.clone();
+            clone.setAmount(amount);
+
+            Map<Integer, ItemStack> leftOver = inventory.addItem(clone);
+            if (leftOver.size() == 0) {
+                balance.withdraw(amount);
+                changed = true;
+            } else if (leftOver.size() == 1) {
+                for (Map.Entry<Integer, ItemStack> entry : leftOver.entrySet()) {
+                    ItemStack item = entry.getValue();
+
+                    if (item.getAmount() != amount) {
+                        balance.withdraw(amount - item.getAmount());
+                        changed = true;
+                    }
+                }
+            }
+
+            if (changed)
+                repopulate(player);
+        }
     }
 
     private boolean slotAvailable(PlayerInventory inventory, String tokenId) {
@@ -216,16 +253,33 @@ public class TokenWalletView extends ChestMenu implements EnjTokenView {
             return;
 
         if (event.getClickedInventory() instanceof PlayerInventory) {
-            ItemStack current = event.getCurrentItem();
-            String    id      = TokenUtils.getTokenID(current);
+            ItemStack is = event.getCurrentItem();
+            String    id = TokenUtils.getTokenID(is);
             if (!StringUtils.isEmpty(id)) {
                 Optional<EnjPlayer> optionalPlayer = bootstrap.getPlayerManager().getPlayer((Player) event.getWhoClicked());
                 if (!optionalPlayer.isPresent())
                     return;
+
+                int amount;
+                switch (event.getClick()) {
+                    case LEFT: // Deposits one token
+                        amount = 1;
+                        break;
+                    case RIGHT: // Deposits a split stack
+                        amount = (int) Math.ceil(Math.min(is.getAmount(), is.getMaxStackSize()) / 2.0);
+                        break;
+                    case SHIFT_LEFT: // Deposits the entire stack
+                    case SHIFT_RIGHT:
+                        amount = is.getAmount();
+                        break;
+                    default:
+                        return;
+                }
+
                 EnjPlayer player = optionalPlayer.get();
                 MutableBalance balance = player.getTokenWallet().getBalance(id);
-                balance.deposit(current.getAmount());
-                current.setAmount(0);
+                balance.deposit(amount);
+                is.setAmount(is.getAmount() - amount);
                 Bukkit.getScheduler().scheduleSyncDelayedTask(bootstrap.plugin(), () -> repopulate((Player) event.getWhoClicked()));
             }
         }
