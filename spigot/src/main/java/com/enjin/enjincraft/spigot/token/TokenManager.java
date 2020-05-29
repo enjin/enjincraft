@@ -7,9 +7,9 @@ import com.enjin.sdk.services.notification.NotificationsService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class TokenManager {
@@ -28,6 +28,7 @@ public class TokenManager {
     public static final int PERM_REMOVED_SUCCESS = 250;       // Permission was removed
     public static final int PERM_REMOVED_NOPERMONTOKEN = 450; // Permission is not assigned
 
+    public static final Charset CHARSET = StandardCharsets.UTF_8;
     public static final String JSON_EXT = ".json";
     public static final int JSON_EXT_LENGTH = JSON_EXT.length();
     public static final String GLOBAL = "*";
@@ -62,15 +63,15 @@ public class TokenManager {
 
             TokenModel tokenModel = null;
             boolean changed = false;
-            try (FileReader fr = new FileReader(file)) {
-                tokenModel = gson.fromJson(fr, TokenModel.class);
+            try (InputStreamReader in = new InputStreamReader(new FileInputStream(file), CHARSET)) {
+                tokenModel = gson.fromJson(in, TokenModel.class);
                 tokenModel.load();
                 changed = tokenModel.applyBlacklist(bootstrap.getConfig().getPermissionBlacklist());
                 cacheAndSubscribe(tokenModel);
             } catch (Exception e) {
                 bootstrap.log(e);
             } finally {
-                if (changed)
+                if (tokenModel != null && changed)
                     saveToken(tokenModel);
             }
         }
@@ -94,8 +95,8 @@ public class TokenManager {
 
         tokenModel.applyBlacklist(bootstrap.getConfig().getPermissionBlacklist());
 
-        try (FileWriter fw = new FileWriter(file, false)) {
-            gson.toJson(tokenModel, fw);
+        try (OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(file, false), CHARSET)) {
+            gson.toJson(tokenModel, out);
             tokenModel.load();
             cacheAndSubscribe(tokenModel);
 
@@ -127,8 +128,8 @@ public class TokenManager {
 
         boolean newNbt = !tokenModel.getNbt().equals(oldModel.getNbt());
 
-        try (FileWriter fw = new FileWriter(file, false)) {
-            gson.toJson(tokenModel, fw);
+        try (OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(file, false), CHARSET)) {
+            gson.toJson(tokenModel, out);
             tokenModel.load();
             tokenModels.put(tokenModel.getId(), tokenModel);
         } catch (Exception e) {
