@@ -405,6 +405,11 @@ public class EnjPlayer implements Listener {
                 view.setCursor(newStack);
             }
         }
+
+        if (activeTradeView != null)
+            activeTradeView.validateInventory();
+        else if (activeWalletView != null)
+            activeWalletView.validateInventory();
     }
 
     public void initPermissions() {
