@@ -63,11 +63,8 @@ public class TokenManager {
 
             TokenModel tokenModel = null;
             boolean changed = false;
-            try (FileInputStream stream = new FileInputStream(file)) {
-                InputStreamReader in = new InputStreamReader(stream, CHARSET);
+            try (InputStreamReader in = new InputStreamReader(new FileInputStream(file), CHARSET)) {
                 tokenModel = gson.fromJson(in, TokenModel.class);
-                in.close();
-
                 tokenModel.load();
                 changed = tokenModel.applyBlacklist(bootstrap.getConfig().getPermissionBlacklist());
                 cacheAndSubscribe(tokenModel);
@@ -98,11 +95,8 @@ public class TokenManager {
 
         tokenModel.applyBlacklist(bootstrap.getConfig().getPermissionBlacklist());
 
-        try (FileOutputStream stream = new FileOutputStream(file, false)) {
-            OutputStreamWriter out = new OutputStreamWriter(stream, CHARSET);
+        try (OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(file, false), CHARSET)) {
             gson.toJson(tokenModel, out);
-            out.close();
-
             tokenModel.load();
             cacheAndSubscribe(tokenModel);
 
@@ -134,11 +128,8 @@ public class TokenManager {
 
         boolean newNbt = !tokenModel.getNbt().equals(oldModel.getNbt());
 
-        try (FileOutputStream stream = new FileOutputStream(file, false)) {
-            OutputStreamWriter out = new OutputStreamWriter(stream, CHARSET);
+        try (OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(file, false), CHARSET)) {
             gson.toJson(tokenModel, out);
-            out.close();
-
             tokenModel.load();
             tokenModels.put(tokenModel.getId(), tokenModel);
         } catch (Exception e) {
