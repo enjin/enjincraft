@@ -236,8 +236,14 @@ public class TradeView extends ChestMenu implements EnjTokenView {
 
                     if (!itemNBT.equals(tokenModel.getNbt())) {
                         ItemStack newStack = tokenModel.getItemStack();
-                        newStack.setAmount(is.getAmount());
+                        int amount = is.getAmount();
 
+                        if (amount > newStack.getMaxStackSize()) {
+                            balance.deposit(amount - newStack.getMaxStackSize());
+                            amount = newStack.getMaxStackSize();
+                        }
+
+                        newStack.setAmount(amount);
                         view.setItem(slot, newStack);
                         updateSlotWithHandler(slot, is, newStack);
                     }
