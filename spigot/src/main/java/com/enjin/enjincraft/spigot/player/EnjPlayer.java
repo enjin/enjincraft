@@ -191,14 +191,13 @@ public class EnjPlayer implements Listener {
 
                 balance.withdraw(is.getAmount());
 
-                TokenModel tokenModel = bootstrap.getTokenManager().getToken(id);
-                String itemNBT = NBTItem.convertItemtoNBT(is).toString();
+                ItemStack newStack = bootstrap.getTokenManager().getToken(id).getItemStack();
+                newStack.setAmount(is.getAmount());
 
-                if (!itemNBT.equals(tokenModel.getNbt())) {
-                    ItemStack newStack = tokenModel.getItemStack();
-                    newStack.setAmount(is.getAmount());
+                String newNBT  = NBTItem.convertItemtoNBT(newStack).toString();
+                String itemNBT = NBTItem.convertItemtoNBT(is).toString();
+                if (!itemNBT.equals(newNBT))
                     view.setCursor(newStack);
-                }
             }
         }
     }
@@ -217,18 +216,22 @@ public class EnjPlayer implements Listener {
             if (balance == null || balance.amountAvailableForWithdrawal() == 0) {
                 inventory.clear(i);
             } else {
-                if (balance.amountAvailableForWithdrawal() < is.getAmount()) {
+                if (balance.amountAvailableForWithdrawal() < is.getAmount())
                     is.setAmount(balance.amountAvailableForWithdrawal());
-                }
 
                 balance.withdraw(is.getAmount());
 
-                TokenModel tokenModel = bootstrap.getTokenManager().getToken(id);
-                String itemNBT = NBTItem.convertItemtoNBT(is).toString();
+                ItemStack newStack = bootstrap.getTokenManager().getToken(id).getItemStack();
+                newStack.setAmount(is.getAmount());
 
-                if (!itemNBT.equals(tokenModel.getNbt())) {
-                    ItemStack newStack = tokenModel.getItemStack();
-                    newStack.setAmount(is.getAmount());
+                String newNBT  = NBTItem.convertItemtoNBT(newStack).toString();
+                String itemNBT = NBTItem.convertItemtoNBT(is).toString();
+                if (!itemNBT.equals(newNBT)) {
+                    if (is.getAmount() > newStack.getMaxStackSize()) {
+                        balance.deposit(is.getAmount() - newStack.getMaxStackSize());
+                        newStack.setAmount(newStack.getMaxStackSize());
+                    }
+
                     inventory.setItem(i, newStack);
                 }
             }
@@ -244,18 +247,22 @@ public class EnjPlayer implements Listener {
             if (balance == null || balance.amountAvailableForWithdrawal() == 0) {
                 setEquipment(slot, null);
             } else {
-                if (balance.amountAvailableForWithdrawal() < is.getAmount()) {
+                if (balance.amountAvailableForWithdrawal() < is.getAmount())
                     is.setAmount(balance.amountAvailableForWithdrawal());
-                }
 
                 balance.withdraw(is.getAmount());
 
-                TokenModel tokenModel = bootstrap.getTokenManager().getToken(id);
-                String itemNBT = NBTItem.convertItemtoNBT(is).toString();
+                ItemStack newStack = bootstrap.getTokenManager().getToken(id).getItemStack();
+                newStack.setAmount(is.getAmount());
 
-                if (!itemNBT.equals(tokenModel.getNbt())) {
-                    ItemStack newStack = tokenModel.getItemStack();
-                    newStack.setAmount(is.getAmount());
+                String newNBT  = NBTItem.convertItemtoNBT(newStack).toString();
+                String itemNBT = NBTItem.convertItemtoNBT(is).toString();
+                if (!itemNBT.equals(newNBT)) {
+                    if (is.getAmount() > newStack.getMaxStackSize()) {
+                        balance.deposit(is.getAmount() - newStack.getMaxStackSize());
+                        newStack.setAmount(newStack.getMaxStackSize());
+                    }
+
                     setEquipment(slot, newStack);
                 }
             }
@@ -339,18 +346,17 @@ public class EnjPlayer implements Listener {
             id           = TokenUtils.getTokenID(is);
 
             if (!StringUtils.isEmpty(id) && id.equals(tokenModel.getId())) {
+                ItemStack newStack = tokenModel.getItemStack();
+                newStack.setAmount(is.getAmount());
+
+                String newNBT  = NBTItem.convertItemtoNBT(newStack).toString();
                 String itemNBT = NBTItem.convertItemtoNBT(is).toString();
-
-                if (!itemNBT.equals(tokenModel.getNbt())) {
-                    ItemStack newStack = tokenModel.getItemStack();
-                    int amount = is.getAmount();
-
-                    if (amount > newStack.getMaxStackSize()) {
-                        balance.deposit(amount - newStack.getMaxStackSize());
-                        amount = newStack.getMaxStackSize();
+                if (!itemNBT.equals(newNBT)) {
+                    if (is.getAmount() > newStack.getMaxStackSize()) {
+                        balance.deposit(is.getAmount() - newStack.getMaxStackSize());
+                        newStack.setAmount(newStack.getMaxStackSize());
                     }
 
-                    newStack.setAmount(amount);
                     inventory.setItem(i, newStack);
                 }
             }
@@ -362,18 +368,16 @@ public class EnjPlayer implements Listener {
             id           = TokenUtils.getTokenID(is);
 
             if (!StringUtils.isEmpty(id) && id.equals(tokenModel.getId())) {
+                ItemStack newStack = tokenModel.getItemStack();
+                newStack.setAmount(is.getAmount());
+
+                String newNBT  = NBTItem.convertItemtoNBT(newStack).toString();
                 String itemNBT = NBTItem.convertItemtoNBT(is).toString();
-
-                if (!itemNBT.equals(tokenModel.getNbt())) {
-                    ItemStack newStack = tokenModel.getItemStack();
-                    int amount = is.getAmount();
-
-                    if (amount > newStack.getMaxStackSize()) {
-                        balance.deposit(amount - newStack.getMaxStackSize());
-                        amount = newStack.getMaxStackSize();
+                if (!itemNBT.equals(newNBT)) {
+                    if (is.getAmount() > newStack.getMaxStackSize()) {
+                        balance.deposit(is.getAmount() - newStack.getMaxStackSize());
+                        newStack.setAmount(newStack.getMaxStackSize());
                     }
-
-                    newStack.setAmount(amount);
 
                     if (slot == EquipmentSlot.OFF_HAND || slot == EquipmentSlot.HAND || is.getType() == newStack.getType()) {
                         setEquipment(slot, newStack);
@@ -390,26 +394,25 @@ public class EnjPlayer implements Listener {
         ItemStack is = view.getCursor();
         id           = TokenUtils.getTokenID(is);
         if (!StringUtils.isEmpty(id) && id.equals(tokenModel.getId())) {
+            ItemStack newStack = tokenModel.getItemStack();
+            newStack.setAmount(is.getAmount());
+
+            String newNBT  = NBTItem.convertItemtoNBT(newStack).toString();
             String itemNBT = NBTItem.convertItemtoNBT(is).toString();
-
-            if (!itemNBT.equals(tokenModel.getNbt())) {
-                ItemStack newStack = tokenModel.getItemStack();
-                int amount = is.getAmount();
-
-                if (amount > newStack.getMaxStackSize()) {
-                    balance.deposit(amount - newStack.getMaxStackSize());
-                    amount = newStack.getMaxStackSize();
+            if (!itemNBT.equals(newNBT)) {
+                if (is.getAmount() > newStack.getMaxStackSize()) {
+                    balance.deposit(is.getAmount() - newStack.getMaxStackSize());
+                    newStack.setAmount(newStack.getMaxStackSize());
                 }
 
-                newStack.setAmount(amount);
                 view.setCursor(newStack);
             }
         }
 
         if (activeTradeView != null)
-            activeTradeView.validateInventory();
+            activeTradeView.updateInventory();
         else if (activeWalletView != null)
-            activeWalletView.validateInventory();
+            activeWalletView.updateInventory();
     }
 
     public void initPermissions() {
