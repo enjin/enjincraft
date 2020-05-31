@@ -61,6 +61,11 @@ public class TokenWalletView extends ChestMenu implements EnjTokenView {
         repopulate(owner.getBukkitPlayer());
     }
 
+    @Override
+    public void updateInventory() {
+        repopulate(owner.getBukkitPlayer());
+    }
+
     private void init() {
         owner.setActiveWalletView(this);
         setCloseConsumer(this::closeMenuAction);
