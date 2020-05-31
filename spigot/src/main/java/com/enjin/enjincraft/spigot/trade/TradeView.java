@@ -5,7 +5,6 @@ import com.enjin.enjincraft.spigot.SpigotBootstrap;
 import com.enjin.enjincraft.spigot.enums.TargetPlayer;
 import com.enjin.enjincraft.spigot.enums.Trader;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
-import com.enjin.enjincraft.spigot.token.TokenModel;
 import com.enjin.enjincraft.spigot.util.MessageUtils;
 import com.enjin.enjincraft.spigot.util.StringUtils;
 import com.enjin.enjincraft.spigot.util.TokenUtils;
@@ -84,6 +83,10 @@ public class TradeView extends ChestMenu implements EnjTokenView {
             TradeView otherView = this.other.getActiveTradeView();
             Position position = Position.toPosition(this, slot);
             otherView.setItem(this.other.getBukkitPlayer(), otherView.getOtherItemsComponent(), position, newItem);
+
+            // Un-readies the trade for both parties
+            unreadyAction();
+            otherView.unreadyAction();
         });
 
         //  Create the status region for the viewing player
@@ -126,12 +129,8 @@ public class TradeView extends ChestMenu implements EnjTokenView {
         Position unreadyPosition = Position.of(2, 0);
         this.viewerStatusComponent.setItem(unreadyPosition, unreadyItem);
         this.viewerStatusComponent.addAction(unreadyPosition, p -> {
-            this.playerReady = false;
-            setItem(p, this.viewerStatusComponent, Position.of(3, 0), unreadyPane);
+            unreadyAction();
             p.updateInventory();
-
-            TradeView otherView = this.other.getActiveTradeView();
-            otherView.setItem(other.getBukkitPlayer(), otherView.otherStatusComponent, Position.of(3, 0), unreadyPane);
             other.getBukkitPlayer().updateInventory();
         }, ClickType.LEFT, ClickType.RIGHT);
         this.viewerStatusComponent.setItem(Position.of(3, 0), unreadyPane);
@@ -158,6 +157,14 @@ public class TradeView extends ChestMenu implements EnjTokenView {
         addComponent(Position.of(4, 0), verticalBarrierTop);
         addComponent(Position.of(4, 5), verticalBarrierBottom);
         addComponent(Position.of(0, 4), horizontalBarrier);
+    }
+
+    protected void unreadyAction() {
+        playerReady = false;
+        setItem(viewer.getBukkitPlayer(), viewerStatusComponent, Position.of(3, 0), unreadyPane);
+
+        TradeView otherView = other.getActiveTradeView();
+        otherView.setItem(other.getBukkitPlayer(), otherView.otherStatusComponent, Position.of(3, 0), unreadyPane);
     }
 
     public EnjPlayer getViewer() {
@@ -227,26 +234,45 @@ public class TradeView extends ChestMenu implements EnjTokenView {
                 } else {
                     if (balance.amountAvailableForWithdrawal() < is.getAmount()) {
                         is.setAmount(balance.amountAvailableForWithdrawal());
+                        updateSlotWithHandler(slot, is, is);
                     }
 
                     balance.withdraw(is.getAmount());
+                }
+            }
+        }
+    }
 
-                    TokenModel tokenModel = bootstrap.getTokenManager().getToken(id);
-                    String itemNBT = NBTItem.convertItemtoNBT(is).toString();
+    @Override
+    public void updateInventory() {
+        Dimension dimension = viewerItemsComponent.getDimension();
+        int rows = dimension.getHeight();
+        int cols = dimension.getWidth();
 
-                    if (!itemNBT.equals(tokenModel.getNbt())) {
-                        ItemStack newStack = tokenModel.getItemStack();
-                        int amount = is.getAmount();
+        for (int y = 0; y < rows; y++) {
+            for (int x = 0; x < cols; x++) {
+                int           slot = x + (y * INV_WIDTH);
+                InventoryView view = this.viewer.getBukkitPlayer().getOpenInventory();
+                ItemStack     is   = view.getItem(slot);
+                String        id   = TokenUtils.getTokenID(is);
 
-                        if (amount > newStack.getMaxStackSize()) {
-                            balance.deposit(amount - newStack.getMaxStackSize());
-                            amount = newStack.getMaxStackSize();
-                        }
+                if (StringUtils.isEmpty(id))
+                    continue;
 
-                        newStack.setAmount(amount);
-                        view.setItem(slot, newStack);
-                        updateSlotWithHandler(slot, is, newStack);
+                MutableBalance balance = viewer.getTokenWallet().getBalance(id);
+                ItemStack newStack = bootstrap.getTokenManager().getToken(id).getItemStack();
+                newStack.setAmount(is.getAmount());
+
+                String newNBT  = NBTItem.convertItemtoNBT(newStack).toString();
+                String itemNBT = NBTItem.convertItemtoNBT(is).toString();
+                if (!itemNBT.equals(newNBT)) {
+                    if (is.getAmount() > newStack.getMaxStackSize()) {
+                        balance.deposit(is.getAmount() - newStack.getMaxStackSize());
+                        newStack.setAmount(newStack.getMaxStackSize());
                     }
+
+                    view.setItem(slot, newStack);
+                    updateSlotWithHandler(slot, is, newStack);
                 }
             }
         }
