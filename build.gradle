@@ -1,7 +1,7 @@
 buildscript {
     ext.versions = [
             'minecraftCommons': '1.0.0',
-            'enjinSdk'        : '1.0.0',
+            'enjinSdk'        : '1.0.1',
             'kyoriText'       : '3.0.2',
             'kyoriTextAdapter': '3.0.3',
             'gson'            : '2.8.0',
@@ -55,7 +55,7 @@ plugins {
 
 allprojects {
     group = 'com.enjin.enjincraft'
-    version = '1.0.1-SNAPSHOT'
+    version = '1.0.1'
 
     repositories {
         mavenLocal()
