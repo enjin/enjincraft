@@ -87,7 +87,9 @@ public class PlayerInitializationTask extends BukkitRunnable {
                                                                              .getUserService()
                                                                              .getUsersSync(new GetUsers()
                                                                                                    .name(playerUuid.toString())
-                                                                                                   .withUserIdentities());
+                                                                                                   .withUserIdentities()
+                                                                                                   .withLinkingCode()
+                                                                                                   .withWallet());
         if (!networkResponse.isSuccess()) { throw new NetworkException(networkResponse.code()); }
 
         GraphQLResponse<List<User>> graphQLResponse = networkResponse.body();
@@ -105,7 +107,9 @@ public class PlayerInitializationTask extends BukkitRunnable {
         TrustedPlatformClient client = bootstrap.getTrustedPlatformClient();
         HttpResponse<GraphQLResponse<User>> networkResponse = client
                 .getUserService().createUserSync(new CreateUser()
-                                                         .name(playerUuid.toString()));
+                                                         .name(playerUuid.toString())
+                                                         .withUserIdentities()
+                                                         .withLinkingCode());
         if (!networkResponse.isSuccess()) { throw new NetworkException(networkResponse.code()); }
 
         GraphQLResponse<User> graphQLResponse = networkResponse.body();
@@ -143,9 +147,9 @@ public class PlayerInitializationTask extends BukkitRunnable {
         // Create the Identity for the App ID and Player in question
         HttpResponse<GraphQLResponse<Identity>> networkResponse = client.getIdentityService()
                                                                         .createIdentitySync(new CreateIdentity()
-                                                                                .appId(client.getAppId())
-                                                                                .userId(this.player.getUserId())
-                                                                                .withLinkingCode());
+                                                                                                    .appId(client.getAppId())
+                                                                                                    .userId(this.player.getUserId())
+                                                                                                    .withLinkingCode());
         if (!networkResponse.isSuccess()) { throw new NetworkException(networkResponse.code()); }
 
         GraphQLResponse<Identity> graphQLResponse = networkResponse.body();
