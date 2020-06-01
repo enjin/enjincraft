@@ -256,12 +256,12 @@ public class TradeView extends ChestMenu implements EnjTokenView {
                         }
 
                         newStack.setAmount(amount);
+                    }
+
+                    if (changed) {
                         view.setItem(slot, newStack);
                         updateSlotWithHandler(slot, is, newStack);
                     }
-
-                    if (changed)
-                        updateSlotWithHandler(slot, is, newStack);
                 }
             }
         }
