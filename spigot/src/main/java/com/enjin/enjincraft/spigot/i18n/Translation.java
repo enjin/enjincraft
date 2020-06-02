@@ -185,10 +185,23 @@ public enum Translation {
 
     MISC_NEWLINE(""),
 
+    TRADE_UI_NAME("Trade"),
+    TRADE_UI_YOU("You"),
+    TRADE_UI_READYUP("Ready Up"),
+    TRADE_UI_UNREADY("Unready"),
+    TRADE_UI_READY("Ready"),
+    TRADE_UI_NOTREADY("Not Ready"),
+    TRADE_MSG_COMPONENT_ACCEPT("Accept"),
+    TRADE_MSG_COMPONENT_DECLINE("Decline"),
+    TRADE_MSG_CANCELLED("&6%s &7has cancelled the trade."),
+
     QR_DISPLAYNAME("Enjin QR Code"),
 
     WALLET_UI_FUNGIBLE("Go To Fungible"),
     WALLET_UI_NONFUNGIBLE("Go To Non-Fungible"),
+    WALLET_UI_NAME("Enjin Wallet"),
+    WALLET_UI_FORWARD("Go Forward"),
+    WALLET_UI_BACK("Go Back"),
     WALLET_NOTLINKED_SELF("&cYou have not linked a wallet to your identity."),
     WALLET_NOTLINKED_OTHER("&6%s &chas not linked a wallet."),
     WALLET_ALLOWANCENOTSET("&cYou must confirm the approve request in your wallet before you can send or trade tokens.");

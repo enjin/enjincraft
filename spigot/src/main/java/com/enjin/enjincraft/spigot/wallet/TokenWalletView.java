@@ -1,6 +1,8 @@
 package com.enjin.enjincraft.spigot.wallet;
 
+import com.enjin.enjincraft.spigot.Bootstrap;
 import com.enjin.enjincraft.spigot.EnjTokenView;
+import com.enjin.enjincraft.spigot.EnjinCraft;
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
 import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.token.TokenManager;
@@ -25,16 +27,17 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class TokenWalletView extends ChestMenu implements EnjTokenView {
 
+    @Deprecated
     public static final String WALLET_VIEW_NAME = "Enjin Wallet";
     public static final int WIDTH = 9;
     public static final Dimension INVENTORY_DIMENSION = new Dimension(WIDTH, 4);
@@ -53,7 +56,7 @@ public class TokenWalletView extends ChestMenu implements EnjTokenView {
     protected SimplePagedComponent currentPagedComponent;
 
     public TokenWalletView(SpigotBootstrap bootstrap, EnjPlayer owner) {
-        super(ChatColor.DARK_PURPLE + WALLET_VIEW_NAME, 6);
+        super(ChatColor.DARK_PURPLE + Translation.WALLET_UI_NAME.translation(), 6);
         this.bootstrap = bootstrap;
         this.owner = owner;
         this.navigationComponent = new SimpleMenuComponent(new Dimension(WIDTH, 1));
@@ -285,12 +288,17 @@ public class TokenWalletView extends ChestMenu implements EnjTokenView {
     }
 
     public static boolean isViewingWallet(Player player) {
-        if (player != null) {
-            InventoryView view = player.getOpenInventory();
-            return ChatColor.stripColor(view.getTitle()).equalsIgnoreCase(TokenWalletView.WALLET_VIEW_NAME);
-        }
+        if (player == null)
+            return false;
 
-        return false;
+        Optional<? extends Bootstrap> optionalBootstrap = EnjinCraft.bootstrap();
+        if (!optionalBootstrap.isPresent() || !(optionalBootstrap.get() instanceof SpigotBootstrap))
+            return false;
+
+        SpigotBootstrap bootstrap = (SpigotBootstrap) optionalBootstrap.get();
+        Optional<EnjPlayer> enjPlayer = bootstrap.getPlayerManager().getPlayer(player);
+
+        return enjPlayer.filter(value -> value.getActiveWalletView() != null).isPresent();
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -348,19 +356,19 @@ public class TokenWalletView extends ChestMenu implements EnjTokenView {
     }
 
     protected ItemStack createPageBackItemStack() {
-        ItemStack is   = new ItemStack(Material.HOPPER);
-        ItemMeta  meta = is.getItemMeta();
-        meta.setDisplayName(ChatColor.GOLD + "<--");
-        is.setItemMeta(meta);
-        return is;
+        ItemStack stack = new ItemStack(Material.HOPPER);
+        ItemMeta meta = stack.getItemMeta();
+        meta.setDisplayName(ChatColor.GOLD + Translation.WALLET_UI_BACK.translation());
+        stack.setItemMeta(meta);
+        return stack;
     }
 
     protected ItemStack createPageNextItemStack() {
-        ItemStack is   = new ItemStack(Material.HOPPER);
-        ItemMeta  meta = is.getItemMeta();
-        meta.setDisplayName(ChatColor.GOLD + "-->");
-        is.setItemMeta(meta);
-        return is;
+        ItemStack stack = new ItemStack(Material.HOPPER);
+        ItemMeta meta = stack.getItemMeta();
+        meta.setDisplayName(ChatColor.GOLD + Translation.WALLET_UI_FORWARD.translation());
+        stack.setItemMeta(meta);
+        return stack;
     }
 
     protected ItemStack createNextComponentItemStack(String nextComponentName) {

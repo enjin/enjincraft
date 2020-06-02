@@ -120,13 +120,13 @@ public class CmdTrade extends EnjCommand {
 
             Translation.COMMAND_TRADE_INVITEDTOTRADE.send(target.getBukkitPlayer(), sender.getBukkitPlayer().getName());
             TextComponent.Builder inviteMessageBuilder = TextComponent.builder("")
-                    .append(TextComponent.builder("Accept")
+                    .append(TextComponent.builder(Translation.TRADE_MSG_COMPONENT_ACCEPT.translation())
                             .color(TextColor.GREEN)
                             .clickEvent(ClickEvent.of(ClickEvent.Action.RUN_COMMAND,
                                     String.format("/enj trade accept %s", sender.getBukkitPlayer().getName())))
                             .build())
                     .append(TextComponent.of(" | ").color(TextColor.GRAY))
-                    .append(TextComponent.builder("Decline")
+                    .append(TextComponent.builder(Translation.TRADE_MSG_COMPONENT_DECLINE.translation())
                             .color(TextColor.RED)
                             .clickEvent(ClickEvent.of(ClickEvent.Action.RUN_COMMAND,
                                     String.format("/enj trade decline %s", sender.getBukkitPlayer().getName())))

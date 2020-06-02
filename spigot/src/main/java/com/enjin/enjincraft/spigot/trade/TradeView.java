@@ -4,6 +4,7 @@ import com.enjin.enjincraft.spigot.EnjTokenView;
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
 import com.enjin.enjincraft.spigot.enums.TargetPlayer;
 import com.enjin.enjincraft.spigot.enums.Trader;
+import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
 import com.enjin.enjincraft.spigot.token.TokenManager;
 import com.enjin.enjincraft.spigot.token.TokenModel;
@@ -18,8 +19,6 @@ import com.enjin.minecraft_commons.spigot.ui.*;
 import com.enjin.minecraft_commons.spigot.ui.menu.ChestMenu;
 import com.enjin.minecraft_commons.spigot.ui.menu.component.SimpleMenuComponent;
 import de.tr7zw.changeme.nbtapi.NBTItem;
-import net.kyori.text.TextComponent;
-import net.kyori.text.format.TextColor;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -65,7 +64,7 @@ public class TradeView extends ChestMenu implements EnjTokenView {
     private ItemStack unreadyItem = createUnreadyItemStack();
 
     public TradeView(SpigotBootstrap bootstrap, EnjPlayer viewer, EnjPlayer other, Trader traderType) {
-        super("Trade", 6);
+        super(Translation.TRADE_UI_NAME.translation(), 6);
         this.bootstrap = bootstrap;
         this.viewer = viewer;
         this.other = other;
@@ -313,7 +312,7 @@ public class TradeView extends ChestMenu implements EnjTokenView {
         ItemStack stack = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta meta = (SkullMeta) stack.getItemMeta();
         meta.setOwningPlayer(player);
-        meta.setDisplayName(target == TargetPlayer.SELF ? "You" : player.getName());
+        meta.setDisplayName(target == TargetPlayer.SELF ? Translation.TRADE_UI_YOU.translation() : player.getName());
         stack.setItemMeta(meta);
         return stack;
     }
@@ -321,7 +320,7 @@ public class TradeView extends ChestMenu implements EnjTokenView {
     private ItemStack createReadyItemStack() {
         ItemStack stack = new ItemStack(Material.HOPPER);
         ItemMeta meta = stack.getItemMeta();
-        meta.setDisplayName(ChatColor.GREEN + "Ready Up");
+        meta.setDisplayName(ChatColor.GREEN + Translation.TRADE_UI_READYUP.translation());
         stack.setItemMeta(meta);
         return stack;
     }
@@ -329,7 +328,7 @@ public class TradeView extends ChestMenu implements EnjTokenView {
     private ItemStack createUnreadyItemStack() {
         ItemStack stack = new ItemStack(Material.BARRIER);
         ItemMeta meta = stack.getItemMeta();
-        meta.setDisplayName(ChatColor.RED + "Unready");
+        meta.setDisplayName(ChatColor.RED + Translation.TRADE_UI_UNREADY.translation());
         stack.setItemMeta(meta);
         return stack;
     }
@@ -337,7 +336,7 @@ public class TradeView extends ChestMenu implements EnjTokenView {
     private ItemStack createReadyPaneItemStack() {
         ItemStack stack = new ItemStack(Material.GREEN_STAINED_GLASS_PANE);
         ItemMeta meta = stack.getItemMeta();
-        meta.setDisplayName(ChatColor.GREEN + "Ready");
+        meta.setDisplayName(ChatColor.GREEN + Translation.TRADE_UI_READY.translation());
         stack.setItemMeta(meta);
         return stack;
     }
@@ -345,7 +344,7 @@ public class TradeView extends ChestMenu implements EnjTokenView {
     private ItemStack createUnreadyPaneItemStack() {
         ItemStack stack = new ItemStack(Material.RED_STAINED_GLASS_PANE);
         ItemMeta meta = stack.getItemMeta();
-        meta.setDisplayName(ChatColor.RED + "Not Ready");
+        meta.setDisplayName(ChatColor.RED + Translation.TRADE_UI_NOTREADY.translation());
         stack.setItemMeta(meta);
         return stack;
     }
@@ -508,13 +507,7 @@ public class TradeView extends ChestMenu implements EnjTokenView {
     }
 
     private void informViewerOfCancellation() {
-        MessageUtils.sendComponent(viewer.getBukkitPlayer(), TextComponent.builder("")
-                .color(TextColor.GRAY)
-                .append(TextComponent.builder(other.getBukkitPlayer().getName())
-                        .color(TextColor.GOLD)
-                        .build())
-                .append(TextComponent.builder(" has cancelled the trade.")
-                        .build())
-                .build());
+        String msg = String.format(Translation.TRADE_MSG_CANCELLED.translation(), other.getBukkitPlayer().getDisplayName());
+        MessageUtils.sendString(viewer.getBukkitPlayer(), msg);
     }
 }
