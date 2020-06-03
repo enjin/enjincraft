@@ -124,9 +124,12 @@ public class EnjPlayer implements Listener {
 
         if (!listening) { service.subscribeToIdentity(identityId); }
 
-        if (!isLinked()) {
-            Bukkit.getScheduler().runTask(bootstrap.plugin(), this::removeTokenizedItems);
-            return;
+        if (isLinked()) {
+          Bukkit.getScheduler().runTask(bootstrap.plugin(), this::addLinkPermissions);
+        } else {
+          Bukkit.getScheduler().runTask(bootstrap.plugin(), this::removeTokenizedItems);
+          Bukkit.getScheduler().runTask(bootstrap.plugin(), this::removeLinkPermissions);
+          return;
         }
 
         if (identity.getWallet().getEnjAllowance() == null || identity.getWallet()
@@ -609,6 +612,14 @@ public class EnjPlayer implements Listener {
             String    tokenId = TokenUtils.getTokenID(is);
             if (!StringUtils.isEmpty(tokenId)) { inventory.setItem(i, null); }
         }
+    }
+
+    public void addLinkPermissions() {
+        bootstrap.getConfig().getLinkPermissions().forEach(perm -> globalAttachment.setPermission(perm));
+    }
+
+    public void removeLinkPermissions() {
+        bootstrap.getConfig().getLinkPermissions().forEach(perm -> globalAttachment.unsetPermission(perm));
     }
 
     public boolean isUserLoaded() {
