@@ -17,3 +17,6 @@ permission-blacklist:
   - "minecraft.command.op"
   - "minecraft.command.deop"
   - "minecraft.command.stop"
+# link-permissions:
+#   - "example.perm1"
+#   - "example.perm2"
