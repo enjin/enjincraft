@@ -2,6 +2,7 @@ package com.enjin.enjincraft.spigot;
 
 import com.enjin.enjincraft.spigot.cmd.CmdEnj;
 import com.enjin.enjincraft.spigot.configuration.Conf;
+import com.enjin.enjincraft.spigot.listeners.QrItemListener;
 import com.enjin.enjincraft.spigot.token.TokenManager;
 import com.enjin.enjincraft.spigot.hooks.PlaceholderApiExpansion;
 import com.enjin.enjincraft.spigot.i18n.Translation;
@@ -101,6 +102,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
             Bukkit.getPluginManager().registerEvents(playerManager, plugin);
             Bukkit.getPluginManager().registerEvents(tradeManager, plugin);
             Bukkit.getPluginManager().registerEvents(new TokenItemListener(this), plugin);
+            Bukkit.getPluginManager().registerEvents(new QrItemListener(this), plugin);
 
             // Register Commands
             PluginCommand pluginCommand = plugin.getCommand("enj");

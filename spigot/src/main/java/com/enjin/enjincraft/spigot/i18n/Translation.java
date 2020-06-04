@@ -114,6 +114,12 @@ public enum Translation {
     COMMAND_TRADE_CONFIRM_WAIT("&6Please wait while the other player confirms the trade."),
     COMMAND_TRADE_COMPLETE("&6Your trade is complete!"),
 
+    COMMAND_QR_DESCRIPTION("Receive a map with a QR code on it for you to link your wallet with."),
+    COMMAND_QR_ALREADYLINKED("&cYou are already linked."),
+    COMMAND_QR_INVENTORYFULL("&cYour inventory is full."),
+    COMMAND_QR_CODENOTLOADED("&cThe QR code is not loaded yet."),
+    COMMAND_QR_ERROR("&cAn error occurred while creating the map."),
+
     COMMAND_UNLINK_DESCRIPTION("Removes link between wallet and player account."),
     COMMAND_UNLINK_SUCCESS("&aThe wallet has been unlinked from your account!"),
 
@@ -128,6 +134,8 @@ public enum Translation {
     ERRORS_PLAYERNOTONLINE("&6%s &cis not online."),
 
     MISC_NEWLINE(""),
+
+    QR_DISPLAYNAME("Enjin QR Code"),
 
     WALLET_NOTLINKED_SELF("&cYou have not linked a wallet to your identity."),
     WALLET_NOTLINKED_OTHER("&6%s &chas not linked a wallet."),
