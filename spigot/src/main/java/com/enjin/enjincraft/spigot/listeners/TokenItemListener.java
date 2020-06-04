@@ -150,7 +150,7 @@ public class TokenItemListener implements Listener {
             Inventory top = event.getView().getTopInventory();
 
             /* Condition is associated with the standard player inventory view which allows the player to use
-             * hot-key move/equip items within their own inventory. The top inventory is the assumed to be the
+             * hot-key to move/equip items within their own inventory. The top inventory is assumed to be the
              * 2x2 crafting menu.
              */
             if (top instanceof CraftingInventory && top.getSize() == 5)

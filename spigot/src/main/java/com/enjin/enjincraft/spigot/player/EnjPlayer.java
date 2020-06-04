@@ -8,6 +8,7 @@ import com.enjin.enjincraft.spigot.token.TokenModel;
 import com.enjin.enjincraft.spigot.token.TokenPermissionGraph;
 import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.trade.TradeView;
+import com.enjin.enjincraft.spigot.util.QrUtils;
 import com.enjin.enjincraft.spigot.util.StringUtils;
 import com.enjin.enjincraft.spigot.util.TokenUtils;
 import com.enjin.enjincraft.spigot.wallet.MutableBalance;
@@ -32,9 +33,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.inventory.*;
 
+import java.awt.*;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.List;
 
 public class EnjPlayer implements Listener {
 
@@ -49,6 +52,7 @@ public class EnjPlayer implements Listener {
     private Integer     identityId;
     private Wallet      wallet;
     private String      linkingCode;
+    private Image       linkingCodeQr;
     private TokenWallet tokenWallet;
 
     // State Fields
@@ -65,6 +69,9 @@ public class EnjPlayer implements Listener {
 
     // Wallet Fields
     private TokenWalletView activeWalletView;
+
+    // Mutexes
+    protected final Object linkingCodeQrLock = new Object();
 
     public EnjPlayer(SpigotBootstrap bootstrap, Player player) {
         this.bootstrap = bootstrap;
@@ -101,11 +108,12 @@ public class EnjPlayer implements Listener {
     }
 
     public void loadIdentity(Identity identity) {
-        identityId = null;      // Assume player has no identity
-        wallet = null;          //
-        linkingCode = null;     //
+        identityId     = null;  // Assume player has no identity
+        wallet         = null;  //
+        linkingCode    = null;  //
+        setLinkingCodeQr(null); //
         identityLoaded = false; //
-        tokenWallet = null;     //
+        tokenWallet    = null;  //
         globalAttachment.clear();   // Clears all permissions
         worldAttachment.clear();    //
         worldPermissionMap.clear(); //
@@ -116,6 +124,7 @@ public class EnjPlayer implements Listener {
         identityId = identity.getId();
         wallet = identity.getWallet();
         linkingCode = identity.getLinkingCode();
+        FetchQrImageTask.fetch(bootstrap, this, identity.getLinkingCodeQr());
 
         identityLoaded = true;
 
@@ -128,6 +137,8 @@ public class EnjPlayer implements Listener {
             Bukkit.getScheduler().runTask(bootstrap.plugin(), this::removeTokenizedItems);
             return;
         }
+
+        removeQrMap();
 
         if (identity.getWallet().getEnjAllowance() == null || identity.getWallet()
                                                                       .getEnjAllowance()
@@ -578,6 +589,7 @@ public class EnjPlayer implements Listener {
                                        .getIdentityService()
                                        .getIdentitiesSync(new GetIdentities().identityId(identityId)
                                                                              .withLinkingCode()
+                                                                             .withLinkingCodeQr()
                                                                              .withWallet());
             if (!networkResponse.isSuccess()) { throw new NetworkException(networkResponse.code()); }
 
@@ -617,6 +629,28 @@ public class EnjPlayer implements Listener {
             String    tokenId = TokenUtils.getTokenID(is);
             if (!StringUtils.isEmpty(tokenId)) { inventory.setItem(i, null); }
         }
+    }
+
+    public void removeQrMap() {
+        InventoryView   view      = bukkitPlayer.getOpenInventory();
+        PlayerInventory inventory = bukkitPlayer.getInventory();
+
+        Inventory top    = view.getTopInventory();
+        Inventory bottom = view.getBottomInventory();
+        int size = top.getSize()
+                + bottom.getSize()
+                - inventory.getExtraContents().length
+                - inventory.getArmorContents().length;
+        for (int i = 0; i < size; i++) {
+            if (QrUtils.hasQrTag(view.getItem(i)))
+                view.setItem(i, null);
+        }
+
+        if (QrUtils.hasQrTag(view.getCursor()))
+            view.setCursor(null);
+
+        if (QrUtils.hasQrTag(inventory.getItemInOffHand()))
+            inventory.setItemInOffHand(null);
     }
 
     public boolean isUserLoaded() {
@@ -685,6 +719,18 @@ public class EnjPlayer implements Listener {
 
     public String getLinkingCode() {
         return linkingCode;
+    }
+
+    protected void setLinkingCodeQr(Image linkingCodeQr) {
+        synchronized (linkingCodeQrLock) {
+            this.linkingCodeQr = linkingCodeQr;
+        }
+    }
+
+    public Image getLinkingCodeQr() {
+        synchronized (linkingCodeQrLock) {
+            return linkingCodeQr;
+        }
     }
 
     public BigDecimal getEnjBalance() {
