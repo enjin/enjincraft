@@ -32,6 +32,7 @@ public class PlayerManager implements Listener, PlayerManagerApi {
             addPlayer(enjPlayer);
             // Fetch or create a User and Identity associated with the joining Player
             PlayerInitializationTask.create(bootstrap, enjPlayer);
+            enjPlayer.removeQrMap();
         } catch (Exception ex) {
             bootstrap.log(ex);
         }

@@ -89,6 +89,7 @@ public class PlayerInitializationTask extends BukkitRunnable {
                                                                                                    .name(playerUuid.toString())
                                                                                                    .withUserIdentities()
                                                                                                    .withLinkingCode()
+                                                                                                   .withLinkingCodeQr()
                                                                                                    .withWallet());
         if (!networkResponse.isSuccess()) { throw new NetworkException(networkResponse.code()); }
 
@@ -109,7 +110,8 @@ public class PlayerInitializationTask extends BukkitRunnable {
                 .getUserService().createUserSync(new CreateUser()
                                                          .name(playerUuid.toString())
                                                          .withUserIdentities()
-                                                         .withLinkingCode());
+                                                         .withLinkingCode()
+                                                         .withLinkingCodeQr());
         if (!networkResponse.isSuccess()) { throw new NetworkException(networkResponse.code()); }
 
         GraphQLResponse<User> graphQLResponse = networkResponse.body();
@@ -130,6 +132,7 @@ public class PlayerInitializationTask extends BukkitRunnable {
                                        .getIdentitiesSync(new GetIdentities()
                                                                   .identityId(player.getIdentityId())
                                                                   .withLinkingCode()
+                                                                  .withLinkingCodeQr()
                                                                   .withWallet());
             if (!networkResponse.isSuccess()) { throw new NetworkException(networkResponse.code()); }
 
@@ -149,7 +152,8 @@ public class PlayerInitializationTask extends BukkitRunnable {
                                                                         .createIdentitySync(new CreateIdentity()
                                                                                                     .appId(client.getAppId())
                                                                                                     .userId(this.player.getUserId())
-                                                                                                    .withLinkingCode());
+                                                                                                    .withLinkingCode()
+                                                                                                    .withLinkingCodeQr());
         if (!networkResponse.isSuccess()) { throw new NetworkException(networkResponse.code()); }
 
         GraphQLResponse<Identity> graphQLResponse = networkResponse.body();
