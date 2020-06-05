@@ -5,7 +5,6 @@ import com.enjin.enjincraft.spigot.SpigotBootstrap;
 import com.enjin.enjincraft.spigot.enums.TargetPlayer;
 import com.enjin.enjincraft.spigot.enums.Trader;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
-import com.enjin.enjincraft.spigot.token.TokenModel;
 import com.enjin.enjincraft.spigot.util.MessageUtils;
 import com.enjin.enjincraft.spigot.util.StringUtils;
 import com.enjin.enjincraft.spigot.util.TokenUtils;
@@ -84,6 +83,10 @@ public class TradeView extends ChestMenu implements EnjTokenView {
             TradeView otherView = this.other.getActiveTradeView();
             Position position = Position.toPosition(this, slot);
             otherView.setItem(this.other.getBukkitPlayer(), otherView.getOtherItemsComponent(), position, newItem);
+
+            // Un-readies the trade for both parties
+            unreadyAction();
+            otherView.unreadyAction();
         });
 
         //  Create the status region for the viewing player
@@ -126,12 +129,8 @@ public class TradeView extends ChestMenu implements EnjTokenView {
         Position unreadyPosition = Position.of(2, 0);
         this.viewerStatusComponent.setItem(unreadyPosition, unreadyItem);
         this.viewerStatusComponent.addAction(unreadyPosition, p -> {
-            this.playerReady = false;
-            setItem(p, this.viewerStatusComponent, Position.of(3, 0), unreadyPane);
+            unreadyAction();
             p.updateInventory();
-
-            TradeView otherView = this.other.getActiveTradeView();
-            otherView.setItem(other.getBukkitPlayer(), otherView.otherStatusComponent, Position.of(3, 0), unreadyPane);
             other.getBukkitPlayer().updateInventory();
         }, ClickType.LEFT, ClickType.RIGHT);
         this.viewerStatusComponent.setItem(Position.of(3, 0), unreadyPane);
@@ -158,6 +157,14 @@ public class TradeView extends ChestMenu implements EnjTokenView {
         addComponent(Position.of(4, 0), verticalBarrierTop);
         addComponent(Position.of(4, 5), verticalBarrierBottom);
         addComponent(Position.of(0, 4), horizontalBarrier);
+    }
+
+    protected void unreadyAction() {
+        playerReady = false;
+        setItem(viewer.getBukkitPlayer(), viewerStatusComponent, Position.of(3, 0), unreadyPane);
+
+        TradeView otherView = other.getActiveTradeView();
+        otherView.setItem(other.getBukkitPlayer(), otherView.otherStatusComponent, Position.of(3, 0), unreadyPane);
     }
 
     public EnjPlayer getViewer() {
@@ -225,25 +232,33 @@ public class TradeView extends ChestMenu implements EnjTokenView {
                     view.setItem(slot, null);
                     updateSlotWithHandler(slot, is, null);
                 } else {
+                    boolean changed = false;
+
                     if (balance.amountAvailableForWithdrawal() < is.getAmount()) {
                         is.setAmount(balance.amountAvailableForWithdrawal());
+                        changed = true;
                     }
 
                     balance.withdraw(is.getAmount());
 
-                    TokenModel tokenModel = bootstrap.getTokenManager().getToken(id);
+                    ItemStack newStack = bootstrap.getTokenManager().getToken(id).getItemStack();
+                    newStack.setAmount(is.getAmount());
+
+                    String newNBT  = NBTItem.convertItemtoNBT(newStack).toString();
                     String itemNBT = NBTItem.convertItemtoNBT(is).toString();
+                    if (!itemNBT.equals(newNBT)) {
+                        changed = true;
 
-                    if (!itemNBT.equals(tokenModel.getNbt())) {
-                        ItemStack newStack = tokenModel.getItemStack();
                         int amount = is.getAmount();
-
                         if (amount > newStack.getMaxStackSize()) {
                             balance.deposit(amount - newStack.getMaxStackSize());
                             amount = newStack.getMaxStackSize();
                         }
 
                         newStack.setAmount(amount);
+                    }
+
+                    if (changed) {
                         view.setItem(slot, newStack);
                         updateSlotWithHandler(slot, is, newStack);
                     }
