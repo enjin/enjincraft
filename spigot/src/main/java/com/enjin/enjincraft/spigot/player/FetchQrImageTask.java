@@ -11,7 +11,7 @@ import java.net.URL;
 public class FetchQrImageTask extends BukkitRunnable {
 
     public static final Long TASK_DELAY  = 1L;
-    public static final Long TASK_PERIOD = 20L;
+    public static final Long TASK_PERIOD = 2L;
 
     private SpigotBootstrap bootstrap;
     private EnjPlayer       player;
