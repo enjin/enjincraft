@@ -131,6 +131,7 @@ public enum Translation {
 
     ERRORS_EXCEPTION("&cERROR: &7%s"),
     ERRORS_CHOOSEOTHERPLAYER("&cYou must specify a player other than yourself."),
+    ERRORS_INVALIDPLAYERNAME("&6%s &cis not a valid player name."),
     ERRORS_PLAYERNOTONLINE("&6%s &cis not online."),
     ERRORS_PLAYERNOTREGISTERED("&6%s &chas not been registered by the plugin yet."),
 
