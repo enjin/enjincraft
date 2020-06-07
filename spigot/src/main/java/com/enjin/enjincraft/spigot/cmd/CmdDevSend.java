@@ -8,6 +8,7 @@ import com.enjin.enjincraft.spigot.cmd.arg.TokenDefinitionArgumentProcessor;
 import com.enjin.enjincraft.spigot.token.TokenModel;
 import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
+import com.enjin.enjincraft.spigot.util.PlayerUtils;
 import com.enjin.sdk.TrustedPlatformClient;
 import com.enjin.sdk.graphql.GraphQLResponse;
 import com.enjin.sdk.models.request.CreateRequest;
@@ -22,7 +23,6 @@ import java.util.Optional;
 public class CmdDevSend extends EnjCommand {
 
     public static final String ETH_ADDRESS_PREFIX = "0x";
-    public static final int    MAX_NAME_LENGTH    = 16;
 
     public CmdDevSend(SpigotBootstrap bootstrap, EnjCommand parent) {
         super(bootstrap, parent);
@@ -71,9 +71,9 @@ public class CmdDevSend extends EnjCommand {
         }
 
         String targetAddr;
-        if (recipient.length() > MAX_NAME_LENGTH && recipient.startsWith(ETH_ADDRESS_PREFIX)) {
+        if (recipient.length() > PlayerUtils.MAX_USERNAME_LENGTH && recipient.startsWith(ETH_ADDRESS_PREFIX)) {
             targetAddr = recipient;
-        } else {
+        } else if (PlayerUtils.isValidUserName(recipient)) {
             if (!optionalPlayer.isPresent()) {
                 Translation.ERRORS_PLAYERNOTONLINE.send(sender, recipient);
                 return;
@@ -98,6 +98,9 @@ public class CmdDevSend extends EnjCommand {
             }
 
             targetAddr = targetEnjPlayer.getEthereumAddress();
+        } else {
+            Translation.ERRORS_INVALIDPLAYERNAME.send(sender, recipient);
+            return;
         }
 
         TokenModel tokenModel = optionalTokenDef.get();
