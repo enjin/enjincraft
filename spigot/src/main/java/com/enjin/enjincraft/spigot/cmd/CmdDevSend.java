@@ -22,6 +22,7 @@ import java.util.Optional;
 
 public class CmdDevSend extends EnjCommand {
 
+    public static final int    ETH_ADDRESS_LENGTH = 42;
     public static final String ETH_ADDRESS_PREFIX = "0x";
 
     public CmdDevSend(SpigotBootstrap bootstrap, EnjCommand parent) {
@@ -71,7 +72,7 @@ public class CmdDevSend extends EnjCommand {
         }
 
         String targetAddr;
-        if (recipient.length() > PlayerUtils.MAX_USERNAME_LENGTH && recipient.startsWith(ETH_ADDRESS_PREFIX)) {
+        if (recipient.startsWith(ETH_ADDRESS_PREFIX) && recipient.length() == ETH_ADDRESS_LENGTH) {
             targetAddr = recipient;
         } else if (PlayerUtils.isValidUserName(recipient)) {
             if (!optionalPlayer.isPresent()) {
