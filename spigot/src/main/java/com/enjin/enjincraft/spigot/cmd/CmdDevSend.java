@@ -8,6 +8,7 @@ import com.enjin.enjincraft.spigot.cmd.arg.TokenDefinitionArgumentProcessor;
 import com.enjin.enjincraft.spigot.token.TokenModel;
 import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
+import com.enjin.enjincraft.spigot.util.PlayerUtils;
 import com.enjin.sdk.TrustedPlatformClient;
 import com.enjin.sdk.graphql.GraphQLResponse;
 import com.enjin.sdk.models.request.CreateRequest;
@@ -20,6 +21,9 @@ import java.util.List;
 import java.util.Optional;
 
 public class CmdDevSend extends EnjCommand {
+
+    public static final int    ETH_ADDRESS_LENGTH = 42;
+    public static final String ETH_ADDRESS_PREFIX = "0x";
 
     public CmdDevSend(SpigotBootstrap bootstrap, EnjCommand parent) {
         super(bootstrap, parent);
@@ -46,16 +50,11 @@ public class CmdDevSend extends EnjCommand {
     @Override
     public void execute(CommandContext context) {
         CommandSender        sender           = context.sender;
-        String               playerName       = context.args.get(0);
+        String               recipient        = context.args.get(0);
         String               id               = context.args.get(1);
-        Optional<Player>     optionalPlayer   = PlayerArgumentProcessor.INSTANCE.parse(sender, playerName);
+        Optional<Player>     optionalPlayer   = PlayerArgumentProcessor.INSTANCE.parse(sender, recipient);
         Optional<TokenModel> optionalTokenDef = TokenDefinitionArgumentProcessor.INSTANCE.parse(sender, id);
         Optional<Integer>    optionalAmount;
-
-        if (!optionalPlayer.isPresent()) {
-            Translation.ERRORS_PLAYERNOTONLINE.send(sender, playerName);
-            return;
-        }
 
         if (!optionalTokenDef.isPresent()) {
             Translation.COMMAND_DEVSEND_INVALIDTOKEN.send(sender);
@@ -63,7 +62,7 @@ public class CmdDevSend extends EnjCommand {
         }
 
         try {
-            optionalAmount   = context.argToInt(2);
+            optionalAmount = context.argToInt(2);
 
             if (!optionalAmount.isPresent() || optionalAmount.get() <= 0)
                 throw new IllegalArgumentException();
@@ -72,59 +71,72 @@ public class CmdDevSend extends EnjCommand {
             return;
         }
 
-        Player target = optionalPlayer.get();
-        if (!target.isOnline()) {
-            Translation.ERRORS_PLAYERNOTONLINE.send(sender, playerName);
-            return;
-        }
+        String targetAddr;
+        if (recipient.startsWith(ETH_ADDRESS_PREFIX) && recipient.length() == ETH_ADDRESS_LENGTH) {
+            targetAddr = recipient;
+        } else if (PlayerUtils.isValidUserName(recipient)) {
+            if (!optionalPlayer.isPresent()) {
+                Translation.ERRORS_PLAYERNOTONLINE.send(sender, recipient);
+                return;
+            }
 
-        Optional<EnjPlayer> optionalEnjPlayer = bootstrap.getPlayerManager().getPlayer(target);
-        if (!optionalEnjPlayer.isPresent()) { return; }
-        EnjPlayer targetEnjPlayer = optionalEnjPlayer.get();
+            Player target = optionalPlayer.get();
+            if (!target.isOnline()) {
+                Translation.ERRORS_PLAYERNOTONLINE.send(sender, recipient);
+                return;
+            }
 
-        if (!targetEnjPlayer.isLinked()) {
-            Translation.WALLET_NOTLINKED_OTHER.send(sender, target.getName());
+            Optional<EnjPlayer> optionalEnjPlayer = bootstrap.getPlayerManager().getPlayer(target);
+            if (!optionalEnjPlayer.isPresent()) {
+                Translation.ERRORS_PLAYERNOTREGISTERED.send(sender, recipient);
+                return;
+            }
+
+            EnjPlayer targetEnjPlayer = optionalEnjPlayer.get();
+            if (!targetEnjPlayer.isLinked()) {
+                Translation.WALLET_NOTLINKED_OTHER.send(sender, target.getName());
+                return;
+            }
+
+            targetAddr = targetEnjPlayer.getEthereumAddress();
+        } else {
+            Translation.ERRORS_INVALIDPLAYERNAME.send(sender, recipient);
             return;
         }
 
         TokenModel tokenModel = optionalTokenDef.get();
         Integer amount = optionalAmount.get();
 
-        send(sender, bootstrap.getConfig().getDevIdentityId(), targetEnjPlayer.getIdentityId(),
-             tokenModel.getId(), amount);
+        send(sender, bootstrap.getConfig().getDevIdentityId(), targetAddr, tokenModel.getId(), amount);
     }
 
-    private void send(CommandSender sender, int senderId, int targetId, String tokenId, int amount) {
+    private void send(CommandSender sender, int senderId, String targetAddr, String tokenId, int amount) {
         TrustedPlatformClient client = bootstrap.getTrustedPlatformClient();
-        client.getRequestService().createRequestAsync(new CreateRequest()
-                                                              .appId(client.getAppId())
-                                                              .identityId(senderId)
-                                                              .sendToken(SendTokenData.builder()
-                                                                                      .recipientIdentityId(targetId)
-                                                                                      .tokenId(tokenId)
-                                                                                      .value(amount)
-                                                                                      .build()),
-                                                      networkResponse -> {
-                                                          if (!networkResponse.isSuccess()) {
-                                                              NetworkException exception = new NetworkException(
-                                                                      networkResponse.code());
-                                                              Translation.ERRORS_EXCEPTION.send(sender,
-                                                                                                exception.getMessage());
-                                                              throw exception;
-                                                          }
+        client.getRequestService()
+                .createRequestAsync(new CreateRequest()
+                                .appId(client.getAppId())
+                                .identityId(senderId)
+                                .sendToken(SendTokenData.builder()
+                                        .recipientAddress(targetAddr)
+                                        .tokenId(tokenId)
+                                        .value(amount)
+                                        .build()),
+                        networkResponse -> {
+                            if (!networkResponse.isSuccess()) {
+                                NetworkException exception = new NetworkException(networkResponse.code());
+                                Translation.ERRORS_EXCEPTION.send(sender, exception.getMessage());
+                                throw exception;
+                            }
 
-                                                          GraphQLResponse<Transaction> graphQLResponse = networkResponse
-                                                                  .body();
-                                                          if (!graphQLResponse.isSuccess()) {
-                                                              GraphQLException exception = new GraphQLException(
-                                                                      graphQLResponse.getErrors());
-                                                              Translation.ERRORS_EXCEPTION.send(sender,
-                                                                                                exception.getMessage());
-                                                              throw exception;
-                                                          }
+                            GraphQLResponse<Transaction> graphQLResponse = networkResponse.body();
+                            if (!graphQLResponse.isSuccess()) {
+                                GraphQLException exception = new GraphQLException(graphQLResponse.getErrors());
+                                Translation.ERRORS_EXCEPTION.send(sender, exception.getMessage());
+                                throw exception;
+                            }
 
-                                                          Translation.COMMAND_SEND_SUBMITTED.send(sender);
-                                                      });
+                            Translation.COMMAND_SEND_SUBMITTED.send(sender);
+                });
     }
 
     @Override
