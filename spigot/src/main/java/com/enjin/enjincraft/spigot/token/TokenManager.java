@@ -1,8 +1,15 @@
 package com.enjin.enjincraft.spigot.token;
 
+import com.enjin.enjincraft.spigot.GraphQLException;
+import com.enjin.enjincraft.spigot.NetworkException;
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
 import com.enjin.enjincraft.spigot.player.PlayerManager;
+import com.enjin.enjincraft.spigot.util.StringUtils;
+import com.enjin.sdk.TrustedPlatformClient;
+import com.enjin.sdk.graphql.GraphQLResponse;
+import com.enjin.sdk.models.token.GetToken;
+import com.enjin.sdk.models.token.Token;
 import com.enjin.sdk.services.notification.NotificationsService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -34,6 +41,7 @@ public class TokenManager {
     public static final String GLOBAL = "*";
 
     private final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(TokenModel.class, new TokenModel.TokenModelDeserializer())
             .registerTypeAdapter(TokenPermission.class, new TokenPermission.TokenPermissionSerializer())
             .registerTypeAdapter(TokenPermission.class, new TokenPermission.TokenPermissionDeserializer())
             .setPrettyPrinting()
@@ -174,6 +182,41 @@ public class TokenManager {
         alternateIds.put(alternateId, tokenId);
 
         return updateTokenConf(tokenModel);
+    }
+
+    public int updateMetadataURI(String id, String metadataURI) {
+        TokenModel tokenModel = getToken(id);
+        if (tokenModel == null)
+            return TOKEN_NOSUCHTOKEN;
+
+        if (StringUtils.isEmpty(metadataURI))
+            metadataURI = null;
+
+        tokenModel.setMetadataURI(metadataURI);
+        return updateTokenConf(tokenModel);
+    }
+
+    public void updateMetadataURI(String id) throws GraphQLException, NetworkException {
+        TokenModel tokenModel = getToken(id);
+        if (tokenModel == null)
+            return;
+
+        TrustedPlatformClient client = bootstrap.getTrustedPlatformClient();
+        client.getTokenService()
+                .getTokenAsync(new GetToken()
+                                .tokenId(tokenModel.getId())
+                                .withItemUri(),
+                        networkResponse -> {
+                            if (!networkResponse.isSuccess())
+                                throw new NetworkException(networkResponse.code());
+
+                            GraphQLResponse<Token> graphQLResponse = networkResponse.body();
+                            if (!graphQLResponse.isSuccess())
+                                throw new GraphQLException(graphQLResponse.getErrors());
+
+                            String metadataURI = graphQLResponse.getData().getItemURI();
+                            updateMetadataURI(tokenModel.getId(), metadataURI);
+                });
     }
 
     public int addPermissionToToken(String perm, String id, String world) {
