@@ -1,5 +1,6 @@
 package com.enjin.enjincraft.spigot.token;
 
+import com.google.gson.*;
 import com.google.gson.annotations.SerializedName;
 import de.tr7zw.changeme.nbtapi.NBTContainer;
 import de.tr7zw.changeme.nbtapi.NBTItem;
@@ -8,6 +9,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -20,6 +22,7 @@ public class TokenModel {
     private transient NBTItem nbtItem;
     @Getter
     private transient String displayName;
+    private transient Object uriLock = new Object();
 
     @Getter
     private String id;
@@ -35,19 +38,39 @@ public class TokenModel {
     @SerializedName("assignable-permissions")
     private List<TokenPermission> assignablePermissions;
 
+    @Getter(onMethod_ = {@Synchronized("uriLock")})
+    @Setter(value = AccessLevel.PROTECTED, onMethod_ = {@Synchronized("uriLock")})
+    @SerializedName("metadata-uri")
+    private String metadataURI;
+
+    public TokenModel(@NonNull String id,
+                      String alternateId,
+                      @NonNull String nbt,
+                      List<TokenPermission> assignablePermissions) {
+        this(id, alternateId, nbt, assignablePermissions, null);
+    }
+
     @Builder
-    public TokenModel(@NonNull String id, String alternateId, @NonNull String nbt, List<TokenPermission> assignablePermissions) {
+    public TokenModel(@NonNull String id,
+                      String alternateId,
+                      @NonNull String nbt,
+                      List<TokenPermission> assignablePermissions,
+                      String metadataURI) {
         this.id = id;
         this.alternateId = alternateId;
         this.nbt = nbt;
         this.assignablePermissions = assignablePermissions == null ? new ArrayList<>() : assignablePermissions;
+        this.metadataURI = metadataURI;
     }
 
     protected void load() {
         nbtContainer = new NBTContainer(nbt);
         nbtItem =  new NBTItem(NBTItem.convertNBTtoItem(nbtContainer));
         nbtItem.setString(NBT_ID, id);
-        displayName = nbtItem.getItem().getItemMeta().getDisplayName();
+
+        ItemMeta meta = nbtItem.getItem().getItemMeta();
+        if (meta != null)
+            displayName = meta.getDisplayName();
     }
 
     protected boolean applyBlacklist(Collection<String> blacklist) {
@@ -215,6 +238,23 @@ public class TokenModel {
         }
 
         return permissionMap;
+    }
+
+    public static class TokenModelDeserializer implements JsonDeserializer<TokenModel> {
+
+        private static final Gson gson = new GsonBuilder()
+                .registerTypeAdapter(TokenPermission.class, new TokenPermission.TokenPermissionDeserializer())
+                .setPrettyPrinting()
+                .create();
+
+        @Override
+        public TokenModel deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            TokenModel tokenModel = gson.fromJson(json, TokenModel.class);
+            tokenModel.uriLock = new Object();
+
+            return tokenModel;
+        }
+
     }
 
 }
