@@ -77,9 +77,9 @@ public class CmdSend extends EnjCommand {
             return;
         }
 
-        ItemStack is      = sender.getInventory().getItemInMainHand();
-        String    tokenId = TokenUtils.getTokenID(is);
+        ItemStack is = sender.getInventory().getItemInMainHand();
 
+        String tokenId = TokenUtils.getTokenID(is);
         if (tokenId == null) {
             Translation.COMMAND_SEND_MUSTHOLDITEM.send(sender);
             return;
@@ -88,7 +88,11 @@ public class CmdSend extends EnjCommand {
             return;
         }
 
-        MutableBalance balance = senderEnjPlayer.getTokenWallet().getBalance(tokenId);
+        String tokenIndex = TokenUtils.isNonFungible(is)
+                ? TokenUtils.getTokenIndex(is)
+                : null;
+
+        MutableBalance balance = senderEnjPlayer.getTokenWallet().getBalance(tokenId, tokenIndex);
 
         if (balance == null) {
             Translation.COMMAND_SEND_DOESNOTHAVETOKEN.send(sender);
@@ -104,19 +108,28 @@ public class CmdSend extends EnjCommand {
         }
 
         send(sender, senderEnjPlayer.getIdentityId(), targetEnjPlayer.getIdentityId(),
-                tokenId, is.getAmount());
+                tokenId, tokenIndex, is.getAmount());
     }
 
-    private void send(Player sender, int senderId, int targetId, String tokenId, int amount) {
+    private void send(Player sender, int senderId, int targetId, String tokenId, String tokenIndex, int amount) {
+        SendTokenData sendTokenData = tokenIndex == null
+                ? SendTokenData.builder()
+                               .recipientIdentityId(targetId)
+                               .tokenId(tokenId)
+                               .value(amount)
+                               .build()
+                : SendTokenData.builder()
+                               .recipientIdentityId(targetId)
+                               .tokenId(tokenId)
+                               .tokenIndex(tokenIndex)
+                               .value(amount)
+                               .build();
+
         TrustedPlatformClient client = bootstrap.getTrustedPlatformClient();
         client.getRequestService().createRequestAsync(new CreateRequest()
                         .appId(client.getAppId())
                         .identityId(senderId)
-                        .sendToken(SendTokenData.builder()
-                                .recipientIdentityId(targetId)
-                                .tokenId(tokenId)
-                                .value(amount)
-                                .build()),
+                        .sendToken(sendTokenData),
                 networkResponse -> {
                     if (!networkResponse.isSuccess()) {
                         NetworkException exception = new NetworkException(networkResponse.code());

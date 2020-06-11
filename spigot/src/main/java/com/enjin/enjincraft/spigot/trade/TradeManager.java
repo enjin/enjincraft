@@ -207,21 +207,30 @@ public class TradeManager implements Listener {
     }
 
     private List<TokenValueData> extractOffers(List<ItemStack> offers) {
-        Map<String, Integer> tokens = new HashMap<>();
+        List<TokenValueData> extractedOffers = new ArrayList<>();
 
         for (ItemStack is : offers) {
             String tokenId = TokenUtils.getTokenID(is);
             if (StringUtils.isEmpty(tokenId))
                 continue;
-            tokens.compute(tokenId, (key, value) -> value == null ? is.getAmount() : value + is.getAmount());
+
+            int value = is.getAmount();
+
+            if (TokenUtils.isNonFungible(is)) {
+                extractedOffers.add(TokenValueData.builder()
+                        .id(tokenId)
+                        //.index(TokenUtils.getTokenIndex(is)) // TODO: May need to consider alternate trade method.
+                        .value(value)
+                        .build());
+            } else {
+                extractedOffers.add(TokenValueData.builder()
+                        .id(tokenId)
+                        .value(value)
+                        .build());
+            }
         }
 
-        return tokens.entrySet().stream()
-                .map(e -> TokenValueData.builder()
-                        .id(e.getKey())
-                        .value(e.getValue())
-                        .build())
-                .collect(Collectors.toList());
+        return extractedOffers;
     }
 
     @EventHandler
