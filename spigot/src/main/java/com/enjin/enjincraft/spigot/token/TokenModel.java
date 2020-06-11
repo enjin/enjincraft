@@ -1,6 +1,5 @@
 package com.enjin.enjincraft.spigot.token;
 
-import com.google.gson.*;
 import com.google.gson.annotations.SerializedName;
 import de.tr7zw.changeme.nbtapi.NBTContainer;
 import de.tr7zw.changeme.nbtapi.NBTItem;
@@ -9,10 +8,10 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+@NoArgsConstructor
 @ToString
 public class TokenModel {
 
@@ -238,23 +237,6 @@ public class TokenModel {
         }
 
         return permissionMap;
-    }
-
-    public static class TokenModelDeserializer implements JsonDeserializer<TokenModel> {
-
-        private static final Gson gson = new GsonBuilder()
-                .registerTypeAdapter(TokenPermission.class, new TokenPermission.TokenPermissionDeserializer())
-                .setPrettyPrinting()
-                .create();
-
-        @Override
-        public TokenModel deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-            TokenModel tokenModel = gson.fromJson(json, TokenModel.class);
-            tokenModel.uriLock = new Object();
-
-            return tokenModel;
-        }
-
     }
 
 }
