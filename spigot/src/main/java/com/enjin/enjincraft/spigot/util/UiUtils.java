@@ -12,7 +12,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 public final class UiUtils {
 
     private UiUtils() {
-        throw new IllegalStateException();
+        throw new IllegalStateException("Utility class");
     }
 
     public static Component createSeparator(Dimension dimension) {

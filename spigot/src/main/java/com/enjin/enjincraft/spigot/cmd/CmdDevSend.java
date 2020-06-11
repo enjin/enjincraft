@@ -107,6 +107,7 @@ public class CmdDevSend extends EnjCommand {
         TokenModel tokenModel = optionalTokenDef.get();
         Integer amount = optionalAmount.get();
 
+        // TODO: Rework to be usable with NFTs.
         send(sender, bootstrap.getConfig().getDevIdentityId(), targetAddr, tokenModel.getId(), amount);
     }
 

@@ -27,7 +27,8 @@ public class TokenPermission {
 
     public TokenPermission(String permission, Collection<String> worlds) {
         this.permission = permission;
-        this.worlds.addAll(worlds);
+
+        addWorlds(worlds);
     }
 
     @Override
@@ -39,11 +40,54 @@ public class TokenPermission {
     }
 
     public boolean addWorld(String world) {
+        if (world.equals(TokenManager.GLOBAL)) {
+            if (worlds.contains(TokenManager.GLOBAL)) {
+                return false;
+            } else {
+                worlds.clear();
+                worlds.add(world);
+                return true;
+            }
+        }
+
         return worlds.add(world);
     }
 
     public boolean addWorlds(Collection<String> worlds) {
+        if (worlds.contains(TokenManager.GLOBAL))
+            return addWorld(TokenManager.GLOBAL);
+
         return this.worlds.addAll(worlds);
+    }
+
+    public boolean removeWorld(String world) {
+        if (world.equals(TokenManager.GLOBAL)) {
+            if (worlds.size() > 0) {
+                worlds.clear();
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        return worlds.remove(world);
+    }
+
+    public boolean removeWorlds(Collection<String> worlds) {
+        if (worlds.contains(TokenManager.GLOBAL)) {
+            if (this.worlds.size() > 0) {
+                this.worlds.clear();
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        return this.worlds.removeAll(worlds);
+    }
+
+    public boolean isGlobal() {
+        return worlds.isEmpty() || worlds.contains(TokenManager.GLOBAL);
     }
 
     public static class TokenPermissionSerializer implements JsonSerializer<TokenPermission> {
