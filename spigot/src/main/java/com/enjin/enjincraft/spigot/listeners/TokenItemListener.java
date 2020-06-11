@@ -14,15 +14,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.*;
-import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class TokenItemListener implements Listener {
 
@@ -38,21 +34,23 @@ public class TokenItemListener implements Listener {
             return;
 
         try {
-            List<ItemStack> drops = event.getDrops();
-            Optional<EnjPlayer> optionalPlayer = bootstrap.getPlayerManager().getPlayer(event.getEntity());
-            if (!optionalPlayer.isPresent())
+            EnjPlayer enjPlayer = bootstrap.getPlayerManager()
+                    .getPlayer(event.getEntity())
+                    .orElse(null);
+            if (enjPlayer == null)
                 return;
-            EnjPlayer player = optionalPlayer.get();
-            TokenWallet wallet = player.getTokenWallet();
+
+            TokenWallet wallet = enjPlayer.getTokenWallet();
+            List<ItemStack> drops = event.getDrops();
 
             for (int i = drops.size() - 1; i >= 0; i--) {
-                String id = TokenUtils.getTokenID(drops.get(i));
-
-                if (StringUtils.isEmpty(id))
+                ItemStack is    = drops.get(i);
+                String    id    = TokenUtils.getTokenID(is);
+                String    index = TokenUtils.getTokenIndex(is);
+                if (StringUtils.isEmpty(id) || StringUtils.isEmpty(index))
                     continue;
 
-                ItemStack is = drops.remove(i);
-                MutableBalance balance = wallet.getBalance(id);
+                MutableBalance balance = wallet.getBalance(id, index);
                 balance.deposit(is.getAmount());
             }
         } catch (Exception ex) {
@@ -62,53 +60,46 @@ public class TokenItemListener implements Listener {
 
     @EventHandler
     public void onPlayerDropItem(PlayerDropItemEvent event) {
-        ItemStack is = event.getItemDrop().getItemStack();
-        String    id = TokenUtils.getTokenID(is);
-
-        Optional<EnjPlayer> optionalPlayer = bootstrap.getPlayerManager().getPlayer(event.getPlayer());
-
-        if (!optionalPlayer.isPresent() || StringUtils.isEmpty(id))
+        EnjPlayer enjPlayer = bootstrap.getPlayerManager()
+                .getPlayer(event.getPlayer())
+                .orElse(null);
+        ItemStack is    = event.getItemDrop().getItemStack();
+        String    id    = TokenUtils.getTokenID(is);
+        String    index = TokenUtils.getTokenIndex(is);
+        if (enjPlayer == null || StringUtils.isEmpty(id) || StringUtils.isEmpty(index))
             return;
 
-        event.setCancelled(true);
-
-        PlayerInventory inventory = event.getPlayer().getInventory();
-        int size = inventory.getSize() - (inventory.getArmorContents().length + inventory.getExtraContents().length);
-        int idx = -1;
+        event.setCancelled(true); // Will cancel event due to token being detected
 
         // Checks for available space
+        PlayerInventory inventory = event.getPlayer().getInventory();
+        int size = inventory.getSize() - (inventory.getArmorContents().length + inventory.getExtraContents().length);
+        int slot = -1;
         for (int i = 0; i < size; i++) {
             ItemStack item   = inventory.getItem(i);
             String    itemId = TokenUtils.getTokenID(item);
-
-            if (itemId == null) {
+            if (itemId == null || TokenUtils.canCombineStacks(is, item))
                 return;
-            } else if (StringUtils.isEmpty(itemId) && idx < 0) { // Gets the first available non-tokenized item
-                idx = i;
-                continue;
-            }
-
-            if (TokenUtils.canCombineStacks(is, item))
-                return;
+            else if (StringUtils.isEmpty(itemId) && slot < 0) // Gets the first available non-tokenized item
+                slot = i;
         }
-
-        Player player = event.getPlayer();
 
         // Returns token to wallet if inventory cannot be changed
-        if (idx < 0) {
+        if (slot < 0) {
             try {
-                TokenWallet wallet = optionalPlayer.get().getTokenWallet();
+                TokenWallet wallet = enjPlayer.getTokenWallet();
                 MutableBalance balance = wallet.getBalance(id);
                 balance.deposit(is.getAmount());
+                return;
             } catch (Exception e) {
                 bootstrap.log(e);
+                return;
             }
-
-            return;
         }
 
-        player.getWorld().dropItemNaturally(player.getLocation(), inventory.getItem(idx));
-        inventory.clear(idx);
+        Player player = enjPlayer.getBukkitPlayer();
+        player.getWorld().dropItemNaturally(player.getLocation(), inventory.getItem(slot));
+        inventory.clear(slot);
     }
 
     @EventHandler
@@ -138,7 +129,6 @@ public class TokenItemListener implements Listener {
 
     private void inventoryClickClicked(InventoryClickEvent event, ItemStack is) {
         String tokenId = TokenUtils.getTokenID(is);
-
         if (StringUtils.isEmpty(tokenId))
             return;
 
@@ -162,12 +152,10 @@ public class TokenItemListener implements Listener {
 
     private void inventoryClickHolding(InventoryClickEvent event, ItemStack is) {
         String tokenId = TokenUtils.getTokenID(is);
-
         if (StringUtils.isEmpty(tokenId))
             return;
 
         Inventory clkInv = event.getClickedInventory();
-
         if (clkInv instanceof PlayerInventory)
             return;
 
@@ -176,37 +164,20 @@ public class TokenItemListener implements Listener {
 
     @EventHandler
     public void onInventoryDrag(InventoryDragEvent event) {
-        Player player = (Player) event.getView().getPlayer();
+        InventoryView view   = event.getView();
+        Player        player = (Player) view.getPlayer();
         if (AbstractMenu.hasAnyMenu(player))
             return;
 
-        Inventory top = event.getView().getTopInventory();
-        Inventory bottom = event.getView().getBottomInventory();
-
-        int playerUpper;
-        int playerLower;
-        if (top instanceof PlayerInventory == bottom instanceof PlayerInventory)  {
-            return;
-        } else if (top instanceof PlayerInventory) {
-            playerUpper = top.getSize();
-            playerLower = 0;
-        } else {
-            playerUpper = bottom.getSize() + top.getSize();
-            playerLower = top.getSize();
+        for (Map.Entry<Integer, ItemStack> entry : event.getNewItems().entrySet()) {
+            Integer   slot = entry.getKey();
+            ItemStack is   = entry.getValue();
+            String    id   = TokenUtils.getTokenID(is);
+            if (view.getInventory(slot) != player.getInventory() && !StringUtils.isEmpty(id)) {
+                event.setCancelled(true);
+                return;
+            }
         }
-
-        AtomicBoolean otherModified = new AtomicBoolean(false); // Assume false
-        Map<Integer, ItemStack> newItems = event.getNewItems();
-
-        // Checks if a token was placed outside the player's inventory
-        newItems.forEach((rawSlot, is) -> {
-            String tokenId = TokenUtils.getTokenID(is);
-
-            if (!StringUtils.isEmpty(tokenId) && (rawSlot < playerLower || rawSlot >= playerUpper))
-                otherModified.set(true);
-        });
-
-        event.setCancelled(otherModified.get());
     }
 
     @EventHandler
@@ -215,7 +186,6 @@ public class TokenItemListener implements Listener {
         for (int i = inventory.getSize() - 1; i >= 0; i--) {
             ItemStack is = inventory.getItem(i);
             String    id = TokenUtils.getTokenID(is);
-
             if (StringUtils.isEmpty(id))
                 continue;
 
@@ -228,7 +198,6 @@ public class TokenItemListener implements Listener {
     public void onArmorStandInteract(PlayerArmorStandManipulateEvent event) {
         ItemStack held    = event.getPlayerItem();
         String    tokenId = TokenUtils.getTokenID(held);
-
         if (StringUtils.isEmpty(tokenId))
             return;
 
@@ -238,23 +207,70 @@ public class TokenItemListener implements Listener {
     @EventHandler
     public void onInteractEntity(PlayerInteractEntityEvent event) {
         Entity entity = event.getRightClicked();
-
         if (entity instanceof ItemFrame)
             interactItemFrame(event, (ItemFrame) entity);
     }
 
     private void interactItemFrame(PlayerInteractEntityEvent event, ItemFrame itemFrame) {
         ItemStack held = event.getPlayer().getInventory().getItemInMainHand();
-
         if (itemFrame.getItem().getType() != Material.AIR)
             return;
 
         String tokenId = TokenUtils.getTokenID(held);
-
         if (StringUtils.isEmpty(tokenId))
             return;
 
         event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onBucketEmptyEvent(PlayerBucketEmptyEvent event) {
+        handlePlayerBucketEvent(event);
+    }
+
+    @EventHandler
+    public void onBucketFillEvent(PlayerBucketFillEvent event) {
+        handlePlayerBucketEvent(event);
+    }
+
+    private void handlePlayerBucketEvent(PlayerBucketEvent event) {
+        PlayerInventory inventory = event.getPlayer().getInventory();
+        ItemStack mainHand = inventory.getItemInMainHand();
+        ItemStack offHand  = inventory.getItemInOffHand();
+        ItemStack bucket;
+
+        // Minecraft prioritizes buckets in the main hand
+        if (isBucket(mainHand))
+            bucket = mainHand;
+        else if (isBucket(offHand))
+            bucket = offHand;
+        else
+            return;
+
+        String tokenId = TokenUtils.getTokenID(bucket);
+        if (StringUtils.isEmpty(tokenId))
+            return;
+
+        event.setCancelled(true);
+    }
+
+    private static boolean isBucket(ItemStack is) {
+        if (is == null)
+            return false;
+
+        switch (is.getType()) {
+            case BUCKET:
+            case WATER_BUCKET:
+            case LAVA_BUCKET:
+            case MILK_BUCKET:
+            case COD_BUCKET:
+            case PUFFERFISH_BUCKET:
+            case SALMON_BUCKET:
+            case TROPICAL_FISH_BUCKET:
+                return true;
+            default:
+                return false;
+        }
     }
 
 }

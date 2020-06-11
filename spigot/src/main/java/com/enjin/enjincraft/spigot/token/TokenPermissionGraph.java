@@ -1,28 +1,40 @@
 package com.enjin.enjincraft.spigot.token;
 
+import com.enjin.enjincraft.spigot.util.TokenUtils;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.util.*;
 
+@NoArgsConstructor
 @ToString
 public class TokenPermissionGraph {
 
     private Map<String, Map<String, Set<String>>> permissionTokens = new HashMap<>(); // World -> (Permission -> Tokens)
     private Map<String, Map<String, Set<String>>> tokenPermissions = new HashMap<>(); // Token -> (World -> Permissions)
 
-    protected void addToken(Map<String, Set<String>> permsMap, String tokenId) {
-        permsMap.forEach(((world, perms) -> {
-            perms.forEach(perm -> addTokenPerm(perm, tokenId, world));
-        }));
+    public TokenPermissionGraph(TokenPermissionGraph graph) {
+        this.permissionTokens = new HashMap<>(graph.permissionTokens);
+        this.tokenPermissions = new HashMap<>(graph.tokenPermissions);
+    }
+
+    protected void addToken(Map<String, Set<String>> permsMap, String fullId) {
+        if (!TokenUtils.isValidFullId(fullId))
+            return;
+
+        permsMap.forEach(((world, perms) -> perms.forEach(perm -> addTokenPerm(perm, fullId, world))));
     }
 
     protected void addToken(TokenModel tokenModel) {
-        addToken(tokenModel.getPermissionsMap(), tokenModel.getId());
+        addToken(tokenModel.getPermissionsMap(), tokenModel.getFullId());
     }
 
-    protected void addTokenPerm(String perm, String tokenId, String world) {
-        Map<String, Set<String>> worldTokens = getPermissionTokens(world);  // Permission -> Tokens
-        Map<String, Set<String>> worldPerms = getTokenPermissions(tokenId); // World -> Permissions
+    protected void addTokenPerm(String perm, String fullId, String world) {
+        if (!TokenUtils.isValidFullId(fullId))
+            return;
+
+        Map<String, Set<String>> worldTokens = getPermissionTokens(world); // Permission -> Tokens
+        Map<String, Set<String>> worldPerms = getTokenPermissions(fullId); // World -> Permissions
 
         if (worldTokens == null) {
             worldTokens = new HashMap<>();
@@ -33,7 +45,7 @@ public class TokenPermissionGraph {
         if (worldPerms == null) {
             worldPerms = new HashMap<>();
             worldPerms.put(world, new HashSet<>());
-            tokenPermissions.put(tokenId, worldPerms);
+            tokenPermissions.put(fullId, worldPerms);
         }
 
         Set<String> tokens = worldTokens.get(perm);
@@ -49,36 +61,42 @@ public class TokenPermissionGraph {
             worldPerms.put(world, perms);
         }
 
-        tokens.add(tokenId);
+        tokens.add(fullId);
         perms.add(perm);
 
         // Removes permission from all other worlds if world was set to global
         if (world.equals(TokenManager.GLOBAL)) {
             Set<String> nonGlobals = new HashSet<>(worldPerms.keySet());
             nonGlobals.remove(TokenManager.GLOBAL);
-            removeTokenPerm(perm, tokenId, nonGlobals);
+            removeTokenPerm(perm, fullId, nonGlobals);
         } else {
-            removeTokenPermGlobal(perm, tokenId);
+            removeTokenPermGlobal(perm, fullId);
         }
     }
 
-    protected void addTokenPerm(String perm, String tokenId, Collection<String> worlds) {
-        worlds.forEach(world -> addTokenPerm(perm, tokenId, world));
+    protected void addTokenPerm(String perm, String fullId, Collection<String> worlds) {
+        if (!TokenUtils.isValidFullId(fullId))
+            return;
+
+        worlds.forEach(world -> addTokenPerm(perm, fullId, world));
     }
 
-    protected void removeToken(Map<String, Set<String>> permsMap, String tokenId) {
+    protected void removeToken(Map<String, Set<String>> permsMap, String fullId) {
         permsMap.forEach((world, perms) -> {
-            perms.forEach(perm -> removeTokenPerm(perm, tokenId, world));
+            perms.forEach(perm -> removeTokenPerm(perm, fullId, world));
         });
     }
 
     protected void removeToken(TokenModel tokenModel) {
-        removeToken(tokenModel.getPermissionsMap(), tokenModel.getId());
+        removeToken(tokenModel.getPermissionsMap(), tokenModel.getFullId());
     }
 
-    protected void removeTokenPerm(String perm, String tokenId, String world) {
-        Map<String, Set<String>> worldTokens = getPermissionTokens(world);  // Permission -> Tokens
-        Map<String, Set<String>> worldPerms = getTokenPermissions(tokenId); // World -> Permissions
+    protected void removeTokenPerm(String perm, String fullId, String world) {
+        if (!TokenUtils.isValidFullId(fullId))
+            return;
+
+        Map<String, Set<String>> worldTokens = getPermissionTokens(world); // Permission -> Tokens
+        Map<String, Set<String>> worldPerms = getTokenPermissions(fullId); // World -> Permissions
         Set<String> tokens = null;
         Set<String> perms = null;
 
@@ -88,7 +106,7 @@ public class TokenPermissionGraph {
             perms = worldPerms.get(world);
 
         if (tokens != null)
-            tokens.remove(tokenId);
+            tokens.remove(fullId);
         if (perms != null)
             perms.remove(perm);
 
@@ -96,17 +114,20 @@ public class TokenPermissionGraph {
         if (worldPerms != null && world.equals(TokenManager.GLOBAL)) {
             Set<String> nonGlobals = new HashSet<>(worldPerms.keySet());
             nonGlobals.remove(TokenManager.GLOBAL);
-            removeTokenPerm(perm, tokenId, nonGlobals);
+            removeTokenPerm(perm, fullId, nonGlobals);
         }
     }
 
-    protected void removeTokenPerm(String perm, String tokenId, Collection<String> worlds) {
-        worlds.forEach(world -> removeTokenPerm(perm, tokenId, world));
+    protected void removeTokenPerm(String perm, String fullId, Collection<String> worlds) {
+        worlds.forEach(world -> removeTokenPerm(perm, fullId, world));
     }
 
-    private void removeTokenPermGlobal(String perm, String tokenId) {
+    private void removeTokenPermGlobal(String perm, String fullId) {
+        if (!TokenUtils.isValidFullId(fullId))
+            return;
+
         Map<String, Set<String>> worldTokens = getPermissionTokens(TokenManager.GLOBAL); // Permission -> Tokens
-        Map<String, Set<String>> worldPerms = getTokenPermissions(tokenId);              // World -> Permissions
+        Map<String, Set<String>> worldPerms = getTokenPermissions(fullId);               // World -> Permissions
         Set<String> tokens = null;
         Set<String> perms = null;
 
@@ -116,17 +137,25 @@ public class TokenPermissionGraph {
             perms = worldPerms.get(TokenManager.GLOBAL);
 
         if (tokens != null)
-            tokens.remove(tokenId);
+            tokens.remove(fullId);
         if (perms != null)
             perms.remove(perm);
+    }
+
+    protected void clear() {
+        permissionTokens.clear();
+        tokenPermissions.clear();
     }
 
     public Map<String, Set<String>> getPermissionTokens(String world) {
         return permissionTokens.get(world);
     }
 
-    public Map<String, Set<String>> getTokenPermissions(String tokenId) {
-        return tokenPermissions.get(tokenId);
+    public Map<String, Set<String>> getTokenPermissions(String fullId) {
+        if (!TokenUtils.isValidFullId(fullId))
+            return null;
+
+        return tokenPermissions.get(fullId);
     }
 
 }
