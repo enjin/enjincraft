@@ -11,6 +11,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+@NoArgsConstructor
 @ToString
 public class TokenModel {
 
@@ -20,6 +21,7 @@ public class TokenModel {
     private transient NBTItem nbtItem;
     @Getter
     private transient String displayName;
+    private transient Object uriLock = new Object();
 
     @Getter
     private String id;
@@ -35,19 +37,39 @@ public class TokenModel {
     @SerializedName("assignable-permissions")
     private List<TokenPermission> assignablePermissions;
 
+    @Getter(onMethod_ = {@Synchronized("uriLock")})
+    @Setter(value = AccessLevel.PROTECTED, onMethod_ = {@Synchronized("uriLock")})
+    @SerializedName("metadata-uri")
+    private String metadataURI;
+
+    public TokenModel(@NonNull String id,
+                      String alternateId,
+                      @NonNull String nbt,
+                      List<TokenPermission> assignablePermissions) {
+        this(id, alternateId, nbt, assignablePermissions, null);
+    }
+
     @Builder
-    public TokenModel(@NonNull String id, String alternateId, @NonNull String nbt, List<TokenPermission> assignablePermissions) {
+    public TokenModel(@NonNull String id,
+                      String alternateId,
+                      @NonNull String nbt,
+                      List<TokenPermission> assignablePermissions,
+                      String metadataURI) {
         this.id = id;
         this.alternateId = alternateId;
         this.nbt = nbt;
         this.assignablePermissions = assignablePermissions == null ? new ArrayList<>() : assignablePermissions;
+        this.metadataURI = metadataURI;
     }
 
     protected void load() {
         nbtContainer = new NBTContainer(nbt);
         nbtItem =  new NBTItem(NBTItem.convertNBTtoItem(nbtContainer));
         nbtItem.setString(NBT_ID, id);
-        displayName = nbtItem.getItem().getItemMeta().getDisplayName();
+
+        ItemMeta meta = nbtItem.getItem().getItemMeta();
+        if (meta != null)
+            displayName = meta.getDisplayName();
     }
 
     protected boolean applyBlacklist(Collection<String> blacklist) {
