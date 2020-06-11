@@ -41,7 +41,6 @@ public class TokenManager {
     public static final String GLOBAL = "*";
 
     private final Gson gson = new GsonBuilder()
-            .registerTypeAdapter(TokenModel.class, new TokenModel.TokenModelDeserializer())
             .registerTypeAdapter(TokenPermission.class, new TokenPermission.TokenPermissionSerializer())
             .registerTypeAdapter(TokenPermission.class, new TokenPermission.TokenPermissionDeserializer())
             .setPrettyPrinting()
