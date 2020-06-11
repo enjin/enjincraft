@@ -3,6 +3,7 @@ package com.enjin.enjincraft.spigot.listeners;
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
 import com.enjin.enjincraft.spigot.token.TokenModel;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
+import com.enjin.enjincraft.spigot.util.TokenUtils;
 import com.enjin.enjincraft.spigot.wallet.MutableBalance;
 import com.enjin.sdk.models.notification.*;
 import com.enjin.sdk.models.request.TransactionType;
@@ -25,8 +26,8 @@ public class EnjEventListener implements com.enjin.sdk.services.notification.Not
     public void notificationReceived(NotificationEvent event) {
         try {
             bootstrap.debug(String.format("Received event: %s", event));
-            EventType eventType = event.getType();
 
+            EventType eventType = event.getType();
             if (eventType == null)
                 return;
 
@@ -63,7 +64,6 @@ public class EnjEventListener implements com.enjin.sdk.services.notification.Not
             return;
 
         TransactionType type = getTransactionType(event);
-
         if (type == null)
             return;
 
@@ -101,7 +101,6 @@ public class EnjEventListener implements com.enjin.sdk.services.notification.Not
             return;
 
         TransactionType type = getTransactionType(event);
-
         if (type == null)
             return;
 
@@ -132,7 +131,6 @@ public class EnjEventListener implements com.enjin.sdk.services.notification.Not
             return;
 
         JsonObject identity = event.getEventData().getAsJsonObject("identity");
-
         if (identity == null || identity.get("id") == null)
             return;
 
@@ -150,7 +148,6 @@ public class EnjEventListener implements com.enjin.sdk.services.notification.Not
             return;
 
         JsonObject identity = event.getEventData().getAsJsonObject("identity");
-
         if (identity == null || identity.get("id") == null)
             return;
 
@@ -165,7 +162,6 @@ public class EnjEventListener implements com.enjin.sdk.services.notification.Not
             return;
 
         TransactionType type = getTransactionType(event);
-
         if (type == null)
             return;
 
@@ -181,14 +177,20 @@ public class EnjEventListener implements com.enjin.sdk.services.notification.Not
     }
 
     private void updateBalance(TransactionType type, JsonObject data) {
-        String tokenId;
-        int amount;
+        String  tokenId;
+        String  index;
+        boolean nonfungible;
+        int     amount;
 
         try {
             tokenId = data.get("token")
                     .getAsJsonObject()
                     .get("id")
                     .getAsString();
+            nonfungible = data.get("token")
+                    .getAsJsonObject()
+                    .get("nonFungible")
+                    .getAsBoolean();
         } catch (Exception e) {
             bootstrap.log(e);
             return;
@@ -202,27 +204,37 @@ public class EnjEventListener implements com.enjin.sdk.services.notification.Not
                 JsonObject transfer = data.get("transfer").getAsJsonObject();
                 from = transfer.get("from").getAsString();
                 to = transfer.get("to").getAsString();
-                amount = transfer.get("value").getAsInt();
+                amount = nonfungible
+                        ? 1
+                        : transfer.get("value").getAsInt();
+                index = nonfungible
+                        ? transfer.get("index").getAsString()
+                        : null;
             } catch (Exception e) {
                 bootstrap.log(e);
                 return;
             }
 
-            updateBalance(from, tokenId, -amount);
-            updateBalance(to, tokenId, amount);
+            updateBalance(from, tokenId, index, -amount);
+            updateBalance(to, tokenId, index, amount);
         } else if (type == TransactionType.MELT) {
             String ethAddr;
 
             try {
                 JsonObject melt = data.get("melt").getAsJsonObject();
                 ethAddr = melt.get("owner").getAsString();
-                amount = melt.get("value").getAsInt();
+                amount = nonfungible
+                        ? 1
+                        : melt.get("value").getAsInt();
+                index = nonfungible
+                        ? melt.get("index").getAsString()
+                        : null;
             } catch (Exception e) {
                 bootstrap.log(e);
                 return;
             }
 
-            updateBalance(ethAddr, tokenId, -amount);
+            updateBalance(ethAddr, tokenId, index, -amount);
         } else if (type == TransactionType.MINT) {
             String ethAddr;
 
@@ -230,51 +242,52 @@ public class EnjEventListener implements com.enjin.sdk.services.notification.Not
                 JsonObject mint = data.get("mint").getAsJsonObject();
                 JsonObject transaction = data.get("transaction").getAsJsonObject();
                 ethAddr = mint.get("to").getAsString();
-                amount = transaction.get("value").getAsInt();
+                amount = nonfungible
+                        ? 1
+                        : transaction.get("value").getAsInt();
+
+                /* Parses the first parameter which is the only value
+                 * with the token's index as a part of it when minting.
+                 *
+                 * The first parameter is formatted as:
+                 *     "Index <token_index> of Non-Fungible <token_name>"
+                 */
+                if (nonfungible) {
+                    String   param = data.get("param1").getAsString();
+                    String[] split = param.split(" ");
+                    index = split[1];
+                } else {
+                    index = null;
+                }
             } catch (Exception e) {
                 bootstrap.log(e);
                 return;
             }
 
-            updateBalance(ethAddr, tokenId, amount);
+            updateBalance(ethAddr, tokenId, index, amount);
         }
     }
 
-    private void updateBalance(String ethAddr, String tokenId, int balanceDelta) {
-        EnjPlayer enjPlayer = bootstrap.getPlayerManager().getPlayer(ethAddr).orElse(null);
-
+    private void updateBalance(String ethAddr, String tokenId, String tokenIndex, int balanceDelta) {
+        EnjPlayer enjPlayer = bootstrap.getPlayerManager()
+                .getPlayer(ethAddr)
+                .orElse(null);
         if (enjPlayer == null || enjPlayer.getTokenWallet() == null)
             return;
 
-        TokenModel tokenModel = bootstrap.getTokenManager().getToken(tokenId);
-        MutableBalance mBalance = enjPlayer.getTokenWallet().getBalance(tokenId);
+        String         fullId     = TokenUtils.createFullId(tokenId, tokenIndex);
+        TokenModel     tokenModel = bootstrap.getTokenManager().getToken(fullId);
+        MutableBalance mBalance   = enjPlayer.getTokenWallet().getBalance(fullId);
 
         if (mBalance == null && balanceDelta > 0) {
-            mBalance = new MutableBalance(tokenId, null, balanceDelta);
+            mBalance = new MutableBalance(tokenId, tokenIndex, balanceDelta);
             enjPlayer.getTokenWallet().setBalance(mBalance);
-
-            // Adds the token's permissions to the player
-            for (Map.Entry<String, Set<String>> entry : tokenModel.getPermissionsMap().entrySet()) {
-                String world = entry.getKey();
-                Set<String> perms = entry.getValue();
-
-                perms.forEach(perm -> enjPlayer.addPermission(perm, tokenId, world));
-            }
+            enjPlayer.addTokenPermissions(tokenModel);
         } else if (mBalance != null) {
-            int balance = mBalance.balance() + balanceDelta;
-
-            if (balance > 0) {
-                mBalance.set(balance);
-            } else {
-                enjPlayer.getTokenWallet().removeBalance(tokenId);
-
-                // Removes the token's permissions from the player
-                for (Map.Entry<String, Set<String>> entry : tokenModel.getPermissionsMap().entrySet()) {
-                    String world = entry.getKey();
-                    Set<String> perms = entry.getValue();
-
-                    perms.forEach(perm -> enjPlayer.removePermission(perm, world));
-                }
+            int balance = mBalance.add(balanceDelta);
+            if (balance == 0) {
+                enjPlayer.getTokenWallet().removeBalance(tokenId, tokenIndex);
+                enjPlayer.removeTokenPermissions(tokenModel);
             }
         }
 
