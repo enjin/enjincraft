@@ -469,13 +469,14 @@ public class EnjPlayer implements Listener {
         if (tokenWallet == null)
             return;
 
+        TokenManager tokenManager = bootstrap.getTokenManager();
         Set<String> baseFullIds = new HashSet<>();
 
         for (MutableBalance balance : tokenWallet.getBalances()) {
-            if (balance.balance() == 0)
+            String fullId = TokenUtils.createFullId(balance.id(), balance.index());
+            if (balance.balance() == 0 || !tokenManager.hasToken(fullId))
                 continue;
 
-            String fullId     = TokenUtils.createFullId(balance.id(), balance.index());
             String baseFullId = TokenUtils.normalizeFullId(fullId);
             if (baseFullId != null && !baseFullId.equals(fullId)) // Collects the ids for non-fungible base models
                 baseFullIds.add(baseFullId);
@@ -514,11 +515,18 @@ public class EnjPlayer implements Listener {
     }
 
     public void addTokenPermissions(TokenModel tokenModel) {
-        if (tokenWallet == null || tokenModel == null)
+        if (tokenWallet == null
+                || tokenModel == null
+                || tokenModel.isMarkedForDeletion()) {
             return;
+        }
+
+        TokenManager tokenManager = bootstrap.getTokenManager();
 
         MutableBalance balance = tokenWallet.getBalance(tokenModel.getFullId());
-        if (balance == null || balance.balance() == 0)
+        if (balance == null
+                || balance.balance() == 0
+                || !tokenManager.hasToken(tokenModel.getFullId()))
             return;
 
         tokenModel.getPermissionsMap().forEach((world, perms) -> {
@@ -529,7 +537,7 @@ public class EnjPlayer implements Listener {
         boolean applyBasePermissions = tokenModel.isNonFungibleInstance()
                 && !hasNonfungibleInstance(tokenModel.getId(), Collections.singleton(tokenModel.getIndex()));
         if (applyBasePermissions) {
-            TokenModel baseModel = bootstrap.getTokenManager().getToken(tokenModel.getId());
+            TokenModel baseModel = tokenManager.getToken(tokenModel.getId());
             if (baseModel != null) {
                 baseModel.getPermissionsMap().forEach((world, perms) -> {
                     perms.forEach(perm -> addTokenPermission(baseModel, perm, world));
@@ -606,12 +614,13 @@ public class EnjPlayer implements Listener {
     }
 
     public void removeTokenPermissions(TokenModel tokenModel) {
-        if (tokenWallet == null || tokenModel == null)
+        if (tokenWallet == null || tokenModel == null) {
             return;
-
-        MutableBalance balance = tokenWallet.getBalance(tokenModel.getFullId());
-        if (balance != null && balance.balance() > 0)
-            return;
+        } else if (!tokenModel.isMarkedForDeletion()) {
+            MutableBalance balance = tokenWallet.getBalance(tokenModel.getFullId());
+            if (balance != null && balance.balance() > 0)
+                return;
+        }
 
         tokenModel.getPermissionsMap().forEach((world, perms) -> {
             perms.forEach(perm -> removePermission(perm, world));
@@ -690,12 +699,14 @@ public class EnjPlayer implements Listener {
     private Set<String> retainPermissionTokens(Set<String> permTokens) {
         Set<String> intersect = new HashSet<>();
 
+        TokenManager tokenManager = bootstrap.getTokenManager();
+
         // Collects the full ids of all tokens that the player owns
         for (Map.Entry<String, MutableBalance> entry : tokenWallet.getBalancesMap().entrySet()) {
             String         fullId  = entry.getKey();
             MutableBalance balance = entry.getValue();
 
-            if (balance.balance() > 0) {
+            if (balance.balance() > 0 && tokenManager.hasToken(fullId)) {
                 intersect.add(fullId);
 
                 String baseFullId = TokenUtils.normalizeFullId(fullId);
@@ -753,9 +764,11 @@ public class EnjPlayer implements Listener {
     public void removeTokenizedItems() {
         Inventory inventory = bukkitPlayer.getInventory();
         for (int i = 0; i < inventory.getSize(); i++) {
-            ItemStack is      = inventory.getItem(i);
-            String    tokenId = TokenUtils.getTokenID(is);
-            if (!StringUtils.isEmpty(tokenId)) { inventory.setItem(i, null); }
+            ItemStack is    = inventory.getItem(i);
+            String    id    = TokenUtils.getTokenID(is);
+            String    index = TokenUtils.getTokenIndex(is);
+            if (!StringUtils.isEmpty(id) || !StringUtils.isEmpty(index))
+                inventory.setItem(i, null);
         }
     }
 
@@ -815,11 +828,14 @@ public class EnjPlayer implements Listener {
                 ? new HashSet<>()
                 : new HashSet<>(ignoredIndices);
 
+        TokenManager tokenManager = bootstrap.getTokenManager();
+
         List<MutableBalance> balances = tokenWallet.getBalances();
         for (MutableBalance balance : balances) {
             if (balance.balance() > 0
                     && balance.id().equals(baseModel.getId())
-                    && !indices.contains(balance.index()))
+                    && !indices.contains(balance.index())
+                    && tokenManager.hasToken(TokenUtils.createFullId(balance.id(), balance.index())))
                 return true;
         }
 
