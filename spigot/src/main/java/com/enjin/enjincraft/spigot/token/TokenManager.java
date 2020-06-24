@@ -26,20 +26,27 @@ import java.util.*;
 public class TokenManager {
 
     // Status codes
-    public static final int TOKEN_CREATE_SUCCESS = 200;       // Token was created
-    public static final int TOKEN_UPDATE_SUCCESS = 201;       // Token was updated
-    public static final int TOKEN_CREATE_FAILED = 400;        // Token was not created
-    public static final int TOKEN_UPDATE_FAILED = 401;        // Token was not updated
-    public static final int TOKEN_NOSUCHTOKEN = 402;          // The token does not exist
-    public static final int TOKEN_DUPLICATENICKNAME = 403;    // Token alternate id already exists
-    public static final int TOKEN_HASNICKNAME = 404;          // Token has alternate
-    public static final int TOKEN_ALREADYEXISTS = 405;        // Token already exists
-    public static final int TOKEN_INVALIDDATA = 406;          // Invalid token data
-    public static final int PERM_ADDED_SUCCESS = 210;         // Permission was added
-    public static final int PERM_ADDED_DUPLICATEPERM = 410;   // Permission is a duplicate
-    public static final int PERM_ADDED_BLACKLISTED = 411;     // Permission is blacklisted
-    public static final int PERM_REMOVED_SUCCESS = 250;       // Permission was removed
+    public static final int TOKEN_CREATE_SUCCESS       = 200; // Token was created
+    public static final int TOKEN_UPDATE_SUCCESS       = 201; // Token was updated
+    public static final int TOKEN_DELETE_SUCCESS       = 202; // Token was deleted
+    public static final int PERM_ADDED_SUCCESS         = 210; // Permission was added
+    public static final int PERM_REMOVED_SUCCESS       = 250; // Permission was removed
+    public static final int TOKEN_CREATE_FAILED        = 400; // Token was not created
+    public static final int TOKEN_UPDATE_FAILED        = 401; // Token was not updated
+    public static final int TOKEN_DELETE_FAILED        = 402; // Token was not deleted
+    public static final int TOKEN_NOSUCHTOKEN          = 403; // The token does not exist
+    public static final int TOKEN_ALREADYEXISTS        = 404; // Token already exists
+    public static final int TOKEN_INVALIDDATA          = 405; // Invalid token data
+    public static final int TOKEN_DELETE_FAILEDNFTBASE = 406; // Deleting NFT base when still has instances
+    public static final int TOKEN_MARKEDFORDELETION    = 407; // Token is marked for deletion
+    public static final int TOKEN_ISNOTBASE            = 408; // Token is not base model
+    public static final int TOKEN_DUPLICATENICKNAME    = 420; // Token alternate id already exists
+    public static final int TOKEN_HASNICKNAME          = 421; // Token has alternate
+    public static final int TOKEN_INVALIDNICKNAME      = 422; // Nickname cannot be a valid token id
+    public static final int PERM_ADDED_DUPLICATEPERM   = 440; // Permission is a duplicate
+    public static final int PERM_ADDED_BLACKLISTED     = 441; // Permission is blacklisted
     public static final int PERM_REMOVED_NOPERMONTOKEN = 450; // Permission is not assigned
+    public static final int PERM_ISGLOBAL              = 460; // Permission is global
 
     public static final Charset CHARSET = StandardCharsets.UTF_8;
     public static final String JSON_EXT = ".json";
@@ -68,13 +75,30 @@ public class TokenManager {
         alternateIds.clear();
         permGraph.clear();
 
-        if (!dir.exists())
-            dir.mkdirs();
+        if (!dir.exists()) {
+            try {
+                if (!dir.mkdirs())
+                    throw new Exception("Unable to create token directory");
+            } catch (Exception e) {
+                bootstrap.log(e);
+                return;
+            }
+        }
+
+        File[] files;
+        try {
+            files = dir.listFiles();
+            if (files == null)
+                throw new Exception(String.format("Path \"%s\" does not denote a directory", dir.getPath()));
+        } catch (Exception e) {
+            bootstrap.log(e);
+            return;
+        }
 
         // Load tokens from directory (assumed fungible and non-fungible base)
-        for (File file : dir.listFiles()) {
+        for (File file : files) {
             // Ignores directories and non-JSON files
-            if (file.isDirectory() || !file.getName().endsWith(".json"))
+            if (file.isDirectory() || !file.getName().endsWith(JSON_EXT))
                 continue;
 
             try (InputStreamReader in = new InputStreamReader(new FileInputStream(file), CHARSET)) {
@@ -84,8 +108,8 @@ public class TokenManager {
                 boolean changed = tokenModel.applyBlacklist(bootstrap.getConfig().getPermissionBlacklist());
                 if (changed)
                     updateTokenConf(tokenModel);
-                else
-                    cacheAndSubscribe(tokenModel);
+
+                cacheAndSubscribe(tokenModel);
             } catch (Exception e) {
                 bootstrap.log(e);
             }
@@ -96,6 +120,15 @@ public class TokenManager {
             List<TokenModel> tokens = bootstrap.db().getAllTokens();
             tokens.forEach(tokenModel -> {
                 try {
+                    String baseFullId = TokenUtils.createFullId(tokenModel.getId());
+                    if (!hasToken(baseFullId)) { // Creates base model if it does not already exist
+                        saveToken(TokenModel.builder()
+                                .id(tokenModel.getId())
+                                .nonfungible(true)
+                                .nbt("")
+                                .build());
+                    }
+
                     setNameFromURIFromBase(tokenModel);
                     tokenModel.setNonfungible(true);
                     tokenModel.load();
@@ -103,8 +136,8 @@ public class TokenManager {
                     boolean changed = tokenModel.applyBlacklist(bootstrap.getConfig().getPermissionBlacklist());
                     if (changed)
                         updateTokenConf(tokenModel);
-                    else
-                        cacheAndSubscribe(tokenModel);
+
+                    cacheAndSubscribe(tokenModel);
                 } catch (Exception e) {
                     bootstrap.log(e);
                 }
@@ -119,36 +152,59 @@ public class TokenManager {
     }
 
     public int saveToken(@NonNull TokenModel tokenModel) {
-        if (tokenModel.isNonFungibleInstance()) {
-            setNameFromURIFromBase(tokenModel);
-
-            return saveTokenToDatabase(tokenModel);
-        } else {
-            return saveTokenToJson(tokenModel);
-        }
-    }
-
-    private int saveTokenToJson(TokenModel tokenModel) {
         // Prevents tokens with the same alternate id from existing
         String alternateId = tokenModel.getAlternateId();
         String otherFullId = alternateIds.get(alternateId);
         if (alternateId != null && otherFullId != null && !otherFullId.equals(tokenModel.getFullId()))
             return TOKEN_DUPLICATENICKNAME;
-
-        if (!dir.exists())
-            dir.mkdirs();
-
-        File file = new File(dir, String.format("%s%s", tokenModel.getId(), JSON_EXT));
+        else if (!isValidAlternateId(alternateId))
+            return TOKEN_INVALIDNICKNAME;
+        else if (tokenModel.isMarkedForDeletion())
+            return TOKEN_MARKEDFORDELETION;
 
         tokenModel.applyBlacklist(bootstrap.getConfig().getPermissionBlacklist());
 
+        int status;
+        if (tokenModel.isNonFungibleInstance()) {
+            setNameFromURIFromBase(tokenModel);
+
+            status = saveTokenToDatabase(tokenModel);
+        } else {
+            status = saveTokenToJson(tokenModel);
+        }
+
+        if (status == TOKEN_CREATE_SUCCESS) {
+            cacheAndSubscribe(tokenModel);
+
+            PlayerManager playerManager = bootstrap.getPlayerManager();
+            if (playerManager != null) {
+                playerManager.getPlayers()
+                        .values()
+                        .forEach(enjPlayer -> {
+                            enjPlayer.validateInventory();
+                            enjPlayer.addTokenPermissions(tokenModel);
+                        });
+            }
+        }
+
+        return status;
+    }
+
+    private int saveTokenToJson(TokenModel tokenModel) {
+        if (!dir.exists()) {
+            try {
+                if (!dir.mkdirs())
+                    throw new Exception("Unable to create token directory");
+            } catch (Exception e) {
+                bootstrap.log(e);
+                return TOKEN_CREATE_FAILED;
+            }
+        }
+
+        File file = new File(dir, String.format("%s%s", tokenModel.getId(), JSON_EXT));
         try (OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(file, false), CHARSET)) {
             gson.toJson(tokenModel, out);
             tokenModel.load();
-            cacheAndSubscribe(tokenModel);
-
-            if (tokenModel.getAlternateId() != null)
-                alternateIds.put(tokenModel.getAlternateId(), tokenModel.getFullId());
         } catch (Exception e) {
             bootstrap.log(e);
             return TOKEN_CREATE_FAILED;
@@ -168,7 +224,6 @@ public class TokenManager {
         try {
             bootstrap.db().createToken(tokenModel);
             tokenModel.load();
-            cacheAndSubscribe(tokenModel);
         } catch (Exception e) {
             bootstrap.log(e);
             return TOKEN_CREATE_FAILED;
@@ -182,28 +237,36 @@ public class TokenManager {
         permGraph.addToken(tokenModel);
         subscribeToToken(tokenModel);
 
-        if (tokenModel.getAlternateId() != null)
-            alternateIds.put(tokenModel.getAlternateId(), TokenUtils.createFullId(tokenModel.getId()));
+        if (tokenModel.isBaseModel() && tokenModel.getAlternateId() != null) {
+            if (isValidAlternateId(tokenModel.getAlternateId()))
+                alternateIds.put(tokenModel.getAlternateId(), TokenUtils.createFullId(tokenModel.getId()));
+            else
+                bootstrap.debug(String.format("Invalid alternate id for token \"%s\"", tokenModel.getId()));
+        }
     }
 
-    public int updateTokenConf(TokenModel tokenModel) {
+    public int updateTokenConf(@NonNull TokenModel tokenModel) {
+        return updateTokenConf(tokenModel, true);
+    }
+
+    public int updateTokenConf(@NonNull TokenModel tokenModel, boolean updateOnPlayers) {
+        if (tokenModel.isMarkedForDeletion())
+            return TOKEN_MARKEDFORDELETION;
+
+        tokenModel.applyBlacklist(bootstrap.getConfig().getPermissionBlacklist());
+
         if (tokenModel.isNonFungibleInstance())
-            return updateTokenConfDatabase(tokenModel);
+            return updateTokenConfDatabase(tokenModel, updateOnPlayers);
         else
-            return updateTokenConfJson(tokenModel);
-    }
-
-    private int updateTokenConfJson(TokenModel tokenModel) {
-        return updateTokenConfJson(tokenModel, true);
+            return updateTokenConfJson(tokenModel, updateOnPlayers);
     }
 
     private int updateTokenConfJson(TokenModel tokenModel, boolean updateOnPlayers) {
-        TokenModel oldModel = tokenModels.get(tokenModel.getFullId());
-        if (!dir.exists() || oldModel == null)
+        if (!dir.exists())
             return saveToken(tokenModel);
 
-        tokenModel.applyBlacklist(bootstrap.getConfig().getPermissionBlacklist());
-        boolean newNbt = !tokenModel.getNbt().equals(oldModel.getNbt());
+        TokenModel oldModel = tokenModels.get(tokenModel.getFullId());
+        boolean    newNbt   = oldModel != null && !tokenModel.getNbt().equals(oldModel.getNbt());
 
         File file = new File(dir, String.format("%s%s", tokenModel.getId(), JSON_EXT));
         try (OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(file, false), CHARSET)) {
@@ -221,32 +284,24 @@ public class TokenManager {
         return TOKEN_UPDATE_SUCCESS;
     }
 
-    private int updateTokenConfDatabase(TokenModel tokenModel) {
-        return updateTokenConfDatabase(tokenModel, true);
-    }
-
     private int updateTokenConfDatabase(TokenModel tokenModel, boolean updateOnPlayers) {
         String id    = tokenModel.getId();
         String index = tokenModel.getIndex();
         String nbt   = tokenModel.getNbt();
 
-        if (TokenUtils.isValidId(id) || TokenUtils.isValidIndex(index) || nbt == null)
+        if (!TokenUtils.isValidId(id) || !TokenUtils.isValidIndex(index) || nbt == null)
             return TOKEN_INVALIDDATA;
 
         TokenModel oldModel = tokenModels.get(tokenModel.getFullId());
-        if (oldModel == null)
-            return saveTokenToDatabase(tokenModel);
-
-        tokenModel.applyBlacklist(bootstrap.getConfig().getPermissionBlacklist());
-        boolean newNbt = !nbt.equals(oldModel.getNbt());
+        boolean    newNbt   = oldModel != null && !nbt.equals(oldModel.getNbt());
 
         Database db = bootstrap.db();
         try {
             // Removes any permissions from the db that the token no longer has
-            Set<TokenPermission> permissions = new HashSet<>(db.getPermissions(id, id));
+            Set<TokenPermission> permissions = new HashSet<>(db.getPermissions(id, index));
             permissions.removeAll(tokenModel.getAssignablePermissions());
             for (TokenPermission permission : permissions) {
-                db.removePermission(id, index, permission);
+                db.deletePermission(id, index, permission);
             }
 
             db.updateNBT(id, index, nbt);
@@ -278,13 +333,15 @@ public class TokenManager {
         TokenModel tokenModel = getToken(id);
         if (tokenModel == null)
             return TOKEN_NOSUCHTOKEN;
-
-        if (tokenModel.getAlternateId() != null && newAlternateId.equals(tokenModel.getAlternateId()))
+        else if (!tokenModel.isBaseModel())
+            return TOKEN_ISNOTBASE;
+        else if (tokenModel.getAlternateId() != null && newAlternateId.equals(tokenModel.getAlternateId()))
             return TOKEN_HASNICKNAME;
         else if (alternateIds.containsKey(newAlternateId))
             return TOKEN_DUPLICATENICKNAME;
-
-        if (tokenModel.getAlternateId() != null)
+        else if (!isValidAlternateId(newAlternateId))
+            return TOKEN_INVALIDNICKNAME;
+        else if (tokenModel.getAlternateId() != null)
             alternateIds.remove(tokenModel.getAlternateId());
 
         tokenModel.setAlternateId(newAlternateId);
@@ -297,6 +354,8 @@ public class TokenManager {
         TokenModel tokenModel = getToken(id);
         if (tokenModel == null)
             return TOKEN_NOSUCHTOKEN;
+        else if (!tokenModel.isBaseModel())
+            return TOKEN_ISNOTBASE;
 
         if (StringUtils.isEmpty(metadataURI))
             metadataURI = null;
@@ -304,7 +363,6 @@ public class TokenManager {
         tokenModel.setMetadataURI(metadataURI);
         int status = updateTokenConfJson(tokenModel, true);
 
-        // TODO: Check if possible to set up URIs for particular NFT index.
         // Updates necessary non-fungible tokens if the model is the base model
         if (status == TOKEN_UPDATE_SUCCESS
                 && tokenModel.isNonfungible()
@@ -320,21 +378,20 @@ public class TokenManager {
             return;
 
         TrustedPlatformClient client = bootstrap.getTrustedPlatformClient();
-        client.getTokenService()
-                .getTokenAsync(new GetToken()
-                                .tokenId(tokenModel.getId())
-                                .withItemUri(),
-                        networkResponse -> {
-                            if (!networkResponse.isSuccess())
-                                throw new NetworkException(networkResponse.code());
+        client.getTokenService().getTokenAsync(new GetToken()
+                        .tokenId(tokenModel.getId())
+                        .withItemUri(),
+                networkResponse -> {
+                    if (!networkResponse.isSuccess())
+                        throw new NetworkException(networkResponse.code());
 
-                            GraphQLResponse<Token> graphQLResponse = networkResponse.body();
-                            if (!graphQLResponse.isSuccess())
-                                throw new GraphQLException(graphQLResponse.getErrors());
+                    GraphQLResponse<Token> graphQLResponse = networkResponse.body();
+                    if (!graphQLResponse.isSuccess())
+                        throw new GraphQLException(graphQLResponse.getErrors());
 
-                            String metadataURI = graphQLResponse.getData().getItemURI();
-                            updateMetadataURI(tokenModel.getId(), metadataURI);
-                });
+                    String metadataURI = graphQLResponse.getData().getItemURI();
+                    updateMetadataURI(tokenModel.getId(), metadataURI);
+        });
     }
 
     private void setNameFromURIFromBase(TokenModel tokenModel) {
@@ -363,6 +420,78 @@ public class TokenManager {
         }
     }
 
+    public int deleteTokenConf(@NonNull String id) {
+        TokenModel tokenModel = getToken(id);
+        if (tokenModel == null)
+            return TOKEN_NOSUCHTOKEN;
+
+        int status = tokenModel.isNonFungibleInstance()
+                ? deleteFromDB(tokenModel)
+                : deleteJson(tokenModel);
+        if (status == TOKEN_DELETE_SUCCESS) {
+            tokenModel.setMarkedForDeletion(true);
+            uncacheAndUnsubscribe(tokenModel);
+
+            PlayerManager playerManager = bootstrap.getPlayerManager();
+            if (playerManager != null) {
+                playerManager.getPlayers()
+                        .values()
+                        .forEach(enjPlayer -> {
+                            enjPlayer.validateInventory();
+                            enjPlayer.removeTokenPermissions(tokenModel);
+                        });
+            }
+        }
+
+        return status;
+    }
+
+    private int deleteJson(TokenModel tokenModel) {
+        // Prevents deletion of the non-fungible base model while instances of the NFT still exist
+        if (tokenModel.isNonfungible() && tokenModel.isBaseModel()) {
+            for (TokenModel other : tokenModels.values()) {
+                if (other.getId().equals(tokenModel.getId()) && other != tokenModel)
+                    return TOKEN_DELETE_FAILEDNFTBASE;
+            }
+        }
+
+        if (dir.exists()) {
+            try {
+                File file = new File(dir, String.format("%s%s", tokenModel.getId(), JSON_EXT));
+                if (!file.delete())
+                    throw new Exception(String.format("Unable to delete token conf file %s", file.getName()));
+            } catch (Exception e) {
+                bootstrap.log(e);
+                return TOKEN_DELETE_FAILED;
+            }
+        }
+
+        return TOKEN_DELETE_SUCCESS;
+    }
+
+    private int deleteFromDB(TokenModel tokenModel) {
+        try {
+            bootstrap.db().deleteToken(tokenModel.getId(), tokenModel.getIndex());
+        } catch (Exception e) {
+            bootstrap.log(e);
+            return TOKEN_DELETE_FAILED;
+        }
+
+        return TOKEN_DELETE_SUCCESS;
+    }
+
+    private void uncacheAndUnsubscribe(TokenModel tokenModel) {
+        tokenModels.remove(tokenModel.getFullId());
+        permGraph.removeToken(tokenModel);
+
+        if (tokenModel.isBaseModel()) {
+            unsubscribeToToken(tokenModel);
+
+            if (tokenModel.getAlternateId() != null)
+                alternateIds.remove(tokenModel.getAlternateId());
+        }
+    }
+
     public int addPermissionToToken(String perm, String id, String world) {
         if (bootstrap.getConfig().getPermissionBlacklist().contains(perm))
             return PERM_ADDED_BLACKLISTED;
@@ -370,6 +499,10 @@ public class TokenManager {
         TokenModel tokenModel = getToken(id);
         if (tokenModel == null)
             return TOKEN_NOSUCHTOKEN;
+
+        TokenPermission permission = tokenModel.getPermission(perm);
+        if (permission != null && permission.isGlobal() && !world.equals(GLOBAL))
+            return PERM_ISGLOBAL;
         else if (!tokenModel.addPermissionToWorld(perm, world)) // Checks if the permission was not added
             return PERM_ADDED_DUPLICATEPERM;
 
@@ -393,6 +526,10 @@ public class TokenManager {
         TokenModel tokenModel = getToken(id);
         if (tokenModel == null)
             return TOKEN_NOSUCHTOKEN;
+
+        TokenPermission permission = tokenModel.getPermission(perm);
+        if (permission != null && permission.isGlobal() && !worlds.contains(GLOBAL))
+            return PERM_ISGLOBAL;
         else if (!tokenModel.addPermissionToWorlds(perm, worlds)) // Checks if the permission was not added
             return PERM_ADDED_DUPLICATEPERM;
 
@@ -422,7 +559,7 @@ public class TokenManager {
             if (currentWorlds.contains(GLOBAL)) {
                 return PERM_ADDED_DUPLICATEPERM;
             } else if (worlds.contains(GLOBAL)) {
-                db.removePermission(id, index, perm, currentWorlds);
+                db.deletePermission(id, index, perm, currentWorlds);
                 worlds.retainAll(Collections.singleton(GLOBAL));
             }
 
@@ -448,6 +585,10 @@ public class TokenManager {
         TokenModel tokenModel = getToken(id);
         if (tokenModel == null)
             return TOKEN_NOSUCHTOKEN;
+
+        TokenPermission permission = tokenModel.getPermission(perm);
+        if (permission != null && permission.isGlobal() && !world.equals(GLOBAL))
+            return PERM_ISGLOBAL;
         else if (!tokenModel.removePermissionFromWorld(perm, world)) // Checks if the permission was not removed
             return PERM_REMOVED_NOPERMONTOKEN;
 
@@ -455,7 +596,7 @@ public class TokenManager {
 
         int status = tokenModel.isNonFungibleInstance()
                 ? removePermissionFromDB(perm, tokenModel.getFullId(), Collections.singleton(world))
-                : updateTokenConfJson(tokenModel);
+                : updateTokenConfJson(tokenModel, false);
         removePermissionFromPlayers(perm, world);
 
         if (status != TOKEN_UPDATE_SUCCESS)
@@ -468,6 +609,10 @@ public class TokenManager {
         TokenModel tokenModel = getToken(id);
         if (tokenModel == null)
             return TOKEN_NOSUCHTOKEN;
+
+        TokenPermission permission = tokenModel.getPermission(perm);
+        if (permission != null && permission.isGlobal() && !worlds.contains(GLOBAL))
+            return PERM_ISGLOBAL;
         else if (!tokenModel.removePermissionFromWorlds(perm, worlds)) // Checks if the permission was not removed
             return PERM_REMOVED_NOPERMONTOKEN;
 
@@ -475,7 +620,7 @@ public class TokenManager {
 
         int status = tokenModel.isNonFungibleInstance()
                 ? removePermissionFromDB(perm, tokenModel.getFullId(), worlds)
-                : updateTokenConfJson(tokenModel);
+                : updateTokenConfJson(tokenModel, false);
         worlds.forEach(world -> removePermissionFromPlayers(perm, world));
 
         if (status != TOKEN_UPDATE_SUCCESS)
@@ -501,7 +646,7 @@ public class TokenManager {
             else if (newIsGlobal)
                 worlds = currentWorlds;
 
-            db.removePermission(id, index, perm, worlds);
+            db.deletePermission(id, index, perm, worlds);
         } catch (Exception e) {
             bootstrap.log(e);
             return TOKEN_UPDATE_FAILED;
@@ -585,6 +730,20 @@ public class TokenManager {
         NotificationsService service = bootstrap.getNotificationsService();
         if (service != null && !service.isSubscribedToToken(tokenModel.getId()))
             service.subscribeToToken(tokenModel.getId());
+    }
+
+    private void unsubscribeToToken(TokenModel tokenModel) {
+        if (tokenModel == null)
+            return;
+
+        NotificationsService service = bootstrap.getNotificationsService();
+        if (service != null && service.isSubscribedToToken(tokenModel.getId()))
+            service.unsubscribeToToken(tokenModel.getId());
+    }
+
+    public static boolean isValidAlternateId(String alternateId) {
+        return !(TokenUtils.isValidFullId(alternateId, true)
+                || TokenUtils.isValidId(alternateId, true));
     }
 
 }

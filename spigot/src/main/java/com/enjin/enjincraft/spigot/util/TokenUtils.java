@@ -68,31 +68,45 @@ public class TokenUtils {
     }
 
     public static boolean isValidFullId(String fullId) {
-        return isValidString(fullId, ID_LENGTH + INDEX_LENGTH);
+        return isValidFullId(fullId, false);
+    }
+
+    public static boolean isValidFullId(String fullId, boolean ignoreCase) {
+        return isValidString(fullId, ID_LENGTH + INDEX_LENGTH, ignoreCase);
     }
 
     public static boolean isValidId(String id) {
-        return isValidString(id, ID_LENGTH);
+        return isValidId(id, false);
+    }
+
+    public static boolean isValidId(String id, boolean ignoreCase) {
+        return isValidString(id, ID_LENGTH, ignoreCase);
     }
 
     public static boolean isValidIndex(String index) {
-        return isValidString(index, INDEX_LENGTH);
+        return isValidIndex(index, false);
     }
 
-    private static boolean isValidString(String s, int length) {
+    public static boolean isValidIndex(String index, boolean ignoreCase) {
+        return isValidString(index, INDEX_LENGTH, ignoreCase);
+    }
+
+    private static boolean isValidString(String s, int length, boolean ignoreCase) {
         if (s == null || s.length() != length)
             return false;
 
         for (char ch : s.toCharArray()) {
-            if (!isValidCharacter(ch))
+            if (!isValidCharacter(ch, ignoreCase))
                 return false;
         }
 
         return true;
     }
 
-    private static boolean isValidCharacter(char ch) {
-        return (ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f');
+    private static boolean isValidCharacter(char ch, boolean ignoreCase) {
+        return (ch >= '0' && ch <= '9')
+                || (ch >= 'a' && ch <= 'f')
+                || (ignoreCase && (ch >= 'A' && ch <= 'F'));
     }
 
     public static String createFullId(@NonNull TokenModel tokenModel) {
@@ -142,7 +156,7 @@ public class TokenUtils {
         if (ch >= 'A' && ch <= 'F')
             ch += 32; // To lowercase
 
-        if (!isValidCharacter(ch))
+        if (!isValidCharacter(ch, false))
             throw new IllegalArgumentException("Provided string is not in hexadecimal");
 
         return ch;

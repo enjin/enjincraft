@@ -17,6 +17,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.sql.ResultSet;
@@ -38,6 +39,9 @@ public class TokenModel {
     @Getter(onMethod_ = {@Synchronized("uriLock")})
     @Setter(value = AccessLevel.PROTECTED, onMethod_ = {@Synchronized("uriLock")})
     private transient String nameFromURI;
+    @Getter
+    @Setter(AccessLevel.PACKAGE)
+    private transient boolean markedForDeletion = false;
 
     // Mutexes
     private final transient Object uriLock = new Object();
@@ -124,39 +128,45 @@ public class TokenModel {
         if (meta != null) {
             displayName = meta.getDisplayName();
 
-            if (true /* TODO: Have as optional lore to set. */)
+            Bootstrap bootstrap = EnjinCraft.bootstrap().orElse(null);
+            if (bootstrap != null
+                    && bootstrap.getConfig() != null
+                    && bootstrap.getConfig().isIdLoreEnabled())
                 addDataToLore();
         }
     }
 
     protected void loadNameFromURI() {
         synchronized (uriLock) {
+            String metadataURI = this.metadataURI;
+            if (metadataURI == null)
+                return;
+
+            Bootstrap bootstrap = EnjinCraft.bootstrap().orElse(null);
+
             /* The URI is expected to conform to the ERC-1155 Metadata JSON Schema as outlined in:
              * https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1155.md#erc-1155-metadata-uri-json-schema.
              */
-            boolean isValidURI = !StringUtils.isEmpty(metadataURI) && metadataURI.endsWith(TokenManager.JSON_EXT);
-            if (!isValidURI && isBaseModel()) { // Is fungible or non-fungible base model
+            boolean replaceIdArg    = metadataURI.contains("{id}");
+            boolean replaceIndexArg = metadataURI.contains("{index}");
+            boolean isValidURI = !metadataURI.isEmpty()
+                    && metadataURI.endsWith(TokenManager.JSON_EXT)
+                    && !(!replaceIdArg && replaceIndexArg);
+            if (bootstrap instanceof SpigotBootstrap && !isValidURI)
+                ((SpigotBootstrap) bootstrap).debug(String.format("Invalid metadata URI found on token %s", getFullId()));
+
+            if (!isValidURI && isNonFungibleInstance()) { // Is non-fungible
+                loadDefaultName();
+                return;
+            } else if (!isValidURI && !isNonFungibleInstance()) { // Is fungible or non-fungible base model
                 nameFromURI = null;
                 return;
-            } else if (!isValidURI) { // Is non-fungible
-                Bootstrap bootstrap = EnjinCraft.bootstrap().orElse(null);
-                if (!(bootstrap instanceof SpigotBootstrap)) {
-                    nameFromURI = null;
-                    return;
-                }
-
-                TokenManager tokenManager = bootstrap.getTokenManager();
-                if (tokenManager == null) {
-                    nameFromURI = null;
-                    return;
-                }
-
-                TokenModel baseModel = tokenManager.getToken(id);
-                nameFromURI = baseModel == null
-                        ? null
-                        : baseModel.nameFromURI;
-                return;
             }
+
+            if (replaceIdArg)
+                metadataURI = metadataURI.replace("{id}", id);
+            if (replaceIndexArg)
+                metadataURI = metadataURI.replace("{index}", index);
 
             try {
                 URL uri = new URL(metadataURI);
@@ -165,12 +175,35 @@ public class TokenModel {
                     JsonObject jsonObject = gson.fromJson(reader, JsonObject.class);
                     nameFromURI = jsonObject.get("name").getAsString();
                 }
+            } catch (FileNotFoundException e) {
+                if (bootstrap instanceof SpigotBootstrap) {
+                    String token = isNonFungibleInstance()
+                            ? String.format("%s #%d", id, TokenUtils.convertIndexToLong(index))
+                            : id;
+                    ((SpigotBootstrap) bootstrap).debug(String.format("Could not find file \"%s\" when loading metadata for token %s",
+                            metadataURI,
+                            token));
+                }
+
+                loadDefaultName();
             } catch (Exception e) {
-                Bootstrap bootstrap = EnjinCraft.bootstrap().orElse(null);
                 if (bootstrap instanceof SpigotBootstrap)
                     ((SpigotBootstrap) bootstrap).log(e);
             }
         }
+    }
+
+    private void loadDefaultName() {
+        Bootstrap bootstrap = EnjinCraft.bootstrap().orElse(null);
+        TokenManager tokenManager = bootstrap == null
+                ? null
+                : bootstrap.getTokenManager();
+        TokenModel baseModel = tokenManager == null
+                ? null
+                : tokenManager.getToken(id);
+        nameFromURI = baseModel == null
+                ? null
+                : baseModel.nameFromURI;
     }
 
     protected void addDataToLore() {
@@ -351,6 +384,16 @@ public class TokenModel {
         }
 
         return permissionMap;
+    }
+
+    public TokenPermission getPermission(String permission) {
+        TokenPermission tokenPerm = new TokenPermission(permission);
+
+        int idx = assignablePermissions.indexOf(tokenPerm);
+        if (idx < 0)
+            return null;
+
+        return new TokenPermission(assignablePermissions.get(idx));
     }
 
 }
