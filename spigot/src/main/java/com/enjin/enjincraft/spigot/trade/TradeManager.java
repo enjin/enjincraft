@@ -217,9 +217,12 @@ public class TradeManager implements Listener {
             int value = is.getAmount();
 
             if (TokenUtils.isNonFungible(is)) {
+                String  index    = TokenUtils.getTokenIndex(is);
+                Integer intIndex = TokenUtils.convertIndexToLong(index).intValue();
+
                 extractedOffers.add(TokenValueData.builder()
                         .id(tokenId)
-                        //.index(TokenUtils.getTokenIndex(is)) // TODO: May need to consider alternate trade method.
+                        .index(intIndex)
                         .value(value)
                         .build());
             } else {

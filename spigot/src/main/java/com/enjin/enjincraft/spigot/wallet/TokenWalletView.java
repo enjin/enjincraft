@@ -2,6 +2,7 @@ package com.enjin.enjincraft.spigot.wallet;
 
 import com.enjin.enjincraft.spigot.EnjTokenView;
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
+import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.token.TokenModel;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
 import com.enjin.enjincraft.spigot.util.StringUtils;
@@ -406,11 +407,10 @@ public class TokenWalletView extends ChestMenu implements EnjTokenView {
     }
 
     protected String getPagedComponentName(SimplePagedComponent component) {
-        // TODO: Add translations.
         if (component == pagedFungibleComponent)
-            return "Fungible Tokens";
+            return Translation.WALLET_UI_FUNGIBLE.translation();
         else if (component == pagedNonFungibleComponent)
-            return "Non-Fungible Tokens";
+            return Translation.WALLET_UI_NONFUNGIBLE.translation();
 
         return null;
     }

@@ -30,6 +30,7 @@ public class Database {
 
     // Token statement paths
     public static final String TEMPLATE_CREATE_TOKEN = "token/CreateToken";
+    public static final String TEMPLATE_DELETE_TOKEN = "token/DeleteToken";
     public static final String TEMPLATE_GET_TOKEN = "token/GetToken";
     public static final String TEMPLATE_GET_ALL_TOKENS = "token/GetAllTokens";
     public static final String TEMPLATE_GET_NBT = "token/CreateToken";
@@ -37,7 +38,7 @@ public class Database {
 
     // Token permission statement paths
     public static final String TEMPLATE_ADD_PERMISSION = "token/AddPermission";
-    public static final String TEMPLATE_REMOVE_PERMISSION = "token/RemovePermission";
+    public static final String TEMPLATE_DELETE_PERMISSION = "token/DeletePermission";
     public static final String TEMPLATE_GET_PERMISSIONS = "token/GetPermissions";
     public static final String TEMPLATE_GET_PERMISSIONWORLDS = "token/GetPermissionWorlds";
 
@@ -55,6 +56,7 @@ public class Database {
 
     // Token
     private final PreparedStatement createToken;
+    private final PreparedStatement deleteToken;
     private final PreparedStatement getToken;
     private final PreparedStatement getAllTokens;
     private final PreparedStatement getNBT;
@@ -62,7 +64,7 @@ public class Database {
 
     // Token permission
     private final PreparedStatement addPermission;
-    private final PreparedStatement removePermission;
+    private final PreparedStatement deletePermission;
     private final PreparedStatement getPermissions;
     private final PreparedStatement getPermissionWorlds;
 
@@ -83,6 +85,7 @@ public class Database {
 
         // Token prepared statements
         this.createToken = createPreparedStatement(TEMPLATE_CREATE_TOKEN);
+        this.deleteToken = createPreparedStatement(TEMPLATE_DELETE_TOKEN);
         this.getToken = createPreparedStatement(TEMPLATE_GET_TOKEN);
         this.getAllTokens = createPreparedStatement(TEMPLATE_GET_ALL_TOKENS);
         this.getNBT = createPreparedStatement(TEMPLATE_GET_NBT);
@@ -90,7 +93,7 @@ public class Database {
 
         // Token permission prepared statements
         this.addPermission = createPreparedStatement(TEMPLATE_ADD_PERMISSION);
-        this.removePermission = createPreparedStatement(TEMPLATE_REMOVE_PERMISSION);
+        this.deletePermission = createPreparedStatement(TEMPLATE_DELETE_PERMISSION);
         this.getPermissions = createPreparedStatement(TEMPLATE_GET_PERMISSIONS);
         this.getPermissionWorlds = createPreparedStatement(TEMPLATE_GET_PERMISSIONWORLDS);
 
@@ -105,6 +108,7 @@ public class Database {
 
     private void init() throws SQLException, IOException {
         Statement setupStatement = conn.createStatement();
+        setupStatement.addBatch("PRAGMA foreign_keys=ON");
         setupStatement.addBatch(loadSqlFile(SETUP_TOKEN_STATEMENT));
         setupStatement.addBatch(loadSqlFile(SETUP_TOKENPERMS_STATEMENT));
         setupStatement.addBatch(loadSqlFile(SETUP_TRADE_STATEMENT));
@@ -133,6 +137,26 @@ public class Database {
             } finally {
                 try {
                     createToken.clearParameters();
+                } catch (SQLException e) {
+                    bootstrap.log(e);
+                }
+            }
+        }
+    }
+
+    public int deleteToken(@NonNull String tokenId,
+                           @NonNull String tokenIndex) throws SQLException {
+        synchronized (deleteToken) {
+            deleteToken.clearParameters();
+
+            try {
+                deleteToken.setString(1, tokenId);
+                deleteToken.setString(2, tokenIndex);
+
+                return deleteToken.executeUpdate();
+            } finally {
+                try {
+                    deleteToken.clearParameters();
                 } catch (SQLException e) {
                     bootstrap.log(e);
                 }
@@ -279,31 +303,31 @@ public class Database {
         return results;
     }
 
-    public int[] removePermission(@NonNull String tokenId,
+    public int[] deletePermission(@NonNull String tokenId,
                                   @NonNull String tokenIndex,
                                   @NonNull TokenPermission permission) throws SQLException {
-        return removePermission(tokenId, tokenIndex, permission.getPermission(), permission.getWorlds());
+        return deletePermission(tokenId, tokenIndex, permission.getPermission(), permission.getWorlds());
     }
 
-    public int[] removePermission(@NonNull String tokenId,
+    public int[] deletePermission(@NonNull String tokenId,
                                   @NonNull String tokenIndex,
                                   @NonNull String permission,
                                   Collection<String> worlds) throws SQLException {
         List<Integer> resultsList = new ArrayList<>();
 
-        synchronized (removePermission) {
+        synchronized (deletePermission) {
             for (String world : worlds) {
                 try {
-                    removePermission.clearParameters();
-                    removePermission.setString(1, tokenId);
-                    removePermission.setString(2, tokenIndex);
-                    removePermission.setString(3, permission);
-                    removePermission.setString(4, world);
+                    deletePermission.clearParameters();
+                    deletePermission.setString(1, tokenId);
+                    deletePermission.setString(2, tokenIndex);
+                    deletePermission.setString(3, permission);
+                    deletePermission.setString(4, world);
 
-                    resultsList.add(removePermission.executeUpdate());
+                    resultsList.add(deletePermission.executeUpdate());
                 } finally {
                     try {
-                        removePermission.clearParameters();
+                        deletePermission.clearParameters();
                     } catch (SQLException e) {
                         bootstrap.log(e);
                     }
