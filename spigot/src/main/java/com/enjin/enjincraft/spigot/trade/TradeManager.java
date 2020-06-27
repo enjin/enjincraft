@@ -24,7 +24,6 @@ import org.bukkit.inventory.ItemStack;
 
 import java.sql.SQLException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class TradeManager implements Listener {
 

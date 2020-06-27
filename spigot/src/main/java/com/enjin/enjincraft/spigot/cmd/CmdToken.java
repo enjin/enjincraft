@@ -111,7 +111,7 @@ public class CmdToken extends EnjCommand {
             if (tokenManager.hasToken(tokenId)) {
                 Translation.COMMAND_TOKEN_CREATE_DUPLICATE.send(sender);
                 return;
-            } else if (!TokenManager.isValidAlternateId(alternateId)) {
+            } else if (alternateId != null && !TokenManager.isValidAlternateId(alternateId)) {
                 Translation.COMMAND_TOKEN_NICKNAME_INVALID.send(sender);
                 return;
             } else if (held.getType() == Material.AIR || !held.getType().isItem()) {
@@ -183,8 +183,8 @@ public class CmdToken extends EnjCommand {
             ItemStack held = inventory.getItemInMainHand();
 
             TokenManager tokenManager = bootstrap.getTokenManager();
-            TokenModel   baseModel    = tokenManager.getToken(id);
 
+            TokenModel baseModel = tokenManager.getToken(id);
             if (baseModel != null && !baseModel.isNonfungible()) { // Must not refer to a fungible token
                 Translation.COMMAND_TOKEN_ISFUNGIBLE.send(sender);
                 return;
@@ -194,7 +194,7 @@ public class CmdToken extends EnjCommand {
                     && !alternateId.equals(baseModel.getAlternateId())) { // Must not replace nickname on create
                 Translation.COMMAND_TOKEN_CREATENFT_REPLACENICKNAME.send(sender);
                 return;
-            } else if (!TokenManager.isValidAlternateId(alternateId)) {
+            } else if (alternateId != null && !TokenManager.isValidAlternateId(alternateId)) {
                 Translation.COMMAND_TOKEN_NICKNAME_INVALID.send(sender);
                 return;
             } else if (held.getType() == Material.AIR || !held.getType().isItem()) {
@@ -227,6 +227,7 @@ public class CmdToken extends EnjCommand {
                     .id(id)
                     .index(index)
                     .nonfungible(true)
+                    .alternateId(alternateId)
                     .nbt(nbt.toString())
                     .build();
 
@@ -244,19 +245,12 @@ public class CmdToken extends EnjCommand {
                 case TokenManager.TOKEN_CREATE_FAILED:
                     Translation.COMMAND_TOKEN_CREATE_FAILED.send(sender);
                     break;
+                case TokenManager.TOKEN_CREATE_FAILEDNFTBASE:
+                    Translation.COMMAND_TOKEN_CREATENFT_BASEFAILED.send(sender);
+                    break;
                 default:
                     bootstrap.debug(String.format("Unhandled result when creating non-fungible token (status: %d)", result));
                     break;
-            }
-
-            // Creates the base model if necessary
-            if (result == TokenManager.TOKEN_CREATE_SUCCESS && baseModel == null) {
-                tokenManager.saveToken(TokenModel.builder()
-                        .id(id)
-                        .alternateId(alternateId)
-                        .nonfungible(true)
-                        .nbt("")
-                        .build());
             }
         }
 
