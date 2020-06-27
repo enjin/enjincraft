@@ -40,6 +40,7 @@ public class TokenManager {
     public static final int TOKEN_DELETE_FAILEDNFTBASE = 406; // Deleting NFT base when still has instances
     public static final int TOKEN_MARKEDFORDELETION    = 407; // Token is marked for deletion
     public static final int TOKEN_ISNOTBASE            = 408; // Token is not base model
+    public static final int TOKEN_CREATE_FAILEDNFTBASE = 409; // Unable to create base model
     public static final int TOKEN_DUPLICATENICKNAME    = 420; // Token alternate id already exists
     public static final int TOKEN_HASNICKNAME          = 421; // Token has alternate
     public static final int TOKEN_INVALIDNICKNAME      = 422; // Nickname cannot be a valid token id
@@ -122,11 +123,13 @@ public class TokenManager {
                 try {
                     String baseFullId = TokenUtils.createFullId(tokenModel.getId());
                     if (!hasToken(baseFullId)) { // Creates base model if it does not already exist
-                        saveToken(TokenModel.builder()
+                        int status = saveToken(TokenModel.builder()
                                 .id(tokenModel.getId())
                                 .nonfungible(true)
                                 .nbt("")
                                 .build());
+                        if (status != TOKEN_CREATE_SUCCESS)
+                            throw new Exception(String.format("Unable to create the base model for token %s", tokenModel.getId()));
                     }
 
                     setNameFromURIFromBase(tokenModel);
@@ -157,7 +160,7 @@ public class TokenManager {
         String otherFullId = alternateIds.get(alternateId);
         if (alternateId != null && otherFullId != null && !otherFullId.equals(tokenModel.getFullId()))
             return TOKEN_DUPLICATENICKNAME;
-        else if (!isValidAlternateId(alternateId))
+        else if (alternateId != null && !isValidAlternateId(alternateId))
             return TOKEN_INVALIDNICKNAME;
         else if (tokenModel.isMarkedForDeletion())
             return TOKEN_MARKEDFORDELETION;
@@ -166,6 +169,18 @@ public class TokenManager {
 
         int status;
         if (tokenModel.isNonFungibleInstance()) {
+            // Creates the base model if necessary
+            if (!hasToken(tokenModel.getId())) {
+                int baseStatus = saveToken(TokenModel.builder()
+                        .id(tokenModel.getId())
+                        .nonfungible(true)
+                        .alternateId(tokenModel.getAlternateId())
+                        .nbt("")
+                        .build());
+                if (baseStatus != TOKEN_CREATE_SUCCESS)
+                    return TOKEN_CREATE_FAILEDNFTBASE;
+            }
+
             setNameFromURIFromBase(tokenModel);
 
             status = saveTokenToDatabase(tokenModel);
