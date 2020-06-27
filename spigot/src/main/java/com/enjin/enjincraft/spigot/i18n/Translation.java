@@ -80,6 +80,7 @@ public enum Translation {
     COMMAND_TOKEN_CREATE_FAILED("&cToken was not created."),
     COMMAND_TOKEN_CREATE_DUPLICATE("&cToken id already exists."),
     COMMAND_TOKEN_CREATENFT_DESCRIPTION("Add a non-fungible token definition for the held item provided id and index to the config."),
+    COMMAND_TOKEN_CREATENFT_BASEFAILED("&cUnable to create the non-fungible base token."),
     COMMAND_TOKEN_CREATENFT_DUPLICATE("&cToken id and index already exists."),
     COMMAND_TOKEN_CREATENFT_REPLACENICKNAME("&cCannot replace token nickname on creation."),
     COMMAND_TOKEN_UPDATE_DESCRIPTION("Update a token's definition with the held item and the token's id."),

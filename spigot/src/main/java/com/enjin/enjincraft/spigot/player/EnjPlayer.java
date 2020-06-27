@@ -517,9 +517,8 @@ public class EnjPlayer implements Listener {
     public void addTokenPermissions(TokenModel tokenModel) {
         if (tokenWallet == null
                 || tokenModel == null
-                || tokenModel.isMarkedForDeletion()) {
+                || tokenModel.isMarkedForDeletion())
             return;
-        }
 
         TokenManager tokenManager = bootstrap.getTokenManager();
 

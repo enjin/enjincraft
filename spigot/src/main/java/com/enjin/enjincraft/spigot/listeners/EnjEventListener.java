@@ -10,9 +10,7 @@ import com.enjin.sdk.models.request.TransactionType;
 import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 public class EnjEventListener implements com.enjin.sdk.services.notification.NotificationListener {
 
@@ -279,14 +277,14 @@ public class EnjEventListener implements com.enjin.sdk.services.notification.Not
         TokenModel     tokenModel = bootstrap.getTokenManager().getToken(fullId);
         MutableBalance mBalance   = enjPlayer.getTokenWallet().getBalance(fullId);
 
-        if (mBalance == null && balanceDelta > 0) {
+        if ((mBalance == null || mBalance.balance() == 0) && balanceDelta > 0) {
             mBalance = new MutableBalance(tokenId, tokenIndex, balanceDelta);
             enjPlayer.getTokenWallet().setBalance(mBalance);
             enjPlayer.addTokenPermissions(tokenModel);
         } else if (mBalance != null) {
             int balance = mBalance.add(balanceDelta);
             if (balance == 0) {
-                enjPlayer.getTokenWallet().removeBalance(tokenId, tokenIndex);
+                enjPlayer.getTokenWallet().removeBalance(fullId);
                 enjPlayer.removeTokenPermissions(tokenModel);
             }
         }
