@@ -70,7 +70,8 @@ public class LegacyTokenConverter {
             convert(tokens);
 
             fr.close();
-            file.renameTo(new File(file.getParent(), FILE_BACKUP_NAME));
+            if (!file.renameTo(new File(file.getParent(), FILE_BACKUP_NAME)))
+                throw new Exception("Unable to setup legacy tokens backup file");
         } catch (Exception e) {
             bootstrap.log(e);
         }
@@ -89,8 +90,6 @@ public class LegacyTokenConverter {
 
             if (json.has(ITEM_NAME_KEY))
                 meta.setDisplayName(json.get(ITEM_NAME_KEY).getAsString());
-            else
-                meta.setDisplayName("Token #" + tokenId);
 
             if (meta instanceof BookMeta)
                 setBookMeta(json, (BookMeta) meta);
