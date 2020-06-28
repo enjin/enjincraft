@@ -170,8 +170,8 @@ public enum Translation {
 
     QR_DISPLAYNAME("Enjin QR Code"),
 
-    WALLET_UI_FUNGIBLE("View Fungible"),
-    WALLET_UI_NONFUNGIBLE("View Non-Fungible"),
+    WALLET_UI_FUNGIBLE("Go To Fungible"),
+    WALLET_UI_NONFUNGIBLE("Go To Non-Fungible"),
     WALLET_NOTLINKED_SELF("&cYou have not linked a wallet to your identity."),
     WALLET_NOTLINKED_OTHER("&6%s &chas not linked a wallet."),
     WALLET_ALLOWANCENOTSET("&cYou must confirm the approve request in your wallet before you can send or trade tokens.");
