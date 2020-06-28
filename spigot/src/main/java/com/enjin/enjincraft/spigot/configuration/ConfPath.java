@@ -11,7 +11,7 @@ public enum ConfPath {
     DEBUG_PLUGIN("debug.plugin"),
     SENTRY_URL("debug.sentry"),
     TRANSLATE_CONSOLE_MESSAGES("experimental.translate-console-messages"),
-    SHOW_ID_LORE("plugin.show-id-lore"),
+    SHOW_ID_LORE("plugin.show-id-in-lore"),
     PERMISSION_BLACKLIST("permission-blacklist");
 
     private String path;
