@@ -1,7 +1,7 @@
 package com.enjin.enjincraft.spigot.wallet;
 
+import com.enjin.enjincraft.spigot.util.TokenUtils;
 import com.enjin.sdk.models.balance.Balance;
-import com.enjin.sdk.models.token.Token;
 
 /**
  * Thread safe class that represents the current balance
@@ -24,7 +24,9 @@ public class MutableBalance {
 
     public MutableBalance(String tokenId, String tokenIndex, Integer balance) {
         this.tokenId = tokenId;
-        this.tokenIndex = tokenIndex;
+        this.tokenIndex = tokenIndex == null
+                ? TokenUtils.BASE_INDEX
+                : tokenIndex;
         this.balance = balance;
     }
 
@@ -58,21 +60,30 @@ public class MutableBalance {
 
     public Integer subtract(Integer amount) {
         synchronized (balanceLock) {
-            balance -= amount;
-            if (balance < 0)
-                balance = 0;
+            balance = Math.max(0, balance - amount);
+            synchronized (withdrawnLock) {
+                if (withdrawn > balance)
+                    withdrawn = balance;
+            }
             return balance;
         }
     }
 
     public Integer add(Integer amount) {
         synchronized (balanceLock) {
-            balance += amount;
+            balance = Math.max(0, balance + amount);
+            synchronized (withdrawnLock) {
+                if (withdrawn > balance)
+                    withdrawn = balance;
+            }
             return balance;
         }
     }
 
-    public void set(Integer amount) {
+    public void set(Integer amount) throws IllegalArgumentException {
+        if (amount < 0)
+            throw new IllegalArgumentException("Cannot set balance to a negative amount");
+
         synchronized (balanceLock) {
             balance = amount;
             synchronized (withdrawnLock) {
@@ -82,7 +93,10 @@ public class MutableBalance {
         }
     }
 
-    public boolean withdraw(Integer amount) {
+    public boolean withdraw(Integer amount) throws IllegalArgumentException {
+        if (amount < 0)
+            throw new IllegalArgumentException("Cannot withdraw a negative amount");
+
         synchronized (withdrawnLock) {
             if (amountAvailableForWithdrawal().compareTo(amount) >= 0) {
                 withdrawn += amount;
@@ -93,11 +107,12 @@ public class MutableBalance {
         return false;
     }
 
-    public void deposit(Integer amount) {
+    public void deposit(Integer amount) throws IllegalArgumentException {
+        if (amount < 0)
+            throw new IllegalArgumentException("Cannot deposit a negative amount");
+
         synchronized (withdrawnLock) {
-            withdrawn -= amount;
-            if (withdrawn < 0)
-                withdrawn = 0;
+            withdrawn = Math.max(0, withdrawn - amount);
         }
     }
 

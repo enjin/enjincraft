@@ -16,7 +16,7 @@ public class TokenDefinitionArgumentProcessor extends AbstractArgumentProcessor<
 
     @Override
     public List<String> tab(CommandSender sender, String arg) {
-        String    lowerCaseArg = arg.toLowerCase();
+        String       lowerCaseArg = arg.toLowerCase();
         TokenManager tokenManager = EnjinCraft.bootstrap().get().getTokenManager();
         return tokenManager.getTokenIds().stream()
                 .filter(id -> id.toLowerCase().startsWith(lowerCaseArg))

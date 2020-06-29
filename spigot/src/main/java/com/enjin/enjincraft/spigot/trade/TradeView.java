@@ -5,6 +5,7 @@ import com.enjin.enjincraft.spigot.SpigotBootstrap;
 import com.enjin.enjincraft.spigot.enums.TargetPlayer;
 import com.enjin.enjincraft.spigot.enums.Trader;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
+import com.enjin.enjincraft.spigot.token.TokenManager;
 import com.enjin.enjincraft.spigot.util.MessageUtils;
 import com.enjin.enjincraft.spigot.util.StringUtils;
 import com.enjin.enjincraft.spigot.util.TokenUtils;
@@ -217,22 +218,32 @@ public class TradeView extends ChestMenu implements EnjTokenView {
 
     @Override
     public void validateInventory() {
+        TokenManager tokenManager = bootstrap.getTokenManager();
+        InventoryView view = viewer.getBukkitPlayer().getOpenInventory();
+
         Dimension dimension = viewerItemsComponent.getDimension();
         int rows = dimension.getHeight();
         int cols = dimension.getWidth();
-
         for (int y = 0; y < rows; y++) {
             for (int x = 0; x < cols; x++) {
-                int           slot = x + (y * INV_WIDTH);
-                InventoryView view = this.viewer.getBukkitPlayer().getOpenInventory();
-                ItemStack     is   = view.getItem(slot);
-                String        id   = TokenUtils.getTokenID(is);
-
-                if (StringUtils.isEmpty(id))
+                int slot = x + (y * INV_WIDTH);
+                ItemStack is    = view.getItem(slot);
+                String    id    = TokenUtils.getTokenID(is);
+                String    index = TokenUtils.getTokenIndex(is);
+                if (StringUtils.isEmpty(id) && StringUtils.isEmpty(index)) {
                     continue;
+                } else if (StringUtils.isEmpty(id) ^ StringUtils.isEmpty(index)) {
+                    view.setItem(slot, null);
+                    updateSlotWithHandler(slot, is, null);
+                    bootstrap.debug(String.format("Removed corrupted token from %s's trade window", viewer.getBukkitPlayer().getDisplayName()));
+                    continue;
+                }
 
-                MutableBalance balance = viewer.getTokenWallet().getBalance(id);
-                if (balance == null || balance.amountAvailableForWithdrawal() == 0) {
+                String         fullId  = TokenUtils.createFullId(id, index);
+                MutableBalance balance = viewer.getTokenWallet().getBalance(fullId);
+                if (!tokenManager.hasToken(fullId)
+                        || balance == null
+                        || balance.amountAvailableForWithdrawal() == 0) {
                     view.setItem(slot, null);
                     updateSlotWithHandler(slot, is, null);
                 } else {
@@ -249,22 +260,26 @@ public class TradeView extends ChestMenu implements EnjTokenView {
 
     @Override
     public void updateInventory() {
+        InventoryView view = viewer.getBukkitPlayer().getOpenInventory();
+
         Dimension dimension = viewerItemsComponent.getDimension();
         int rows = dimension.getHeight();
         int cols = dimension.getWidth();
-
         for (int y = 0; y < rows; y++) {
             for (int x = 0; x < cols; x++) {
-                int           slot = x + (y * INV_WIDTH);
-                InventoryView view = this.viewer.getBukkitPlayer().getOpenInventory();
-                ItemStack     is   = view.getItem(slot);
-                String        id   = TokenUtils.getTokenID(is);
-
-                if (StringUtils.isEmpty(id))
+                int slot = x + (y * INV_WIDTH);
+                ItemStack is    = view.getItem(slot);
+                String    id    = TokenUtils.getTokenID(is);
+                String    index = TokenUtils.getTokenIndex(is);
+                if (StringUtils.isEmpty(id) || StringUtils.isEmpty(index))
                     continue;
 
-                MutableBalance balance = viewer.getTokenWallet().getBalance(id);
-                ItemStack newStack = bootstrap.getTokenManager().getToken(id).getItemStack();
+                String         fullId  = TokenUtils.createFullId(id, index);
+                MutableBalance balance = viewer.getTokenWallet().getBalance(fullId);
+
+                ItemStack newStack = bootstrap.getTokenManager()
+                        .getToken(fullId)
+                        .getItemStack();
                 newStack.setAmount(is.getAmount());
 
                 String newNBT  = NBTItem.convertItemtoNBT(newStack).toString();
