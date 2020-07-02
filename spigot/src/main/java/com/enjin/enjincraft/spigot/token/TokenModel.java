@@ -5,7 +5,7 @@ import com.enjin.enjincraft.spigot.EnjinCraft;
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
 import com.enjin.enjincraft.spigot.util.StringUtils;
 import com.enjin.enjincraft.spigot.util.TokenUtils;
-import com.enjin.enjincraft.spigot.wallet.TokenViewState;
+import com.enjin.enjincraft.spigot.wallet.TokenWalletViewState;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
@@ -69,7 +69,7 @@ public class TokenModel {
     private String metadataURI;
     @Getter
     @Setter(AccessLevel.PROTECTED)
-    private TokenViewState walletViewState = TokenViewState.NORMAL;
+    private TokenWalletViewState walletViewState = TokenWalletViewState.NORMAL;
 
     /**
      * Secondary constructor used in earlier versions of the plugin.
@@ -113,13 +113,17 @@ public class TokenModel {
                       @NonNull String nbt,
                       List<TokenPermission> assignablePermissions,
                       String metadataURI,
-                      TokenViewState walletViewState) throws IllegalArgumentException, IllegalStateException {
+                      TokenWalletViewState walletViewState) throws IllegalArgumentException, IllegalStateException {
         if (!TokenUtils.isValidId(id))
             throw new IllegalArgumentException(String.format("Invalid id: %s", id));
-        if (index != null && !TokenUtils.isValidIndex(index))
+        if (index != null && !TokenUtils.isValidIndex(index)) {
             throw new IllegalArgumentException(String.format("Invalid index: %s", index));
-        if (index != null && !nonfungible && !index.equals(TokenUtils.BASE_INDEX))
+        } else if (index != null
+                && nonfungible != null
+                && !nonfungible
+                && !index.equals(TokenUtils.BASE_INDEX)) {
             throw new IllegalStateException(String.format("Token %s is fungible but was given a invalid index", id));
+        }
 
         this.id = id;
         this.index = index == null
@@ -135,7 +139,7 @@ public class TokenModel {
                 : assignablePermissions;
         this.metadataURI = metadataURI;
         this.walletViewState = walletViewState == null
-                ? TokenViewState.NORMAL
+                ? TokenWalletViewState.NORMAL
                 : walletViewState;
     }
 
