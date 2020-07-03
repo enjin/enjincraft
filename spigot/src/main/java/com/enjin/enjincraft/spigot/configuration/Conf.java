@@ -41,6 +41,10 @@ public class Conf {
         return internalConf.getStringList(ConfPath.PERMISSION_BLACKLIST.path());
     }
 
+    public List<String> getLinkPermissions() {
+        return internalConf.getStringList(ConfPath.LINK_PERMISSIONS.path());
+    }
+
     public void setLocale(Locale locale) {
         internalConf.set(ConfPath.LOCALE.path(), locale.locale());
     }
