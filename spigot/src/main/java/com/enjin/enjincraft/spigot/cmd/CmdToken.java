@@ -233,7 +233,7 @@ public class CmdToken extends EnjCommand {
                     .alternateId(alternateId)
                     .nbt(nbt.toString())
                     .walletViewState(baseModel == null
-                            ? TokenWalletViewState.DEFAULT
+                            ? TokenWalletViewState.WITHDRAWABLE
                             : baseModel.getWalletViewState())
                     .build();
 

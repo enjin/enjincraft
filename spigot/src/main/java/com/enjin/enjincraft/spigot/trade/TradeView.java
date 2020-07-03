@@ -245,7 +245,7 @@ public class TradeView extends ChestMenu implements EnjTokenView {
                         || balance.amountAvailableForWithdrawal() == 0) {
                     view.setItem(slot, null);
                     updateSlotWithHandler(slot, is, null);
-                } else if (tokenModel.getWalletViewState() != TokenWalletViewState.DEFAULT) {
+                } else if (tokenModel.getWalletViewState() != TokenWalletViewState.WITHDRAWABLE) {
                     balance.deposit(is.getAmount());
                     view.setItem(slot, null);
                     updateSlotWithHandler(slot, is, null);
