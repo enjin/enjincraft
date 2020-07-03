@@ -120,7 +120,7 @@ public enum Translation {
     COMMAND_TOKEN_REMOVEURI_EMPTY("&cToken has no metadata URI set."),
     COMMAND_TOKEN_SETWALLETVIEW_DESCRIPTION("Sets a token's view and retrieval state within the wallet."),
     COMMAND_TOKEN_SETWALLETVIEW_INVALIDVIEW("&cNot a valid view state."),
-    COMMAND_TOKEN_SETWALLETVIEW_HAS("&cToken already set to view state."),
+    COMMAND_TOKEN_SETWALLETVIEW_HAS("&cToken is already set to the view state."),
     COMMAND_TOKEN_LIST_DESCRIPTION("Lists the tokens specified."),
     COMMAND_TOKEN_LIST_EMPTY("&aFound no tokens."),
     COMMAND_TOKEN_LIST_HEADER_TOKENS("Token(s)"),
