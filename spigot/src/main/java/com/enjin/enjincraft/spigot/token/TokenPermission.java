@@ -2,6 +2,7 @@ package com.enjin.enjincraft.spigot.token;
 
 import com.google.gson.*;
 import lombok.Getter;
+import lombok.NonNull;
 
 import java.lang.reflect.Type;
 import java.util.*;
@@ -13,37 +14,94 @@ public class TokenPermission {
 
     @Getter
     private final String permission;
-    @Getter
     private final Set<String> worlds = new HashSet<>();
 
-    public TokenPermission(String permission) {
-        this.permission = permission;
+    public TokenPermission(@NonNull TokenPermission permission) {
+        this(permission.permission, permission.worlds);
     }
 
-    public TokenPermission(String permission, String world) {
-        this.permission = permission;
-        this.worlds.add(world);
+    public TokenPermission(@NonNull String permission) {
+        this(permission, TokenManager.GLOBAL);
     }
 
-    public TokenPermission(String permission, Collection<String> worlds) {
+    public TokenPermission(@NonNull String permission, @NonNull String world) {
+        this(permission, Collections.singleton(world));
+    }
+
+    public TokenPermission(@NonNull String permission, @NonNull Collection<String> worlds) {
         this.permission = permission;
-        this.worlds.addAll(worlds);
+
+        if (worlds.isEmpty())
+            addWorld(TokenManager.GLOBAL);
+        else
+            addWorlds(worlds);
     }
 
     @Override
     public boolean equals(Object object) {
-        if (object instanceof TokenPermission)
-            return permission.equals(((TokenPermission) object).getPermission());
-
-        return false;
+        return object instanceof TokenPermission && permission.equals(((TokenPermission) object).getPermission());
     }
 
-    public boolean addWorld(String world) {
+    @Override
+    public int hashCode() {
+        return Objects.hash(permission);
+    }
+
+    public boolean addWorld(@NonNull String world) {
+        if (isGlobal()) {
+            return false;
+        } else if (world.equals(TokenManager.GLOBAL)) {
+            worlds.clear();
+            worlds.add(TokenManager.GLOBAL);
+            return true;
+        }
+
         return worlds.add(world);
     }
 
-    public boolean addWorlds(Collection<String> worlds) {
+    public boolean addWorlds(@NonNull Collection<String> worlds) {
+        if (worlds.isEmpty() || isGlobal())
+            return false;
+        else if (worlds.contains(TokenManager.GLOBAL))
+            return addWorld(TokenManager.GLOBAL);
+
         return this.worlds.addAll(worlds);
+    }
+
+    public boolean removeWorld(@NonNull String world) {
+        if (world.equals(TokenManager.GLOBAL)) {
+            if (worlds.size() > 0) {
+                worlds.clear();
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        return worlds.remove(world);
+    }
+
+    public boolean removeWorlds(@NonNull Collection<String> worlds) {
+        if (worlds.isEmpty()) {
+            return false;
+        } else if (worlds.contains(TokenManager.GLOBAL)) {
+            if (this.worlds.size() > 0) {
+                this.worlds.clear();
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        return this.worlds.removeAll(worlds);
+    }
+
+    public boolean isGlobal() {
+        return worlds.contains(TokenManager.GLOBAL);
+    }
+
+    public Set<String> getWorlds() {
+        return new HashSet<>(worlds);
     }
 
     public static class TokenPermissionSerializer implements JsonSerializer<TokenPermission> {
@@ -53,7 +111,7 @@ public class TokenPermission {
             JsonElement permJson = new JsonPrimitive(src.getPermission());
 
             // Serializes just the permission if global
-            if (src.getWorlds().isEmpty() || src.getWorlds().contains(TokenManager.GLOBAL))
+            if (src.isGlobal())
                 return permJson;
 
             JsonArray worldsJson = new JsonArray();
@@ -79,7 +137,7 @@ public class TokenPermission {
                 JsonObject object = json.getAsJsonObject();
 
                 if (!object.has(PERMISSION_KEY))
-                    throw new JsonParseException("Missing token permission key \"" + PERMISSION_KEY + "\"!");
+                    throw new JsonParseException("Missing token permission key \"" + PERMISSION_KEY + "\"");
 
                 permJson = object.get(PERMISSION_KEY).getAsJsonPrimitive();
 
@@ -108,7 +166,7 @@ public class TokenPermission {
                 return new TokenPermission(permJson.getAsString());
             }
 
-            throw new JsonParseException("Token permission not of type JsonPrimitive or JsonObject!");
+            throw new JsonParseException("Token permission not of type JsonPrimitive or JsonObject");
         }
 
     }

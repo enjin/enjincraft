@@ -66,9 +66,6 @@ public class SpigotBootstrap implements Bootstrap, Module {
             if (!initConfig())
                 return;
 
-            tokenManager = new TokenManager(this, plugin.getDataFolder());
-            tokenManager.loadTokens();
-
             if (!StringUtils.isEmpty(conf.getSentryUrl())) {
                 sentryHandler = new SentryHandler();
                 Sentry.init(String.format("%s?release=%s&stacktrace.app.packages=com.enjin",
@@ -96,7 +93,9 @@ public class SpigotBootstrap implements Bootstrap, Module {
 
             // Init Managers
             playerManager = new PlayerManager(this);
+            tokenManager = new TokenManager(this, plugin.getDataFolder());
             tradeManager = new TradeManager(this);
+            tokenManager.loadTokens();
 
             // Register Listeners
             Bukkit.getPluginManager().registerEvents(playerManager, plugin);
@@ -193,7 +192,6 @@ public class SpigotBootstrap implements Bootstrap, Module {
             notificationsService.start();
             notificationsService.registerListener(new EnjEventListener(this));
             notificationsService.subscribeToApp(conf.getAppId());
-            tokenManager.subscribeToTokens();
         } catch (Exception ex) {
             throw new NotificationServiceException(ex);
         }

@@ -9,7 +9,7 @@ public final class QrUtils {
     public static final String QR_TAG = "enjinQr";
 
     private QrUtils() {
-        throw new IllegalStateException();
+        throw new IllegalStateException("Utility class");
     }
 
     public static boolean hasQrTag(ItemStack is) {
