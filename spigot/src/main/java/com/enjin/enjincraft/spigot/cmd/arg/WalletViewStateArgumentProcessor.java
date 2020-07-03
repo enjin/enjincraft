@@ -29,7 +29,7 @@ public class WalletViewStateArgumentProcessor extends AbstractArgumentProcessor<
     }
 
     @Override
-    public Optional parse(CommandSender sender, String arg) {
+    public Optional<TokenWalletViewState> parse(CommandSender sender, String arg) {
         try {
             return Optional.of(TokenWalletViewState.valueOf(arg.toUpperCase()));
         } catch (IllegalArgumentException e) {
