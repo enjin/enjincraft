@@ -207,7 +207,7 @@ public class EnjPlayer implements Listener {
                     || balance == null
                     || balance.amountAvailableForWithdrawal() == 0) {
                 view.setCursor(null);
-            } else if (tokenModel.getWalletViewState() != TokenWalletViewState.DEFAULT) {
+            } else if (tokenModel.getWalletViewState() != TokenWalletViewState.WITHDRAWABLE) {
                 balance.deposit(is.getAmount());
                 view.setCursor(null);
             } else {
@@ -254,7 +254,7 @@ public class EnjPlayer implements Listener {
                     || balance == null
                     || balance.amountAvailableForWithdrawal() == 0) {
                 inventory.clear(i);
-            } else if (tokenModel.getWalletViewState() != TokenWalletViewState.DEFAULT) {
+            } else if (tokenModel.getWalletViewState() != TokenWalletViewState.WITHDRAWABLE) {
                 balance.deposit(is.getAmount());
                 inventory.clear(i);
             } else {
@@ -299,7 +299,7 @@ public class EnjPlayer implements Listener {
                     || balance == null
                     || balance.amountAvailableForWithdrawal() == 0) {
                 setEquipment(slot, null);
-            } else  if (tokenModel.getWalletViewState() != TokenWalletViewState.DEFAULT) {
+            } else  if (tokenModel.getWalletViewState() != TokenWalletViewState.WITHDRAWABLE) {
                 balance.deposit(is.getAmount());
                 setEquipment(slot, null);
             } else {

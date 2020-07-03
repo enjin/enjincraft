@@ -192,7 +192,7 @@ public class TokenWalletView extends ChestMenu implements EnjTokenView {
                 String         fullId     = TokenUtils.createFullId(id, index);
                 TokenModel     tokenModel = tokenManager.getToken(fullId);
                 MutableBalance balance    = owner.getTokenWallet().getBalance(fullId);
-                if (tokenModel.getWalletViewState() == TokenWalletViewState.DEFAULT)
+                if (tokenModel.getWalletViewState() == TokenWalletViewState.WITHDRAWABLE)
                     addWithdrawAction(Position.of(x, y), balance, tokenModel.getItemStack());
             }
         }
