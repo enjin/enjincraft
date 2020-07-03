@@ -12,7 +12,8 @@ public enum ConfPath {
     SENTRY_URL("debug.sentry"),
     TRANSLATE_CONSOLE_MESSAGES("experimental.translate-console-messages"),
     SHOW_ID_LORE("plugin.show-id-in-lore"),
-    PERMISSION_BLACKLIST("permission-blacklist");
+    PERMISSION_BLACKLIST("permission-blacklist"),
+    LINK_PERMISSIONS("link-permissions");
 
     private String path;
 
