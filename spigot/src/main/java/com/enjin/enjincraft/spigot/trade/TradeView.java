@@ -6,12 +6,14 @@ import com.enjin.enjincraft.spigot.enums.TargetPlayer;
 import com.enjin.enjincraft.spigot.enums.Trader;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
 import com.enjin.enjincraft.spigot.token.TokenManager;
+import com.enjin.enjincraft.spigot.token.TokenModel;
 import com.enjin.enjincraft.spigot.util.MessageUtils;
 import com.enjin.enjincraft.spigot.util.StringUtils;
 import com.enjin.enjincraft.spigot.util.TokenUtils;
 import com.enjin.enjincraft.spigot.util.UiUtils;
 import com.enjin.enjincraft.spigot.wallet.MutableBalance;
 import com.enjin.enjincraft.spigot.wallet.TokenWallet;
+import com.enjin.enjincraft.spigot.wallet.TokenWalletViewState;
 import com.enjin.minecraft_commons.spigot.ui.*;
 import com.enjin.minecraft_commons.spigot.ui.menu.ChestMenu;
 import com.enjin.minecraft_commons.spigot.ui.menu.component.SimpleMenuComponent;
@@ -239,11 +241,16 @@ public class TradeView extends ChestMenu implements EnjTokenView {
                     continue;
                 }
 
-                String         fullId  = TokenUtils.createFullId(id, index);
-                MutableBalance balance = viewer.getTokenWallet().getBalance(fullId);
-                if (!tokenManager.hasToken(fullId)
+                String         fullId     = TokenUtils.createFullId(id, index);
+                TokenModel     tokenModel = tokenManager.getToken(fullId);
+                MutableBalance balance    = viewer.getTokenWallet().getBalance(fullId);
+                if (tokenModel == null
                         || balance == null
                         || balance.amountAvailableForWithdrawal() == 0) {
+                    view.setItem(slot, null);
+                    updateSlotWithHandler(slot, is, null);
+                } else if (tokenModel.getWalletViewState() != TokenWalletViewState.DEFAULT) {
+                    balance.deposit(is.getAmount());
                     view.setItem(slot, null);
                     updateSlotWithHandler(slot, is, null);
                 } else {

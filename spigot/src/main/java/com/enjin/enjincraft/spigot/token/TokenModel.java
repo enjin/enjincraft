@@ -69,7 +69,7 @@ public class TokenModel {
     private String metadataURI;
     @Getter
     @Setter(AccessLevel.PROTECTED)
-    private TokenWalletViewState walletViewState = TokenWalletViewState.NORMAL;
+    private TokenWalletViewState walletViewState = TokenWalletViewState.DEFAULT;
 
     /**
      * Secondary constructor used in earlier versions of the plugin.
@@ -139,7 +139,7 @@ public class TokenModel {
                 : assignablePermissions;
         this.metadataURI = metadataURI;
         this.walletViewState = walletViewState == null
-                ? TokenWalletViewState.NORMAL
+                ? TokenWalletViewState.DEFAULT
                 : walletViewState;
     }
 
@@ -266,19 +266,13 @@ public class TokenModel {
         String data = nonfungible
                 ? String.format("%s #%d", name, TokenUtils.convertIndexToLong(index))
                 : String.format("%s", name);
+        List<String> lore = meta.hasLore()
+                ? meta.getLore()
+                : new ArrayList<>();
 
-        if (meta.hasLore()) {
-            List<String> lore = meta.getLore();
-            lore.add("");
-            lore.add(ChatColor.DARK_PURPLE + data);
-            meta.setLore(lore);
-        } else {
-            List<String> lore = new ArrayList<>();
-            lore.add("");
-            lore.add(ChatColor.DARK_PURPLE + data);
-            meta.setLore(lore);
-        }
-
+        lore.add("");
+        lore.add(ChatColor.DARK_PURPLE + data);
+        meta.setLore(lore);
         nbtItem.getItem().setItemMeta(meta);
     }
 
@@ -324,6 +318,23 @@ public class TokenModel {
         meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
 
         is.setItemMeta(meta);
+
+        return is;
+    }
+
+    public ItemStack getWalletViewItemStack() {
+        ItemStack is = getItemStack();
+
+        if (walletViewState != TokenWalletViewState.DEFAULT) {
+            ItemMeta meta = is.getItemMeta();
+            List<String> lore = meta.hasLore()
+                    ? meta.getLore()
+                    : new ArrayList<>();
+
+            lore.add(ChatColor.DARK_GRAY + walletViewState.toString());
+            meta.setLore(lore);
+            is.setItemMeta(meta);
+        }
 
         return is;
     }
