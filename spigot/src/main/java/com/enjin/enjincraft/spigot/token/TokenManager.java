@@ -124,18 +124,22 @@ public class TokenManager {
             tokens.forEach(tokenModel -> {
                 try {
                     String baseFullId = TokenUtils.createFullId(tokenModel.getId());
-                    if (!hasToken(baseFullId)) { // Creates base model if it does not already exist
-                        int status = saveToken(TokenModel.builder()
+                    TokenModel baseModel = getToken(baseFullId);
+                    if (baseModel == null) { // Creates base model if it does not already exist
+                        baseModel = TokenModel.builder()
                                 .id(tokenModel.getId())
                                 .nonfungible(true)
                                 .nbt("")
-                                .build());
+                                .build();
+
+                        int status = saveToken(baseModel);
                         if (status != TOKEN_CREATE_SUCCESS)
                             throw new Exception(String.format("Unable to create the base model for token %s", tokenModel.getId()));
                     }
 
                     setNameFromURIFromBase(tokenModel);
                     tokenModel.setNonfungible(true);
+                    tokenModel.setWalletViewState(baseModel.getWalletViewState());
                     tokenModel.load();
 
                     boolean changed = tokenModel.applyBlacklist(bootstrap.getConfig().getPermissionBlacklist());
@@ -450,7 +454,22 @@ public class TokenManager {
 
         int status = updateTokenConf(baseModel, false);
         if (status == TOKEN_UPDATE_SUCCESS) {
-            // TODO: validate player inventories.
+            // Updates non-fungible instances if non-fungible
+            if (baseModel.isNonfungible()) {
+                tokenModels.values().forEach(tokenModel -> {
+                    String tokenId    = tokenModel.getId();
+                    String tokenIndex = tokenModel.getIndex();
+                    if (!tokenId.equals(baseModel.getId()) || tokenIndex.equals(TokenUtils.BASE_INDEX))
+                        return;
+
+                    tokenModel.setWalletViewState(walletViewState);
+                });
+            }
+
+            bootstrap.getPlayerManager()
+                    .getPlayers()
+                    .values()
+                    .forEach(EnjPlayer::validateInventory);
         }
 
         return status;

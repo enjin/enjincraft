@@ -2,7 +2,7 @@ package com.enjin.enjincraft.spigot.wallet;
 
 public enum TokenWalletViewState {
 
-    NORMAL,
+    DEFAULT,
     LOCKED,
     HIDDEN
 

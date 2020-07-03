@@ -232,6 +232,9 @@ public class CmdToken extends EnjCommand {
                     .nonfungible(true)
                     .alternateId(alternateId)
                     .nbt(nbt.toString())
+                    .walletViewState(baseModel == null
+                            ? TokenWalletViewState.DEFAULT
+                            : baseModel.getWalletViewState())
                     .build();
 
             int result = tokenManager.saveToken(tokenModel);
