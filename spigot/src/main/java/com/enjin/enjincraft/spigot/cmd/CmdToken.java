@@ -3,6 +3,7 @@ package com.enjin.enjincraft.spigot.cmd;
 import com.enjin.enjincraft.spigot.GraphQLException;
 import com.enjin.enjincraft.spigot.NetworkException;
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
+import com.enjin.enjincraft.spigot.cmd.arg.WalletViewStateArgumentProcessor;
 import com.enjin.enjincraft.spigot.enums.Permission;
 import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.token.TokenManager;
@@ -10,6 +11,7 @@ import com.enjin.enjincraft.spigot.token.TokenModel;
 import com.enjin.enjincraft.spigot.util.MessageUtils;
 import com.enjin.enjincraft.spigot.util.StringUtils;
 import com.enjin.enjincraft.spigot.util.TokenUtils;
+import com.enjin.enjincraft.spigot.wallet.TokenWalletViewState;
 import com.enjin.sdk.TrustedPlatformClient;
 import com.enjin.sdk.graphql.GraphQLResponse;
 import com.enjin.sdk.models.token.GetToken;
@@ -49,6 +51,7 @@ public class CmdToken extends EnjCommand {
         this.subCommands.add(new CmdRevokePermNFT(bootstrap, this));
         this.subCommands.add(new CmdGetURI(bootstrap, this));
         this.subCommands.add(new CmdRemoveURI(bootstrap, this));
+        this.subCommands.add(new CmdSetWalletView(bootstrap, this));
         this.subCommands.add(new CmdList(bootstrap, this));
     }
 
@@ -229,6 +232,9 @@ public class CmdToken extends EnjCommand {
                     .nonfungible(true)
                     .alternateId(alternateId)
                     .nbt(nbt.toString())
+                    .walletViewState(baseModel == null
+                            ? TokenWalletViewState.WITHDRAWABLE
+                            : baseModel.getWalletViewState())
                     .build();
 
             int result = tokenManager.saveToken(tokenModel);
@@ -994,6 +1000,78 @@ public class CmdToken extends EnjCommand {
         @Override
         public Translation getUsageTranslation() {
             return Translation.COMMAND_TOKEN_REMOVEURI_DESCRIPTION;
+        }
+
+    }
+
+    public class CmdSetWalletView extends EnjCommand {
+
+        public CmdSetWalletView(SpigotBootstrap bootstrap, EnjCommand parent) {
+            super(bootstrap, parent);
+            this.aliases.add("setwalview");
+            this.aliases.add("setwalletview");
+            this.requiredArgs.add("id");
+            this.requiredArgs.add("view");
+            this.requirements = CommandRequirements.builder()
+                    .withPermission(Permission.CMD_TOKEN_CREATE)
+                    .withAllowedSenderTypes(SenderType.PLAYER)
+                    .build();
+        }
+
+        @Override
+        public void execute(CommandContext context) {
+            if (context.args.size() != requiredArgs.size())
+                return;
+
+            String id = context.args.get(0);
+            String view = context.args.get(1);
+            Player sender = context.player;
+
+            TokenWalletViewState viewState;
+            try {
+                viewState = TokenWalletViewState.valueOf(view.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                Translation.COMMAND_TOKEN_SETWALLETVIEW_INVALIDVIEW.send(sender);
+                return;
+            } catch (Exception e) {
+                bootstrap.log(e);
+                return;
+            }
+
+            int result = bootstrap.getTokenManager().updateWalletViewState(id, viewState);
+            switch (result) {
+                case TokenManager.TOKEN_UPDATE_SUCCESS:
+                    Translation.COMMAND_TOKEN_UPDATE_SUCCESS.send(sender);
+                    break;
+                case TokenManager.TOKEN_UPDATE_FAILED:
+                    Translation.COMMAND_TOKEN_UPDATE_FAILED.send(sender);
+                    break;
+                case TokenManager.TOKEN_NOSUCHTOKEN:
+                    Translation.COMMAND_TOKEN_NOSUCHTOKEN.send(sender);
+                    break;
+                case TokenManager.TOKEN_ISNOTBASE:
+                    Translation.COMMAND_TOKEN_ISNONFUNGIBLEINSTANCE.send(sender);
+                    break;
+                case TokenManager.TOKEN_HASWALLETVIEWSTATE:
+                    Translation.COMMAND_TOKEN_SETWALLETVIEW_HAS.send(sender);
+                    break;
+                default:
+                    bootstrap.debug(String.format("Unhandled result when setting the wallet view state (status: %d)", result));
+                    break;
+            }
+        }
+
+        @Override
+        public List<String> tab(CommandContext context) {
+            if (context.args.size() == 2)
+                return WalletViewStateArgumentProcessor.INSTANCE.tab(context.sender, context.args.get(1));
+
+            return new ArrayList<>(0);
+        }
+
+        @Override
+        public Translation getUsageTranslation() {
+            return Translation.COMMAND_TOKEN_SETWALLETVIEW_DESCRIPTION;
         }
 
     }

@@ -5,6 +5,7 @@ import com.enjin.enjincraft.spigot.EnjinCraft;
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
 import com.enjin.enjincraft.spigot.util.StringUtils;
 import com.enjin.enjincraft.spigot.util.TokenUtils;
+import com.enjin.enjincraft.spigot.wallet.TokenWalletViewState;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
@@ -66,14 +67,44 @@ public class TokenModel {
     @Setter(value = AccessLevel.PROTECTED, onMethod_ = {@Synchronized("uriLock")})
     @SerializedName("metadata-uri")
     private String metadataURI;
+    @Getter
+    @Setter(AccessLevel.PROTECTED)
+    private TokenWalletViewState walletViewState = TokenWalletViewState.WITHDRAWABLE;
 
+    /**
+     * Secondary constructor used in earlier versions of the plugin.
+     *
+     * @since 1.0
+     * @param id the token id
+     * @param alternateId the alternate id to be used by the token manager
+     * @param nbt the NBT of the item stack
+     * @param assignablePermissions the list of permissions
+     */
     public TokenModel(@NonNull String id,
                       String alternateId,
                       @NonNull String nbt,
                       List<TokenPermission> assignablePermissions) {
-        this(id, null, null, alternateId, nbt, assignablePermissions, null);
+        this(id, null, null, alternateId, nbt, assignablePermissions, null, null);
     }
 
+    /**
+     * Primary constructor for token models.
+     *
+     * @since 1.1
+     * @param id the token id
+     * @param index the token index
+     * @param nonfungible the fungible state
+     *                    <p>
+     *                        True for non-fungible, false for fungible.
+     *                    </p>
+     * @param alternateId the alternate id to be used by the token manager
+     * @param nbt the NBT of the item stack
+     * @param assignablePermissions the list of permissions
+     * @param metadataURI the metadata uri from the platform
+     * @param walletViewState the view state in the token wallet
+     * @throws IllegalArgumentException if the id or index are invalid
+     * @throws IllegalStateException if is fungible with a non-null, non-base index
+     */
     @Builder
     public TokenModel(@NonNull String id,
                       String index,
@@ -81,11 +112,18 @@ public class TokenModel {
                       String alternateId,
                       @NonNull String nbt,
                       List<TokenPermission> assignablePermissions,
-                      String metadataURI) throws IllegalArgumentException {
+                      String metadataURI,
+                      TokenWalletViewState walletViewState) throws IllegalArgumentException, IllegalStateException {
         if (!TokenUtils.isValidId(id))
             throw new IllegalArgumentException(String.format("Invalid id: %s", id));
-        if (index != null && !TokenUtils.isValidIndex(index))
+        if (index != null && !TokenUtils.isValidIndex(index)) {
             throw new IllegalArgumentException(String.format("Invalid index: %s", index));
+        } else if (index != null
+                && nonfungible != null
+                && !nonfungible
+                && !index.equals(TokenUtils.BASE_INDEX)) {
+            throw new IllegalStateException(String.format("Token %s is fungible but was given a invalid index", id));
+        }
 
         this.id = id;
         this.index = index == null
@@ -100,14 +138,25 @@ public class TokenModel {
                 ? new ArrayList<>()
                 : assignablePermissions;
         this.metadataURI = metadataURI;
+        this.walletViewState = walletViewState == null
+                ? TokenWalletViewState.WITHDRAWABLE
+                : walletViewState;
     }
 
+    /**
+     * Constructor to be used when getting a token from a database.
+     *
+     * @since 1.1
+     * @param rs the result set
+     * @throws SQLException if an exception occurs when processing the result set
+     */
     public TokenModel(ResultSet rs) throws SQLException {
         this(rs.getString("token_id"),
                 rs.getString("token_index"),
                 null,
                 null,
                 rs.getString("nbt"),
+                null,
                 null,
                 null);
     }
@@ -125,15 +174,8 @@ public class TokenModel {
         nbtItem.setBoolean(NBT_NONFUNGIBLE, nonfungible);
 
         ItemMeta meta = nbtItem.getItem().getItemMeta();
-        if (meta != null) {
+        if (meta != null)
             displayName = meta.getDisplayName();
-
-            Bootstrap bootstrap = EnjinCraft.bootstrap().orElse(null);
-            if (bootstrap != null
-                    && bootstrap.getConfig() != null
-                    && bootstrap.getConfig().isIdLoreEnabled())
-                addDataToLore();
-        }
     }
 
     protected void loadNameFromURI() {
@@ -206,31 +248,32 @@ public class TokenModel {
                 : baseModel.nameFromURI;
     }
 
-    protected void addDataToLore() {
-        ItemMeta meta = nbtItem.getItem().getItemMeta();
-        if (meta == null)
-            return;
+    protected ItemStack addDataToLore(List<String> data) {
+        ItemStack is   = nbtItem.getItem().clone();
+        ItemMeta  meta = is.getItemMeta();
+        if (meta == null || data.isEmpty())
+            return is;
 
-        String name = StringUtils.isEmpty(nameFromURI)
-                ? id
-                : nameFromURI;
-        String data = nonfungible
-                ? String.format("%s #%d", name, TokenUtils.convertIndexToLong(index))
-                : String.format("%s", name);
+        List<String> lore = meta.hasLore()
+                ? meta.getLore()
+                : new ArrayList<>();
 
-        if (meta.hasLore()) {
-            List<String> lore = meta.getLore();
-            lore.add("");
-            lore.add(ChatColor.DARK_PURPLE + data);
-            meta.setLore(lore);
-        } else {
-            List<String> lore = new ArrayList<>();
-            lore.add("");
-            lore.add(ChatColor.DARK_PURPLE + data);
-            meta.setLore(lore);
+        lore.add(0, "");
+
+        int lineNumber = 1;
+        for (String line : data) {
+            if (line != null)
+                lore.add(lineNumber++, line);
         }
 
-        nbtItem.getItem().setItemMeta(meta);
+        // Determines if a new-line should be added after the data
+        if (lore.size() > lineNumber && !StringUtils.isEmpty(lore.get(lineNumber).trim()))
+            lore.add(lineNumber, "");
+
+        meta.setLore(lore);
+        is.setItemMeta(meta);
+
+        return is;
     }
 
     protected boolean applyBlacklist(Collection<String> blacklist) {
@@ -265,7 +308,13 @@ public class TokenModel {
 
             is = nbtItem.getItem().clone();
         } else {
-            is = nbtItem.getItem().clone();
+            List<String> data = new ArrayList<>();
+
+            String name = getName();
+            if (!StringUtils.isEmpty(name))
+                data.add(name);
+
+            is = addDataToLore(data);
         }
 
         ItemMeta meta = is.getItemMeta();
@@ -277,6 +326,24 @@ public class TokenModel {
         is.setItemMeta(meta);
 
         return is;
+    }
+
+    public ItemStack getWalletViewItemStack() {
+        ItemStack is   = getItemStack();
+        ItemMeta  meta = is.getItemMeta();
+        if (meta == null)
+            return is;
+
+        List<String> data = new ArrayList<>();
+
+        String name  = getName();
+        if (!StringUtils.isEmpty(name))
+            data.add(name);
+        String state = getWalletViewString();
+        if (!StringUtils.isEmpty(state))
+            data.add(state);
+
+        return addDataToLore(data);
     }
 
     public boolean addPermission(String permission) {
@@ -394,6 +461,51 @@ public class TokenModel {
             return null;
 
         return new TokenPermission(assignablePermissions.get(idx));
+    }
+
+    private String getName() {
+        Bootstrap bootstrap = EnjinCraft.bootstrap().orElse(null);
+        if (bootstrap != null
+                && bootstrap.getConfig() != null
+                && bootstrap.getConfig().isIdLoreEnabled()) {
+            String id = StringUtils.isEmpty(nameFromURI)
+                    ? this.id
+                    : nameFromURI;
+            String name = nonfungible
+                    ? String.format("%s #%d", id, TokenUtils.convertIndexToLong(index))
+                    : String.format("%s", id);
+
+            return ChatColor.GRAY + name;
+        }
+
+        return null;
+    }
+
+    private String getWalletViewString() {
+        try {
+            switch (walletViewState) {
+                case WITHDRAWABLE:
+                    return ChatColor.GRAY
+                            + "Withdrawable "
+                            + ChatColor.GREEN
+                            + "\u2714";
+                case LOCKED:
+                    return ChatColor.GRAY
+                            + "Withdrawable "
+                            + ChatColor.RED
+                            + "\u274C";
+                default:
+                    return null;
+            }
+        } catch (NullPointerException e) {
+            return null;
+        } catch (Exception e) {
+            Bootstrap bootstrap = EnjinCraft.bootstrap().orElse(null);
+            if (bootstrap instanceof SpigotBootstrap)
+                ((SpigotBootstrap) bootstrap).log(e);
+
+            return null;
+        }
     }
 
 }

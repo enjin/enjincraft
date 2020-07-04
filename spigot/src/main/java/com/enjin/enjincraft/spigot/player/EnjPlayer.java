@@ -13,6 +13,7 @@ import com.enjin.enjincraft.spigot.util.TokenUtils;
 import com.enjin.enjincraft.spigot.wallet.MutableBalance;
 import com.enjin.enjincraft.spigot.wallet.TokenWallet;
 import com.enjin.enjincraft.spigot.wallet.TokenWalletView;
+import com.enjin.enjincraft.spigot.wallet.TokenWalletViewState;
 import com.enjin.minecraft_commons.spigot.ui.AbstractMenu;
 import com.enjin.sdk.graphql.GraphQLResponse;
 import com.enjin.sdk.http.HttpResponse;
@@ -199,11 +200,15 @@ public class EnjPlayer implements Listener {
             view.setCursor(null);
             bootstrap.debug(String.format("Removed corrupted token from %s's cursor", bukkitPlayer.getDisplayName()));
         } else if (!StringUtils.isEmpty(id) && !StringUtils.isEmpty(index)) {
-            String         fullId  = TokenUtils.createFullId(id, index);
-            MutableBalance balance = tokenWallet.getBalance(fullId);
-            if (!tokenManager.hasToken(fullId)
+            String         fullId     = TokenUtils.createFullId(id, index);
+            TokenModel     tokenModel = tokenManager.getToken(fullId);
+            MutableBalance balance    = tokenWallet.getBalance(fullId);
+            if (tokenModel == null
                     || balance == null
                     || balance.amountAvailableForWithdrawal() == 0) {
+                view.setCursor(null);
+            } else if (tokenModel.getWalletViewState() != TokenWalletViewState.WITHDRAWABLE) {
+                balance.deposit(is.getAmount());
                 view.setCursor(null);
             } else {
                 if (balance.amountAvailableForWithdrawal() < is.getAmount()) {
@@ -242,11 +247,15 @@ public class EnjPlayer implements Listener {
                 continue;
             }
 
-            String         fullId  = TokenUtils.createFullId(id, index);
-            MutableBalance balance = tokenWallet.getBalance(fullId);
-            if (!tokenManager.hasToken(fullId)
+            String         fullId     = TokenUtils.createFullId(id, index);
+            TokenModel     tokenModel = tokenManager.getToken(fullId);
+            MutableBalance balance    = tokenWallet.getBalance(fullId);
+            if (tokenModel == null
                     || balance == null
                     || balance.amountAvailableForWithdrawal() == 0) {
+                inventory.clear(i);
+            } else if (tokenModel.getWalletViewState() != TokenWalletViewState.WITHDRAWABLE) {
+                balance.deposit(is.getAmount());
                 inventory.clear(i);
             } else {
                 if (balance.amountAvailableForWithdrawal() < is.getAmount())
@@ -283,11 +292,15 @@ public class EnjPlayer implements Listener {
                 continue;
             }
 
-            String         fullId  = TokenUtils.createFullId(id, index);
-            MutableBalance balance = tokenWallet.getBalance(fullId);
-            if (!tokenManager.hasToken(fullId)
+            String         fullId     = TokenUtils.createFullId(id, index);
+            TokenModel     tokenModel = tokenManager.getToken(fullId);
+            MutableBalance balance    = tokenWallet.getBalance(fullId);
+            if (tokenModel == null
                     || balance == null
                     || balance.amountAvailableForWithdrawal() == 0) {
+                setEquipment(slot, null);
+            } else  if (tokenModel.getWalletViewState() != TokenWalletViewState.WITHDRAWABLE) {
+                balance.deposit(is.getAmount());
                 setEquipment(slot, null);
             } else {
                 if (balance.amountAvailableForWithdrawal() < is.getAmount())

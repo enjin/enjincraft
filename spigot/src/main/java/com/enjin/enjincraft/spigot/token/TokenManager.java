@@ -8,6 +8,7 @@ import com.enjin.enjincraft.spigot.player.PlayerManager;
 import com.enjin.enjincraft.spigot.storage.Database;
 import com.enjin.enjincraft.spigot.util.StringUtils;
 import com.enjin.enjincraft.spigot.util.TokenUtils;
+import com.enjin.enjincraft.spigot.wallet.TokenWalletViewState;
 import com.enjin.sdk.TrustedPlatformClient;
 import com.enjin.sdk.graphql.GraphQLResponse;
 import com.enjin.sdk.models.token.GetToken;
@@ -44,6 +45,7 @@ public class TokenManager {
     public static final int TOKEN_DUPLICATENICKNAME    = 420; // Token alternate id already exists
     public static final int TOKEN_HASNICKNAME          = 421; // Token has alternate
     public static final int TOKEN_INVALIDNICKNAME      = 422; // Nickname cannot be a valid token id
+    public static final int TOKEN_HASWALLETVIEWSTATE   = 430; // Token has wallet view state
     public static final int PERM_ADDED_DUPLICATEPERM   = 440; // Permission is a duplicate
     public static final int PERM_ADDED_BLACKLISTED     = 441; // Permission is blacklisted
     public static final int PERM_REMOVED_NOPERMONTOKEN = 450; // Permission is not assigned
@@ -122,18 +124,22 @@ public class TokenManager {
             tokens.forEach(tokenModel -> {
                 try {
                     String baseFullId = TokenUtils.createFullId(tokenModel.getId());
-                    if (!hasToken(baseFullId)) { // Creates base model if it does not already exist
-                        int status = saveToken(TokenModel.builder()
+                    TokenModel baseModel = getToken(baseFullId);
+                    if (baseModel == null) { // Creates base model if it does not already exist
+                        baseModel = TokenModel.builder()
                                 .id(tokenModel.getId())
                                 .nonfungible(true)
                                 .nbt("")
-                                .build());
+                                .build();
+
+                        int status = saveToken(baseModel);
                         if (status != TOKEN_CREATE_SUCCESS)
                             throw new Exception(String.format("Unable to create the base model for token %s", tokenModel.getId()));
                     }
 
                     setNameFromURIFromBase(tokenModel);
                     tokenModel.setNonfungible(true);
+                    tokenModel.setWalletViewState(baseModel.getWalletViewState());
                     tokenModel.load();
 
                     boolean changed = tokenModel.applyBlacklist(bootstrap.getConfig().getPermissionBlacklist());
@@ -433,6 +439,40 @@ public class TokenManager {
             if (tokenModel.getId().equals(baseModel.getId()))
                 setNameFromURIFromBase(tokenModel);
         }
+    }
+
+    public int updateWalletViewState(@NonNull String id, @NonNull TokenWalletViewState walletViewState) {
+        TokenModel baseModel = getToken(id);
+        if (baseModel == null)
+            return TOKEN_NOSUCHTOKEN;
+        else if (!baseModel.isBaseModel())
+            return TOKEN_ISNOTBASE;
+        else if (baseModel.getWalletViewState() == walletViewState)
+            return TOKEN_HASWALLETVIEWSTATE;
+
+        baseModel.setWalletViewState(walletViewState);
+
+        int status = updateTokenConf(baseModel, false);
+        if (status == TOKEN_UPDATE_SUCCESS) {
+            // Updates non-fungible instances if non-fungible
+            if (baseModel.isNonfungible()) {
+                tokenModels.values().forEach(tokenModel -> {
+                    String tokenId    = tokenModel.getId();
+                    String tokenIndex = tokenModel.getIndex();
+                    if (!tokenId.equals(baseModel.getId()) || tokenIndex.equals(TokenUtils.BASE_INDEX))
+                        return;
+
+                    tokenModel.setWalletViewState(walletViewState);
+                });
+            }
+
+            bootstrap.getPlayerManager()
+                    .getPlayers()
+                    .values()
+                    .forEach(EnjPlayer::validateInventory);
+        }
+
+        return status;
     }
 
     public int deleteTokenConf(@NonNull String id) {
