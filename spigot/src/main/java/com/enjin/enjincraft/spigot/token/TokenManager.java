@@ -129,7 +129,6 @@ public class TokenManager {
                         baseModel = TokenModel.builder()
                                 .id(tokenModel.getId())
                                 .nonfungible(true)
-                                .nbt("")
                                 .build();
 
                         int status = saveToken(baseModel);
@@ -181,7 +180,6 @@ public class TokenManager {
                         .id(tokenModel.getId())
                         .nonfungible(true)
                         .alternateId(tokenModel.getAlternateId())
-                        .nbt("")
                         .build());
                 if (baseStatus != TOKEN_CREATE_SUCCESS)
                     return TOKEN_CREATE_FAILEDNFTBASE;
@@ -526,7 +524,7 @@ public class TokenManager {
 
     private int deleteFromDB(TokenModel tokenModel) {
         try {
-            bootstrap.db().deleteToken(tokenModel.getId(), tokenModel.getIndex());
+            bootstrap.db().deleteTokenInstance(tokenModel.getId(), tokenModel.getIndex());
         } catch (Exception e) {
             bootstrap.log(e);
             return TOKEN_DELETE_FAILED;
