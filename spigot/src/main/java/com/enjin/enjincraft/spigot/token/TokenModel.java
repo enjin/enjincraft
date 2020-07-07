@@ -16,6 +16,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -33,11 +35,13 @@ public class TokenModel {
     public static final String NBT_INDEX       = "enjinTokenIndex";
     public static final String NBT_NONFUNGIBLE = "enjinTokenNF";
 
+    @Getter
+    private transient boolean loaded;
     private transient NBTContainer nbtContainer;
     private transient NBTItem nbtItem;
-    @Getter
+    @Getter(onMethod_ = {@Nullable})
     private transient String displayName;
-    @Getter(onMethod_ = {@Synchronized("uriLock")})
+    @Getter(onMethod_ = {@Nullable, @Synchronized("uriLock")})
     @Setter(value = AccessLevel.PROTECTED, onMethod_ = {@Synchronized("uriLock")})
     private transient String nameFromURI;
     @Getter
@@ -47,27 +51,27 @@ public class TokenModel {
     // Mutexes
     private final transient Object uriLock = new Object();
 
-    @Getter
+    @Getter(onMethod_ = {@NotNull})
     private String id;
-    @Getter
+    @Getter(onMethod_ = {@NotNull})
     private String index = TokenUtils.BASE_INDEX;
     @Getter
     @Setter(AccessLevel.PACKAGE)
     private boolean nonfungible = false;
-    @Getter
+    @Getter(onMethod_ = {@Nullable})
     @Setter(AccessLevel.PROTECTED)
     @SerializedName("alternate-id")
     private String alternateId;
-    @Getter
+    @Getter(onMethod_ = {@Nullable})
     @Setter(AccessLevel.PROTECTED)
     private String nbt;
     @SerializedName("assignable-permissions")
     private List<TokenPermission> assignablePermissions = new ArrayList<>();
-    @Getter(onMethod_ = {@Synchronized("uriLock")})
+    @Getter(onMethod_ = {@Nullable, @Synchronized("uriLock")})
     @Setter(value = AccessLevel.PROTECTED, onMethod_ = {@Synchronized("uriLock")})
     @SerializedName("metadata-uri")
     private String metadataURI;
-    @Getter
+    @Getter(onMethod_ = {@NotNull})
     @Setter(AccessLevel.PROTECTED)
     private TokenWalletViewState walletViewState = TokenWalletViewState.WITHDRAWABLE;
 
@@ -82,9 +86,16 @@ public class TokenModel {
      */
     public TokenModel(@NonNull String id,
                       String alternateId,
-                      @NonNull String nbt,
+                      String nbt,
                       List<TokenPermission> assignablePermissions) {
-        this(id, null, null, alternateId, nbt, assignablePermissions, null, null);
+        this(id,
+                null,
+                null,
+                alternateId,
+                nbt,
+                assignablePermissions,
+                null,
+                null);
     }
 
     /**
@@ -110,7 +121,7 @@ public class TokenModel {
                       String index,
                       Boolean nonfungible,
                       String alternateId,
-                      @NonNull String nbt,
+                      String nbt,
                       List<TokenPermission> assignablePermissions,
                       String metadataURI,
                       TokenWalletViewState walletViewState) throws IllegalArgumentException, IllegalStateException {
@@ -153,18 +164,18 @@ public class TokenModel {
     public TokenModel(ResultSet rs) throws SQLException {
         this(rs.getString("token_id"),
                 rs.getString("token_index"),
-                null,
-                null,
+                rs.getBoolean("nonfungible"),
+                rs.getString("alternate_id"),
                 rs.getString("nbt"),
                 null,
-                null,
-                null);
+                rs.getString("metadata_uri"),
+                TokenWalletViewState.valueOf(rs.getString("wallet_view_state")));
     }
 
     protected void load() {
         loadNameFromURI();
 
-        if (nonfungible && isBaseModel())
+        if (nbt == null || nonfungible && isBaseModel())
             return;
 
         nbtContainer = new NBTContainer(nbt);
@@ -176,6 +187,8 @@ public class TokenModel {
         ItemMeta meta = nbtItem.getItem().getItemMeta();
         if (meta != null)
             displayName = meta.getDisplayName();
+
+        loaded = true;
     }
 
     protected void loadNameFromURI() {
@@ -293,13 +306,17 @@ public class TokenModel {
         return changed;
     }
 
+    @Nullable
     public ItemStack getItemStack() {
         return getItemStack(false);
     }
 
+    @Nullable
     public ItemStack getItemStack(boolean raw) {
-        ItemStack is;
+        if (!isLoaded())
+            return null;
 
+        ItemStack is;
         if (raw) {
             NBTItem nbtItem = new NBTItem(NBTItem.convertNBTtoItem(nbtContainer));
             nbtItem.removeKey(NBT_ID);
@@ -328,8 +345,12 @@ public class TokenModel {
         return is;
     }
 
+    @Nullable
     public ItemStack getWalletViewItemStack() {
         ItemStack is   = getItemStack();
+        if (is == null)
+            return null;
+
         ItemMeta  meta = is.getItemMeta();
         if (meta == null)
             return is;
@@ -422,10 +443,12 @@ public class TokenModel {
         return nonfungible && !isBaseModel();
     }
 
+    @NotNull
     public String getFullId() {
         return TokenUtils.createFullId(this);
     }
 
+    @NotNull
     public List<TokenPermission> getAssignablePermissions() {
         List<TokenPermission> permissions = new ArrayList<>(assignablePermissions.size());
 
@@ -437,6 +460,7 @@ public class TokenModel {
         return permissions;
     }
 
+    @NotNull
     public Map<String, Set<String>> getPermissionsMap() {
         Map<String, Set<String>> permissionMap = new HashMap<>();
 
@@ -453,6 +477,7 @@ public class TokenModel {
         return permissionMap;
     }
 
+    @Nullable
     public TokenPermission getPermission(String permission) {
         TokenPermission tokenPerm = new TokenPermission(permission);
 
