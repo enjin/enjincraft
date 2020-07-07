@@ -1,3 +1,3 @@
 SELECT "nbt"
-FROM token
+FROM token_instance
 WHERE "token_id" = ? AND "token_index" = ?;
