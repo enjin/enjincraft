@@ -114,6 +114,9 @@ public class CmdToken extends EnjCommand {
             if (tokenManager.hasToken(tokenId)) {
                 Translation.COMMAND_TOKEN_CREATE_DUPLICATE.send(sender);
                 return;
+            } else if (!TokenUtils.isValidId(tokenId)) {
+                Translation.COMMAND_TOKEN_INVALIDID.send(sender);
+                return;
             } else if (alternateId != null && !TokenManager.isValidAlternateId(alternateId)) {
                 Translation.COMMAND_TOKEN_NICKNAME_INVALID.send(sender);
                 return;
@@ -139,6 +142,9 @@ public class CmdToken extends EnjCommand {
                     break;
                 case TokenManager.TOKEN_INVALIDNICKNAME:
                     Translation.COMMAND_TOKEN_NICKNAME_INVALID.send(sender);
+                    break;
+                case TokenManager.TOKEN_INVALIDDATA:
+                    Translation.COMMAND_TOKEN_INVALIDDATA.send(sender);
                     break;
                 case TokenManager.TOKEN_CREATE_FAILED:
                     Translation.COMMAND_TOKEN_CREATE_FAILED.send(sender);
@@ -245,8 +251,11 @@ public class CmdToken extends EnjCommand {
                 case TokenManager.TOKEN_ALREADYEXISTS:
                     Translation.COMMAND_TOKEN_CREATENFT_DUPLICATE.send(sender);
                     break;
+                case TokenManager.TOKEN_DUPLICATENICKNAME:
+                    Translation.COMMAND_TOKEN_NICKNAME_DUPLICATE.send(sender);
+                    break;
                 case TokenManager.TOKEN_INVALIDDATA:
-                    Translation.COMMAND_TOKEN_INVALIDFULLID.send(sender);
+                    Translation.COMMAND_TOKEN_INVALIDDATA.send(sender);
                     break;
                 case TokenManager.TOKEN_CREATE_FAILED:
                     Translation.COMMAND_TOKEN_CREATE_FAILED.send(sender);

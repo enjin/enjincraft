@@ -16,6 +16,8 @@ import com.enjin.sdk.models.token.Token;
 import com.enjin.sdk.services.notification.NotificationsService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NonNull;
 
 import java.io.*;
@@ -63,10 +65,15 @@ public class TokenManager {
             .create();
 
     private SpigotBootstrap bootstrap;
+    @Getter(AccessLevel.PACKAGE)
     private File dir;
     private Map<String, TokenModel> tokenModels = new HashMap<>();
     private Map<String, String> alternateIds = new HashMap<>();
     private TokenPermissionGraph permGraph = new TokenPermissionGraph();
+
+    public TokenManager(SpigotBootstrap bootstrap) {
+        this(bootstrap, bootstrap.plugin().getDataFolder());
+    }
 
     public TokenManager(SpigotBootstrap bootstrap, File dir) {
         this.bootstrap = bootstrap;
@@ -78,102 +85,73 @@ public class TokenManager {
         alternateIds.clear();
         permGraph.clear();
 
-        if (!dir.exists()) {
-            try {
-                if (!dir.mkdirs())
-                    throw new Exception("Unable to create token directory");
-            } catch (Exception e) {
-                bootstrap.log(e);
-                return;
-            }
-        }
-
-        File[] files;
-        try {
-            files = dir.listFiles();
-            if (files == null)
-                throw new Exception(String.format("Path \"%s\" does not denote a directory", dir.getPath()));
-        } catch (Exception e) {
-            bootstrap.log(e);
-            return;
-        }
-
-        // Load tokens from directory (assumed fungible and non-fungible base)
-        for (File file : files) {
-            // Ignores directories and non-JSON files
-            if (file.isDirectory() || !file.getName().endsWith(JSON_EXT))
-                continue;
-
-            try (InputStreamReader in = new InputStreamReader(new FileInputStream(file), CHARSET)) {
-                TokenModel tokenModel = gson.fromJson(in, TokenModel.class);
-                tokenModel.load();
-
-                boolean changed = tokenModel.applyBlacklist(bootstrap.getConfig().getPermissionBlacklist());
-                if (changed)
-                    updateTokenConf(tokenModel);
-
-                cacheAndSubscribe(tokenModel);
-            } catch (Exception e) {
-                bootstrap.log(e);
-            }
-        }
-
-        // Load tokens from db (assumed non-fungible)
+        // Load tokens from db
         try {
             List<TokenModel> tokens = bootstrap.db().getAllTokens();
+            List<TokenModel> nftInstances = new ArrayList<>();
+
+            // Loads base tokens
             tokens.forEach(tokenModel -> {
                 try {
-                    String baseFullId = TokenUtils.createFullId(tokenModel.getId());
-                    TokenModel baseModel = getToken(baseFullId);
-                    if (baseModel == null) { // Creates base model if it does not already exist
-                        baseModel = TokenModel.builder()
-                                .id(tokenModel.getId())
-                                .nonfungible(true)
-                                .build();
-
-                        int status = saveToken(baseModel);
-                        if (status != TOKEN_CREATE_SUCCESS)
-                            throw new Exception(String.format("Unable to create the base model for token %s", tokenModel.getId()));
+                    if (tokenModel.isNonFungibleInstance()) { // Store NFT instances for later
+                        nftInstances.add(tokenModel);
+                        return;
                     }
 
-                    setNameFromURIFromBase(tokenModel);
-                    tokenModel.setNonfungible(true);
-                    tokenModel.setWalletViewState(baseModel.getWalletViewState());
                     tokenModel.load();
 
                     boolean changed = tokenModel.applyBlacklist(bootstrap.getConfig().getPermissionBlacklist());
                     if (changed)
-                        updateTokenConf(tokenModel);
+                        updateTokenPermissionsDatabase(tokenModel);
 
                     cacheAndSubscribe(tokenModel);
                 } catch (Exception e) {
                     bootstrap.log(e);
                 }
             });
-        } catch (SQLException e) {
+
+            // Loads NFT instances
+            nftInstances.forEach(tokenModel -> {
+                try {
+                    String baseFullId = TokenUtils.createFullId(tokenModel.getId());
+                    if (!tokenModels.containsKey(baseFullId))
+                        throw new IllegalStateException(String.format("Base model does not exist for non-fungible token %s", tokenModel.getId()));
+
+                    tokenModel.load();
+
+                    boolean changed = tokenModel.applyBlacklist(bootstrap.getConfig().getPermissionBlacklist());
+                    if (changed)
+                        updateTokenPermissionsDatabase(tokenModel);
+
+                    cacheAndSubscribe(tokenModel);
+                } catch (Exception e) {
+                    bootstrap.log(e);
+                }
+            });
+        } catch (Exception e) {
             bootstrap.log(e);
         }
 
-        LegacyTokenConverter legacyConverter = new LegacyTokenConverter(bootstrap);
-        if (legacyConverter.fileExists())
-            legacyConverter.process();
+        // Process legacy token configuration files
+        new LegacyTokenConverter(bootstrap).process();
     }
 
     public int saveToken(@NonNull TokenModel tokenModel) {
-        // Prevents tokens with the same alternate id from existing
         String alternateId = tokenModel.getAlternateId();
         String otherFullId = alternateIds.get(alternateId);
-        if (alternateId != null && otherFullId != null && !otherFullId.equals(tokenModel.getFullId()))
+        if (alternateId != null
+                && otherFullId != null
+                && !otherFullId.equals(tokenModel.getFullId())) { // Alternate id already exists
             return TOKEN_DUPLICATENICKNAME;
-        else if (alternateId != null && !isValidAlternateId(alternateId))
+        } else if (alternateId != null && !isValidAlternateId(alternateId)) { // Alternate id is invalid
             return TOKEN_INVALIDNICKNAME;
-        else if (tokenModel.isMarkedForDeletion())
+        } else if (tokenModel.isMarkedForDeletion()) { // Token is marked for deletion
             return TOKEN_MARKEDFORDELETION;
-
-        tokenModel.applyBlacklist(bootstrap.getConfig().getPermissionBlacklist());
-
-        int status;
-        if (tokenModel.isNonFungibleInstance()) {
+        } else if (!TokenUtils.isValidFullId(tokenModel.getFullId())) { // Token has invalid data
+            return TOKEN_INVALIDDATA;
+        } else if (tokenModels.containsKey(tokenModel.getFullId())) { // Token already exists
+            return TOKEN_ALREADYEXISTS;
+        } else if (tokenModel.isNonFungibleInstance()) { // Token is instance of a non-fungible token
             // Creates the base model if necessary
             if (!hasToken(tokenModel.getId())) {
                 int baseStatus = saveToken(TokenModel.builder()
@@ -186,12 +164,11 @@ public class TokenManager {
             }
 
             setNameFromURIFromBase(tokenModel);
-
-            status = saveTokenToDatabase(tokenModel);
-        } else {
-            status = saveTokenToJson(tokenModel);
         }
 
+        tokenModel.applyBlacklist(bootstrap.getConfig().getPermissionBlacklist());
+
+        int status = saveTokenToDatabase(tokenModel);
         if (status == TOKEN_CREATE_SUCCESS) {
             cacheAndSubscribe(tokenModel);
 
@@ -233,15 +210,12 @@ public class TokenManager {
     }
 
     private int saveTokenToDatabase(TokenModel tokenModel) {
-        if (!TokenUtils.isValidFullId(tokenModel.getFullId()) || tokenModel.getNbt() == null)
-            return TOKEN_INVALIDDATA;
-
-        TokenModel other = tokenModels.get(tokenModel.getFullId());
-        if (other != null)
-            return TOKEN_ALREADYEXISTS;
-
+        Database db = bootstrap.db();
         try {
-            bootstrap.db().createToken(tokenModel);
+            if (tokenModel.isBaseModel())
+                db.createToken(tokenModel);
+
+            db.createTokenInstance(tokenModel);
             tokenModel.load();
         } catch (Exception e) {
             bootstrap.log(e);
@@ -271,13 +245,20 @@ public class TokenManager {
     public int updateTokenConf(@NonNull TokenModel tokenModel, boolean updateOnPlayers) {
         if (tokenModel.isMarkedForDeletion())
             return TOKEN_MARKEDFORDELETION;
+        else if (!TokenUtils.isValidFullId(tokenModel.getFullId()))
+            return TOKEN_INVALIDDATA;
+        else if (!tokenModels.containsKey(tokenModel.getFullId()))
+            return TOKEN_NOSUCHTOKEN;
 
-        tokenModel.applyBlacklist(bootstrap.getConfig().getPermissionBlacklist());
+        int status = updateTokenConfDatabase(tokenModel);
+        if (status == TOKEN_UPDATE_SUCCESS) {
+            tokenModels.put(tokenModel.getFullId(), tokenModel);
 
-        if (tokenModel.isNonFungibleInstance())
-            return updateTokenConfDatabase(tokenModel, updateOnPlayers);
-        else
-            return updateTokenConfJson(tokenModel, updateOnPlayers);
+            if (updateOnPlayers)
+                updateTokenOnPlayers(tokenModel.getFullId());
+        }
+
+        return status;
     }
 
     private int updateTokenConfJson(TokenModel tokenModel, boolean updateOnPlayers) {
@@ -303,38 +284,51 @@ public class TokenManager {
         return TOKEN_UPDATE_SUCCESS;
     }
 
-    private int updateTokenConfDatabase(TokenModel tokenModel, boolean updateOnPlayers) {
-        String id    = tokenModel.getId();
-        String index = tokenModel.getIndex();
-        String nbt   = tokenModel.getNbt();
-
-        if (!TokenUtils.isValidId(id) || !TokenUtils.isValidIndex(index) || nbt == null)
-            return TOKEN_INVALIDDATA;
-
-        TokenModel oldModel = tokenModels.get(tokenModel.getFullId());
-        boolean    newNbt   = oldModel != null && !nbt.equals(oldModel.getNbt());
-
+    private int updateTokenConfDatabase(TokenModel tokenModel) {
         Database db = bootstrap.db();
         try {
-            // Removes any permissions from the db that the token no longer has
-            Set<TokenPermission> permissions = new HashSet<>(db.getPermissions(id, index));
-            permissions.removeAll(tokenModel.getAssignablePermissions());
-            for (TokenPermission permission : permissions) {
-                db.deletePermission(id, index, permission);
-            }
+            if (tokenModel.isBaseModel())
+                db.updateToken(tokenModel);
 
-            db.updateNBT(id, index, nbt);
+            db.updateTokenInstance(tokenModel);
             tokenModel.load();
-            tokenModels.put(tokenModel.getFullId(), tokenModel);
         } catch (Exception e) {
             bootstrap.log(e);
             return TOKEN_UPDATE_FAILED;
         }
 
-        if (newNbt && updateOnPlayers)
-            updateTokenOnPlayers(tokenModel.getFullId());
-
         return TOKEN_UPDATE_SUCCESS;
+    }
+
+    private void updateTokenPermissionsDatabase(TokenModel tokenModel) throws SQLException {
+        Database db = bootstrap.db();
+        String id    = tokenModel.getId();
+        String index = tokenModel.getIndex();
+        List<TokenPermission> dbPermissions;
+
+        // Removes any permissions from the database that the token no longer has
+        dbPermissions = db.getPermissions(id, index);
+        for (TokenPermission permission : dbPermissions) {
+            TokenPermission other = tokenModel.getPermission(permission.getPermission());
+            if (other != null)
+                permission.removeWorlds(other.getWorlds());
+
+            if (!permission.getWorlds().isEmpty())
+                db.deletePermission(id, index, permission);
+        }
+
+        // Adds any permissions from the token that are not in the database
+        dbPermissions = db.getPermissions(id, index);
+        for (TokenPermission permission : tokenModel.getAssignablePermissions()) {
+            int idx = dbPermissions.indexOf(permission);
+            if (idx >= 0) {
+                TokenPermission other = dbPermissions.get(idx);
+                permission.removeWorlds(other.getWorlds());
+            }
+
+            if (!permission.getWorlds().isEmpty())
+                db.addPermission(id, index, permission);
+        }
     }
 
     private void updateTokenOnPlayers(String fullId) {
@@ -366,7 +360,7 @@ public class TokenManager {
         tokenModel.setAlternateId(newAlternateId);
         alternateIds.put(newAlternateId, id);
 
-        return updateTokenConfJson(tokenModel, false);
+        return updateTokenConf(tokenModel, false);
     }
 
     public int updateMetadataURI(String id, String metadataURI) {
@@ -380,7 +374,7 @@ public class TokenManager {
             metadataURI = null;
 
         tokenModel.setMetadataURI(metadataURI);
-        int status = updateTokenConfJson(tokenModel, true);
+        int status = updateTokenConf(tokenModel, true);
 
         // Updates necessary non-fungible tokens if the model is the base model
         if (status == TOKEN_UPDATE_SUCCESS
@@ -475,12 +469,16 @@ public class TokenManager {
 
     public int deleteTokenConf(@NonNull String id) {
         TokenModel tokenModel = getToken(id);
-        if (tokenModel == null)
+        if (tokenModel == null) {
             return TOKEN_NOSUCHTOKEN;
+        } else if (tokenModel.isNonfungible() && tokenModel.isBaseModel()) {
+            for (TokenModel other : tokenModels.values()) {
+                if (other.getId().equals(tokenModel.getId()) && other != tokenModel)
+                    return TOKEN_DELETE_FAILEDNFTBASE;
+            }
+        }
 
-        int status = tokenModel.isNonFungibleInstance()
-                ? deleteFromDB(tokenModel)
-                : deleteJson(tokenModel);
+        int status = deleteFromDB(tokenModel);
         if (status == TOKEN_DELETE_SUCCESS) {
             tokenModel.setMarkedForDeletion(true);
             uncacheAndUnsubscribe(tokenModel);
@@ -524,7 +522,10 @@ public class TokenManager {
 
     private int deleteFromDB(TokenModel tokenModel) {
         try {
-            bootstrap.db().deleteTokenInstance(tokenModel.getId(), tokenModel.getIndex());
+            if (tokenModel.isBaseModel())
+                bootstrap.db().deleteToken(tokenModel.getId());
+            else
+                bootstrap.db().deleteTokenInstance(tokenModel.getId(), tokenModel.getIndex());
         } catch (Exception e) {
             bootstrap.log(e);
             return TOKEN_DELETE_FAILED;
@@ -561,13 +562,11 @@ public class TokenManager {
 
         permGraph.addTokenPerm(perm, tokenModel.getFullId(), world);
 
-        int status = tokenModel.isNonFungibleInstance()
-                ? addPermissionToDB(perm, tokenModel.getFullId(), Collections.singleton(world))
-                : updateTokenConf(tokenModel);
-        addPermissionToPlayers(perm, tokenModel.getFullId(), world);
-
-        if (status != TOKEN_UPDATE_SUCCESS)
+        int status = addPermissionToDB(perm, tokenModel.getFullId(), Collections.singleton(world));
+        if (status != TOKEN_UPDATE_SUCCESS) {
+            addPermissionToPlayers(perm, tokenModel.getFullId(), world);
             return status;
+        }
 
         return PERM_ADDED_SUCCESS;
     }
@@ -588,13 +587,11 @@ public class TokenManager {
 
         permGraph.addTokenPerm(perm, tokenModel.getFullId(), worlds);
 
-        int status = tokenModel.isNonFungibleInstance()
-                ? addPermissionToDB(perm, tokenModel.getFullId(), worlds)
-                : updateTokenConf(tokenModel);
-        worlds.forEach(world -> addPermissionToPlayers(perm, tokenModel.getFullId(), world));
-
-        if (status != TOKEN_UPDATE_SUCCESS)
+        int status = addPermissionToDB(perm, tokenModel.getFullId(), worlds);
+        if (status != TOKEN_UPDATE_SUCCESS) {
+            worlds.forEach(world -> addPermissionToPlayers(perm, tokenModel.getFullId(), world));
             return status;
+        }
 
         return PERM_ADDED_SUCCESS;
     }
@@ -647,13 +644,11 @@ public class TokenManager {
 
         permGraph.removeTokenPerm(perm, tokenModel.getFullId(), world);
 
-        int status = tokenModel.isNonFungibleInstance()
-                ? removePermissionFromDB(perm, tokenModel.getFullId(), Collections.singleton(world))
-                : updateTokenConfJson(tokenModel, false);
-        removePermissionFromPlayers(perm, world);
-
-        if (status != TOKEN_UPDATE_SUCCESS)
+        int status = removePermissionFromDB(perm, tokenModel.getFullId(), Collections.singleton(world));
+        if (status != TOKEN_UPDATE_SUCCESS) {
+            removePermissionFromPlayers(perm, world);
             return status;
+        }
 
         return PERM_REMOVED_SUCCESS;
     }
@@ -671,13 +666,11 @@ public class TokenManager {
 
         permGraph.removeTokenPerm(perm, tokenModel.getFullId(), worlds);
 
-        int status = tokenModel.isNonFungibleInstance()
-                ? removePermissionFromDB(perm, tokenModel.getFullId(), worlds)
-                : updateTokenConfJson(tokenModel, false);
-        worlds.forEach(world -> removePermissionFromPlayers(perm, world));
-
-        if (status != TOKEN_UPDATE_SUCCESS)
+        int status = removePermissionFromDB(perm, tokenModel.getFullId(), worlds);
+        if (status != TOKEN_UPDATE_SUCCESS) {
+            worlds.forEach(world -> removePermissionFromPlayers(perm, world));
             return status;
+        }
 
         return PERM_REMOVED_SUCCESS;
     }

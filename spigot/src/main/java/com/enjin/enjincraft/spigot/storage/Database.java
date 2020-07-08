@@ -274,16 +274,14 @@ public class Database {
     public int updateToken(@NonNull TokenModel tokenModel) throws SQLException {
         String id              = tokenModel.getId();
         String alternateId     = tokenModel.getAlternateId();
-        String metadataURI     = tokenModel.getMetadataURI();
         String walletViewState = tokenModel.getWalletViewState().name();
         synchronized (updateToken) {
             updateToken.clearParameters();
 
             try {
                 updateToken.setString(1, alternateId);
-                updateToken.setString(2, metadataURI);
-                updateToken.setString(3, walletViewState);
-                updateToken.setString(4, id);
+                updateToken.setString(2, walletViewState);
+                updateToken.setString(3, id);
 
                 return updateToken.executeUpdate();
             } finally {
@@ -296,7 +294,7 @@ public class Database {
         }
     }
 
-    public int updateInstance(@NonNull TokenModel tokenModel) throws SQLException {
+    public int updateTokenInstance(@NonNull TokenModel tokenModel) throws SQLException {
         String id          = tokenModel.getId();
         String index       = tokenModel.getIndex();
         String nbt         = tokenModel.getNbt();
@@ -319,6 +317,12 @@ public class Database {
                 }
             }
         }
+    }
+
+    public int[] addPermission(@NonNull String tokenId,
+                               @NonNull String tokenIndex,
+                               @NonNull TokenPermission permission) throws SQLException {
+        return addPermission(tokenId, tokenIndex, permission.getPermission(), permission.getWorlds());
     }
 
     public int[] addPermission(@NonNull String tokenId,
