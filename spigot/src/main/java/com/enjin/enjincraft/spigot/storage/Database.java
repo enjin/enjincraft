@@ -6,7 +6,6 @@ import com.enjin.enjincraft.spigot.token.TokenModel;
 import com.enjin.enjincraft.spigot.token.TokenPermission;
 import com.enjin.enjincraft.spigot.trade.TradeSession;
 import lombok.NonNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -37,9 +36,8 @@ public class Database {
     public static final String TEMPLATE_DELETE_TOKEN_INSTANCE = "token/DeleteTokenInstance";
     public static final String TEMPLATE_GET_TOKEN = "token/GetToken";
     public static final String TEMPLATE_GET_ALL_TOKENS = "token/GetAllTokens";
-    public static final String TEMPLATE_GET_NBT = "token/CreateToken";
-    public static final String TEMPLATE_UPDATE_NBT = "token/UpdateNBT";
     public static final String TEMPLATE_UPDATE_TOKEN = "token/UpdateToken";
+    public static final String TEMPLATE_UPDATE_TOKEN_INSTANCE = "token/UpdateTokenInstance";
 
     // Token permission statement paths
     public static final String TEMPLATE_ADD_PERMISSION = "token/AddPermission";
@@ -66,9 +64,8 @@ public class Database {
     private final PreparedStatement deleteTokenInstance;
     private final PreparedStatement getToken;
     private final PreparedStatement getAllTokens;
-    private final PreparedStatement getNBT;
-    private final PreparedStatement updateNBT;
     private final PreparedStatement updateToken;
+    private final PreparedStatement updateTokenInstance;
 
     // Token permission
     private final PreparedStatement addPermission;
@@ -98,8 +95,7 @@ public class Database {
         this.deleteTokenInstance = createPreparedStatement(TEMPLATE_DELETE_TOKEN_INSTANCE);
         this.getToken = createPreparedStatement(TEMPLATE_GET_TOKEN);
         this.getAllTokens = createPreparedStatement(TEMPLATE_GET_ALL_TOKENS);
-        this.getNBT = createPreparedStatement(TEMPLATE_GET_NBT);
-        this.updateNBT = createPreparedStatement(TEMPLATE_UPDATE_NBT);
+        this.updateTokenInstance = createPreparedStatement(TEMPLATE_UPDATE_TOKEN_INSTANCE);
         this.updateToken = createPreparedStatement(TEMPLATE_UPDATE_TOKEN);
 
         // Token permission prepared statements
@@ -133,7 +129,6 @@ public class Database {
         String  id              = tokenModel.getId();
         boolean nonfungible     = tokenModel.isNonfungible();
         String  alternateId     = tokenModel.getAlternateId();
-        String  metadataURI     = tokenModel.getMetadataURI();
         String  walletViewState = tokenModel.getWalletViewState().name();
         synchronized (createToken) {
             createToken.clearParameters();
@@ -142,14 +137,9 @@ public class Database {
                 createToken.setString(1, id);
                 createToken.setBoolean(2, nonfungible);
                 createToken.setString(3, alternateId);
-                createToken.setString(4, metadataURI);
-                createToken.setString(5, walletViewState);
+                createToken.setString(4, walletViewState);
 
-                int result = createToken.executeUpdate();
-
-                createTokenInstance(tokenModel);
-
-                return result;
+                return createToken.executeUpdate();
             } finally {
                 try {
                     createToken.clearParameters();
@@ -161,9 +151,10 @@ public class Database {
     }
 
     public int createTokenInstance(@NonNull TokenModel tokenModel) throws SQLException {
-        String id    = tokenModel.getId();
-        String index = tokenModel.getIndex();
-        String nbt   = tokenModel.getNbt();
+        String id          = tokenModel.getId();
+        String index       = tokenModel.getIndex();
+        String nbt         = tokenModel.getNbt();
+        String metadataURI = tokenModel.getMetadataURI();
         synchronized (createTokenInstance) {
             createTokenInstance.clearParameters();
 
@@ -171,15 +162,9 @@ public class Database {
                 createTokenInstance.setString(1, id);
                 createTokenInstance.setString(2, index);
                 createTokenInstance.setString(3, nbt);
+                createTokenInstance.setString(4, metadataURI);
 
-                int result = createTokenInstance.executeUpdate();
-
-                List<TokenPermission> permissions = tokenModel.getAssignablePermissions();
-                for (TokenPermission permission : permissions) {
-                    addPermission(id, index, permission.getPermission(), permission.getWorlds());
-                }
-
-                return result;
+                return createTokenInstance.executeUpdate();
             } finally {
                 try {
                     createTokenInstance.clearParameters();
@@ -286,59 +271,9 @@ public class Database {
         return tokens;
     }
 
-    @Nullable
-    public String getNBT(@NonNull String tokenId,
-                         @NonNull String tokenIndex) throws SQLException {
-        synchronized (getNBT) {
-            getNBT.clearParameters();
-
-            try {
-                getNBT.setString(1, tokenId);
-                getNBT.setString(2, tokenIndex);
-
-                try (ResultSet rs = getNBT.executeQuery()) {
-                    if (rs.getFetchSize() > 1)
-                        return null;
-
-                    return rs.getString("nbt");
-                }
-            } finally {
-                try {
-                    getNBT.clearParameters();
-                } catch (SQLException e) {
-                    bootstrap.log(e);
-                }
-            }
-        }
-    }
-
-    public int updateNBT(@NonNull String tokenId,
-                         @NonNull String tokenIndex,
-                         String nbt) throws SQLException {
-        synchronized (updateNBT) {
-            updateNBT.clearParameters();
-
-            try {
-                updateNBT.setString(1, nbt);
-                updateNBT.setString(2, tokenId);
-                updateNBT.setString(3, tokenIndex);
-
-                return updateNBT.executeUpdate();
-            } finally {
-                try {
-                    updateNBT.clearParameters();
-                } catch (SQLException e) {
-                    bootstrap.log(e);
-                }
-            }
-        }
-    }
-
     public int updateToken(@NonNull TokenModel tokenModel) throws SQLException {
         String id              = tokenModel.getId();
-        String index           = tokenModel.getIndex();
         String alternateId     = tokenModel.getAlternateId();
-        String nbt             = tokenModel.getNbt();
         String metadataURI     = tokenModel.getMetadataURI();
         String walletViewState = tokenModel.getWalletViewState().name();
         synchronized (updateToken) {
@@ -350,14 +285,35 @@ public class Database {
                 updateToken.setString(3, walletViewState);
                 updateToken.setString(4, id);
 
-                int result = updateToken.executeUpdate();
-
-                updateNBT(id, index, nbt);
-
-                return result;
+                return updateToken.executeUpdate();
             } finally {
                 try {
                     updateToken.clearParameters();
+                } catch (SQLException e) {
+                    bootstrap.log(e);
+                }
+            }
+        }
+    }
+
+    public int updateInstance(@NonNull TokenModel tokenModel) throws SQLException {
+        String id          = tokenModel.getId();
+        String index       = tokenModel.getIndex();
+        String nbt         = tokenModel.getNbt();
+        String metadataURI = tokenModel.getMetadataURI();
+        synchronized (updateTokenInstance) {
+            updateTokenInstance.clearParameters();
+
+            try {
+                updateTokenInstance.setString(1, nbt);
+                updateTokenInstance.setString(2, metadataURI);
+                updateTokenInstance.setString(3, id);
+                updateTokenInstance.setString(4, index);
+
+                return updateTokenInstance.executeUpdate();
+            } finally {
+                try {
+                    updateTokenInstance.clearParameters();
                 } catch (SQLException e) {
                     bootstrap.log(e);
                 }
