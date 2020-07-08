@@ -93,7 +93,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
 
             // Init Managers
             playerManager = new PlayerManager(this);
-            tokenManager = new TokenManager(this, plugin.getDataFolder());
+            tokenManager = new TokenManager(this);
             tradeManager = new TradeManager(this);
             tokenManager.loadTokens();
 

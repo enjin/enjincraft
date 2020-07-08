@@ -26,6 +26,7 @@ import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @NoArgsConstructor
 @ToString
@@ -175,7 +176,7 @@ public class TokenModel {
     protected void load() {
         loadNameFromURI();
 
-        if (nbt == null || nonfungible && isBaseModel())
+        if (StringUtils.isEmpty(nbt) || nonfungible && isBaseModel())
             return;
 
         nbtContainer = new NBTContainer(nbt);
@@ -450,14 +451,9 @@ public class TokenModel {
 
     @NotNull
     public List<TokenPermission> getAssignablePermissions() {
-        List<TokenPermission> permissions = new ArrayList<>(assignablePermissions.size());
-
-        assignablePermissions.forEach(permission -> {
-            TokenPermission copy = new TokenPermission(permission.getPermission(), permission.getWorlds());
-            permissions.add(copy);
-        });
-
-        return permissions;
+        return assignablePermissions.stream()
+                .map(TokenPermission::new)
+                .collect(Collectors.toList());
     }
 
     @NotNull
