@@ -2,6 +2,7 @@ INSERT INTO token_instance
 (
     "token_id",
     "token_index",
-    "nbt"
+    "nbt",
+    "metadata_uri"
 )
-VALUES (?, ?, ?);
+VALUES (?, ?, ?, ?);

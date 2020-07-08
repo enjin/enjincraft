@@ -11,7 +11,9 @@ import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,14 +21,18 @@ import java.util.Map;
 
 public class LegacyTokenConverter {
 
+    public static final String BACKUP_EXT = ".backup";
     public static final String FILE_NAME = "tokens.json";
+    @Deprecated
     public static final String FILE_BACKUP_NAME = "tokens.json.backup";
     public static final String TOKENS = "tokens";
     public static final String ITEM_NAME_KEY = "displayName";
     public static final String ITEM_MATERIAL_KEY = "material";
     public static final String ITEM_LORE_KEY = "lore";
 
-    private Gson gson = new Gson();
+    private Gson gson = new GsonBuilder()
+            .registerTypeAdapter(TokenPermission.class, new TokenPermission.TokenPermissionDeserializer())
+            .create();
     private SpigotBootstrap bootstrap;
     private File file;
 
@@ -36,6 +42,43 @@ public class LegacyTokenConverter {
     }
 
     public void process() {
+        processTokenDir();
+        processDataFolderFiles();
+    }
+
+    private void processTokenDir() {
+        TokenManager tokenManager = bootstrap.getTokenManager();
+
+        File dir = tokenManager.getDir();
+        if (!dir.exists())
+            return;
+
+        File[] files = dir.listFiles();
+        if (files == null)
+            return;
+
+        for (File file : files) {
+            if (file.isDirectory() || !file.getName().endsWith(TokenManager.JSON_EXT))
+                continue;
+
+            try (InputStreamReader in = new InputStreamReader(new FileInputStream(file), TokenManager.CHARSET)) {
+                tokenManager.saveToken(gson.fromJson(in, TokenModel.class));
+            } catch (Exception e) {
+                bootstrap.log(e);
+            } finally {
+                try {
+                    if (!createBackup(file))
+                        throw new Exception(String.format("Unable to setup legacy tokens backup file in \"%s\" for %s",
+                                file.getParent(),
+                                file.getName()));
+                } catch (Exception e) {
+                    bootstrap.log(e);
+                }
+            }
+        }
+    }
+
+    private void processDataFolderFiles() {
         if (!file.exists())
             return;
 
@@ -68,12 +111,15 @@ public class LegacyTokenConverter {
             }
 
             convert(tokens);
-
-            fr.close();
-            if (!file.renameTo(new File(file.getParent(), FILE_BACKUP_NAME)))
-                throw new Exception("Unable to setup legacy tokens backup file");
         } catch (Exception e) {
             bootstrap.log(e);
+        } finally {
+            try {
+                if (!createBackup(file))
+                    throw new Exception(String.format("Unable to setup legacy tokens backup file in \"%s\"", file.getParent()));
+            } catch (Exception e) {
+                bootstrap.log(e);
+            }
         }
     }
 
@@ -150,6 +196,21 @@ public class LegacyTokenConverter {
 
     public boolean fileExists() {
         return file.exists();
+    }
+
+    private static boolean createBackup(File file) {
+        int count = 0;
+        String newName;
+        File other;
+        do {
+            newName = count == 0
+                    ? file.getName()
+                    : String.format("%s (%d)", file.getName(), count);
+            other = new File(file.getParent(), newName);
+            count++;
+        } while (other.exists());
+
+        return file.renameTo(new File(file.getParent(), String.format("%s%s", newName, BACKUP_EXT)));
     }
 
 }
