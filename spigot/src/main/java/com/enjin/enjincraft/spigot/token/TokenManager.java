@@ -54,6 +54,8 @@ public class TokenManager {
     public static final int PERM_ISGLOBAL              = 460; // Permission is global
 
     public static final Charset CHARSET = StandardCharsets.UTF_8;
+    public static final String EXPORT_DIR = "exported tokens";
+    public static final String IMPORT_DIR = "tokens";
     public static final String JSON_EXT = ".json";
     public static final int JSON_EXT_LENGTH = JSON_EXT.length();
     public static final String GLOBAL = "*";
@@ -77,7 +79,7 @@ public class TokenManager {
 
     public TokenManager(SpigotBootstrap bootstrap, File dir) {
         this.bootstrap = bootstrap;
-        this.dir = new File(dir, "tokens");
+        this.dir = new File(dir, IMPORT_DIR);
     }
 
     public void loadTokens() {
@@ -186,29 +188,6 @@ public class TokenManager {
         return status;
     }
 
-    private int saveTokenToJson(TokenModel tokenModel) {
-        if (!dir.exists()) {
-            try {
-                if (!dir.mkdirs())
-                    throw new Exception("Unable to create token directory");
-            } catch (Exception e) {
-                bootstrap.log(e);
-                return TOKEN_CREATE_FAILED;
-            }
-        }
-
-        File file = new File(dir, String.format("%s%s", tokenModel.getId(), JSON_EXT));
-        try (OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(file, false), CHARSET)) {
-            gson.toJson(tokenModel, out);
-            tokenModel.load();
-        } catch (Exception e) {
-            bootstrap.log(e);
-            return TOKEN_CREATE_FAILED;
-        }
-
-        return TOKEN_CREATE_SUCCESS;
-    }
-
     private int saveTokenToDatabase(TokenModel tokenModel) {
         Database db = bootstrap.db();
         try {
@@ -259,29 +238,6 @@ public class TokenManager {
         }
 
         return status;
-    }
-
-    private int updateTokenConfJson(TokenModel tokenModel, boolean updateOnPlayers) {
-        if (!dir.exists())
-            return saveToken(tokenModel);
-
-        TokenModel oldModel = tokenModels.get(tokenModel.getFullId());
-        boolean    newNbt   = oldModel != null && !tokenModel.getNbt().equals(oldModel.getNbt());
-
-        File file = new File(dir, String.format("%s%s", tokenModel.getId(), JSON_EXT));
-        try (OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(file, false), CHARSET)) {
-            gson.toJson(tokenModel, out);
-            tokenModel.load();
-            tokenModels.put(tokenModel.getFullId(), tokenModel);
-        } catch (Exception e) {
-            bootstrap.log(e);
-            return TOKEN_UPDATE_FAILED;
-        }
-
-        if (newNbt && updateOnPlayers)
-            updateTokenOnPlayers(tokenModel.getFullId());
-
-        return TOKEN_UPDATE_SUCCESS;
     }
 
     private int updateTokenConfDatabase(TokenModel tokenModel) {
@@ -495,29 +451,6 @@ public class TokenManager {
         }
 
         return status;
-    }
-
-    private int deleteJson(TokenModel tokenModel) {
-        // Prevents deletion of the non-fungible base model while instances of the NFT still exist
-        if (tokenModel.isNonfungible() && tokenModel.isBaseModel()) {
-            for (TokenModel other : tokenModels.values()) {
-                if (other.getId().equals(tokenModel.getId()) && other != tokenModel)
-                    return TOKEN_DELETE_FAILEDNFTBASE;
-            }
-        }
-
-        if (dir.exists()) {
-            try {
-                File file = new File(dir, String.format("%s%s", tokenModel.getId(), JSON_EXT));
-                if (!file.delete())
-                    throw new Exception(String.format("Unable to delete token conf file %s", file.getName()));
-            } catch (Exception e) {
-                bootstrap.log(e);
-                return TOKEN_DELETE_FAILED;
-            }
-        }
-
-        return TOKEN_DELETE_SUCCESS;
     }
 
     private int deleteFromDB(TokenModel tokenModel) {
@@ -785,6 +718,74 @@ public class TokenManager {
         NotificationsService service = bootstrap.getNotificationsService();
         if (service != null && service.isSubscribedToToken(tokenModel.getId()))
             service.unsubscribeToToken(tokenModel.getId());
+    }
+
+    public int exportTokens() {
+        File dir = createExportDir();
+        if (dir == null
+                || !dir.exists()
+                || !dir.isDirectory())
+            return TOKEN_CREATE_FAILED;
+
+        for (TokenModel tokenModel : tokenModels.values()) {
+            if (exportToken(tokenModel, dir) != TOKEN_CREATE_SUCCESS)
+                return TOKEN_CREATE_FAILED;
+        }
+
+        return TOKEN_CREATE_SUCCESS;
+    }
+
+    public int exportToken(@NonNull String id) {
+        TokenModel tokenModel = getToken(id);
+        if (tokenModel == null)
+            return TOKEN_NOSUCHTOKEN;
+
+        File dir = createExportDir();
+        if (dir == null
+                || !dir.exists()
+                || !dir.isDirectory())
+            return TOKEN_CREATE_FAILED;
+
+        // Checks if non-fungible instances need to also be exported
+        if (tokenModel.isNonfungible()
+                && tokenModel.isBaseModel()
+                && (id.equals(tokenModel.getId()) || id.equals(tokenModel.getAlternateId()))) {
+            for (TokenModel model : tokenModels.values()) {
+                if (model != tokenModel
+                        && model.getId().equals(tokenModel.getId())
+                        && exportToken(model, dir) != TOKEN_CREATE_SUCCESS)
+                    return TOKEN_CREATE_FAILED;
+            }
+        }
+
+        return exportToken(tokenModel, createExportDir());
+    }
+
+    private File createExportDir() {
+        File dir = new File(bootstrap.plugin().getDataFolder(), EXPORT_DIR);
+        if (!dir.exists()) {
+            try {
+                if (!dir.mkdirs())
+                    throw new Exception("Unable to create token export directory");
+            } catch (Exception e) {
+                bootstrap.log(e);
+                return null;
+            }
+        }
+
+        return dir;
+    }
+
+    private int exportToken(TokenModel tokenModel, File exportDir) {
+        File file = new File(exportDir, String.format("%s%s", tokenModel.getFullId(), JSON_EXT));
+        try (OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(file, false), CHARSET)) {
+            gson.toJson(tokenModel, out);
+        } catch (Exception e) {
+            bootstrap.log(e);
+            return TOKEN_CREATE_FAILED;
+        }
+
+        return TOKEN_CREATE_SUCCESS;
     }
 
     public static boolean isValidAlternateId(String alternateId) {
