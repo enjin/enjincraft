@@ -58,7 +58,7 @@ public class Conf {
     }
 
     public boolean isIdLoreEnabled() {
-        return internalConf.getBoolean(ConfPath.SHOW_ID_LORE.path(), true);
+        return internalConf.getBoolean(ConfPath.SHOW_ID_LORE.path(), false);
     }
 
     public String getSentryUrl() {
