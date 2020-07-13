@@ -37,7 +37,7 @@ public class CmdToken extends EnjCommand {
         this.requiredArgs.add("operation");
         this.requirements = CommandRequirements.builder()
                 .withPermission(Permission.CMD_TOKEN)
-                .withAllowedSenderTypes(SenderType.PLAYER)
+                .withAllowedSenderTypes(SenderType.PLAYER, SenderType.CONSOLE)
                 .build();
         this.subCommands.add(new CmdCreate(bootstrap, this));
         this.subCommands.add(new CmdCreateNFT(bootstrap, this));
@@ -53,6 +53,7 @@ public class CmdToken extends EnjCommand {
         this.subCommands.add(new CmdRemoveURI(bootstrap, this));
         this.subCommands.add(new CmdSetWalletView(bootstrap, this));
         this.subCommands.add(new CmdList(bootstrap, this));
+        this.subCommands.add(new CmdExport(bootstrap, this));
     }
 
     @Override
@@ -114,6 +115,9 @@ public class CmdToken extends EnjCommand {
             if (tokenManager.hasToken(tokenId)) {
                 Translation.COMMAND_TOKEN_CREATE_DUPLICATE.send(sender);
                 return;
+            } else if (!TokenUtils.isValidId(tokenId)) {
+                Translation.COMMAND_TOKEN_INVALIDID.send(sender);
+                return;
             } else if (alternateId != null && !TokenManager.isValidAlternateId(alternateId)) {
                 Translation.COMMAND_TOKEN_NICKNAME_INVALID.send(sender);
                 return;
@@ -139,6 +143,9 @@ public class CmdToken extends EnjCommand {
                     break;
                 case TokenManager.TOKEN_INVALIDNICKNAME:
                     Translation.COMMAND_TOKEN_NICKNAME_INVALID.send(sender);
+                    break;
+                case TokenManager.TOKEN_INVALIDDATA:
+                    Translation.COMMAND_TOKEN_INVALIDDATA.send(sender);
                     break;
                 case TokenManager.TOKEN_CREATE_FAILED:
                     Translation.COMMAND_TOKEN_CREATE_FAILED.send(sender);
@@ -245,8 +252,11 @@ public class CmdToken extends EnjCommand {
                 case TokenManager.TOKEN_ALREADYEXISTS:
                     Translation.COMMAND_TOKEN_CREATENFT_DUPLICATE.send(sender);
                     break;
+                case TokenManager.TOKEN_DUPLICATENICKNAME:
+                    Translation.COMMAND_TOKEN_NICKNAME_DUPLICATE.send(sender);
+                    break;
                 case TokenManager.TOKEN_INVALIDDATA:
-                    Translation.COMMAND_TOKEN_INVALIDFULLID.send(sender);
+                    Translation.COMMAND_TOKEN_INVALIDDATA.send(sender);
                     break;
                 case TokenManager.TOKEN_CREATE_FAILED:
                     Translation.COMMAND_TOKEN_CREATE_FAILED.send(sender);
@@ -1154,6 +1164,81 @@ public class CmdToken extends EnjCommand {
         @Override
         public Translation getUsageTranslation() {
             return Translation.COMMAND_TOKEN_LIST_DESCRIPTION;
+        }
+
+    }
+
+    public class CmdExport extends EnjCommand {
+
+        public CmdExport(SpigotBootstrap bootstrap, EnjCommand parent) {
+            super(bootstrap, parent);
+            this.aliases.add("export");
+            this.optionalArgs.add("id");
+            this.optionalArgs.add("index");
+            this.requirements = CommandRequirements.builder()
+                    .withAllowedSenderTypes(SenderType.CONSOLE)
+                    .build();
+        }
+
+        @Override
+        public void execute(CommandContext context) {
+            if (context.args.size() > optionalArgs.size())
+                return;
+
+            String id = context.args.size() > 0
+                    ? context.args.get(0)
+                    : null;
+            String index = context.args.size() > 1
+                    ? context.args.get(1)
+                    : null;
+            CommandSender sender = context.sender;
+
+            TokenManager tokenManager = bootstrap.getTokenManager();
+
+            int result;
+            if (id != null && index != null) {
+                TokenModel baseModel = tokenManager.getToken(id);
+                if (baseModel != null)
+                    id = baseModel.getId();
+
+                String fullId;
+                try {
+                    fullId = TokenUtils.createFullId(id, parseIndex(index));
+                } catch (IllegalArgumentException e) {
+                    Translation.COMMAND_TOKEN_INVALIDFULLID.send(sender);
+                    return;
+                } catch (Exception e) {
+                    Translation.ERRORS_EXCEPTION.send(sender, e);
+                    bootstrap.log(e);
+                    return;
+                }
+
+                result = tokenManager.exportToken(fullId);
+            } else if (id != null) {
+                result = tokenManager.exportToken(id);
+            } else {
+                result = tokenManager.exportTokens();
+            }
+
+            switch (result) {
+                case TokenManager.TOKEN_CREATE_SUCCESS:
+                    Translation.COMMAND_TOKEN_EXPORT_SUCCESS.send(sender);
+                    break;
+                case TokenManager.TOKEN_NOSUCHTOKEN:
+                    Translation.COMMAND_TOKEN_NOSUCHTOKEN.send(sender);
+                    break;
+                case TokenManager.TOKEN_CREATE_FAILED:
+                    Translation.COMMAND_TOKEN_EXPORT_FAILED.send(sender);
+                    break;
+                default:
+                    bootstrap.debug(String.format("Unhandled result when exporting token(s) (status: %d)", result));
+                    break;
+            }
+        }
+
+        @Override
+        public Translation getUsageTranslation() {
+            return Translation.COMMAND_TOKEN_EXPORT_DESCRIPTION;
         }
 
     }

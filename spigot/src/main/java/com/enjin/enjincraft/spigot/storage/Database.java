@@ -23,24 +23,27 @@ public class Database {
 
     // Setup statement paths
     public static final String SETUP_TOKEN_STATEMENT = "token/SetupToken";
-    public static final String SETUP_TOKENPERMS_STATEMENT = "token/SetupTokenPermissions";
+    public static final String SETUP_TOKEN_INSTANCE_STATEMENT = "token/SetupTokenInstance";
+    public static final String SETUP_TOKEN_PERMISSION_STATEMENT = "token/SetupTokenPermission";
     public static final String SETUP_TRADE_STATEMENT = "trade/SetupTrade";
     @Deprecated
     public static final String TEMPLATE_SETUP_DB = "SetupDatabase";
 
     // Token statement paths
     public static final String TEMPLATE_CREATE_TOKEN = "token/CreateToken";
+    public static final String TEMPLATE_CREATE_TOKEN_INSTANCE = "token/CreateTokenInstance";
     public static final String TEMPLATE_DELETE_TOKEN = "token/DeleteToken";
+    public static final String TEMPLATE_DELETE_TOKEN_INSTANCE = "token/DeleteTokenInstance";
     public static final String TEMPLATE_GET_TOKEN = "token/GetToken";
     public static final String TEMPLATE_GET_ALL_TOKENS = "token/GetAllTokens";
-    public static final String TEMPLATE_GET_NBT = "token/CreateToken";
-    public static final String TEMPLATE_UPDATE_NBT = "token/UpdateNBT";
+    public static final String TEMPLATE_UPDATE_TOKEN = "token/UpdateToken";
+    public static final String TEMPLATE_UPDATE_TOKEN_INSTANCE = "token/UpdateTokenInstance";
 
     // Token permission statement paths
     public static final String TEMPLATE_ADD_PERMISSION = "token/AddPermission";
     public static final String TEMPLATE_DELETE_PERMISSION = "token/DeletePermission";
     public static final String TEMPLATE_GET_PERMISSIONS = "token/GetPermissions";
-    public static final String TEMPLATE_GET_PERMISSIONWORLDS = "token/GetPermissionWorlds";
+    public static final String TEMPLATE_GET_PERMISSION_WORLDS = "token/GetPermissionWorlds";
 
     // Trade statement paths
     public static final String TEMPLATE_CREATE_TRADE = "trade/CreateTrade";
@@ -56,11 +59,13 @@ public class Database {
 
     // Token
     private final PreparedStatement createToken;
+    private final PreparedStatement createTokenInstance;
     private final PreparedStatement deleteToken;
+    private final PreparedStatement deleteTokenInstance;
     private final PreparedStatement getToken;
     private final PreparedStatement getAllTokens;
-    private final PreparedStatement getNBT;
-    private final PreparedStatement updateNBT;
+    private final PreparedStatement updateToken;
+    private final PreparedStatement updateTokenInstance;
 
     // Token permission
     private final PreparedStatement addPermission;
@@ -85,17 +90,19 @@ public class Database {
 
         // Token prepared statements
         this.createToken = createPreparedStatement(TEMPLATE_CREATE_TOKEN);
+        this.createTokenInstance = createPreparedStatement(TEMPLATE_CREATE_TOKEN_INSTANCE);
         this.deleteToken = createPreparedStatement(TEMPLATE_DELETE_TOKEN);
+        this.deleteTokenInstance = createPreparedStatement(TEMPLATE_DELETE_TOKEN_INSTANCE);
         this.getToken = createPreparedStatement(TEMPLATE_GET_TOKEN);
         this.getAllTokens = createPreparedStatement(TEMPLATE_GET_ALL_TOKENS);
-        this.getNBT = createPreparedStatement(TEMPLATE_GET_NBT);
-        this.updateNBT = createPreparedStatement(TEMPLATE_UPDATE_NBT);
+        this.updateTokenInstance = createPreparedStatement(TEMPLATE_UPDATE_TOKEN_INSTANCE);
+        this.updateToken = createPreparedStatement(TEMPLATE_UPDATE_TOKEN);
 
         // Token permission prepared statements
         this.addPermission = createPreparedStatement(TEMPLATE_ADD_PERMISSION);
         this.deletePermission = createPreparedStatement(TEMPLATE_DELETE_PERMISSION);
         this.getPermissions = createPreparedStatement(TEMPLATE_GET_PERMISSIONS);
-        this.getPermissionWorlds = createPreparedStatement(TEMPLATE_GET_PERMISSIONWORLDS);
+        this.getPermissionWorlds = createPreparedStatement(TEMPLATE_GET_PERMISSION_WORLDS);
 
         // Trade prepared statements
         this.createTrade = createPreparedStatement(TEMPLATE_CREATE_TRADE);
@@ -108,32 +115,31 @@ public class Database {
 
     private void init() throws SQLException, IOException {
         Statement setupStatement = conn.createStatement();
+
         setupStatement.addBatch("PRAGMA foreign_keys=ON");
         setupStatement.addBatch(loadSqlFile(SETUP_TOKEN_STATEMENT));
-        setupStatement.addBatch(loadSqlFile(SETUP_TOKENPERMS_STATEMENT));
+        setupStatement.addBatch(loadSqlFile(SETUP_TOKEN_INSTANCE_STATEMENT));
+        setupStatement.addBatch(loadSqlFile(SETUP_TOKEN_PERMISSION_STATEMENT));
         setupStatement.addBatch(loadSqlFile(SETUP_TRADE_STATEMENT));
+
         setupStatement.executeBatch();
     }
 
     public int createToken(@NonNull TokenModel tokenModel) throws SQLException {
-        String id    = tokenModel.getId();
-        String index = tokenModel.getIndex();
+        String  id              = tokenModel.getId();
+        boolean nonfungible     = tokenModel.isNonfungible();
+        String  alternateId     = tokenModel.getAlternateId();
+        String  walletViewState = tokenModel.getWalletViewState().name();
         synchronized (createToken) {
             createToken.clearParameters();
 
             try {
                 createToken.setString(1, id);
-                createToken.setString(2, index);
-                createToken.setString(3, tokenModel.getNbt());
+                createToken.setBoolean(2, nonfungible);
+                createToken.setString(3, alternateId);
+                createToken.setString(4, walletViewState);
 
-                int result = createToken.executeUpdate();
-
-                List<TokenPermission> permissions = tokenModel.getAssignablePermissions();
-                for (TokenPermission permission : permissions) {
-                    addPermission(id, index, permission.getPermission(), permission.getWorlds());
-                }
-
-                return result;
+                return createToken.executeUpdate();
             } finally {
                 try {
                     createToken.clearParameters();
@@ -144,14 +150,37 @@ public class Database {
         }
     }
 
-    public int deleteToken(@NonNull String tokenId,
-                           @NonNull String tokenIndex) throws SQLException {
+    public int createTokenInstance(@NonNull TokenModel tokenModel) throws SQLException {
+        String id          = tokenModel.getId();
+        String index       = tokenModel.getIndex();
+        String nbt         = tokenModel.getNbt();
+        String metadataURI = tokenModel.getMetadataURI();
+        synchronized (createTokenInstance) {
+            createTokenInstance.clearParameters();
+
+            try {
+                createTokenInstance.setString(1, id);
+                createTokenInstance.setString(2, index);
+                createTokenInstance.setString(3, nbt);
+                createTokenInstance.setString(4, metadataURI);
+
+                return createTokenInstance.executeUpdate();
+            } finally {
+                try {
+                    createTokenInstance.clearParameters();
+                } catch (SQLException e) {
+                    bootstrap.log(e);
+                }
+            }
+        }
+    }
+
+    public int deleteToken(@NonNull String tokenId) throws SQLException {
         synchronized (deleteToken) {
             deleteToken.clearParameters();
 
             try {
                 deleteToken.setString(1, tokenId);
-                deleteToken.setString(2, tokenIndex);
 
                 return deleteToken.executeUpdate();
             } finally {
@@ -164,14 +193,34 @@ public class Database {
         }
     }
 
+    public int deleteTokenInstance(@NonNull String tokenId,
+                                   @NonNull String tokenIndex) throws SQLException {
+        synchronized (deleteTokenInstance) {
+            deleteTokenInstance.clearParameters();
+
+            try {
+                deleteTokenInstance.setString(1, tokenId);
+                deleteTokenInstance.setString(2, tokenIndex);
+
+                return deleteTokenInstance.executeUpdate();
+            } finally {
+                try {
+                    deleteTokenInstance.clearParameters();
+                } catch (SQLException e) {
+                    bootstrap.log(e);
+                }
+            }
+        }
+    }
+
     public TokenModel getToken(@NonNull String tokenId,
-                               @NonNull String tokenIndex) throws SQLException {
+                               String tokenIndex) throws SQLException {
         synchronized (getToken) {
             getToken.clearParameters();
 
             try {
-                getToken.setString(1, tokenId);
-                getToken.setString(2, tokenIndex);
+                getToken.setString(1, tokenIndex);
+                getToken.setString(2, tokenId);
 
                 try (ResultSet rs = getToken.executeQuery()) {
                     if (rs.next()) {
@@ -222,24 +271,22 @@ public class Database {
         return tokens;
     }
 
-    public String getNBT(@NonNull String tokenId,
-                         @NonNull String tokenIndex) throws SQLException {
-        synchronized (getNBT) {
-            getNBT.clearParameters();
+    public int updateToken(@NonNull TokenModel tokenModel) throws SQLException {
+        String id              = tokenModel.getId();
+        String alternateId     = tokenModel.getAlternateId();
+        String walletViewState = tokenModel.getWalletViewState().name();
+        synchronized (updateToken) {
+            updateToken.clearParameters();
 
             try {
-                getNBT.setString(1, tokenId);
-                getNBT.setString(2, tokenIndex);
+                updateToken.setString(1, alternateId);
+                updateToken.setString(2, walletViewState);
+                updateToken.setString(3, id);
 
-                try (ResultSet rs = getNBT.executeQuery()) {
-                    if (rs.getFetchSize() > 1)
-                        return null;
-
-                    return rs.getString("nbt");
-                }
+                return updateToken.executeUpdate();
             } finally {
                 try {
-                    getNBT.clearParameters();
+                    updateToken.clearParameters();
                 } catch (SQLException e) {
                     bootstrap.log(e);
                 }
@@ -247,26 +294,35 @@ public class Database {
         }
     }
 
-    public int updateNBT(@NonNull String tokenId,
-                         @NonNull String tokenIndex,
-                         @NonNull String nbt) throws SQLException {
-        synchronized (updateNBT) {
-            updateNBT.clearParameters();
+    public int updateTokenInstance(@NonNull TokenModel tokenModel) throws SQLException {
+        String id          = tokenModel.getId();
+        String index       = tokenModel.getIndex();
+        String nbt         = tokenModel.getNbt();
+        String metadataURI = tokenModel.getMetadataURI();
+        synchronized (updateTokenInstance) {
+            updateTokenInstance.clearParameters();
 
             try {
-                updateNBT.setString(1, nbt);
-                updateNBT.setString(2, tokenId);
-                updateNBT.setString(3, tokenIndex);
+                updateTokenInstance.setString(1, nbt);
+                updateTokenInstance.setString(2, metadataURI);
+                updateTokenInstance.setString(3, id);
+                updateTokenInstance.setString(4, index);
 
-                return updateNBT.executeUpdate();
+                return updateTokenInstance.executeUpdate();
             } finally {
                 try {
-                    updateNBT.clearParameters();
+                    updateTokenInstance.clearParameters();
                 } catch (SQLException e) {
                     bootstrap.log(e);
                 }
             }
         }
+    }
+
+    public int[] addPermission(@NonNull String tokenId,
+                               @NonNull String tokenIndex,
+                               @NonNull TokenPermission permission) throws SQLException {
+        return addPermission(tokenId, tokenIndex, permission.getPermission(), permission.getWorlds());
     }
 
     public int[] addPermission(@NonNull String tokenId,
