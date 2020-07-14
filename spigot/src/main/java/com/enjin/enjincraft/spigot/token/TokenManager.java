@@ -34,6 +34,10 @@ public class TokenManager {
     public static final int TOKEN_DELETE_SUCCESS       = 202; // Token was deleted
     public static final int PERM_ADDED_SUCCESS         = 210; // Permission was added
     public static final int PERM_REMOVED_SUCCESS       = 250; // Permission was removed
+    public static final int TOKEN_EXPORT_SUCCESS       = 290; // Token(s) were exported
+    public static final int TOKEN_IMPORT_SUCCESS       = 291; // Token(s) were imported
+    public static final int TOKEN_EXPORT_EMPTY         = 292; // No token to export
+    public static final int TOKEN_IMPORT_EMPTY         = 293; // No token to import
     public static final int TOKEN_CREATE_FAILED        = 400; // Token was not created
     public static final int TOKEN_UPDATE_FAILED        = 401; // Token was not updated
     public static final int TOKEN_DELETE_FAILED        = 402; // Token was not deleted
@@ -52,6 +56,10 @@ public class TokenManager {
     public static final int PERM_ADDED_BLACKLISTED     = 441; // Permission is blacklisted
     public static final int PERM_REMOVED_NOPERMONTOKEN = 450; // Permission is not assigned
     public static final int PERM_ISGLOBAL              = 460; // Permission is global
+    public static final int TOKEN_EXPORT_FAILED        = 490; // Token(s) were not exported
+    public static final int TOKEN_IMPORT_FAILED        = 491; // Token(s) were not imported
+    public static final int TOKEN_EXPORT_PARTIAL       = 492; // Some token(s) were not exported
+    public static final int TOKEN_IMPORT_PARTIAL       = 493; // Some token(s) were not imported
 
     public static final Charset CHARSET = StandardCharsets.UTF_8;
     public static final String EXPORT_DIR = "exported tokens";
@@ -149,7 +157,7 @@ public class TokenManager {
             return TOKEN_INVALIDNICKNAME;
         } else if (tokenModel.isMarkedForDeletion()) { // Token is marked for deletion
             return TOKEN_MARKEDFORDELETION;
-        } else if (!TokenUtils.isValidFullId(tokenModel.getFullId())) { // Token has invalid data
+        } else if (!isValidToken(tokenModel)) { // Token has invalid data
             return TOKEN_INVALIDDATA;
         } else if (tokenModels.containsKey(tokenModel.getFullId())) { // Token already exists
             return TOKEN_ALREADYEXISTS;
@@ -211,7 +219,7 @@ public class TokenManager {
 
         if (tokenModel.isBaseModel() && tokenModel.getAlternateId() != null) {
             if (isValidAlternateId(tokenModel.getAlternateId()))
-                alternateIds.put(tokenModel.getAlternateId(), TokenUtils.createFullId(tokenModel.getId()));
+                alternateIds.put(tokenModel.getAlternateId(), tokenModel.getFullId());
             else
                 bootstrap.debug(String.format("Invalid alternate id for token \"%s\"", tokenModel.getId()));
         }
@@ -224,7 +232,7 @@ public class TokenManager {
     public int updateTokenConf(@NonNull TokenModel tokenModel, boolean updateOnPlayers) {
         if (tokenModel.isMarkedForDeletion())
             return TOKEN_MARKEDFORDELETION;
-        else if (!TokenUtils.isValidFullId(tokenModel.getFullId()))
+        else if (!isValidToken(tokenModel))
             return TOKEN_INVALIDDATA;
         else if (!tokenModels.containsKey(tokenModel.getFullId()))
             return TOKEN_NOSUCHTOKEN;
@@ -402,17 +410,7 @@ public class TokenManager {
 
         int status = updateTokenConf(baseModel, false);
         if (status == TOKEN_UPDATE_SUCCESS) {
-            // Updates non-fungible instances if non-fungible
-            if (baseModel.isNonfungible()) {
-                tokenModels.values().forEach(tokenModel -> {
-                    String tokenId    = tokenModel.getId();
-                    String tokenIndex = tokenModel.getIndex();
-                    if (!tokenId.equals(baseModel.getId()) || tokenIndex.equals(TokenUtils.BASE_INDEX))
-                        return;
-
-                    tokenModel.setWalletViewState(walletViewState);
-                });
-            }
+            updateNonfungibleInstances(baseModel);
 
             bootstrap.getPlayerManager()
                     .getPlayers()
@@ -421,6 +419,28 @@ public class TokenManager {
         }
 
         return status;
+    }
+
+    private void updateNonfungibleInstances(TokenModel baseModel) {
+        if (baseModel == null
+                || !baseModel.isBaseModel()
+                || !baseModel.isNonfungible())
+            return;
+
+        String alternateId = baseModel.getAlternateId();
+        TokenWalletViewState walletViewState = baseModel.getWalletViewState();
+        boolean markedForDeletion = baseModel.isMarkedForDeletion();
+
+        tokenModels.values().forEach(tokenModel -> {
+            String tokenId    = tokenModel.getId();
+            String tokenIndex = tokenModel.getIndex();
+            if (!tokenId.equals(baseModel.getId()) || tokenIndex.equals(TokenUtils.BASE_INDEX))
+                return;
+
+            tokenModel.setAlternateId(alternateId);
+            tokenModel.setWalletViewState(walletViewState);
+            tokenModel.setMarkedForDeletion(markedForDeletion);
+        });
     }
 
     public int deleteTokenConf(@NonNull String id) {
@@ -725,14 +745,27 @@ public class TokenManager {
         if (dir == null
                 || !dir.exists()
                 || !dir.isDirectory())
-            return TOKEN_CREATE_FAILED;
+            return TOKEN_EXPORT_FAILED;
 
-        for (TokenModel tokenModel : tokenModels.values()) {
-            if (exportToken(tokenModel, dir) != TOKEN_CREATE_SUCCESS)
-                return TOKEN_CREATE_FAILED;
+        Collection<TokenModel> tokens = tokenModels.values();
+        if (tokens.isEmpty())
+            return TOKEN_EXPORT_EMPTY;
+
+        int exportCount = 0;
+        for (TokenModel tokenModel : tokens) {
+            if (exportToken(tokenModel, dir) == TOKEN_EXPORT_SUCCESS) {
+                exportCount++;
+            } else {
+                // TODO: Print message to console.
+            }
         }
 
-        return TOKEN_CREATE_SUCCESS;
+        if (exportCount == tokens.size())
+            return TOKEN_EXPORT_SUCCESS;
+        else if (exportCount > 0)
+            return TOKEN_EXPORT_PARTIAL;
+        else
+            return TOKEN_EXPORT_FAILED;
     }
 
     public int exportToken(@NonNull String id) {
@@ -744,7 +777,7 @@ public class TokenManager {
         if (dir == null
                 || !dir.exists()
                 || !dir.isDirectory())
-            return TOKEN_CREATE_FAILED;
+            return TOKEN_EXPORT_FAILED;
 
         // Checks if non-fungible instances need to also be exported
         if (tokenModel.isNonfungible()
@@ -782,10 +815,125 @@ public class TokenManager {
             gson.toJson(tokenModel, out);
         } catch (Exception e) {
             bootstrap.log(e);
-            return TOKEN_CREATE_FAILED;
+            return TOKEN_EXPORT_FAILED;
         }
 
-        return TOKEN_CREATE_SUCCESS;
+        return TOKEN_EXPORT_SUCCESS;
+    }
+
+    public int importTokens() {
+        if (dir == null
+                || !dir.exists()
+                || !dir.isDirectory())
+            return TOKEN_IMPORT_FAILED;
+
+        File[] files = dir.listFiles();
+        if (files == null)
+            return TOKEN_IMPORT_FAILED;
+        else if (files.length == 0)
+            return TOKEN_IMPORT_EMPTY;
+
+        int tokenCount   = 0;
+        int importCount = 0;
+        for (File file : files) {
+            if (file.isDirectory() || !file.getName().endsWith(JSON_EXT))
+                continue;
+
+            String filename = file.getName()
+                    .replace(JSON_EXT, "")
+                    .toLowerCase();
+            if (!TokenUtils.isValidFullId(filename) && !TokenUtils.isValidId(filename))
+                continue;
+
+            tokenCount++;
+
+            int status = importToken(file);
+            if (status == TOKEN_CREATE_SUCCESS || status == TOKEN_UPDATE_SUCCESS) {
+                importCount++;
+            } else {
+                String msg;
+                switch (status) { // TODO: Handle all status cases.
+                    case TOKEN_CREATE_FAILED:
+                        msg = "\"the file could not be read\"";
+                        break;
+                    case TOKEN_UPDATE_FAILED:
+                        msg = ""; // TODO
+                        break;
+                    case TOKEN_ALREADYEXISTS:
+                        msg = ""; // TODO
+                        break;
+                    case TOKEN_INVALIDNICKNAME:
+                        msg = "\"the token does not have a valid nickname\"";
+                        break;
+                    case TOKEN_INVALIDDATA:
+                        msg = ""; // TODO
+                        break;
+                    default:
+                        msg = "\"unhandled result\"";
+                        break;
+                }
+
+                bootstrap.debug(String.format("Could not import token from file %s. Reason given: %s", filename, msg));
+            }
+        }
+
+        if (importCount > 0) {
+            bootstrap.getPlayerManager()
+                    .getPlayers()
+                    .values()
+                    .forEach(EnjPlayer::validateInventory);
+
+            if (importCount == tokenCount)
+                return TOKEN_IMPORT_SUCCESS;
+            else
+                return TOKEN_IMPORT_PARTIAL;
+        } else if (tokenCount > 0) {
+            return TOKEN_IMPORT_FAILED;
+        } else {
+            return TOKEN_IMPORT_EMPTY;
+        }
+    }
+
+    private int importToken(File file) {
+        try (InputStreamReader in = new InputStreamReader(new FileInputStream(file), CHARSET)) {
+            TokenModel tokenModel = gson.fromJson(in, TokenModel.class);
+            tokenModel.load();
+
+            if (tokenModels.containsKey(tokenModel.getFullId())) {
+                int status = updateTokenConf(tokenModel);
+                if (status == TOKEN_UPDATE_SUCCESS
+                        && tokenModel.isNonfungible()
+                        && tokenModel.isBaseModel())
+                    updateNonfungibleInstances(tokenModel);
+
+                return status;
+            }
+
+            return saveToken(tokenModel);
+        } catch (Exception e) {
+            bootstrap.log(e);
+            return TOKEN_IMPORT_FAILED;
+        }
+    }
+
+    private boolean isValidToken(TokenModel tokenModel) {
+        if (tokenModel == null
+                || !tokenModel.isValid()
+                || (tokenModel.getAlternateId() != null && !isValidAlternateId(tokenModel.getAlternateId()))
+                || (!tokenModel.isNonfungible()) && !tokenModel.isBaseModel()) {
+            return false;
+        } else if (tokenModel.isNonfungible()) {
+            TokenModel baseModel = getToken(tokenModel.getId());
+            if (baseModel == null || tokenModel.isBaseModel()) {
+                return true;
+            } else {
+                return baseModel.isNonfungible()
+                        && tokenModel.getAlternateId().equals(baseModel.getAlternateId())
+                        && tokenModel.getWalletViewState() == baseModel.getWalletViewState();
+            }
+        }
+
+        return true;
     }
 
     public static boolean isValidAlternateId(String alternateId) {
