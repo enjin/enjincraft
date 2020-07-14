@@ -54,6 +54,7 @@ public class CmdToken extends EnjCommand {
         this.subCommands.add(new CmdSetWalletView(bootstrap, this));
         this.subCommands.add(new CmdList(bootstrap, this));
         this.subCommands.add(new CmdExport(bootstrap, this));
+        this.subCommands.add(new CmdImport(bootstrap, this));
     }
 
     @Override
@@ -1221,13 +1222,19 @@ public class CmdToken extends EnjCommand {
             }
 
             switch (result) {
-                case TokenManager.TOKEN_CREATE_SUCCESS:
+                case TokenManager.TOKEN_EXPORT_SUCCESS:
                     Translation.COMMAND_TOKEN_EXPORT_SUCCESS.send(sender);
+                    break;
+                case TokenManager.TOKEN_EXPORT_EMPTY:
+                    Translation.COMMAND_TOKEN_EXPORT_EMPTY.send(sender);
                     break;
                 case TokenManager.TOKEN_NOSUCHTOKEN:
                     Translation.COMMAND_TOKEN_NOSUCHTOKEN.send(sender);
                     break;
-                case TokenManager.TOKEN_CREATE_FAILED:
+                case TokenManager.TOKEN_EXPORT_PARTIAL:
+                    Translation.COMMAND_TOKEN_EXPORT_PARTIAL.send(sender);
+                    break;
+                case TokenManager.TOKEN_EXPORT_FAILED:
                     Translation.COMMAND_TOKEN_EXPORT_FAILED.send(sender);
                     break;
                 default:
@@ -1239,6 +1246,31 @@ public class CmdToken extends EnjCommand {
         @Override
         public Translation getUsageTranslation() {
             return Translation.COMMAND_TOKEN_EXPORT_DESCRIPTION;
+        }
+
+    }
+
+    public class CmdImport extends EnjCommand {
+
+        public CmdImport(SpigotBootstrap bootstrap, EnjCommand parent) {
+            super(bootstrap, parent);
+            this.aliases.add("export");
+            this.requirements = CommandRequirements.builder()
+                    .withAllowedSenderTypes(SenderType.CONSOLE)
+                    .build();
+        }
+
+        @Override
+        public void execute(CommandContext context) {
+            if (context.args.size() > 0)
+                return;
+
+
+        }
+
+        @Override
+        public Translation getUsageTranslation() {
+            return null; // TODO: Add translation.
         }
 
     }

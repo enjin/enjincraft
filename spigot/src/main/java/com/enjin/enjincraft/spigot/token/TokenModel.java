@@ -74,6 +74,7 @@ public class TokenModel {
     private String metadataURI;
     @Getter(onMethod_ = {@NotNull})
     @Setter(AccessLevel.PROTECTED)
+    @SerializedName("wallet-view-state")
     private TokenWalletViewState walletViewState = TokenWalletViewState.WITHDRAWABLE;
 
     /**
@@ -434,6 +435,12 @@ public class TokenModel {
         }
 
         return other.removeWorlds(worlds);
+    }
+
+    public boolean isValid() {
+        return TokenUtils.isValidId(id)
+                && TokenUtils.isValidIndex(index)
+                && (nonfungible || index.equals(TokenUtils.BASE_INDEX));
     }
 
     public boolean isBaseModel() {
