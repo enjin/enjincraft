@@ -918,7 +918,6 @@ public class TokenManager {
             String fullId = TokenUtils.isValidFullId(filename)
                     ? filename
                     : TokenUtils.createFullId(filename);
-            bootstrap.debug(fullId + " " + tokenModel.getFullId());
             if (!fullId.equals(tokenModel.getFullId()))
                 return TOKEN_INVALIDDATA;
 
@@ -934,17 +933,35 @@ public class TokenManager {
                 tokenModel.setWalletViewState(baseModel.getWalletViewState());
             }
 
-            if (tokenModels.containsKey(tokenModel.getFullId())) {
-                int status = updateTokenConf(tokenModel);
-                if (status == TOKEN_UPDATE_SUCCESS
-                        && tokenModel.isBaseModel()
-                        && tokenModel.isNonfungible())
-                    updateNonfungibleInstances(tokenModel);
-
-                return status;
-            } else {
+            TokenModel other = tokenModels.get(tokenModel.getFullId());
+            if (other == null)
                 return saveToken(tokenModel);
+
+            int status = updateTokenConf(tokenModel);
+            if (status == TOKEN_UPDATE_SUCCESS) {
+                Database db = bootstrap.db();
+                String id    = tokenModel.getId();
+                String index = tokenModel.getIndex();
+
+                permGraph.removeToken(other);
+                for (TokenPermission permission : other.getAssignablePermissions()) {
+                    db.deletePermission(id, index, permission);
+                    permission.getWorlds().forEach(world -> removePermissionFromPlayers(permission.getPermission(), world));
+                }
+
+                permGraph.addToken(tokenModel);
+                for (TokenPermission permission : tokenModel.getAssignablePermissions()) {
+                    db.addPermission(id, index, permission);
+                    permission.getWorlds().forEach(world -> addPermissionToPlayers(permission.getPermission(),
+                                                                                   tokenModel.getFullId(),
+                                                                                   world));
+                }
+
+                if (tokenModel.isBaseModel() && tokenModel.isNonfungible())
+                    updateNonfungibleInstances(tokenModel);
             }
+
+            return status;
         } catch (Exception e) {
             bootstrap.log(e);
             return TOKEN_IMPORT_FAILED;
