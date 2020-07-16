@@ -97,21 +97,7 @@ public class CmdDevSend extends EnjCommand {
         SendTokenData data;
         if (tokenModel.isNonfungible()) { // Non-fungible token
             try {
-                String index = context.args.get(2);
-                if (index.startsWith("x") || index.startsWith("X")) {
-                    index = index.substring(1);
-                } else {
-                    long parsedLong = Long.parseLong(index);
-                    if (parsedLong < 1L)
-                        throw new IllegalArgumentException("Provided index is not positive");
-
-                    index = Long.toHexString(parsedLong);
-                }
-
-                index = TokenUtils.formatIndex(index);
-                if (index.equals(TokenUtils.BASE_INDEX))
-                    throw new IllegalArgumentException("Index may not be the base index");
-
+                String index = TokenUtils.parseIndex(context.args.get(2));
                 data = SendTokenData.builder()
                         .recipientAddress(targetAddr)
                         .tokenId(tokenModel.getId())
