@@ -216,4 +216,30 @@ public class TokenUtils {
                 && first.getAmount() + second.getAmount() <= maxStackSize;
     }
 
+    public static String parseIndex(@NonNull String index) throws IllegalArgumentException {
+        boolean hexString = false;
+        if (index.startsWith("x") || index.startsWith("X")) {
+            hexString = true;
+            index = index.substring(1);
+        } else if (index.startsWith("#")) {
+            index = index.substring(1);
+        }
+
+        if (index.isEmpty()) {
+            throw new IllegalArgumentException("Index may not be empty");
+        } else if (!hexString) {
+            long parsedLong = Long.parseLong(index);
+            if (parsedLong < 1L)
+                throw new IllegalArgumentException("Provided index is not positive");
+
+            index = Long.toHexString(parsedLong);
+        }
+
+        index = TokenUtils.formatIndex(index);
+        if (index.equals(TokenUtils.BASE_INDEX))
+            throw new IllegalArgumentException("Index may not be the base index");
+
+        return index;
+    }
+
 }
