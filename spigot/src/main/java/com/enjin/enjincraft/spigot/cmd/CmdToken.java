@@ -66,24 +66,6 @@ public class CmdToken extends EnjCommand {
         return Translation.COMMAND_TOKEN_DESCRIPTION;
     }
 
-    private String parseIndex(@NonNull String index) throws IllegalArgumentException {
-        if (index.length() > 1 && (index.startsWith("x") || index.startsWith("X"))) {
-            index = index.substring(1);
-        } else {
-            long parsedLong = Long.parseLong(index);
-            if (parsedLong < 1L)
-                throw new IllegalArgumentException("Provided index is not positive");
-
-            index = Long.toHexString(parsedLong);
-        }
-
-        index = TokenUtils.formatIndex(index);
-        if (index.equals(TokenUtils.BASE_INDEX))
-            throw new IllegalArgumentException("Index may not be the base index");
-
-        return index;
-    }
-
     public class CmdCreate extends EnjCommand {
 
         public CmdCreate(SpigotBootstrap bootstrap, EnjCommand parent) {
@@ -217,7 +199,7 @@ public class CmdToken extends EnjCommand {
 
             String fullId;
             try {
-                index  = parseIndex(index);
+                index  = TokenUtils.parseIndex(index);
                 fullId = TokenUtils.createFullId(id, index);
             } catch (IllegalArgumentException e) {
                 Translation.COMMAND_TOKEN_INVALIDFULLID.send(sender);
@@ -313,7 +295,7 @@ public class CmdToken extends EnjCommand {
             String fullId;
             try {
                 fullId = baseModel.isNonfungible()
-                        ? TokenUtils.createFullId(baseModel.getId(), parseIndex(Objects.requireNonNull(index)))
+                        ? TokenUtils.createFullId(baseModel.getId(), TokenUtils.parseIndex(Objects.requireNonNull(index)))
                         : TokenUtils.createFullId(baseModel.getId());
             } catch (NullPointerException e) {
                 Translation.COMMAND_TOKEN_MUSTPASSINDEX.send(sender);
@@ -413,7 +395,7 @@ public class CmdToken extends EnjCommand {
             String fullId;
             try {
                 fullId = baseModel.isNonfungible() && index != null
-                        ? TokenUtils.createFullId(baseModel.getId(), parseIndex(index))
+                        ? TokenUtils.createFullId(baseModel.getId(), TokenUtils.parseIndex(index))
                         : TokenUtils.createFullId(baseModel.getId());
             } catch (IllegalArgumentException e) {
                 Translation.COMMAND_TOKEN_INVALIDFULLID.send(sender);
@@ -484,7 +466,7 @@ public class CmdToken extends EnjCommand {
             String fullId;
             try {
                 fullId = baseModel.isNonfungible()
-                        ? TokenUtils.createFullId(baseModel.getId(), parseIndex(Objects.requireNonNull(index)))
+                        ? TokenUtils.createFullId(baseModel.getId(), TokenUtils.parseIndex(Objects.requireNonNull(index)))
                         : TokenUtils.createFullId(baseModel.getId());
             } catch (NullPointerException e) {
                 Translation.COMMAND_TOKEN_MUSTPASSINDEX.send(sender);
@@ -688,7 +670,7 @@ public class CmdToken extends EnjCommand {
 
             String fullId;
             try {
-                index  = parseIndex(index);
+                index  = TokenUtils.parseIndex(index);
                 fullId = TokenUtils.createFullId(id, index);
             } catch (IllegalArgumentException e) {
                 Translation.COMMAND_TOKEN_INVALIDFULLID.send(sender);
@@ -832,7 +814,7 @@ public class CmdToken extends EnjCommand {
 
             String fullId;
             try {
-                index  = parseIndex(index);
+                index  = TokenUtils.parseIndex(index);
                 fullId = TokenUtils.createFullId(id, index);
             } catch (IllegalArgumentException e) {
                 Translation.COMMAND_TOKEN_INVALIDFULLID.send(sender);
@@ -1204,7 +1186,7 @@ public class CmdToken extends EnjCommand {
 
                 String fullId;
                 try {
-                    fullId = TokenUtils.createFullId(id, parseIndex(index));
+                    fullId = TokenUtils.createFullId(id, TokenUtils.parseIndex(index));
                 } catch (IllegalArgumentException e) {
                     Translation.COMMAND_TOKEN_INVALIDFULLID.send(sender);
                     return;
