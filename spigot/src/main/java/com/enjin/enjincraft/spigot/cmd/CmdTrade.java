@@ -96,7 +96,7 @@ public class CmdTrade extends EnjCommand {
             if (!targetEnjPlayer.isLinked()) {
                 Translation.WALLET_NOTLINKED_OTHER.send(sender, target.getName());
                 Translation.COMMAND_TRADE_WANTSTOTRADE.send(target, sender.getName());
-                Translation.HINT_LINK.send(context.sender);
+                Translation.HINT_LINK.send(target);
                 return;
             }
 
