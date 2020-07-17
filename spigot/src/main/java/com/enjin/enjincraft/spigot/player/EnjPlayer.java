@@ -14,7 +14,6 @@ import com.enjin.enjincraft.spigot.wallet.MutableBalance;
 import com.enjin.enjincraft.spigot.wallet.TokenWallet;
 import com.enjin.enjincraft.spigot.wallet.TokenWalletView;
 import com.enjin.enjincraft.spigot.wallet.TokenWalletViewState;
-import com.enjin.minecraft_commons.spigot.ui.AbstractMenu;
 import com.enjin.sdk.graphql.GraphQLResponse;
 import com.enjin.sdk.http.HttpResponse;
 import com.enjin.sdk.models.balance.Balance;
@@ -102,8 +101,7 @@ public class EnjPlayer implements Listener {
             userLoaded = true;
 
             Optional<Identity> optionalIdentity = user.getIdentities().stream()
-                                                      .filter(identity -> identity.getAppId()
-                                                                                  .intValue() == bootstrap.getConfig()
+                                                      .filter(identity -> identity.getAppId() == bootstrap.getConfig()
                                                                                                           .getAppId())
                                                       .findFirst();
             optionalIdentity.ifPresent(identity -> identityId = identity.getId());
@@ -184,73 +182,32 @@ public class EnjPlayer implements Listener {
 
         tokenWallet.getBalances().forEach(MutableBalance::reset);
 
-        validateInventory(bukkitPlayer.getInventory());
+        validatePlayerInventory();
+        validatePlayerEquipment();
+        validatePlayerCursor();
 
-        if (AbstractMenu.hasAnyMenu(bukkitPlayer)) {
-            if (activeTradeView != null)
-                activeTradeView.validateInventory();
-            else if (activeWalletView != null)
-                activeWalletView.validateInventory();
-        }
-
-        // Handles any token in the player's cursor
-        TokenManager tokenManager = bootstrap.getTokenManager();
-        InventoryView view = bukkitPlayer.getOpenInventory();
-        ItemStack is    = view.getCursor();
-        String    id    = TokenUtils.getTokenID(is);
-        String    index = TokenUtils.getTokenIndex(is);
-        if (StringUtils.isEmpty(id) ^ StringUtils.isEmpty(index)) {
-            view.setCursor(null);
-            bootstrap.debug(String.format("Removed corrupted token from %s's cursor", bukkitPlayer.getDisplayName()));
-        } else if (!StringUtils.isEmpty(id) && !StringUtils.isEmpty(index)) {
-            String         fullId     = TokenUtils.createFullId(id, index);
-            TokenModel     tokenModel = tokenManager.getToken(fullId);
-            MutableBalance balance    = tokenWallet.getBalance(fullId);
-            if (tokenModel == null
-                    || balance == null
-                    || balance.amountAvailableForWithdrawal() == 0) {
-                view.setCursor(null);
-            } else if (tokenModel.getWalletViewState() != TokenWalletViewState.WITHDRAWABLE) {
-                balance.deposit(is.getAmount());
-                view.setCursor(null);
-            } else {
-                if (balance.amountAvailableForWithdrawal() < is.getAmount()) {
-                    is.setAmount(balance.amountAvailableForWithdrawal());
-                }
-
-                balance.withdraw(is.getAmount());
-
-                ItemStack newStack = tokenManager.getToken(fullId).getItemStack();
-                newStack.setAmount(is.getAmount());
-
-                String newNBT  = NBTItem.convertItemtoNBT(newStack).toString();
-                String itemNBT = NBTItem.convertItemtoNBT(is).toString();
-                if (!itemNBT.equals(newNBT))
-                    view.setCursor(newStack);
-            }
-        }
+        if (activeTradeView != null)
+            activeTradeView.validateInventory();
+        if (activeWalletView != null)
+            activeWalletView.validateInventory();
     }
 
-    private void validateInventory(PlayerInventory inventory) {
-        if (inventory == null)
-            return;
-
+    private void validatePlayerInventory() {
         TokenManager tokenManager = bootstrap.getTokenManager();
 
-        // Validates standard inventory
+        PlayerInventory inventory = bukkitPlayer.getInventory();
         for (int i = inventory.getSize() - 1; i >= 0; i--) {
-            ItemStack is    = inventory.getItem(i);
-            String    id    = TokenUtils.getTokenID(is);
-            String    index = TokenUtils.getTokenIndex(is);
-            if (StringUtils.isEmpty(id) && StringUtils.isEmpty(index)) {
+            ItemStack is = inventory.getItem(i);
+            if (!TokenUtils.hasTokenData(is)) {
                 continue;
-            } else if (StringUtils.isEmpty(id) ^ StringUtils.isEmpty(index)) {
+            } else if (!TokenUtils.isValidTokenItem(is)) {
                 inventory.clear(i);
                 bootstrap.debug(String.format("Removed corrupted token from %s's inventory", bukkitPlayer.getDisplayName()));
                 continue;
             }
 
-            String         fullId     = TokenUtils.createFullId(id, index);
+            String         fullId     = TokenUtils.createFullId(TokenUtils.getTokenID(is),
+                                                                TokenUtils.getTokenIndex(is));
             TokenModel     tokenModel = tokenManager.getToken(fullId);
             MutableBalance balance    = tokenWallet.getBalance(fullId);
             if (tokenModel == null
@@ -266,43 +223,59 @@ public class EnjPlayer implements Listener {
 
                 balance.withdraw(is.getAmount());
 
-                ItemStack newStack = tokenManager.getToken(fullId).getItemStack();
-                newStack.setAmount(is.getAmount());
-
-                String newNBT  = NBTItem.convertItemtoNBT(newStack).toString();
-                String itemNBT = NBTItem.convertItemtoNBT(is).toString();
-                if (!itemNBT.equals(newNBT)) {
-                    if (is.getAmount() > newStack.getMaxStackSize()) {
-                        balance.deposit(is.getAmount() - newStack.getMaxStackSize());
-                        newStack.setAmount(newStack.getMaxStackSize());
-                    }
-
-                    inventory.setItem(i, newStack);
-                }
+                updateTokenInInventoryCheck(tokenModel, balance, is, inventory, i);
             }
         }
+    }
 
-        // Validates equipment slots
+    private void updateTokenInInventoryCheck(TokenModel tokenModel,
+                                             MutableBalance balance,
+                                             ItemStack is,
+                                             Inventory inventory,
+                                             int idx) {
+        ItemStack newStack = tokenModel.getItemStack();
+        if (newStack == null) {
+            balance.deposit(is.getAmount());
+            inventory.clear(idx);
+            return;
+        }
+
+        newStack.setAmount(is.getAmount());
+
+        String newNBT  = NBTItem.convertItemtoNBT(newStack).toString();
+        String itemNBT = NBTItem.convertItemtoNBT(is).toString();
+        if (itemNBT.equals(newNBT)) {
+            return;
+        } else if (is.getAmount() > newStack.getMaxStackSize()) {
+            balance.deposit(is.getAmount() - newStack.getMaxStackSize());
+            newStack.setAmount(newStack.getMaxStackSize());
+        }
+
+        inventory.setItem(idx, newStack);
+    }
+
+    private void validatePlayerEquipment() {
+        TokenManager tokenManager = bootstrap.getTokenManager();
+
         for (EquipmentSlot slot : EquipmentSlot.values()) {
-            ItemStack is    = getEquipment(slot);
-            String    id    = TokenUtils.getTokenID(is);
-            String    index = TokenUtils.getTokenIndex(is);
-            if (StringUtils.isEmpty(id) && StringUtils.isEmpty(index)) {
+            ItemStack is = getEquipment(slot);
+            if (!TokenUtils.hasTokenData(is)) {
                 continue;
-            } else if (StringUtils.isEmpty(id) ^ StringUtils.isEmpty(index)) {
+            } else if (!TokenUtils.isValidTokenItem(is)) {
                 setEquipment(slot, null);
                 bootstrap.debug(String.format("Removed corrupted token from %s's equipment", bukkitPlayer.getDisplayName()));
                 continue;
             }
 
-            String         fullId     = TokenUtils.createFullId(id, index);
+            String         fullId     = TokenUtils.createFullId(TokenUtils.getTokenID(is),
+                                                                TokenUtils.getTokenIndex(is));
             TokenModel     tokenModel = tokenManager.getToken(fullId);
             MutableBalance balance    = tokenWallet.getBalance(fullId);
             if (tokenModel == null
                     || balance == null
                     || balance.amountAvailableForWithdrawal() == 0) {
                 setEquipment(slot, null);
-            } else  if (tokenModel.getWalletViewState() != TokenWalletViewState.WITHDRAWABLE) {
+            } else if (tokenModel.getWalletViewState() != TokenWalletViewState.WITHDRAWABLE) {
                 balance.deposit(is.getAmount());
                 setEquipment(slot, null);
             } else {
@@ -311,21 +284,99 @@ public class EnjPlayer implements Listener {
 
                 balance.withdraw(is.getAmount());
 
-                ItemStack newStack = tokenManager.getToken(fullId).getItemStack();
-                newStack.setAmount(is.getAmount());
-
-                String newNBT  = NBTItem.convertItemtoNBT(newStack).toString();
-                String itemNBT = NBTItem.convertItemtoNBT(is).toString();
-                if (!itemNBT.equals(newNBT)) {
-                    if (is.getAmount() > newStack.getMaxStackSize()) {
-                        balance.deposit(is.getAmount() - newStack.getMaxStackSize());
-                        newStack.setAmount(newStack.getMaxStackSize());
-                    }
-
-                    setEquipment(slot, newStack);
-                }
+                updateTokenInEquipmentCheck(tokenModel, balance, is, slot);
             }
         }
+    }
+
+    private void updateTokenInEquipmentCheck(TokenModel tokenModel,
+                                             MutableBalance balance,
+                                             ItemStack is,
+                                             EquipmentSlot slot) {
+        ItemStack newStack = tokenModel.getItemStack();
+        if (newStack == null) {
+            balance.deposit(is.getAmount());
+            setEquipment(slot, null);
+            return;
+        }
+
+        newStack.setAmount(is.getAmount());
+
+        String newNBT  = NBTItem.convertItemtoNBT(newStack).toString();
+        String itemNBT = NBTItem.convertItemtoNBT(is).toString();
+        if (itemNBT.equals(newNBT)) {
+            return;
+        } else if (is.getAmount() > newStack.getMaxStackSize()) {
+            balance.deposit(is.getAmount() - newStack.getMaxStackSize());
+            newStack.setAmount(newStack.getMaxStackSize());
+        }
+
+        if (slot == EquipmentSlot.OFF_HAND || slot == EquipmentSlot.HAND || is.getType() == newStack.getType()) {
+            setEquipment(slot, newStack);
+        } else {
+            setEquipment(slot, null);
+            balance.deposit(newStack.getAmount());
+        }
+    }
+
+    private void validatePlayerCursor() {
+        TokenManager tokenManager = bootstrap.getTokenManager();
+
+        InventoryView view = bukkitPlayer.getOpenInventory();
+        ItemStack     is   = view.getCursor();
+        if (!TokenUtils.hasTokenData(is)) {
+            return;
+        } else if (!TokenUtils.isValidTokenItem(is)) {
+            view.setCursor(null);
+            bootstrap.debug(String.format("Removed corrupted token from %s's cursor", bukkitPlayer.getDisplayName()));
+            return;
+        }
+
+        String         fullId     = TokenUtils.createFullId(TokenUtils.getTokenID(is),
+                                                            TokenUtils.getTokenIndex(is));
+        TokenModel     tokenModel = tokenManager.getToken(fullId);
+        MutableBalance balance    = tokenWallet.getBalance(fullId);
+        if (tokenModel == null
+                || balance == null
+                || balance.amountAvailableForWithdrawal() == 0) {
+            view.setCursor(null);
+        } else if (tokenModel.getWalletViewState() != TokenWalletViewState.WITHDRAWABLE) {
+            balance.deposit(is.getAmount());
+            view.setCursor(null);
+        } else {
+            if (balance.amountAvailableForWithdrawal() < is.getAmount()) {
+                is.setAmount(balance.amountAvailableForWithdrawal());
+            }
+
+            balance.withdraw(is.getAmount());
+
+            updateTokenInCursorCheck(tokenModel, balance, is, view);
+        }
+    }
+
+    private void updateTokenInCursorCheck(TokenModel tokenModel,
+                                          MutableBalance balance,
+                                          ItemStack is,
+                                          InventoryView view) {
+        ItemStack newStack = tokenModel.getItemStack();
+        if (newStack == null) {
+            balance.deposit(is.getAmount());
+            view.setCursor(null);
+            return;
+        }
+
+        newStack.setAmount(is.getAmount());
+
+        String newNBT  = NBTItem.convertItemtoNBT(newStack).toString();
+        String itemNBT = NBTItem.convertItemtoNBT(is).toString();
+        if (itemNBT.equals(newNBT)) {
+            return;
+        } else {
+            balance.deposit(is.getAmount() - newStack.getMaxStackSize());
+            newStack.setAmount(newStack.getMaxStackSize());
+        }
+
+        view.setCursor(newStack);
     }
 
     private ItemStack getEquipment(EquipmentSlot slot) {
@@ -395,93 +446,77 @@ public class EnjPlayer implements Listener {
         if (balance == null || balance.withdrawn() == 0)
             return;
 
-        PlayerInventory inventory = bukkitPlayer.getInventory();
-
-        // Updates any token in storage
-        for (int i = 0; i < inventory.getStorageContents().length; i++) {
-            ItemStack is         = inventory.getItem(i);
-            String    tokenId    = TokenUtils.getTokenID(is);
-            String    tokenIndex = TokenUtils.getTokenIndex(is);
-            if (StringUtils.isEmpty(tokenId) || StringUtils.isEmpty(tokenIndex))
-                continue;
-
-            String fullId = TokenUtils.createFullId(tokenId, tokenIndex);
-            if (fullId.equals(tokenModel.getFullId())) {
-                ItemStack newStack = tokenModel.getItemStack();
-                newStack.setAmount(is.getAmount());
-
-                String newNBT  = NBTItem.convertItemtoNBT(newStack).toString();
-                String itemNBT = NBTItem.convertItemtoNBT(is).toString();
-                if (!itemNBT.equals(newNBT)) {
-                    if (is.getAmount() > newStack.getMaxStackSize()) {
-                        balance.deposit(is.getAmount() - newStack.getMaxStackSize());
-                        newStack.setAmount(newStack.getMaxStackSize());
-                    }
-
-                    inventory.setItem(i, newStack);
-                }
-            }
-        }
-
-        // Updates any token in equipment
-        for (EquipmentSlot slot : EquipmentSlot.values()) {
-            ItemStack is         = getEquipment(slot);
-            String    tokenId    = TokenUtils.getTokenID(is);
-            String    tokenIndex = TokenUtils.getTokenIndex(is);
-            if (StringUtils.isEmpty(tokenId) || StringUtils.isEmpty(tokenIndex))
-                continue;
-
-            String fullId = TokenUtils.createFullId(tokenId, tokenIndex);
-            if (fullId.equals(tokenModel.getFullId())) {
-                ItemStack newStack = tokenModel.getItemStack();
-                newStack.setAmount(is.getAmount());
-
-                String newNBT  = NBTItem.convertItemtoNBT(newStack).toString();
-                String itemNBT = NBTItem.convertItemtoNBT(is).toString();
-                if (!itemNBT.equals(newNBT)) {
-                    if (is.getAmount() > newStack.getMaxStackSize()) {
-                        balance.deposit(is.getAmount() - newStack.getMaxStackSize());
-                        newStack.setAmount(newStack.getMaxStackSize());
-                    }
-
-                    if (slot == EquipmentSlot.OFF_HAND || slot == EquipmentSlot.HAND || is.getType() == newStack.getType()) {
-                        setEquipment(slot, newStack);
-                    } else {
-                        setEquipment(slot, null);
-                        balance.deposit(newStack.getAmount());
-                    }
-                }
-            }
-        }
-
-        // Updates any token in cursor
-        InventoryView view = bukkitPlayer.getOpenInventory();
-        ItemStack is         = view.getCursor();
-        String    tokenId    = TokenUtils.getTokenID(is);
-        String    tokenIndex = TokenUtils.getTokenIndex(is);
-        if (!StringUtils.isEmpty(tokenId) && !StringUtils.isEmpty(tokenIndex)) {
-            String fullId = TokenUtils.createFullId(tokenId, tokenIndex);
-            if (fullId.equals(tokenModel.getFullId())) {
-                ItemStack newStack = tokenModel.getItemStack();
-                newStack.setAmount(is.getAmount());
-
-                String newNBT = NBTItem.convertItemtoNBT(newStack).toString();
-                String itemNBT = NBTItem.convertItemtoNBT(is).toString();
-                if (!itemNBT.equals(newNBT)) {
-                    if (is.getAmount() > newStack.getMaxStackSize()) {
-                        balance.deposit(is.getAmount() - newStack.getMaxStackSize());
-                        newStack.setAmount(newStack.getMaxStackSize());
-                    }
-
-                    view.setCursor(newStack);
-                }
-            }
-        }
+        updatePlayerInventory(tokenModel, balance);
+        updatePlayerEquipment(tokenModel, balance);
+        updatePlayerCursor(tokenModel, balance);
 
         if (activeTradeView != null)
             activeTradeView.updateInventory();
-        else if (activeWalletView != null)
+        if (activeWalletView != null)
             activeWalletView.updateInventory();
+    }
+
+    private void updatePlayerInventory(@NonNull TokenModel tokenModel,
+                                       @NonNull MutableBalance balance) {
+        PlayerInventory inventory = bukkitPlayer.getInventory();
+        for (int i = 0; i < inventory.getStorageContents().length; i++) {
+            ItemStack is = inventory.getItem(i);
+            if (!TokenUtils.hasTokenData(is)) {
+                continue;
+            } else if (!TokenUtils.isValidTokenItem(is)) {
+                inventory.clear(i);
+                bootstrap.debug(String.format("Removed corrupted token from %s's inventory", bukkitPlayer.getDisplayName()));
+                continue;
+            }
+
+            String fullId = TokenUtils.createFullId(TokenUtils.getTokenID(is),
+                                                    TokenUtils.getTokenIndex(is));
+            if (!fullId.equals(tokenModel.getFullId()))
+                continue;
+
+            updateTokenInInventoryCheck(tokenModel, balance, is, inventory, i);
+        }
+    }
+
+    private void updatePlayerEquipment(@NonNull TokenModel tokenModel,
+                                       @NonNull MutableBalance balance) {
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            ItemStack is = getEquipment(slot);
+            if (!TokenUtils.hasTokenData(is)) {
+                continue;
+            } else if (!TokenUtils.isValidTokenItem(is)) {
+                setEquipment(slot, null);
+                bootstrap.debug(String.format("Removed corrupted token from %s's equipment", bukkitPlayer.getDisplayName()));
+                continue;
+            }
+
+            String fullId = TokenUtils.createFullId(TokenUtils.getTokenID(is),
+                                                    TokenUtils.getTokenIndex(is));
+            if (!fullId.equals(tokenModel.getFullId()))
+                continue;
+
+            updateTokenInEquipmentCheck(tokenModel, balance, is, slot);
+        }
+    }
+
+    private void updatePlayerCursor(@NonNull TokenModel tokenModel,
+                                    @NonNull MutableBalance balance) {
+        InventoryView view = bukkitPlayer.getOpenInventory();
+        ItemStack     is   = view.getCursor();
+        if (!TokenUtils.hasTokenData(is)) {
+            return;
+        } else if (!TokenUtils.isValidTokenItem(is)) {
+            view.setCursor(null);
+            bootstrap.debug(String.format("Removed corrupted token from %s's cursor", bukkitPlayer.getDisplayName()));
+            return;
+        }
+
+        String fullId = TokenUtils.createFullId(TokenUtils.getTokenID(is),
+                                                TokenUtils.getTokenIndex(is));
+        if (!fullId.equals(tokenModel.getFullId()))
+            return;
+
+        updateTokenInCursorCheck(tokenModel, balance, is, view);
     }
 
     public void initPermissions() {
