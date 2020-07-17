@@ -83,6 +83,9 @@ public class EnjPlayer implements Listener {
 
     @EventHandler
     public void onPlayerWorldChanged(PlayerChangedWorldEvent event) {
+        if (event.getPlayer() != bukkitPlayer)
+            return;
+
         setWorldAttachment(bukkitPlayer.getWorld().getName());
     }
 
