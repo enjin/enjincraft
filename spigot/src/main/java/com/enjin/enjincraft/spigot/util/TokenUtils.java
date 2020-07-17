@@ -57,7 +57,6 @@ public class TokenUtils {
     public static String getTokenIndex(ItemStack is) {
         if (is != null && is.getType() != Material.AIR) {
             NBTItem nbtItem = new NBTItem(is);
-
             if (nbtItem.hasKey(TokenModel.NBT_INDEX))
                 return nbtItem.getString(TokenModel.NBT_INDEX);
 
@@ -65,6 +64,30 @@ public class TokenUtils {
         }
 
         return null;
+    }
+
+    public static boolean hasTokenData(ItemStack is) {
+        if (is == null || is.getType() == Material.AIR)
+            return false;
+
+        NBTItem nbtItem = new NBTItem(is);
+        return nbtItem.hasKey(TokenModel.NBT_ID)
+                || nbtItem.hasKey(TokenModel.NBT_INDEX)
+                || nbtItem.hasKey(TokenModel.NBT_NONFUNGIBLE);
+    }
+
+    public static boolean isValidTokenItem(ItemStack is) {
+        if (is == null || is.getType() == Material.AIR)
+            return false;
+
+        NBTItem nbtItem     = new NBTItem(is);
+        String  id          = nbtItem.getString(TokenModel.NBT_ID);
+        String  index       = nbtItem.getString(TokenModel.NBT_INDEX);
+        Boolean nonfungible = nbtItem.getBoolean(TokenModel.NBT_NONFUNGIBLE);
+        return isValidId(id)
+                && isValidIndex(index)
+                && nonfungible != null
+                && (nonfungible ^ index.equals(BASE_INDEX));
     }
 
     public static boolean isValidFullId(String fullId) {
