@@ -16,19 +16,21 @@ public class TokenPermission {
     private final String permission;
     private final Set<String> worlds = new HashSet<>();
 
-    public TokenPermission(@NonNull TokenPermission permission) {
+    public TokenPermission(@NonNull TokenPermission permission) throws NullPointerException {
         this(permission.permission, permission.worlds);
     }
 
-    public TokenPermission(@NonNull String permission) {
+    public TokenPermission(@NonNull String permission) throws NullPointerException {
         this(permission, TokenManager.GLOBAL);
     }
 
-    public TokenPermission(@NonNull String permission, @NonNull String world) {
+    public TokenPermission(@NonNull String permission,
+                           @NonNull String world) throws NullPointerException {
         this(permission, Collections.singleton(world));
     }
 
-    public TokenPermission(@NonNull String permission, @NonNull Collection<String> worlds) {
+    public TokenPermission(@NonNull String permission,
+                           @NonNull Collection<String> worlds) throws NullPointerException {
         this.permission = permission;
 
         if (worlds.isEmpty())
@@ -47,7 +49,7 @@ public class TokenPermission {
         return Objects.hash(permission);
     }
 
-    public boolean addWorld(@NonNull String world) {
+    public boolean addWorld(@NonNull String world) throws NullPointerException {
         if (isGlobal()) {
             return false;
         } else if (world.equals(TokenManager.GLOBAL)) {
@@ -59,7 +61,7 @@ public class TokenPermission {
         return worlds.add(world);
     }
 
-    public boolean addWorlds(@NonNull Collection<String> worlds) {
+    public boolean addWorlds(@NonNull Collection<String> worlds) throws NullPointerException {
         if (worlds.isEmpty() || isGlobal())
             return false;
         else if (worlds.contains(TokenManager.GLOBAL))
@@ -68,7 +70,7 @@ public class TokenPermission {
         return this.worlds.addAll(worlds);
     }
 
-    public boolean removeWorld(@NonNull String world) {
+    public boolean removeWorld(@NonNull String world) throws NullPointerException {
         if (world.equals(TokenManager.GLOBAL)) {
             if (worlds.size() > 0) {
                 worlds.clear();
@@ -81,7 +83,7 @@ public class TokenPermission {
         return worlds.remove(world);
     }
 
-    public boolean removeWorlds(@NonNull Collection<String> worlds) {
+    public boolean removeWorlds(@NonNull Collection<String> worlds) throws NullPointerException {
         if (worlds.isEmpty()) {
             return false;
         } else if (worlds.contains(TokenManager.GLOBAL)) {

@@ -21,7 +21,9 @@ public class FetchQrImageTask extends BukkitRunnable {
         throw new IllegalStateException();
     }
 
-    protected FetchQrImageTask(SpigotBootstrap bootstrap, @NonNull EnjPlayer player, @NonNull String url) {
+    protected FetchQrImageTask(SpigotBootstrap bootstrap,
+                               @NonNull EnjPlayer player,
+                               @NonNull String url) throws NullPointerException {
         this.bootstrap = bootstrap;
         this.player = player;
         this.url = url;

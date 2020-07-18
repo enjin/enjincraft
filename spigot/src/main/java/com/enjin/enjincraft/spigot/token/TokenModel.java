@@ -89,7 +89,7 @@ public class TokenModel {
     public TokenModel(@NonNull String id,
                       String alternateId,
                       String nbt,
-                      List<TokenPermission> assignablePermissions) {
+                      List<TokenPermission> assignablePermissions) throws NullPointerException {
         this(id,
                 null,
                 null,
@@ -126,7 +126,7 @@ public class TokenModel {
                       String nbt,
                       List<TokenPermission> assignablePermissions,
                       String metadataURI,
-                      TokenWalletViewState walletViewState) throws IllegalArgumentException, IllegalStateException {
+                      TokenWalletViewState walletViewState) throws IllegalArgumentException, IllegalStateException, NullPointerException {
         if (!TokenUtils.isValidId(id))
             throw new IllegalArgumentException(String.format("Invalid id: %s", id));
         if (index != null && !TokenUtils.isValidIndex(index)) {

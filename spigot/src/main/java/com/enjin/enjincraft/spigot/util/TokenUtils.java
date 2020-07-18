@@ -132,15 +132,16 @@ public class TokenUtils {
                 || (ignoreCase && (ch >= 'A' && ch <= 'F'));
     }
 
-    public static String createFullId(@NonNull TokenModel tokenModel) {
+    public static String createFullId(@NonNull TokenModel tokenModel) throws NullPointerException {
         return createFullId(tokenModel.getId(), tokenModel.getIndex());
     }
 
-    public static String createFullId(@NonNull String id) throws IllegalArgumentException {
+    public static String createFullId(@NonNull String id) throws IllegalArgumentException, NullPointerException {
         return createFullId(id, TokenUtils.BASE_INDEX);
     }
 
-    public static String createFullId(@NonNull String id, String index) throws IllegalArgumentException {
+    public static String createFullId(@NonNull String id,
+                                      String index) throws IllegalArgumentException, NullPointerException {
         id    = formatId(id);
         index = index == null
                 ? BASE_INDEX
@@ -239,7 +240,7 @@ public class TokenUtils {
                 && first.getAmount() + second.getAmount() <= maxStackSize;
     }
 
-    public static String parseIndex(@NonNull String index) throws IllegalArgumentException {
+    public static String parseIndex(@NonNull String index) throws IllegalArgumentException, NullPointerException {
         boolean hexString = false;
         if (index.startsWith("x") || index.startsWith("X")) {
             hexString = true;

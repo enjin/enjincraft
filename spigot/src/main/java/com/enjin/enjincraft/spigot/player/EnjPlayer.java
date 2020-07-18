@@ -457,7 +457,7 @@ public class EnjPlayer implements Listener {
     }
 
     private void updatePlayerInventory(@NonNull TokenModel tokenModel,
-                                       @NonNull MutableBalance balance) {
+                                       @NonNull MutableBalance balance) throws NullPointerException {
         PlayerInventory inventory = bukkitPlayer.getInventory();
         for (int i = 0; i < inventory.getStorageContents().length; i++) {
             ItemStack is = inventory.getItem(i);
@@ -479,7 +479,7 @@ public class EnjPlayer implements Listener {
     }
 
     private void updatePlayerEquipment(@NonNull TokenModel tokenModel,
-                                       @NonNull MutableBalance balance) {
+                                       @NonNull MutableBalance balance) throws NullPointerException {
         for (EquipmentSlot slot : EquipmentSlot.values()) {
             ItemStack is = getEquipment(slot);
             if (!TokenUtils.hasTokenData(is)) {
@@ -500,7 +500,7 @@ public class EnjPlayer implements Listener {
     }
 
     private void updatePlayerCursor(@NonNull TokenModel tokenModel,
-                                    @NonNull MutableBalance balance) {
+                                    @NonNull MutableBalance balance) throws NullPointerException {
         InventoryView view = bukkitPlayer.getOpenInventory();
         ItemStack     is   = view.getCursor();
         if (!TokenUtils.hasTokenData(is)) {
@@ -582,9 +582,8 @@ public class EnjPlayer implements Listener {
                 || !tokenManager.hasToken(tokenModel.getFullId()))
             return;
 
-        tokenModel.getPermissionsMap().forEach((world, perms) -> {
-            perms.forEach(perm -> addTokenPermission(tokenModel, perm, world));
-        });
+        tokenModel.getPermissionsMap()
+                  .forEach((world, perms) -> perms.forEach(perm -> addTokenPermission(tokenModel, perm, world)));
 
         // Adds the permissions from the base model if necessary
         boolean applyBasePermissions = tokenModel.isNonFungibleInstance()
@@ -592,9 +591,8 @@ public class EnjPlayer implements Listener {
         if (applyBasePermissions) {
             TokenModel baseModel = tokenManager.getToken(tokenModel.getId());
             if (baseModel != null) {
-                baseModel.getPermissionsMap().forEach((world, perms) -> {
-                    perms.forEach(perm -> addTokenPermission(baseModel, perm, world));
-                });
+                baseModel.getPermissionsMap()
+                         .forEach((world, perms) -> perms.forEach(perm -> addTokenPermission(baseModel, perm, world)));
             }
         }
     }
@@ -675,9 +673,8 @@ public class EnjPlayer implements Listener {
                 return;
         }
 
-        tokenModel.getPermissionsMap().forEach((world, perms) -> {
-            perms.forEach(perm -> removePermission(perm, world));
-        });
+        tokenModel.getPermissionsMap()
+                  .forEach((world, perms) -> perms.forEach(perm -> removePermission(perm, world)));
 
         // Removes the permissions from the base model if necessary
         boolean removeBasePermissions = tokenModel.isNonFungibleInstance()
@@ -685,9 +682,8 @@ public class EnjPlayer implements Listener {
         if (removeBasePermissions) {
             TokenModel baseModel = bootstrap.getTokenManager().getToken(tokenModel.getId());
             if (baseModel != null) {
-                baseModel.getPermissionsMap().forEach((world, perms) -> {
-                    perms.forEach(perm -> removePermission(perm, world));
-                });
+                baseModel.getPermissionsMap()
+                         .forEach((world, perms) -> perms.forEach(perm -> removePermission(perm, world)));
             }
         }
     }
@@ -871,12 +867,12 @@ public class EnjPlayer implements Listener {
         return isIdentityLoaded() && wallet != null && !StringUtils.isEmpty(wallet.getEthAddress());
     }
 
-    public boolean hasNonfungibleInstance(@NonNull String id) throws IllegalArgumentException {
+    public boolean hasNonfungibleInstance(@NonNull String id) throws IllegalArgumentException, NullPointerException {
         return hasNonfungibleInstance(id, null);
     }
 
     public boolean hasNonfungibleInstance(@NonNull String id,
-                                          Collection<String> ignoredIndices) throws IllegalArgumentException {
+                                          Collection<String> ignoredIndices) throws IllegalArgumentException, NullPointerException {
         TokenModel baseModel = bootstrap.getTokenManager().getToken(id);
         if (baseModel == null)
             throw new IllegalArgumentException(String.format("Token of id \"%s\" is not registered in token manager", id));

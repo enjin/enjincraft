@@ -2,6 +2,7 @@ package com.enjin.enjincraft.spigot.player;
 
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
 import com.enjin.enjincraft.spigot.events.EnjPlayerQuitEvent;
+import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -44,6 +45,7 @@ public class PlayerManager implements Listener, PlayerManagerApi {
             EnjPlayer player = removePlayer(event.getPlayer());
             if (player == null)
                 return;
+
             Bukkit.getPluginManager().callEvent(new EnjPlayerQuitEvent(player));
             player.cleanUp();
         } catch (Exception ex) {
@@ -53,51 +55,44 @@ public class PlayerManager implements Listener, PlayerManagerApi {
 
     @Override
     public Map<UUID, EnjPlayer> getPlayers() {
-        return new HashMap<>(this.players);
+        return new HashMap<>(players);
     }
 
     @Override
-    public Optional<EnjPlayer> getPlayer(Player player) {
-        if (player == null)
-            throw new NullPointerException("player must not be null");
+    public Optional<EnjPlayer> getPlayer(@NonNull Player player) throws NullPointerException {
         return getPlayer(player.getUniqueId());
     }
 
     @Override
-    public Optional<EnjPlayer> getPlayer(UUID uuid) {
-        if (uuid == null)
-            throw new NullPointerException("uuid must not be null");
-        return Optional.ofNullable(this.players.get(uuid));
+    public Optional<EnjPlayer> getPlayer(@NonNull UUID uuid) throws NullPointerException {
+        return Optional.ofNullable(players.get(uuid));
     }
 
     @Override
-    public Optional<EnjPlayer> getPlayer(String ethAddr) {
-        if (ethAddr == null)
-            throw new NullPointerException("ethAddr must not be null");
-        return this.players.values().stream()
-                .filter(player -> player.getEthereumAddress() != null
-                        && ethAddr.equalsIgnoreCase(player.getEthereumAddress()))
+    public Optional<EnjPlayer> getPlayer(@NonNull String ethAddr) throws NullPointerException {
+        return players.values()
+                .stream()
+                .filter(player -> player.getEthereumAddress() != null && ethAddr.equalsIgnoreCase(player.getEthereumAddress()))
                 .findFirst();
     }
 
     @Override
-    public Optional<EnjPlayer> getPlayer(Integer identityId) {
-        if (identityId == null)
-            throw new NullPointerException("identityId must not be null");
-        return this.players.values().stream()
-                .filter(player -> player.getIdentityId() != null
-                        && identityId.equals(player.getIdentityId()))
+    public Optional<EnjPlayer> getPlayer(@NonNull Integer identityId) throws NullPointerException {
+        return players.values()
+                .stream()
+                .filter(player -> player.getIdentityId() != null && identityId.equals(player.getIdentityId()))
                 .findFirst();
     }
 
-    public void addPlayer(EnjPlayer player) {
+    public void addPlayer(@NonNull EnjPlayer player) throws IllegalArgumentException, NullPointerException {
         if (!player.getBukkitPlayer().isOnline())
-            return;
-        this.players.put(player.getBukkitPlayer().getUniqueId(), player);
+            throw new IllegalArgumentException("Player must be online");
+
+        players.put(player.getBukkitPlayer().getUniqueId(), player);
     }
 
-    public EnjPlayer removePlayer(Player bukkitPlayer) {
-        return this.players.remove(bukkitPlayer.getUniqueId());
+    public EnjPlayer removePlayer(@NonNull Player player) {
+        return players.remove(player.getUniqueId());
     }
 
 }

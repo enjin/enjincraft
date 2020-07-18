@@ -107,6 +107,7 @@ public class TokenManager {
         try {
             List<TokenModel> tokens = bootstrap.db().getAllTokens();
             List<TokenModel> nftInstances = new ArrayList<>();
+            List<String> permissionBlacklist = bootstrap.getConfig().getPermissionBlacklist();
 
             // Loads base tokens
             tokens.forEach(tokenModel -> {
@@ -118,7 +119,7 @@ public class TokenManager {
 
                     tokenModel.load();
 
-                    boolean changed = tokenModel.applyBlacklist(bootstrap.getConfig().getPermissionBlacklist());
+                    boolean changed = tokenModel.applyBlacklist(permissionBlacklist);
                     if (changed)
                         updateTokenPermissionsDatabase(tokenModel);
 
@@ -137,7 +138,7 @@ public class TokenManager {
 
                     tokenModel.load();
 
-                    boolean changed = tokenModel.applyBlacklist(bootstrap.getConfig().getPermissionBlacklist());
+                    boolean changed = tokenModel.applyBlacklist(permissionBlacklist);
                     if (changed)
                         updateTokenPermissionsDatabase(tokenModel);
 
@@ -154,7 +155,7 @@ public class TokenManager {
         new LegacyTokenConverter(bootstrap).process();
     }
 
-    public int saveToken(@NonNull TokenModel tokenModel) {
+    public int saveToken(@NonNull TokenModel tokenModel) throws NullPointerException {
         String     alternateId = tokenModel.getAlternateId();
         TokenModel other       = getToken(alternateId);
         if (other != null && !other.getId().equals(tokenModel.getId())) { // Alternate id already exists
@@ -232,11 +233,12 @@ public class TokenManager {
         }
     }
 
-    public int updateTokenConf(@NonNull TokenModel tokenModel) {
+    public int updateTokenConf(@NonNull TokenModel tokenModel) throws NullPointerException {
         return updateTokenConf(tokenModel, true);
     }
 
-    public int updateTokenConf(@NonNull TokenModel tokenModel, boolean updateOnPlayers) {
+    public int updateTokenConf(@NonNull TokenModel tokenModel,
+                               boolean updateOnPlayers) throws NullPointerException {
         if (tokenModel.isMarkedForDeletion())
             return TOKEN_MARKEDFORDELETION;
         else if (!isValidToken(tokenModel))
@@ -404,7 +406,8 @@ public class TokenManager {
         }
     }
 
-    public int updateWalletViewState(@NonNull String id, @NonNull TokenWalletViewState walletViewState) {
+    public int updateWalletViewState(@NonNull String id,
+                                     @NonNull TokenWalletViewState walletViewState) throws NullPointerException {
         TokenModel baseModel = getToken(id);
         if (baseModel == null)
             return TOKEN_NOSUCHTOKEN;
@@ -450,7 +453,7 @@ public class TokenManager {
         });
     }
 
-    public int deleteTokenConf(@NonNull String id) {
+    public int deleteTokenConf(@NonNull String id) throws NullPointerException {
         TokenModel tokenModel = getToken(id);
         if (tokenModel == null) {
             return TOKEN_NOSUCHTOKEN;
@@ -785,7 +788,7 @@ public class TokenManager {
             return TOKEN_EXPORT_FAILED;
     }
 
-    public int exportToken(@NonNull String id) {
+    public int exportToken(@NonNull String id) throws NullPointerException {
         TokenModel tokenModel = getToken(id);
         if (tokenModel == null) {
             return TOKEN_NOSUCHTOKEN;
