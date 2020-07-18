@@ -125,7 +125,7 @@ public class Database {
         setupStatement.executeBatch();
     }
 
-    public int createToken(@NonNull TokenModel tokenModel) throws SQLException {
+    public int createToken(@NonNull TokenModel tokenModel) throws SQLException, NullPointerException {
         String  id              = tokenModel.getId();
         boolean nonfungible     = tokenModel.isNonfungible();
         String  alternateId     = tokenModel.getAlternateId();
@@ -150,7 +150,7 @@ public class Database {
         }
     }
 
-    public int createTokenInstance(@NonNull TokenModel tokenModel) throws SQLException {
+    public int createTokenInstance(@NonNull TokenModel tokenModel) throws SQLException, NullPointerException {
         String id          = tokenModel.getId();
         String index       = tokenModel.getIndex();
         String nbt         = tokenModel.getNbt();
@@ -175,7 +175,7 @@ public class Database {
         }
     }
 
-    public int deleteToken(@NonNull String tokenId) throws SQLException {
+    public int deleteToken(@NonNull String tokenId) throws SQLException, NullPointerException {
         synchronized (deleteToken) {
             deleteToken.clearParameters();
 
@@ -194,7 +194,7 @@ public class Database {
     }
 
     public int deleteTokenInstance(@NonNull String tokenId,
-                                   @NonNull String tokenIndex) throws SQLException {
+                                   @NonNull String tokenIndex) throws SQLException, NullPointerException {
         synchronized (deleteTokenInstance) {
             deleteTokenInstance.clearParameters();
 
@@ -214,7 +214,7 @@ public class Database {
     }
 
     public TokenModel getToken(@NonNull String tokenId,
-                               String tokenIndex) throws SQLException {
+                               String tokenIndex) throws SQLException, NullPointerException {
         synchronized (getToken) {
             getToken.clearParameters();
 
@@ -271,7 +271,7 @@ public class Database {
         return tokens;
     }
 
-    public int updateToken(@NonNull TokenModel tokenModel) throws SQLException {
+    public int updateToken(@NonNull TokenModel tokenModel) throws SQLException, NullPointerException {
         String id              = tokenModel.getId();
         String alternateId     = tokenModel.getAlternateId();
         String walletViewState = tokenModel.getWalletViewState().name();
@@ -294,7 +294,7 @@ public class Database {
         }
     }
 
-    public int updateTokenInstance(@NonNull TokenModel tokenModel) throws SQLException {
+    public int updateTokenInstance(@NonNull TokenModel tokenModel) throws SQLException, NullPointerException {
         String id          = tokenModel.getId();
         String index       = tokenModel.getIndex();
         String nbt         = tokenModel.getNbt();
@@ -321,14 +321,14 @@ public class Database {
 
     public int[] addPermission(@NonNull String tokenId,
                                @NonNull String tokenIndex,
-                               @NonNull TokenPermission permission) throws SQLException {
+                               @NonNull TokenPermission permission) throws SQLException, NullPointerException {
         return addPermission(tokenId, tokenIndex, permission.getPermission(), permission.getWorlds());
     }
 
     public int[] addPermission(@NonNull String tokenId,
                                @NonNull String tokenIndex,
                                @NonNull String permission,
-                               Collection<String> worlds) throws SQLException {
+                               Collection<String> worlds) throws SQLException, NullPointerException {
         List<Integer> resultsList = new ArrayList<>();
 
         synchronized (addPermission) {
@@ -361,14 +361,14 @@ public class Database {
 
     public int[] deletePermission(@NonNull String tokenId,
                                   @NonNull String tokenIndex,
-                                  @NonNull TokenPermission permission) throws SQLException {
+                                  @NonNull TokenPermission permission) throws SQLException, NullPointerException {
         return deletePermission(tokenId, tokenIndex, permission.getPermission(), permission.getWorlds());
     }
 
     public int[] deletePermission(@NonNull String tokenId,
                                   @NonNull String tokenIndex,
                                   @NonNull String permission,
-                                  Collection<String> worlds) throws SQLException {
+                                  Collection<String> worlds) throws SQLException, NullPointerException {
         List<Integer> resultsList = new ArrayList<>();
 
         synchronized (deletePermission) {
@@ -400,7 +400,7 @@ public class Database {
     }
 
     public List<TokenPermission> getPermissions(@NonNull String tokenId,
-                                                @NonNull String tokenIndex) throws SQLException {
+                                                @NonNull String tokenIndex) throws SQLException, NullPointerException {
         Map<String, Set<String>> permissionMap = new HashMap<>();
 
         synchronized (getPermissions) {
@@ -434,7 +434,7 @@ public class Database {
 
     public Collection<String> getPermissionWorlds(@NonNull String tokenId,
                                                   @NonNull String tokenIndex,
-                                                  @NonNull String permission) throws SQLException {
+                                                  @NonNull String permission) throws SQLException, NullPointerException {
         Set<String> worlds = new HashSet<>();
 
         synchronized (getPermissionWorlds) {
