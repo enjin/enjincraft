@@ -29,7 +29,7 @@ public class QrItemListener implements Listener {
         throw new IllegalStateException();
     }
 
-    public QrItemListener(@NonNull SpigotBootstrap bootstrap) {
+    public QrItemListener(@NonNull SpigotBootstrap bootstrap) throws NullPointerException {
         this.bootstrap = bootstrap;
     }
 
@@ -52,7 +52,6 @@ public class QrItemListener implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         Inventory inventory = event.getClickedInventory();
-
         if (inventory instanceof PlayerInventory && event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
             /* Condition is associated with the standard player inventory view which allows the player to use
              * hot-key to move items within their own inventory. The top inventory is assumed to be the
@@ -106,7 +105,6 @@ public class QrItemListener implements Listener {
 
     private void interactItemFrame(PlayerInteractEntityEvent event, ItemFrame itemFrame) {
         ItemStack held = event.getPlayer().getInventory().getItemInMainHand();
-
         if (itemFrame.getItem().getType() != Material.AIR)
             return;
 
