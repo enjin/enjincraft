@@ -53,9 +53,9 @@ public class Database {
     public static final String TEMPLATE_GET_PENDING_TRADES = "trade/GetPending";
     public static final String TEMPLATE_GET_SESSION_REQ_ID = "trade/GetSessionFromRequestId";
 
-    private SpigotBootstrap bootstrap;
-    private File dbFile;
-    private Connection conn;
+    private final SpigotBootstrap bootstrap;
+    private final File dbFile;
+    private final Connection conn;
 
     // Token
     private final PreparedStatement createToken;

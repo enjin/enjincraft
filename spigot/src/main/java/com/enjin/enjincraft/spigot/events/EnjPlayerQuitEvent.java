@@ -6,8 +6,7 @@ import org.bukkit.event.HandlerList;
 
 public class EnjPlayerQuitEvent extends Event {
 
-    private static HandlerList handlers = new HandlerList();
-
+    private static final HandlerList handlers = new HandlerList();
     private final EnjPlayer player;
 
     public EnjPlayerQuitEvent(EnjPlayer player) {

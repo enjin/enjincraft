@@ -19,8 +19,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class PlayerManager implements Listener, PlayerManagerApi {
 
-    private SpigotBootstrap bootstrap;
-    private Map<UUID, EnjPlayer> players = new ConcurrentHashMap<>();
+    private final SpigotBootstrap bootstrap;
+    private final Map<UUID, EnjPlayer> players = new ConcurrentHashMap<>();
 
     public PlayerManager(SpigotBootstrap bootstrap) {
         this.bootstrap = bootstrap;

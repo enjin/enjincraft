@@ -18,6 +18,7 @@ import com.enjin.minecraft_commons.spigot.ui.*;
 import com.enjin.minecraft_commons.spigot.ui.menu.ChestMenu;
 import com.enjin.minecraft_commons.spigot.ui.menu.component.SimpleMenuComponent;
 import de.tr7zw.changeme.nbtapi.NBTItem;
+import lombok.Getter;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextColor;
 import org.bukkit.ChatColor;
@@ -45,24 +46,29 @@ public class TradeView extends ChestMenu implements EnjTokenView {
 
     public static final int INV_WIDTH = 9;
 
-    private SpigotBootstrap bootstrap;
+    private final SpigotBootstrap bootstrap;
 
-    private EnjPlayer viewer;
-    private EnjPlayer other;
-    private Trader traderType;
+    @Getter
+    private final EnjPlayer viewer;
+    @Getter
+    private final EnjPlayer other;
+    private final Trader traderType;
 
+    @Getter
     private SimpleMenuComponent viewerItemsComponent;
+    @Getter
     private SimpleMenuComponent viewerStatusComponent;
-
+    @Getter
     private SimpleMenuComponent otherItemsComponent;
+    @Getter
     private SimpleMenuComponent otherStatusComponent;
 
     private boolean playerReady = false;
     private boolean tradeApproved = false;
-    private ItemStack readyPane = createReadyPaneItemStack();
-    private ItemStack unreadyPane = createUnreadyPaneItemStack();
-    private ItemStack readyItem = createReadyItemStack();
-    private ItemStack unreadyItem = createUnreadyItemStack();
+    private final ItemStack readyPane = createReadyPaneItemStack();
+    private final ItemStack unreadyPane = createUnreadyPaneItemStack();
+    private final ItemStack readyItem = createReadyItemStack();
+    private final ItemStack unreadyItem = createUnreadyItemStack();
 
     public TradeView(SpigotBootstrap bootstrap, EnjPlayer viewer, EnjPlayer other, Trader traderType) {
         super("Trade", 6);
@@ -172,30 +178,6 @@ public class TradeView extends ChestMenu implements EnjTokenView {
 
         TradeView otherView = other.getActiveTradeView();
         otherView.setItem(other.getBukkitPlayer(), otherView.otherStatusComponent, Position.of(3, 0), unreadyPane);
-    }
-
-    public EnjPlayer getViewer() {
-        return viewer;
-    }
-
-    public EnjPlayer getOther() {
-        return other;
-    }
-
-    public Component getViewerItemsComponent() {
-        return viewerItemsComponent;
-    }
-
-    public Component getOtherItemsComponent() {
-        return otherItemsComponent;
-    }
-
-    public SimpleMenuComponent getViewerStatusComponent() {
-        return viewerStatusComponent;
-    }
-
-    public SimpleMenuComponent getOtherStatusComponent() {
-        return otherStatusComponent;
     }
 
     public List<ItemStack> getOfferedItems() {

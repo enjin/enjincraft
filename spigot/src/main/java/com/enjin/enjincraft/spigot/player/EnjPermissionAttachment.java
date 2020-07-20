@@ -8,8 +8,8 @@ import java.util.Collection;
 
 public class EnjPermissionAttachment {
 
-    private Permissible permissible;
-    private Plugin plugin;
+    private final Permissible permissible;
+    private final Plugin plugin;
     private PermissionAttachment attachment;
 
     public EnjPermissionAttachment(Permissible permissible, Plugin plugin) {

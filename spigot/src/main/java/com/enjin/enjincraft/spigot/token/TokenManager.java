@@ -75,14 +75,14 @@ public class TokenManager {
             .setPrettyPrinting()
             .create();
 
-    private SpigotBootstrap bootstrap;
+    private final SpigotBootstrap bootstrap;
     @Getter(AccessLevel.PACKAGE)
-    private File dir;
-    private File exportDir;
-    private File importDir;
-    private Map<String, TokenModel> tokenModels = new HashMap<>();
-    private Map<String, String> alternateIds = new HashMap<>();
-    private TokenPermissionGraph permGraph = new TokenPermissionGraph();
+    private final File dir;
+    private final File exportDir;
+    private final File importDir;
+    private final Map<String, TokenModel> tokenModels = new HashMap<>();
+    private final Map<String, String> alternateIds = new HashMap<>();
+    private final TokenPermissionGraph permGraph = new TokenPermissionGraph();
 
     public TokenManager(SpigotBootstrap bootstrap) {
         this(bootstrap, bootstrap.plugin().getDataFolder());

@@ -5,7 +5,7 @@ public enum CommandProcess {
     EXECUTE(MessageAction.SEND),
     TAB(MessageAction.OMIT);
 
-    private MessageAction messageAction;
+    private final MessageAction messageAction;
 
     CommandProcess(MessageAction messageAction) {
         this.messageAction = messageAction;

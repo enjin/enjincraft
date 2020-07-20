@@ -6,44 +6,47 @@ import org.bukkit.configuration.ConfigurationSection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Getter
 public class Dependency {
 
-    private String groupId;
-    private String artifactId;
-    private String version;
-    private Optional<String> classifier;
+    private final String groupId;
+    private final String artifactId;
+    private final String version;
+    private final String classifier;
 
     public Dependency(ConfigurationSection section) {
         groupId = section.getString("groupId");
         artifactId = section.getString("artifactId");
         version = section.getString("version");
-        classifier = Optional.ofNullable(section.getString("classifier", null));
+        classifier = section.getString("classifier");
     }
 
     public String getArtifactName() {
-        StringBuilder builder = new StringBuilder(artifactId)
-                .append('-')
-                .append(version);
+        StringBuilder builder = new StringBuilder();
 
-        classifier.ifPresent(cf -> builder.append('-').append(cf));
+        builder.append(artifactId);
+        builder.append('-');
+        builder.append(version);
 
-        return builder.append(".jar")
-                .toString();
+        if (classifier != null) {
+            builder.append('-');
+            builder.append(classifier);
+        }
+
+        builder.append(".jar");
+
+        return builder.toString();
     }
 
     public String getPath() {
-        StringBuilder builder = new StringBuilder(groupId.replace(".", "/"))
-                .append('/')
-                .append(artifactId)
-                .append('/')
-                .append(version)
-                .append('/')
-                .append(getArtifactName());
-
-        return builder.toString();
+        return groupId.replace(".", "/")
+                + '/'
+                + artifactId
+                + '/'
+                + version
+                + '/'
+                + getArtifactName();
     }
 
     public static List<Dependency> process(ConfigurationSection section) {
