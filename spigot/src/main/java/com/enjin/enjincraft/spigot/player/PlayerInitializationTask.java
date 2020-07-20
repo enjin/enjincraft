@@ -26,8 +26,8 @@ public class PlayerInitializationTask extends BukkitRunnable {
 
     private static final Map<UUID, PlayerInitializationTask> PLAYER_TASKS = new ConcurrentHashMap<>();
 
-    private SpigotBootstrap bootstrap;
-    private EnjPlayer       player;
+    private final SpigotBootstrap bootstrap;
+    private final EnjPlayer       player;
 
     private boolean inProgress = false;
 

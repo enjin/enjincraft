@@ -17,8 +17,8 @@ import java.util.concurrent.TimeUnit;
 
 public class DependencyManager {
 
-    private EnjPlugin plugin;
-    private ReflectionClassLoader classLoader;
+    private final EnjPlugin plugin;
+    private final ReflectionClassLoader classLoader;
 
     public DependencyManager(EnjPlugin plugin) {
         this.plugin = plugin;

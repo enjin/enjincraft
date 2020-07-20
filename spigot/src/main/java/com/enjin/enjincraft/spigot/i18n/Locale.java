@@ -21,7 +21,7 @@ public enum Locale {
     ro_RO(StandardCharsets.UTF_16BE),
     sr_SP(StandardCharsets.UTF_16BE);
 
-    private Charset charset;
+    private final Charset charset;
 
     Locale(Charset charset) {
         this.charset = charset;

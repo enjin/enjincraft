@@ -23,7 +23,7 @@ public class PlaceholderApiExpansion extends PlaceholderExpansion {
     public static final String NOT_AVAILABLE = "n/a";
     public static final String URL = "www.enjin.io";
 
-    private SpigotBootstrap bootstrap;
+    private final SpigotBootstrap bootstrap;
 
     public PlaceholderApiExpansion(SpigotBootstrap bootstrap) {
         this.bootstrap = bootstrap;

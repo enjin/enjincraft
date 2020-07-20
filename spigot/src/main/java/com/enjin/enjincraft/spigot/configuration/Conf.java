@@ -7,7 +7,7 @@ import java.util.List;
 
 public class Conf {
 
-    private Configuration internalConf;
+    private final Configuration internalConf;
 
     public Conf(Configuration internalConf) {
         this.internalConf = internalConf;

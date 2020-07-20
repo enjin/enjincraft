@@ -14,7 +14,7 @@ import java.util.Optional;
 
 public class EnjEventListener implements com.enjin.sdk.services.notification.NotificationListener {
 
-    private SpigotBootstrap bootstrap;
+    private final SpigotBootstrap bootstrap;
 
     public EnjEventListener(SpigotBootstrap bootstrap) {
         this.bootstrap = bootstrap;

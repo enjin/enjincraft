@@ -27,7 +27,7 @@ import java.util.*;
 
 public class TradeManager implements Listener {
 
-    private SpigotBootstrap bootstrap;
+    private final SpigotBootstrap bootstrap;
 
     public TradeManager(SpigotBootstrap bootstrap) {
         this.bootstrap = bootstrap;

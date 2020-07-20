@@ -200,14 +200,12 @@ public enum Translation {
     private static final Map<Locale, String> LOCALE_NAMES = new EnumMap<>(Locale.class);
     private static Locale serverLocale = DEFAULT_LOCALE;
 
-    private String path;
-    private Object def;
-    private int argCount;
+    private final String path;
+    private final Object def;
+    private final int argCount;
 
     Translation(Object def) {
-        this.path = this.name().replace('_', '.');
-        if (this.path.startsWith("."))
-            this.path = "internal" + path;
+        this.path = initPath();
         this.def = def;
         this.argCount = getArgCount(String.valueOf(def));
     }
@@ -272,6 +270,14 @@ public enum Translation {
         return bootstrap.getConfig();
     }
 
+    private String initPath() {
+        String path = name().replace('_', '.');
+        if (path.startsWith("."))
+            path = "internal" + path;
+
+        return path;
+    }
+
     public static void setServerLocale(Locale locale) {
         serverLocale = locale;
     }
@@ -285,6 +291,7 @@ public enum Translation {
             YamlConfiguration lang = locale.loadLocaleResource(plugin);
             if (lang == null)
                 continue;
+
             setDefaults(lang);
             LOCALE_CONFIGS.put(locale, lang);
             LOCALE_NAMES.put(locale, lang.getString(Translation._language.path()));

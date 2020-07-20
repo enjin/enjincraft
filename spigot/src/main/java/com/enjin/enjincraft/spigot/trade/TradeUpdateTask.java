@@ -15,8 +15,8 @@ import java.util.List;
 
 public class TradeUpdateTask extends BukkitRunnable {
 
-    private SpigotBootstrap bootstrap;
-    private List<TradeSession> tradeSessions;
+    private final SpigotBootstrap bootstrap;
+    private final List<TradeSession> tradeSessions;
 
     public TradeUpdateTask(SpigotBootstrap bootstrap) throws SQLException {
         this.bootstrap = bootstrap;

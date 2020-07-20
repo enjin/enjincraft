@@ -23,7 +23,7 @@ import java.util.Map;
 
 public class QrItemListener implements Listener {
 
-    private SpigotBootstrap bootstrap;
+    private final SpigotBootstrap bootstrap;
 
     private QrItemListener() {
         throw new IllegalStateException();

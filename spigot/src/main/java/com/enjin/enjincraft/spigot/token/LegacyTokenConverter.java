@@ -30,11 +30,11 @@ public class LegacyTokenConverter {
     public static final String ITEM_MATERIAL_KEY = "material";
     public static final String ITEM_LORE_KEY = "lore";
 
-    private Gson gson = new GsonBuilder()
+    private final Gson gson = new GsonBuilder()
             .registerTypeAdapter(TokenPermission.class, new TokenPermission.TokenPermissionDeserializer())
             .create();
-    private SpigotBootstrap bootstrap;
-    private File file;
+    private final SpigotBootstrap bootstrap;
+    private final File file;
 
     public LegacyTokenConverter(SpigotBootstrap bootstrap) {
         this.bootstrap = bootstrap;
