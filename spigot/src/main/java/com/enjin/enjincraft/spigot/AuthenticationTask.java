@@ -4,7 +4,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class AuthenticationTask extends BukkitRunnable {
 
-    private SpigotBootstrap bootstrap;
+    private final SpigotBootstrap bootstrap;
 
     public AuthenticationTask(SpigotBootstrap bootstrap) {
         this.bootstrap = bootstrap;

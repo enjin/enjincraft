@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class TokenWallet {
 
-    private Map<String, MutableBalance> balances;
+    private final Map<String, MutableBalance> balances;
 
     public TokenWallet(List<Balance> balances) {
         this.balances = new ConcurrentHashMap<>();

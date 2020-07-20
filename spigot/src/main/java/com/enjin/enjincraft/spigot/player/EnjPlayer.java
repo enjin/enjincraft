@@ -41,8 +41,8 @@ import java.util.List;
 public class EnjPlayer implements Listener {
 
     // Bukkit Fields
-    private SpigotBootstrap bootstrap;
-    private Player          bukkitPlayer;
+    private final SpigotBootstrap bootstrap;
+    private Player                bukkitPlayer;
 
     // User Data
     private Integer userId;
@@ -57,13 +57,13 @@ public class EnjPlayer implements Listener {
     // State Fields
     private boolean userLoaded;
     private boolean identityLoaded;
-    private EnjPermissionAttachment globalAttachment;
-    private EnjPermissionAttachment worldAttachment;
-    private Map<String, Set<String>> worldPermissionMap = new HashMap<>();
+    private final EnjPermissionAttachment globalAttachment;
+    private final EnjPermissionAttachment worldAttachment;
+    private final Map<String, Set<String>> worldPermissionMap = new HashMap<>();
 
     // Trade Fields
-    private List<EnjPlayer> sentTradeInvites     = new ArrayList<>();
-    private List<EnjPlayer> receivedTradeInvites = new ArrayList<>();
+    private final List<EnjPlayer> sentTradeInvites     = new ArrayList<>();
+    private final List<EnjPlayer> receivedTradeInvites = new ArrayList<>();
     private TradeView       activeTradeView;
 
     // Wallet Fields
@@ -754,7 +754,6 @@ public class EnjPlayer implements Listener {
         for (Map.Entry<String, MutableBalance> entry : tokenWallet.getBalancesMap().entrySet()) {
             String         fullId  = entry.getKey();
             MutableBalance balance = entry.getValue();
-
             if (balance.balance() > 0 && tokenManager.hasToken(fullId)) {
                 intersect.add(fullId);
 

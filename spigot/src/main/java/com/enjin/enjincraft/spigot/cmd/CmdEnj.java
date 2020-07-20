@@ -18,7 +18,7 @@ import java.util.List;
 
 public class CmdEnj extends EnjCommand implements CommandExecutor, TabCompleter {
 
-    private CmdHelp cmdHelp;
+    private final CmdHelp cmdHelp;
 
     public CmdEnj(SpigotBootstrap bootstrap) {
         super(bootstrap);
