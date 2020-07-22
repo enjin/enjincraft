@@ -32,6 +32,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.Plugin;
 
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -106,18 +107,22 @@ public class SpigotBootstrap implements Bootstrap, Module {
             // Register Commands
             PluginCommand pluginCommand = plugin.getCommand("enj");
             CmdEnj cmdEnj = new CmdEnj(this);
-            pluginCommand.setExecutor(cmdEnj);
+            Objects.requireNonNull(pluginCommand).setExecutor(cmdEnj);
 
             if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-                MessageUtils.sendComponent(Bukkit.getConsoleSender(), TextComponent.of("[EnjinCraft] Registering PlaceholderAPI Expansion")
-                        .color(TextColor.GOLD));
+                MessageUtils.sendComponent(Bukkit.getConsoleSender(),
+                                           TextComponent.of("[EnjinCraft] Registering PlaceholderAPI Expansion")
+                            .color(TextColor.GOLD));
+
                 boolean registered = new PlaceholderApiExpansion(this).register();
                 if (registered) {
-                    MessageUtils.sendComponent(Bukkit.getConsoleSender(), TextComponent.of("[EnjinCraft] Registered PlaceholderAPI Expansion")
-                            .color(TextColor.GREEN));
+                    MessageUtils.sendComponent(Bukkit.getConsoleSender(),
+                                               TextComponent.of("[EnjinCraft] Registered PlaceholderAPI Expansion")
+                                .color(TextColor.GREEN));
                 } else {
-                    MessageUtils.sendComponent(Bukkit.getConsoleSender(), TextComponent.of("[EnjinCraft] Could not register PlaceholderAPI Expansion")
-                            .color(TextColor.RED));
+                    MessageUtils.sendComponent(Bukkit.getConsoleSender(),
+                                               TextComponent.of("[EnjinCraft] Could not register PlaceholderAPI Expansion")
+                                .color(TextColor.RED));
                 }
             }
 
@@ -147,10 +152,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
 
         try {
             // Attempt to authenticate the client using an app secret
-            networkResponse = trustedPlatformClient.authAppSync(
-                    conf.getAppId(),
-                    conf.getAppSecret()
-            );
+            networkResponse = trustedPlatformClient.authAppSync(conf.getAppId(), conf.getAppSecret());
         } catch (Exception ex) {
             throw new AuthenticationException(ex);
         }
@@ -168,12 +170,10 @@ public class SpigotBootstrap implements Bootstrap, Module {
             // Fetch the platform details
             HttpResponse<GraphQLResponse<PlatformDetails>> networkResponse = trustedPlatformClient.getPlatformService()
                     .getPlatformSync(new GetPlatform().withNotificationDrivers());
-
             if (!networkResponse.isSuccess())
                 throw new NetworkException(networkResponse.code());
 
             GraphQLResponse<PlatformDetails> graphQLResponse = networkResponse.body();
-
             if (!graphQLResponse.isSuccess())
                 throw new GraphQLException(graphQLResponse.getErrors());
 

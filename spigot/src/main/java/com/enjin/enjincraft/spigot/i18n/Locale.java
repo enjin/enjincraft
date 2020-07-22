@@ -46,7 +46,6 @@ public enum Locale {
 
     public YamlConfiguration loadLocaleResource(Plugin plugin) {
         InputStream is = plugin.getResource(String.format("lang/%s.yml", name()));
-
         if (is == null)
             return null;
 
