@@ -7,6 +7,7 @@ import com.enjin.enjincraft.spigot.player.EnjPlayer;
 import com.enjin.enjincraft.spigot.util.QrUtils;
 import com.enjin.minecraft_commons.spigot.map.ImageRenderer;
 import de.tr7zw.changeme.nbtapi.NBTItem;
+import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -19,6 +20,7 @@ import org.bukkit.map.MapView;
 
 import java.awt.*;
 import java.util.Map;
+import java.util.Objects;
 
 public class CmdQr extends EnjCommand {
 
@@ -33,18 +35,13 @@ public class CmdQr extends EnjCommand {
 
     @Override
     public void execute(CommandContext context) {
-        Player    sender    = context.player;
-        EnjPlayer enjPlayer = context.enjPlayer;
+        Player sender = Objects.requireNonNull(context.player);
 
-        if (!enjPlayer.isLoaded()) {
-            Translation.IDENTITY_NOTLOADED.send(sender);
+        EnjPlayer senderEnjPlayer = getValidSenderEnjPlayer(context);
+        if (senderEnjPlayer == null)
             return;
-        } else if (enjPlayer.isLinked()) {
-            Translation.COMMAND_QR_ALREADYLINKED.send(sender);
-            return;
-        }
 
-        Image qr = enjPlayer.getLinkingCodeQr();
+        Image qr = senderEnjPlayer.getLinkingCodeQr();
         if (qr == null) {
             Translation.COMMAND_QR_CODENOTLOADED.send(sender);
             return;
@@ -73,9 +70,28 @@ public class CmdQr extends EnjCommand {
             return;
         }
 
-        enjPlayer.removeQrMap();
+        senderEnjPlayer.removeQrMap();
         if (!placeQrInInventory(sender, is))
             Translation.COMMAND_QR_INVENTORYFULL.send(sender);
+    }
+
+    @Override
+    protected EnjPlayer getValidSenderEnjPlayer(@NonNull CommandContext context) throws NullPointerException {
+        Player sender = Objects.requireNonNull(context.player, "Expected context to have non-null player as sender");
+
+        EnjPlayer senderEnjPlayer = context.enjPlayer;
+        if (senderEnjPlayer == null) {
+            Translation.ERRORS_PLAYERNOTREGISTERED.send(sender, sender.getName());
+            return null;
+        } else if (!senderEnjPlayer.isLoaded()) {
+            Translation.IDENTITY_NOTLOADED.send(sender);
+            return null;
+        } else if (senderEnjPlayer.isLinked()) {
+            Translation.COMMAND_QR_ALREADYLINKED.send(sender);
+            return null;
+        }
+
+        return senderEnjPlayer;
     }
 
     @Override

@@ -1,17 +1,16 @@
 package com.enjin.enjincraft.spigot.cmd;
 
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
+import com.enjin.enjincraft.spigot.token.TokenManager;
 import com.enjin.enjincraft.spigot.token.TokenModel;
 import com.enjin.enjincraft.spigot.enums.Permission;
 import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
-import com.enjin.enjincraft.spigot.util.MessageUtils;
+import com.enjin.enjincraft.spigot.util.TokenUtils;
 import com.enjin.enjincraft.spigot.wallet.MutableBalance;
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
 public class CmdBalance extends EnjCommand {
 
@@ -27,18 +26,16 @@ public class CmdBalance extends EnjCommand {
 
     @Override
     public void execute(CommandContext context) {
-        Player sender = context.player;
-        EnjPlayer enjPlayer = context.enjPlayer;
+        CommandSender sender = context.sender;
 
-        if (!enjPlayer.isLinked()) {
-            Translation.WALLET_NOTLINKED_SELF.send(sender);
+        EnjPlayer enjPlayer = getValidSenderEnjPlayer(context);
+        if (enjPlayer == null)
             return;
-        }
 
-        BigDecimal ethBalance = (enjPlayer.getEthBalance() == null)
+        BigDecimal ethBalance = enjPlayer.getEthBalance() == null
                 ? BigDecimal.ZERO
                 : enjPlayer.getEthBalance();
-        BigDecimal enjBalance = (enjPlayer.getEnjBalance() == null)
+        BigDecimal enjBalance = enjPlayer.getEnjBalance() == null
                 ? BigDecimal.ZERO
                 : enjPlayer.getEnjBalance();
 
@@ -50,25 +47,34 @@ public class CmdBalance extends EnjCommand {
         if (enjBalance != null)
             Translation.COMMAND_BALANCE_ETHBALANCE.send(sender, ethBalance);
 
+        TokenManager tokenManager = bootstrap.getTokenManager();
+
         int itemCount = 0;
-        List<String> tokenDisplays = new ArrayList<>();
         for (MutableBalance balance : enjPlayer.getTokenWallet().getBalances()) {
-            if (balance == null || balance.balance() == 0)
+            if (balance.balance() == 0)
                 continue;
-            TokenModel model = bootstrap.getTokenManager().getToken(balance.id());
-            if (model == null)
+
+            String fullId;
+            try {
+                fullId = TokenUtils.createFullId(balance.id(), balance.index());
+            } catch (Exception e) {
+                bootstrap.log(e);
                 continue;
-            itemCount++;
-            Translation.COMMAND_BALANCE_TOKENDISPLAY.send(sender, itemCount, model.getDisplayName(), balance.balance());
+            }
+
+            TokenModel tokenModel = tokenManager.getToken(fullId);
+            if (tokenModel == null)
+                continue;
+
+            Translation.COMMAND_BALANCE_TOKENDISPLAY.send(sender, ++itemCount, tokenModel.getDisplayName(), balance.balance());
         }
 
         Translation.MISC_NEWLINE.send(sender);
+
         if (itemCount == 0)
             Translation.COMMAND_BALANCE_NOTOKENS.send(sender);
         else
             Translation.COMMAND_BALANCE_TOKENCOUNT.send(sender, itemCount);
-
-        tokenDisplays.forEach(l -> MessageUtils.sendString(sender, l));
     }
 
     @Override

@@ -9,7 +9,6 @@ import com.enjin.enjincraft.spigot.i18n.Translation;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class CmdConf extends EnjCommand {
 
@@ -68,21 +67,24 @@ public class CmdConf extends EnjCommand {
             public List<String> tab(CommandContext context) {
                 if (context.args.size() == 1)
                     return LocaleArgumentProcessor.INSTANCE.tab(context.sender, context.args.get(0));
+
                 return new ArrayList<>(0);
             }
 
             @Override
             public void execute(CommandContext context) {
-                Optional<Locale> locale = LocaleArgumentProcessor.INSTANCE.parse(context.sender, context.args.get(0));
-
-                if (!locale.isPresent()) {
+                Locale locale = LocaleArgumentProcessor.INSTANCE
+                        .parse(context.sender, context.args.get(0))
+                        .orElse(null);
+                if (locale == null) {
+                    // TODO: Add Translation.
                     return;
                 }
 
                 Conf config = bootstrap.getConfig();
-                config.setLocale(locale.get());
+                config.setLocale(locale);
                 bootstrap.plugin().saveConfig();
-                Translation.setServerLocale(locale.get());
+                Translation.setServerLocale(locale);
             }
 
             @Override

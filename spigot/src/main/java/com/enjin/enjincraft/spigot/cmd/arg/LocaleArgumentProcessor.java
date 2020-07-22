@@ -17,8 +17,9 @@ public class LocaleArgumentProcessor extends AbstractArgumentProcessor<Locale> {
     @Override
     public List<String> tab(CommandSender sender, String arg) {
         String lowerCaseArg = arg.toLowerCase();
-        return Arrays.asList(Locale.values()).stream()
-                .map(locale -> sender instanceof Player ? Translation.localeNames().get(locale)
+        return Arrays.stream(Locale.values())
+                .map(locale -> sender instanceof Player
+                        ? Translation.localeNames().get(locale)
                         : locale.locale())
                 .filter(locale -> locale.toLowerCase().startsWith(lowerCaseArg))
                 .collect(Collectors.toList());
@@ -26,16 +27,12 @@ public class LocaleArgumentProcessor extends AbstractArgumentProcessor<Locale> {
 
     @Override
     public Optional<Locale> parse(CommandSender sender, String arg) {
-        Optional<Locale> result = Optional.empty();
-
         for (Locale locale : Locale.values()) {
-            if (locale.locale().equalsIgnoreCase(arg) || Translation.localeNames().get(locale).equalsIgnoreCase(arg)) {
-                result = Optional.of(locale);
-                break;
-            }
+            if (locale.locale().equalsIgnoreCase(arg) || Translation.localeNames().get(locale).equalsIgnoreCase(arg))
+                return Optional.of(locale);
         }
 
-        return result;
+        return Optional.empty();
     }
 
 }
