@@ -131,8 +131,8 @@ public class EnjPlayer implements Listener {
 
         NotificationsService service   = bootstrap.getNotificationsService();
         boolean              listening = service.isSubscribedToIdentity(identityId);
-
-        if (!listening) { service.subscribeToIdentity(identityId); }
+        if (!listening)
+            service.subscribeToIdentity(identityId);
 
         if (isLinked()) {
             Bukkit.getScheduler().runTask(bootstrap.plugin(), this::addLinkPermissions);
@@ -155,7 +155,8 @@ public class EnjPlayer implements Listener {
     }
 
     public void initWallet() {
-        if (wallet == null || StringUtils.isEmpty(wallet.getEthAddress())) { return; }
+        if (wallet == null || StringUtils.isEmpty(wallet.getEthAddress()))
+            return;
 
         try {
             HttpResponse<GraphQLResponse<List<Balance>>> networkResponse;
@@ -164,10 +165,12 @@ public class EnjPlayer implements Listener {
                                        .getBalancesSync(new GetBalances()
                                                .valGt(0)
                                                .ethAddress(wallet.getEthAddress()));
-            if (!networkResponse.isSuccess()) { throw new NetworkException(networkResponse.code()); }
+            if (!networkResponse.isSuccess())
+                throw new NetworkException(networkResponse.code());
 
             GraphQLResponse<List<Balance>> graphQLResponse = networkResponse.body();
-            if (!graphQLResponse.isSuccess()) { throw new GraphQLException(graphQLResponse.getErrors()); }
+            if (!graphQLResponse.isSuccess())
+                throw new GraphQLException(graphQLResponse.getErrors());
 
             tokenWallet = new TokenWallet(graphQLResponse.getData());
             validateInventory();
@@ -381,35 +384,29 @@ public class EnjPlayer implements Listener {
 
     private ItemStack getEquipment(EquipmentSlot slot) {
         PlayerInventory inventory = bukkitPlayer.getInventory();
-        ItemStack is = null;
+
         switch (slot) {
             case HAND:
-                break;
+                return null;
             case OFF_HAND:
-                is = inventory.getItemInOffHand();
-                break;
+                return inventory.getItemInOffHand();
             case CHEST:
-                is = inventory.getChestplate();
-                break;
+                return inventory.getChestplate();
             case LEGS:
-                is = inventory.getLeggings();
-                break;
+                return inventory.getLeggings();
             case HEAD:
-                is = inventory.getHelmet();
-                break;
+                return inventory.getHelmet();
             case FEET:
-                is = inventory.getBoots();
-                break;
+                return inventory.getBoots();
             default:
                 bootstrap.debug(String.format("Unsupported equipment slot type \"%s\"", slot.name()));
-                break;
+                return null;
         }
-
-        return is;
     }
 
     private void setEquipment(EquipmentSlot slot, ItemStack is) {
         PlayerInventory inventory = bukkitPlayer.getInventory();
+
         switch (slot) {
             case HAND:
                 break;
@@ -532,7 +529,7 @@ public class EnjPlayer implements Listener {
                 continue;
 
             String baseFullId = TokenUtils.normalizeFullId(fullId);
-            if (baseFullId != null && !baseFullId.equals(fullId)) // Collects the ids for non-fungible base models
+            if (!baseFullId.equals(fullId)) // Collects the ids for non-fungible base models
                 baseFullIds.add(baseFullId);
 
             initPermissions(fullId);
@@ -758,7 +755,7 @@ public class EnjPlayer implements Listener {
                 intersect.add(fullId);
 
                 String baseFullId = TokenUtils.normalizeFullId(fullId);
-                if (baseFullId != null && !baseFullId.equals(fullId)) // Collects the ids for non-fungible base models
+                if (!baseFullId.equals(fullId)) // Collects the ids for non-fungible base models
                     intersect.add(baseFullId);
             }
         }
@@ -778,13 +775,16 @@ public class EnjPlayer implements Listener {
                                                                              .withLinkingCode()
                                                                              .withLinkingCodeQr()
                                                                              .withWallet());
-            if (!networkResponse.isSuccess()) { throw new NetworkException(networkResponse.code()); }
+            if (!networkResponse.isSuccess())
+                throw new NetworkException(networkResponse.code());
 
             GraphQLResponse<List<Identity>> graphQLResponse = networkResponse.body();
-            if (!graphQLResponse.isSuccess()) { throw new GraphQLException(graphQLResponse.getErrors()); }
+            if (!graphQLResponse.isSuccess())
+                throw new GraphQLException(graphQLResponse.getErrors());
 
             Identity identity = null;
-            if (!graphQLResponse.getData().isEmpty()) { identity = graphQLResponse.getData().get(0); }
+            if (!graphQLResponse.getData().isEmpty())
+                identity = graphQLResponse.getData().get(0);
 
             loadIdentity(identity);
         } catch (Exception ex) {
@@ -793,14 +793,17 @@ public class EnjPlayer implements Listener {
     }
 
     public void unlink() {
-        if (!isLinked()) { return; }
+        if (!isLinked())
+            return;
 
-        bootstrap.getTrustedPlatformClient().getIdentityService()
+        bootstrap.getTrustedPlatformClient()
+                 .getIdentityService()
                  .unlinkIdentitySync(new UnlinkIdentity().id(identityId));
     }
 
     public void unlinked() {
-        if (!isLinked()) { return; }
+        if (!isLinked())
+            return;
 
         Translation.COMMAND_UNLINK_SUCCESS.send(bukkitPlayer);
         Translation.HINT_LINK.send(bukkitPlayer);
@@ -813,9 +816,7 @@ public class EnjPlayer implements Listener {
         Inventory inventory = bukkitPlayer.getInventory();
         for (int i = 0; i < inventory.getSize(); i++) {
             ItemStack is    = inventory.getItem(i);
-            String    id    = TokenUtils.getTokenID(is);
-            String    index = TokenUtils.getTokenIndex(is);
-            if (!StringUtils.isEmpty(id) || !StringUtils.isEmpty(index))
+            if (TokenUtils.hasTokenData(is))
                 inventory.setItem(i, null);
         }
     }
@@ -837,17 +838,20 @@ public class EnjPlayer implements Listener {
 
         if (QrUtils.hasQrTag(view.getCursor()))
             view.setCursor(null);
-
         if (QrUtils.hasQrTag(inventory.getItemInOffHand()))
             inventory.setItemInOffHand(null);
     }
 
     public void addLinkPermissions() {
-        bootstrap.getConfig().getLinkPermissions().forEach(perm -> globalAttachment.setPermission(perm));
+        bootstrap.getConfig()
+                 .getLinkPermissions()
+                 .forEach(globalAttachment::setPermission);
     }
 
     public void removeLinkPermissions() {
-        bootstrap.getConfig().getLinkPermissions().forEach(perm -> globalAttachment.unsetPermission(perm));
+        bootstrap.getConfig()
+                 .getLinkPermissions()
+                 .forEach(globalAttachment::unsetPermission);
     }
 
     public boolean isUserLoaded() {
@@ -900,12 +904,15 @@ public class EnjPlayer implements Listener {
 
     protected void cleanUp() {
         PlayerInitializationTask.cleanUp(bukkitPlayer.getUniqueId());
-        NotificationsService service   = bootstrap.getNotificationsService();
+
+        NotificationsService service = bootstrap.getNotificationsService();
+
         if (identityId != null) {
             boolean listening = service.isSubscribedToIdentity(identityId);
             if (listening)
                 service.unsubscribeToIdentity(identityId);
         }
+
         PlayerChangedWorldEvent.getHandlerList().unregister(this);
         bukkitPlayer = null;
     }
@@ -943,7 +950,9 @@ public class EnjPlayer implements Listener {
     }
 
     public String getEthereumAddress() {
-        return wallet == null ? "" : wallet.getEthAddress();
+        return wallet == null
+                ? ""
+                : wallet.getEthAddress();
     }
 
     public String getLinkingCode() {
@@ -963,15 +972,21 @@ public class EnjPlayer implements Listener {
     }
 
     public BigDecimal getEnjBalance() {
-        return wallet == null ? BigDecimal.ZERO : wallet.getEnjBalance();
+        return wallet == null
+                ? BigDecimal.ZERO
+                : wallet.getEnjBalance();
     }
 
     public BigDecimal getEthBalance() {
-        return wallet == null ? BigDecimal.ZERO : wallet.getEthBalance();
+        return wallet == null
+                ? BigDecimal.ZERO
+                : wallet.getEthBalance();
     }
 
     public BigDecimal getEnjAllowance() {
-        return wallet == null ? BigDecimal.ZERO : wallet.getEnjAllowance();
+        return wallet == null
+                ? BigDecimal.ZERO
+                : wallet.getEnjAllowance();
     }
 
     public TokenWallet getTokenWallet() {
