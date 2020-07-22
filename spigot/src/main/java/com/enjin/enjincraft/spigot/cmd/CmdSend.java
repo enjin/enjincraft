@@ -7,7 +7,6 @@ import com.enjin.enjincraft.spigot.cmd.arg.PlayerArgumentProcessor;
 import com.enjin.enjincraft.spigot.enums.Permission;
 import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
-import com.enjin.enjincraft.spigot.util.StringUtils;
 import com.enjin.enjincraft.spigot.util.TokenUtils;
 import com.enjin.enjincraft.spigot.wallet.MutableBalance;
 import com.enjin.sdk.TrustedPlatformClient;
@@ -15,14 +14,14 @@ import com.enjin.sdk.graphql.GraphQLResponse;
 import com.enjin.sdk.models.request.CreateRequest;
 import com.enjin.sdk.models.request.Transaction;
 import com.enjin.sdk.models.request.data.SendTokenData;
-import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 
 public class CmdSend extends EnjCommand {
 
@@ -40,61 +39,41 @@ public class CmdSend extends EnjCommand {
     public List<String> tab(CommandContext context) {
         if (context.args.size() == 1)
             return PlayerArgumentProcessor.INSTANCE.tab(context.sender, context.args.get(0));
+
         return new ArrayList<>(0);
     }
 
     @Override
     public void execute(CommandContext context) {
-        Player sender = context.player;
-        EnjPlayer senderEnjPlayer = context.enjPlayer;
+        Player sender = Objects.requireNonNull(context.player);
+        String target = context.args.get(0);
 
-        if (context.args.isEmpty())
+        EnjPlayer senderEnjPlayer = getValidSenderEnjPlayer(context);
+        if (senderEnjPlayer == null)
             return;
 
-        if (!senderEnjPlayer.isLinked()) {
-            Translation.WALLET_NOTLINKED_SELF.send(sender);
+        Player targetPlayer = getValidTargetPlayer(context, target);
+        if (targetPlayer == null)
             return;
-        }
 
-        Player target = Bukkit.getPlayer(context.args.get(0));
-        if (target == null || !target.isOnline()) {
-            Translation.ERRORS_PLAYERNOTONLINE.send(sender, context.args.get(0));
+        EnjPlayer targetEnjPlayer = getValidTargetEnjPlayer(context, targetPlayer);
+        if (targetEnjPlayer == null)
             return;
-        }
-
-        if (target == sender) {
-            Translation.ERRORS_CHOOSEOTHERPLAYER.send(sender);
-            return;
-        }
-
-        Optional<EnjPlayer> optionalTarget = bootstrap.getPlayerManager().getPlayer(target);
-        if (!optionalTarget.isPresent())
-            return;
-        EnjPlayer targetEnjPlayer = optionalTarget.get();
-
-        if (!targetEnjPlayer.isLinked()) {
-            Translation.WALLET_NOTLINKED_OTHER.send(sender, target.getName());
-            return;
-        }
 
         ItemStack is = sender.getInventory().getItemInMainHand();
-
-        String tokenId = TokenUtils.getTokenID(is);
-        if (tokenId == null) {
+        if (is.getType() == Material.AIR || !is.getType().isItem()) {
             Translation.COMMAND_SEND_MUSTHOLDITEM.send(sender);
             return;
-        } else if (StringUtils.isEmpty(tokenId)) {
+        } else if (!TokenUtils.isValidTokenItem(is)) {
             Translation.COMMAND_SEND_ITEMNOTTOKEN.send(sender);
             return;
         }
 
-        String tokenIndex = TokenUtils.isNonFungible(is)
-                ? TokenUtils.getTokenIndex(is)
-                : null;
+        String tokenId    = TokenUtils.getTokenID(is);
+        String tokenIndex = TokenUtils.getTokenIndex(is);
 
         MutableBalance balance = senderEnjPlayer.getTokenWallet().getBalance(tokenId, tokenIndex);
-
-        if (balance == null) {
+        if (balance == null || balance.balance() == 0) {
             Translation.COMMAND_SEND_DOESNOTHAVETOKEN.send(sender);
             return;
         }
@@ -107,8 +86,7 @@ public class CmdSend extends EnjCommand {
             return;
         }
 
-        send(sender, senderEnjPlayer.getIdentityId(), targetEnjPlayer.getIdentityId(),
-                tokenId, tokenIndex, is.getAmount());
+        send(sender, senderEnjPlayer.getIdentityId(), targetEnjPlayer.getIdentityId(), tokenId, tokenIndex, is.getAmount());
     }
 
     private void send(Player sender, int senderId, int targetId, String tokenId, String tokenIndex, int amount) {
