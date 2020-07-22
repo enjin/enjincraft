@@ -23,7 +23,6 @@ import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -80,19 +79,14 @@ public class CmdToken extends EnjCommand {
 
         @Override
         public void execute(CommandContext context) {
-            if (context.args.size() < requiredArgs.size()
-                    || context.args.size() > requiredArgs.size() + optionalArgs.size())
-                return;
-
             String tokenId = context.args.get(0);
             String alternateId = context.args.size() == 2
                     ? context.args.get(1)
                     : null;
-            Player sender = context.player;
-            PlayerInventory inventory = sender.getInventory();
-            ItemStack held = inventory.getItemInMainHand();
+            Player sender = Objects.requireNonNull(context.player);
 
             TokenManager tokenManager = bootstrap.getTokenManager();
+            ItemStack held = sender.getInventory().getItemInMainHand();
 
             if (tokenManager.hasToken(tokenId)) {
                 Translation.COMMAND_TOKEN_CREATE_DUPLICATE.send(sender);
@@ -161,20 +155,15 @@ public class CmdToken extends EnjCommand {
 
         @Override
         public void execute(CommandContext context) {
-            if (context.args.size() < requiredArgs.size()
-                    || context.args.size() > requiredArgs.size() + optionalArgs.size())
-                return;
-
             String id = context.args.get(0);
             String index = context.args.get(1);
             String alternateId = context.args.size() == 3
                     ? context.args.get(2)
                     : null;
-            Player sender = context.player;
-            PlayerInventory inventory = sender.getInventory();
-            ItemStack held = inventory.getItemInMainHand();
+            Player sender = Objects.requireNonNull(context.player);
 
             TokenManager tokenManager = bootstrap.getTokenManager();
+            ItemStack held = sender.getInventory().getItemInMainHand();
 
             TokenModel baseModel = tokenManager.getToken(id);
             if (baseModel != null && !baseModel.isNonfungible()) { // Must not refer to a fungible token
@@ -183,7 +172,7 @@ public class CmdToken extends EnjCommand {
             } else if (alternateId != null
                     && baseModel != null
                     && baseModel.getAlternateId() != null
-                    && !alternateId.equals(baseModel.getAlternateId())) { // Must not replace nickname on create
+                    && !alternateId.equals(baseModel.getAlternateId())) { // Must not replace nickname on later creates
                 Translation.COMMAND_TOKEN_CREATENFT_REPLACENICKNAME.send(sender);
                 return;
             } else if (alternateId != null && !TokenManager.isValidAlternateId(alternateId)) {
@@ -274,18 +263,15 @@ public class CmdToken extends EnjCommand {
 
         @Override
         public void execute(CommandContext context) {
-            if (context.args.size() < requiredArgs.size()
-                    || context.args.size() > requiredArgs.size() + optionalArgs.size())
-                return;
-
             String id = context.args.get(0);
             String index = context.args.size() > requiredArgs.size()
                     ? context.args.get(1)
                     : null;
-            Player sender = context.player;
+            Player sender = Objects.requireNonNull(context.player);
 
             TokenManager tokenManager = bootstrap.getTokenManager();
-            TokenModel   baseModel    = tokenManager.getToken(id);
+
+            TokenModel baseModel = tokenManager.getToken(id);
             if (baseModel == null) {
                 Translation.COMMAND_TOKEN_NOSUCHTOKEN.send(sender);
                 return;
@@ -313,10 +299,8 @@ public class CmdToken extends EnjCommand {
                 return;
             }
 
-            PlayerInventory inventory = sender.getInventory();
-            ItemStack held = inventory.getItemInMainHand();
-
-            if (!held.getType().isItem()) {
+            ItemStack held = sender.getInventory().getItemInMainHand();
+            if (held.getType() == Material.AIR || !held.getType().isItem()) {
                 Translation.COMMAND_TOKEN_NOHELDITEM.send(sender);
                 return;
             }
@@ -374,18 +358,15 @@ public class CmdToken extends EnjCommand {
 
         @Override
         public void execute(CommandContext context) {
-            if (context.args.size() < requiredArgs.size()
-                    || context.args.size() > requiredArgs.size() + optionalArgs.size())
-                return;
-
             String id = context.args.get(0);
             String index = context.args.size() > requiredArgs.size()
                     ? context.args.get(1)
                     : null;
-            Player sender = context.player;
+            CommandSender sender = context.sender;
 
             TokenManager tokenManager = bootstrap.getTokenManager();
-            TokenModel   baseModel    = tokenManager.getToken(id);
+
+            TokenModel baseModel = tokenManager.getToken(id);
             if (baseModel == null) {
                 Translation.COMMAND_TOKEN_NOSUCHTOKEN.send(sender);
                 return;
@@ -393,9 +374,12 @@ public class CmdToken extends EnjCommand {
 
             String fullId;
             try {
-                fullId = baseModel.isNonfungible() && index != null
-                        ? TokenUtils.createFullId(baseModel.getId(), TokenUtils.parseIndex(index))
+                fullId = baseModel.isNonfungible()
+                        ? TokenUtils.createFullId(baseModel.getId(), TokenUtils.parseIndex(Objects.requireNonNull(index)))
                         : TokenUtils.createFullId(baseModel.getId());
+            } catch (NullPointerException e) {
+                Translation.COMMAND_TOKEN_MUSTPASSINDEX.send(sender);
+                return;
             } catch (IllegalArgumentException e) {
                 Translation.COMMAND_TOKEN_INVALIDFULLID.send(sender);
                 return;
@@ -445,18 +429,15 @@ public class CmdToken extends EnjCommand {
 
         @Override
         public void execute(CommandContext context) {
-            if (context.args.size() < requiredArgs.size()
-                    || context.args.size() > requiredArgs.size() + optionalArgs.size())
-                return;
-
             String id = context.args.get(0);
             String index = context.args.size() > requiredArgs.size()
                     ? context.args.get(1)
                     : null;
-            Player sender = context.player;
+            Player sender = Objects.requireNonNull(context.player);
 
             TokenManager tokenManager = bootstrap.getTokenManager();
-            TokenModel   baseModel    = tokenManager.getToken(id);
+
+            TokenModel baseModel = tokenManager.getToken(id);
             if (baseModel == null) {
                 Translation.COMMAND_TOKEN_NOSUCHTOKEN.send(sender);
                 return;
@@ -484,9 +465,7 @@ public class CmdToken extends EnjCommand {
                 return;
             }
 
-            PlayerInventory inventory = sender.getInventory();
-            Map<Integer, ItemStack> leftOver = inventory.addItem(tokenModel.getItemStack(true));
-
+            Map<Integer, ItemStack> leftOver = sender.getInventory().addItem(tokenModel.getItemStack(true));
             if (leftOver.isEmpty())
                 Translation.COMMAND_TOKEN_TOINV_SUCCESS.send(sender);
             else
@@ -514,18 +493,14 @@ public class CmdToken extends EnjCommand {
 
         @Override
         public void execute(CommandContext context) {
-            if (context.args.size() != 2)
-                return;
-
             String id = context.args.get(0);
             String alternateId = context.args.get(1);
-            Player sender = context.player;
 
             TokenManager tokenManager = bootstrap.getTokenManager();
 
             TokenModel tokenModel = tokenManager.getToken(id);
             if (tokenModel == null) {
-                Translation.COMMAND_TOKEN_NOSUCHTOKEN.send(sender);
+                Translation.COMMAND_TOKEN_NOSUCHTOKEN.send(context.sender);
                 return;
             } else if (tokenModel.isNonfungible()) {
                 id = TokenUtils.normalizeFullId(tokenModel.getFullId());
@@ -536,25 +511,25 @@ public class CmdToken extends EnjCommand {
             int result = tokenManager.updateAlternateId(id, alternateId);
             switch (result) {
                 case TokenManager.TOKEN_UPDATE_SUCCESS:
-                    Translation.COMMAND_TOKEN_NICKNAME_SUCCESS.send(sender);
+                    Translation.COMMAND_TOKEN_NICKNAME_SUCCESS.send(context.sender);
                     break;
                 case TokenManager.TOKEN_NOSUCHTOKEN:
-                    Translation.COMMAND_TOKEN_NOSUCHTOKEN.send(sender);
+                    Translation.COMMAND_TOKEN_NOSUCHTOKEN.send(context.sender);
                     break;
                 case TokenManager.TOKEN_DUPLICATENICKNAME:
-                    Translation.COMMAND_TOKEN_NICKNAME_DUPLICATE.send(sender);
+                    Translation.COMMAND_TOKEN_NICKNAME_DUPLICATE.send(context.sender);
                     break;
                 case TokenManager.TOKEN_HASNICKNAME:
-                    Translation.COMMAND_TOKEN_NICKNAME_HAS.send(sender);
+                    Translation.COMMAND_TOKEN_NICKNAME_HAS.send(context.sender);
                     break;
                 case TokenManager.TOKEN_INVALIDNICKNAME:
-                    Translation.COMMAND_TOKEN_NICKNAME_INVALID.send(sender);
+                    Translation.COMMAND_TOKEN_NICKNAME_INVALID.send(context.sender);
                     break;
                 case TokenManager.TOKEN_ISNOTBASE:
-                    Translation.COMMAND_TOKEN_ISNONFUNGIBLEINSTANCE.send(sender);
+                    Translation.COMMAND_TOKEN_ISNONFUNGIBLEINSTANCE.send(context.sender);
                     break;
                 case TokenManager.TOKEN_UPDATE_FAILED:
-                    Translation.COMMAND_TOKEN_UPDATE_FAILED.send(sender);
+                    Translation.COMMAND_TOKEN_UPDATE_FAILED.send(context.sender);
                     break;
                 default:
                     bootstrap.debug(String.format("Unhandled result when setting nickname (status: %d)", result));
@@ -584,15 +559,11 @@ public class CmdToken extends EnjCommand {
 
         @Override
         public void execute(CommandContext context) {
-            if (context.args.size() < requiredArgs.size())
-                return;
-
             String id = context.args.get(0);
             String perm = context.args.get(1);
             List<String> worlds = context.args.size() > requiredArgs.size()
                     ? context.args.subList(requiredArgs.size(), context.args.size())
                     : null;
-            Player sender = context.player;
 
             boolean isGlobal = worlds == null || worlds.contains(TokenManager.GLOBAL);
             int     result   = isGlobal
@@ -600,22 +571,22 @@ public class CmdToken extends EnjCommand {
                     : bootstrap.getTokenManager().addPermissionToToken(perm, id, worlds);
             switch (result) {
                 case TokenManager.PERM_ADDED_SUCCESS:
-                    Translation.COMMAND_TOKEN_ADDPERM_PERMADDED.send(sender);
+                    Translation.COMMAND_TOKEN_ADDPERM_PERMADDED.send(context.sender);
                     break;
                 case TokenManager.TOKEN_NOSUCHTOKEN:
-                    Translation.COMMAND_TOKEN_NOSUCHTOKEN.send(sender);
+                    Translation.COMMAND_TOKEN_NOSUCHTOKEN.send(context.sender);
                     break;
                 case TokenManager.PERM_ADDED_DUPLICATEPERM:
-                    Translation.COMMAND_TOKEN_ADDPERM_DUPLICATEPERM.send(sender);
+                    Translation.COMMAND_TOKEN_ADDPERM_DUPLICATEPERM.send(context.sender);
                     break;
                 case TokenManager.PERM_ADDED_BLACKLISTED:
-                    Translation.COMMAND_TOKEN_ADDPERM_PERMREJECTED.send(sender);
+                    Translation.COMMAND_TOKEN_ADDPERM_PERMREJECTED.send(context.sender);
                     break;
                 case TokenManager.PERM_ISGLOBAL:
-                    Translation.COMMAND_TOKEN_PERM_ISGLOBAL.send(sender);
+                    Translation.COMMAND_TOKEN_PERM_ISGLOBAL.send(context.sender);
                     break;
                 case TokenManager.TOKEN_UPDATE_FAILED:
-                    Translation.COMMAND_TOKEN_UPDATE_FAILED.send(sender);
+                    Translation.COMMAND_TOKEN_UPDATE_FAILED.send(context.sender);
                     break;
                 default:
                     bootstrap.debug(String.format("Unhandled result when adding base permission (status: %d)", result));
@@ -647,21 +618,18 @@ public class CmdToken extends EnjCommand {
 
         @Override
         public void execute(CommandContext context) {
-            if (context.args.size() < requiredArgs.size())
-                return;
-
             String id = context.args.get(0);
             String index = context.args.get(1);
             String perm = context.args.get(2);
             List<String> worlds = context.args.size() > requiredArgs.size()
                     ? context.args.subList(requiredArgs.size(), context.args.size())
                     : null;
-            Player sender = context.player;
 
             TokenManager tokenManager = bootstrap.getTokenManager();
-            TokenModel   baseModel    = tokenManager.getToken(id);
+
+            TokenModel baseModel = tokenManager.getToken(id);
             if (baseModel != null && !baseModel.isNonfungible()) {
-                Translation.COMMAND_TOKEN_ISFUNGIBLE.send(sender);
+                Translation.COMMAND_TOKEN_ISFUNGIBLE.send(context.sender);
                 return;
             } else if (baseModel != null) {
                 id = baseModel.getId();
@@ -672,7 +640,7 @@ public class CmdToken extends EnjCommand {
                 index  = TokenUtils.parseIndex(index);
                 fullId = TokenUtils.createFullId(id, index);
             } catch (IllegalArgumentException e) {
-                Translation.COMMAND_TOKEN_INVALIDFULLID.send(sender);
+                Translation.COMMAND_TOKEN_INVALIDFULLID.send(context.sender);
                 return;
             } catch (Exception e) {
                 bootstrap.log(e);
@@ -685,22 +653,22 @@ public class CmdToken extends EnjCommand {
                     : tokenManager.addPermissionToToken(perm, fullId, worlds);
             switch (result) {
                 case TokenManager.PERM_ADDED_SUCCESS:
-                    Translation.COMMAND_TOKEN_ADDPERM_PERMADDED.send(sender);
+                    Translation.COMMAND_TOKEN_ADDPERM_PERMADDED.send(context.sender);
                     break;
                 case TokenManager.TOKEN_NOSUCHTOKEN:
-                    Translation.COMMAND_TOKEN_NOSUCHTOKEN.send(sender);
+                    Translation.COMMAND_TOKEN_NOSUCHTOKEN.send(context.sender);
                     break;
                 case TokenManager.PERM_ADDED_DUPLICATEPERM:
-                    Translation.COMMAND_TOKEN_ADDPERM_DUPLICATEPERM.send(sender);
+                    Translation.COMMAND_TOKEN_ADDPERM_DUPLICATEPERM.send(context.sender);
                     break;
                 case TokenManager.PERM_ADDED_BLACKLISTED:
-                    Translation.COMMAND_TOKEN_ADDPERM_PERMREJECTED.send(sender);
+                    Translation.COMMAND_TOKEN_ADDPERM_PERMREJECTED.send(context.sender);
                     break;
                 case TokenManager.PERM_ISGLOBAL:
-                    Translation.COMMAND_TOKEN_PERM_ISGLOBAL.send(sender);
+                    Translation.COMMAND_TOKEN_PERM_ISGLOBAL.send(context.sender);
                     break;
                 case TokenManager.TOKEN_UPDATE_FAILED:
-                    Translation.COMMAND_TOKEN_UPDATE_FAILED.send(sender);
+                    Translation.COMMAND_TOKEN_UPDATE_FAILED.send(context.sender);
                     break;
                 default:
                     bootstrap.debug(String.format("Unhandled result when adding non-fungible permission (status: %d)", result));
@@ -731,15 +699,11 @@ public class CmdToken extends EnjCommand {
 
         @Override
         public void execute(CommandContext context) {
-            if (context.args.size() < requiredArgs.size())
-                return;
-
             String id = context.args.get(0);
             String perm = context.args.get(1);
             List<String> worlds = context.args.size() > requiredArgs.size()
                     ? context.args.subList(requiredArgs.size(), context.args.size())
                     : null;
-            Player sender = context.player;
 
             boolean isGlobal = worlds == null || worlds.contains(TokenManager.GLOBAL);
             int     result   = isGlobal
@@ -747,19 +711,19 @@ public class CmdToken extends EnjCommand {
                     : bootstrap.getTokenManager().removePermissionFromToken(perm, id, worlds);
             switch (result) {
                 case TokenManager.PERM_REMOVED_SUCCESS:
-                    Translation.COMMAND_TOKEN_REVOKEPERM_PERMREVOKED.send(sender);
+                    Translation.COMMAND_TOKEN_REVOKEPERM_PERMREVOKED.send(context.sender);
                     break;
                 case TokenManager.TOKEN_NOSUCHTOKEN:
-                    Translation.COMMAND_TOKEN_NOSUCHTOKEN.send(sender);
+                    Translation.COMMAND_TOKEN_NOSUCHTOKEN.send(context.sender);
                     break;
                 case TokenManager.PERM_REMOVED_NOPERMONTOKEN:
-                    Translation.COMMAND_TOKEN_REVOKEPERM_PERMNOTONTOKEN.send(sender);
+                    Translation.COMMAND_TOKEN_REVOKEPERM_PERMNOTONTOKEN.send(context.sender);
                     break;
                 case TokenManager.PERM_ISGLOBAL:
-                    Translation.COMMAND_TOKEN_PERM_ISGLOBAL.send(sender);
+                    Translation.COMMAND_TOKEN_PERM_ISGLOBAL.send(context.sender);
                     break;
                 case TokenManager.TOKEN_UPDATE_FAILED:
-                    Translation.COMMAND_TOKEN_UPDATE_FAILED.send(sender);
+                    Translation.COMMAND_TOKEN_UPDATE_FAILED.send(context.sender);
                     break;
                 default:
                     bootstrap.debug(String.format("Unhandled result when removing base permission (status: %d)", result));
@@ -791,21 +755,17 @@ public class CmdToken extends EnjCommand {
 
         @Override
         public void execute(CommandContext context) {
-            if (context.args.size() < requiredArgs.size())
-                return;
-
             String id = context.args.get(0);
             String index = context.args.get(1);
             String perm = context.args.get(2);
             List<String> worlds = context.args.size() > requiredArgs.size()
                     ? context.args.subList(requiredArgs.size(), context.args.size())
                     : null;
-            Player sender = context.player;
 
             TokenManager tokenManager = bootstrap.getTokenManager();
             TokenModel   baseModel    = tokenManager.getToken(id);
             if (baseModel != null && !baseModel.isNonfungible()) {
-                Translation.COMMAND_TOKEN_ISFUNGIBLE.send(sender);
+                Translation.COMMAND_TOKEN_ISFUNGIBLE.send(context.sender);
                 return;
             } else if (baseModel != null) {
                 id = baseModel.getId();
@@ -816,7 +776,7 @@ public class CmdToken extends EnjCommand {
                 index  = TokenUtils.parseIndex(index);
                 fullId = TokenUtils.createFullId(id, index);
             } catch (IllegalArgumentException e) {
-                Translation.COMMAND_TOKEN_INVALIDFULLID.send(sender);
+                Translation.COMMAND_TOKEN_INVALIDFULLID.send(context.sender);
                 return;
             } catch (Exception e) {
                 bootstrap.log(e);
@@ -829,19 +789,19 @@ public class CmdToken extends EnjCommand {
                     : tokenManager.removePermissionFromToken(perm, fullId, worlds);
             switch (result) {
                 case TokenManager.PERM_REMOVED_SUCCESS:
-                    Translation.COMMAND_TOKEN_REVOKEPERM_PERMREVOKED.send(sender);
+                    Translation.COMMAND_TOKEN_REVOKEPERM_PERMREVOKED.send(context.sender);
                     break;
                 case TokenManager.TOKEN_NOSUCHTOKEN:
-                    Translation.COMMAND_TOKEN_NOSUCHTOKEN.send(sender);
+                    Translation.COMMAND_TOKEN_NOSUCHTOKEN.send(context.sender);
                     break;
                 case TokenManager.PERM_REMOVED_NOPERMONTOKEN:
-                    Translation.COMMAND_TOKEN_REVOKEPERM_PERMNOTONTOKEN.send(sender);
+                    Translation.COMMAND_TOKEN_REVOKEPERM_PERMNOTONTOKEN.send(context.sender);
                     break;
                 case TokenManager.PERM_ISGLOBAL:
-                    Translation.COMMAND_TOKEN_PERM_ISGLOBAL.send(sender);
+                    Translation.COMMAND_TOKEN_PERM_ISGLOBAL.send(context.sender);
                     break;
                 case TokenManager.TOKEN_UPDATE_FAILED:
-                    Translation.COMMAND_TOKEN_UPDATE_FAILED.send(sender);
+                    Translation.COMMAND_TOKEN_UPDATE_FAILED.send(context.sender);
                     break;
                 default:
                     bootstrap.debug(String.format("Unhandled result when removing non-fungible permission (status: %d)", result));
@@ -870,19 +830,15 @@ public class CmdToken extends EnjCommand {
 
         @Override
         public void execute(CommandContext context) {
-            if (context.args.size() != requiredArgs.size())
-                return;
-
             String id = context.args.get(0);
-            Player sender = context.player;
 
             TokenModel tokenModel = bootstrap.getTokenManager().getToken(id);
             if (tokenModel == null) {
-                Translation.COMMAND_TOKEN_NOSUCHTOKEN.send(sender);
+                Translation.COMMAND_TOKEN_NOSUCHTOKEN.send(context.sender);
                 return;
             }
 
-            getURI(sender, tokenModel.getId());
+            getURI(context.sender, tokenModel.getId());
         }
 
         private void getURI(CommandSender sender, String tokenId) {
@@ -953,35 +909,31 @@ public class CmdToken extends EnjCommand {
 
         @Override
         public void execute(CommandContext context) {
-            if (context.args.size() != requiredArgs.size())
-                return;
-
             String id = context.args.get(0);
-            Player sender = context.player;
 
             TokenManager tokenManager = bootstrap.getTokenManager();
             TokenModel   tokenModel   = tokenManager.getToken(id);
             if (tokenModel == null) {
-                Translation.COMMAND_TOKEN_NOSUCHTOKEN.send(sender);
+                Translation.COMMAND_TOKEN_NOSUCHTOKEN.send(context.sender);
                 return;
             } else if (StringUtils.isEmpty(tokenModel.getMetadataURI())) {
-                Translation.COMMAND_TOKEN_REMOVEURI_EMPTY.send(sender);
+                Translation.COMMAND_TOKEN_REMOVEURI_EMPTY.send(context.sender);
                 return;
             }
 
             int result = tokenManager.updateMetadataURI(tokenModel.getId(), null);
             switch (result) {
                 case TokenManager.TOKEN_NOSUCHTOKEN:
-                    Translation.COMMAND_TOKEN_NOSUCHTOKEN.send(sender);
+                    Translation.COMMAND_TOKEN_NOSUCHTOKEN.send(context.sender);
                     break;
                 case TokenManager.TOKEN_UPDATE_SUCCESS:
-                    Translation.COMMAND_TOKEN_REMOVEURI_SUCCESS.send(sender);
+                    Translation.COMMAND_TOKEN_REMOVEURI_SUCCESS.send(context.sender);
                     break;
                 case TokenManager.TOKEN_ISNOTBASE:
-                    Translation.COMMAND_TOKEN_ISNONFUNGIBLEINSTANCE.send(sender);
+                    Translation.COMMAND_TOKEN_ISNONFUNGIBLEINSTANCE.send(context.sender);
                     break;
                 case TokenManager.TOKEN_UPDATE_FAILED:
-                    Translation.COMMAND_TOKEN_REMOVEURI_FAILED.send(sender);
+                    Translation.COMMAND_TOKEN_REMOVEURI_FAILED.send(context.sender);
                     break;
                 default:
                     bootstrap.debug(String.format("Unhandled result when removing the URI (status: %d)", result));
@@ -1012,18 +964,14 @@ public class CmdToken extends EnjCommand {
 
         @Override
         public void execute(CommandContext context) {
-            if (context.args.size() != requiredArgs.size())
-                return;
-
             String id = context.args.get(0);
             String view = context.args.get(1);
-            Player sender = context.player;
 
             TokenWalletViewState viewState;
             try {
                 viewState = TokenWalletViewState.valueOf(view.toUpperCase());
             } catch (IllegalArgumentException e) {
-                Translation.COMMAND_TOKEN_SETWALLETVIEW_INVALIDVIEW.send(sender);
+                Translation.COMMAND_TOKEN_SETWALLETVIEW_INVALIDVIEW.send(context.sender);
                 return;
             } catch (Exception e) {
                 bootstrap.log(e);
@@ -1033,19 +981,19 @@ public class CmdToken extends EnjCommand {
             int result = bootstrap.getTokenManager().updateWalletViewState(id, viewState);
             switch (result) {
                 case TokenManager.TOKEN_UPDATE_SUCCESS:
-                    Translation.COMMAND_TOKEN_UPDATE_SUCCESS.send(sender);
+                    Translation.COMMAND_TOKEN_UPDATE_SUCCESS.send(context.sender);
                     break;
                 case TokenManager.TOKEN_UPDATE_FAILED:
-                    Translation.COMMAND_TOKEN_UPDATE_FAILED.send(sender);
+                    Translation.COMMAND_TOKEN_UPDATE_FAILED.send(context.sender);
                     break;
                 case TokenManager.TOKEN_NOSUCHTOKEN:
-                    Translation.COMMAND_TOKEN_NOSUCHTOKEN.send(sender);
+                    Translation.COMMAND_TOKEN_NOSUCHTOKEN.send(context.sender);
                     break;
                 case TokenManager.TOKEN_ISNOTBASE:
-                    Translation.COMMAND_TOKEN_ISNONFUNGIBLEINSTANCE.send(sender);
+                    Translation.COMMAND_TOKEN_ISNONFUNGIBLEINSTANCE.send(context.sender);
                     break;
                 case TokenManager.TOKEN_HASWALLETVIEWSTATE:
-                    Translation.COMMAND_TOKEN_SETWALLETVIEW_HAS.send(sender);
+                    Translation.COMMAND_TOKEN_SETWALLETVIEW_HAS.send(context.sender);
                     break;
                 default:
                     bootstrap.debug(String.format("Unhandled result when setting the wallet view state (status: %d)", result));
@@ -1085,15 +1033,13 @@ public class CmdToken extends EnjCommand {
             String id = context.args.size() > 0
                     ? context.args.get(0)
                     : null;
-            Player sender = context.player;
-
             if (id == null)
-                listBaseTokens(sender);
+                listBaseTokens(context.sender);
             else
-                listNonfungibleInstances(sender, id);
+                listNonfungibleInstances(context.sender, id);
         }
 
-        private void listBaseTokens(Player sender) {
+        private void listBaseTokens(CommandSender sender) {
             Set<String> ids = bootstrap.getTokenManager().getTokenIds();
             if (ids.isEmpty()) {
                 Translation.COMMAND_TOKEN_LIST_EMPTY.send(sender);
@@ -1110,7 +1056,7 @@ public class CmdToken extends EnjCommand {
             }
         }
 
-        private void listNonfungibleInstances(Player sender, String id) {
+        private void listNonfungibleInstances(CommandSender sender, String id) {
             TokenManager tokenManager = bootstrap.getTokenManager();
             TokenModel   baseModel    = tokenManager.getToken(id);
             if (baseModel == null) {
@@ -1164,9 +1110,6 @@ public class CmdToken extends EnjCommand {
 
         @Override
         public void execute(CommandContext context) {
-            if (context.args.size() > optionalArgs.size())
-                return;
-
             String id = context.args.size() > 0
                     ? context.args.get(0)
                     : null;
@@ -1245,9 +1188,6 @@ public class CmdToken extends EnjCommand {
 
         @Override
         public void execute(CommandContext context) {
-            if (context.args.size() > 0)
-                return;
-
             CommandSender sender = context.sender;
 
             int result = bootstrap.getTokenManager().importTokens();

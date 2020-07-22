@@ -6,15 +6,17 @@ import com.enjin.enjincraft.spigot.enums.Permission;
 import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
 import com.enjin.enjincraft.spigot.util.MessageUtils;
+import lombok.NonNull;
 import net.kyori.text.TextComponent;
 import net.kyori.text.event.ClickEvent;
 import net.kyori.text.format.TextColor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 
 public class CmdTrade extends EnjCommand {
 
@@ -63,42 +65,19 @@ public class CmdTrade extends EnjCommand {
 
         @Override
         public void execute(CommandContext context) {
-            if (context.args.isEmpty())
+            String target = context.args.get(0);
+
+            EnjPlayer senderEnjPlayer = getValidSenderEnjPlayer(context);
+            if (senderEnjPlayer == null)
                 return;
 
-            EnjPlayer senderEnjPlayer = context.enjPlayer;
-
-            if (!senderEnjPlayer.isLinked()) {
-                Translation.WALLET_NOTLINKED_SELF.send(context.sender);
+            Player targetPlayer = getValidTargetPlayer(context, target);
+            if (targetPlayer == null)
                 return;
-            }
 
-            Player sender = context.player;
-            Optional<Player> optionalTarget = context.argToPlayer(0);
-
-            if (!optionalTarget.isPresent() || !optionalTarget.get().isOnline()) {
-                Translation.ERRORS_PLAYERNOTONLINE.send(context.sender, context.args.get(0));
+            EnjPlayer targetEnjPlayer = getValidTargetEnjPlayer(context, targetPlayer);
+            if (targetEnjPlayer == null)
                 return;
-            }
-
-            Player target = optionalTarget.get();
-
-            if (sender == target) {
-                Translation.ERRORS_CHOOSEOTHERPLAYER.send(sender);
-                return;
-            }
-
-            Optional<EnjPlayer> optionalEnjTarget = bootstrap.getPlayerManager().getPlayer(target);
-            if (!optionalEnjTarget.isPresent())
-                return;
-            EnjPlayer targetEnjPlayer = optionalEnjTarget.get();
-
-            if (!targetEnjPlayer.isLinked()) {
-                Translation.WALLET_NOTLINKED_OTHER.send(sender, target.getName());
-                Translation.COMMAND_TRADE_WANTSTOTRADE.send(target, sender.getName());
-                Translation.HINT_LINK.send(target);
-                return;
-            }
 
             if (BigInteger.ZERO.equals(senderEnjPlayer.getEnjAllowance())) {
                 Translation.WALLET_ALLOWANCENOTSET.send(context.sender);
@@ -108,16 +87,35 @@ public class CmdTrade extends EnjCommand {
             invite(senderEnjPlayer, targetEnjPlayer);
         }
 
+        @Override
+        protected EnjPlayer getValidTargetEnjPlayer(CommandContext context,
+                                                    @NonNull Player targetPlayer) throws NullPointerException {
+            CommandSender sender = context.sender;
+
+            EnjPlayer targetEnjPlayer = bootstrap.getPlayerManager()
+                    .getPlayer(targetPlayer)
+                    .orElse(null);
+            if (targetEnjPlayer == null) {
+                Translation.ERRORS_PLAYERNOTREGISTERED.send(sender, targetPlayer.getName());
+                return null;
+            } else if (targetEnjPlayer.isLinked()) {
+                Translation.WALLET_NOTLINKED_OTHER.send(sender, targetPlayer.getName());
+                Translation.COMMAND_TRADE_WANTSTOTRADE.send(targetPlayer, sender.getName());
+                Translation.HINT_LINK.send(targetPlayer);
+                return null;
+            }
+
+            return targetEnjPlayer;
+        }
+
         private void invite(EnjPlayer sender, EnjPlayer target) {
             boolean result = bootstrap.getTradeManager().addInvite(sender, target);
-
             if (!result) {
                 Translation.COMMAND_TRADE_ALREADYINVITED.send(sender.getBukkitPlayer(), target.getBukkitPlayer().getName());
                 return;
             }
 
             Translation.COMMAND_TRADE_INVITESENT.send(sender.getBukkitPlayer(), target.getBukkitPlayer().getName());
-
             Translation.COMMAND_TRADE_INVITEDTOTRADE.send(target.getBukkitPlayer(), sender.getBukkitPlayer().getName());
             TextComponent.Builder inviteMessageBuilder = TextComponent.builder("")
                     .append(TextComponent.builder("Accept")
@@ -157,30 +155,29 @@ public class CmdTrade extends EnjCommand {
         public List<String> tab(CommandContext context) {
             if (context.args.size() == 1)
                 return PlayerArgumentProcessor.INSTANCE.tab(context.sender, context.args.get(0));
+
             return new ArrayList<>(0);
         }
 
         @Override
         public void execute(CommandContext context) {
-            Player sender = context.player;
-            Optional<Player> target = context.argToPlayer(0);
+            String target = context.args.get(0);
 
-            if (!target.isPresent() || !target.get().isOnline()) {
-                Translation.ERRORS_PLAYERNOTONLINE.send(context.sender, context.args.get(0));
+            EnjPlayer senderEnjPlayer = getValidSenderEnjPlayer(context);
+            if (senderEnjPlayer == null)
                 return;
-            }
 
-            if (sender == target.get()) {
-                Translation.ERRORS_CHOOSEOTHERPLAYER.send(sender);
+            Player targetPlayer = getValidTargetPlayer(context, target);
+            if (targetPlayer == null)
                 return;
-            }
 
-            EnjPlayer targetEnjPlayer = bootstrap.getPlayerManager().getPlayer(target.get()).orElse(null);
-            EnjPlayer senderEnjPlayer = context.enjPlayer;
+            EnjPlayer targetEnjPlayer = getValidTargetEnjPlayer(context, targetPlayer);
+            if (targetEnjPlayer == null)
+                return;
 
             boolean result = bootstrap.getTradeManager().acceptInvite(targetEnjPlayer, senderEnjPlayer);
             if (!result)
-                Translation.COMMAND_TRADE_NOOPENINVITE.send(sender, target.get().getName());
+                Translation.COMMAND_TRADE_NOOPENINVITE.send(context.sender, targetPlayer.getName());
         }
 
         @Override
@@ -206,36 +203,33 @@ public class CmdTrade extends EnjCommand {
         public List<String> tab(CommandContext context) {
             if (context.args.size() == 1)
                 return PlayerArgumentProcessor.INSTANCE.tab(context.sender, context.args.get(0));
+
             return new ArrayList<>(0);
         }
 
         @Override
         public void execute(CommandContext context) {
-            if (context.args.isEmpty())
+            Player sender = Objects.requireNonNull(context.player);
+            String target = context.args.get(0);
+
+            EnjPlayer senderEnjPlayer = getValidSenderEnjPlayer(context);
+            if (senderEnjPlayer == null)
                 return;
 
-            Player sender = context.player;
-            Optional<Player> target = context.argToPlayer(0);
-
-            if (!target.isPresent() || !target.get().isOnline()) {
-                Translation.ERRORS_PLAYERNOTONLINE.send(sender, context.args.get(0));
+            Player targetPlayer = getValidTargetPlayer(context, target);
+            if (targetPlayer == null)
                 return;
-            }
 
-            if (sender == target.get()) {
-                Translation.ERRORS_CHOOSEOTHERPLAYER.send(sender);
+            EnjPlayer targetEnjPlayer = getValidTargetEnjPlayer(context, targetPlayer);
+            if (targetEnjPlayer == null)
                 return;
-            }
-
-            EnjPlayer targetEnjPlayer = bootstrap.getPlayerManager().getPlayer(target.get()).orElse(null);
-            EnjPlayer senderEnjPlayer = context.enjPlayer;
 
             boolean result = bootstrap.getTradeManager().declineInvite(targetEnjPlayer, senderEnjPlayer);
             if (result) {
-                Translation.COMMAND_TRADE_DECLINED_SENDER.send(sender, target.get().getName());
-                Translation.COMMAND_TRADE_DECLINED_TARGET.send(target.get(), sender.getName());
+                Translation.COMMAND_TRADE_DECLINED_SENDER.send(sender, targetPlayer.getName());
+                Translation.COMMAND_TRADE_DECLINED_TARGET.send(targetPlayer, sender.getName());
             } else {
-                Translation.COMMAND_TRADE_NOOPENINVITE.send(sender, target.get().getName());
+                Translation.COMMAND_TRADE_NOOPENINVITE.send(sender, targetPlayer.getName());
             }
         }
 
