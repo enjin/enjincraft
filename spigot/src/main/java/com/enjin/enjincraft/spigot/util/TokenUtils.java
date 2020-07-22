@@ -199,17 +199,15 @@ public class TokenUtils {
     }
 
     public static String toFullId(String id) {
-        if (isValidId(id))
-            return createFullId(id);
-        else if (isValidFullId(id))
+        if (isValidFullId(id))
             return id;
 
-        return null;
+        return createFullId(id);
     }
 
-    public static String normalizeFullId(String fullId) {
+    public static String normalizeFullId(String fullId) throws IllegalArgumentException {
         if (!isValidFullId(fullId))
-            return null;
+            throw new IllegalArgumentException("Provided string is not a valid full id");
 
         return createFullId(getTokenID(fullId));
     }
