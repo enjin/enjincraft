@@ -85,9 +85,7 @@ public class TokenPermissionGraph {
     }
 
     protected void removeToken(Map<String, Set<String>> permsMap, String fullId) {
-        permsMap.forEach((world, perms) -> {
-            perms.forEach(perm -> removeTokenPerm(perm, fullId, world));
-        });
+        permsMap.forEach((world, perms) -> perms.forEach(perm -> removeTokenPerm(perm, fullId, world)));
     }
 
     protected void removeToken(TokenModel tokenModel) {
