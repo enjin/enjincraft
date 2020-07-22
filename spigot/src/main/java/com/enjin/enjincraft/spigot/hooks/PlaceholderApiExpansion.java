@@ -6,7 +6,6 @@ import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
 
 import java.math.RoundingMode;
-import java.util.Optional;
 
 public class PlaceholderApiExpansion extends PlaceholderExpansion {
 
@@ -56,12 +55,12 @@ public class PlaceholderApiExpansion extends PlaceholderExpansion {
 
     @Override
     public String onPlaceholderRequest(Player player, String identifier) {
-        Optional<EnjPlayer> enjPlayerOptional = bootstrap.getPlayerManager().getPlayer(player);
-        if (!enjPlayerOptional.isPresent())
-            return EMPTY;
+        EnjPlayer enjPlayer = bootstrap.getPlayerManager()
+                .getPlayer(player)
+                .orElse(null);
 
         try {
-            return process(enjPlayerOptional.get(), identifier);
+            return process(enjPlayer, identifier);
         } catch (Exception ex) {
             bootstrap.log(ex);
         }
@@ -70,41 +69,39 @@ public class PlaceholderApiExpansion extends PlaceholderExpansion {
     }
 
     public String process(EnjPlayer player, String identifier) {
-        String result = EMPTY;
+        if (player == null)
+            return EMPTY;
 
         switch (identifier) {
             case ENJ_BALANCE:
-                result = getEnjBalance(player);
-                break;
+                return getEnjBalance(player);
             case ETH_BALANCE:
-                result = getEthBalance(player);
-                break;
+                return getEthBalance(player);
             case LINK_STATUS:
-                result = getLinkStatus(player);
-                break;
+                return getLinkStatus(player);
             case ENJ_URL:
-                result = URL;
-                break;
+                return URL;
             case ETH_ADDR:
-                result = getEthAddress(player);
-                break;
+                return getEthAddress(player);
             default:
-                break;
+                return EMPTY;
         }
-
-        return result;
     }
 
     private String getEnjBalance(EnjPlayer player) {
-        return player.getEnjBalance() == null ? "0" : player.getEnjBalance()
-                .setScale(2, RoundingMode.HALF_DOWN)
-                .toString();
+        return player.getEnjBalance() == null
+                ? "0"
+                : player.getEnjBalance()
+                        .setScale(2, RoundingMode.HALF_DOWN)
+                        .toString();
     }
 
     private String getEthBalance(EnjPlayer player) {
-        return player.getEthBalance() == null ? "0" : player.getEthBalance()
-                .setScale(2, RoundingMode.HALF_DOWN)
-                .toString();
+        return player.getEthBalance() == null
+                ? "0"
+                : player.getEthBalance()
+                        .setScale(2, RoundingMode.HALF_DOWN)
+                        .toString();
     }
 
     private String getLinkStatus(EnjPlayer player) {

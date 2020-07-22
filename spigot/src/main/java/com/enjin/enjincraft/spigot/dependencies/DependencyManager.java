@@ -27,7 +27,6 @@ public class DependencyManager {
 
     public void loadDependencies(DependencyConfig config) {
         List<Path> paths = downloadDependencies(config);
-
         for (Path path : paths)
             classLoader.loadJar(path);
     }
@@ -37,7 +36,9 @@ public class DependencyManager {
     }
 
     private Path getSaveDirectory() {
-        Path saveDirectory = plugin.getDataFolder().toPath().resolve("lib");
+        Path saveDirectory = plugin.getDataFolder()
+                .toPath()
+                .resolve("lib");
 
         try {
             Files.createDirectories(saveDirectory);
@@ -65,7 +66,6 @@ public class DependencyManager {
     private Path downloadDependency(Path targetDirectory, DependencyConfig config, Dependency dependency) throws IOException {
         Path path = targetDirectory.resolve(dependency.getArtifactName());
         File file = path.toFile();
-
         if (file.exists())
             return path;
 
@@ -92,16 +92,13 @@ public class DependencyManager {
                     break;
                 }
             } catch (Exception ignore) {
-                // Do Nothing
             }
         }
 
         if (!success) {
             plugin.getLogger().warning("Dependency not found: " + dependency.getArtifactName());
             return null;
-        }
-
-        if (!file.exists())
+        } else if (!file.exists())
             throw new IllegalStateException("Dependency not saved: " + dependency.getArtifactName());
 
         return path;
