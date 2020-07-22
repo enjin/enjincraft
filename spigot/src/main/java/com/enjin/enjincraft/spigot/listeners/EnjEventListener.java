@@ -103,7 +103,6 @@ public class EnjEventListener implements com.enjin.sdk.services.notification.Not
             return;
 
         int transactionId;
-
         try {
             JsonObject transaction = event.getEventData()
                     .get("transaction")
@@ -134,7 +133,9 @@ public class EnjEventListener implements com.enjin.sdk.services.notification.Not
 
         int id = identity.get("id").getAsInt();
 
-        EnjPlayer enjPlayer = bootstrap.getPlayerManager().getPlayer(id).orElse(null);
+        EnjPlayer enjPlayer = bootstrap.getPlayerManager()
+                .getPlayer(id)
+                .orElse(null);
         if (enjPlayer == null)
             return;
 
@@ -152,7 +153,8 @@ public class EnjEventListener implements com.enjin.sdk.services.notification.Not
         int id = identity.get("id").getAsInt();
 
         Optional<EnjPlayer> playerOptional = bootstrap.getPlayerManager().getPlayer(id);
-        playerOptional.ifPresent(player -> Bukkit.getScheduler().runTaskAsynchronously(bootstrap.plugin(), player::unlinked));
+        playerOptional.ifPresent(player -> Bukkit.getScheduler().runTaskAsynchronously(bootstrap.plugin(),
+                                                                                       player::unlinked));
     }
 
     private void onTokenUpdated(NotificationEvent event) {
@@ -294,7 +296,6 @@ public class EnjEventListener implements com.enjin.sdk.services.notification.Not
 
     private TransactionType getTransactionType(NotificationEvent event) {
         String typeString;
-
         try {
             JsonObject transaction = event.getEventData()
                     .get("transaction")

@@ -98,17 +98,13 @@ public class QrItemListener implements Listener {
     @EventHandler
     public void onInteractEntity(PlayerInteractEntityEvent event) {
         Entity entity = event.getRightClicked();
-
         if (entity instanceof ItemFrame)
             interactItemFrame(event, (ItemFrame) entity);
     }
 
     private void interactItemFrame(PlayerInteractEntityEvent event, ItemFrame itemFrame) {
         ItemStack held = event.getPlayer().getInventory().getItemInMainHand();
-        if (itemFrame.getItem().getType() != Material.AIR)
-            return;
-
-        if (QrUtils.hasQrTag(held))
+        if (itemFrame.getItem().getType() == Material.AIR && QrUtils.hasQrTag(held))
             event.setCancelled(true);
     }
 
