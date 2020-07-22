@@ -346,12 +346,13 @@ public class TokenModel {
         }
 
         ItemMeta meta = is.getItemMeta();
+        if (is.hasItemMeta()) {
+            meta.setUnbreakable(true);
+            meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+            meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
 
-        meta.setUnbreakable(true);
-        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-        meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
-
-        is.setItemMeta(meta);
+            is.setItemMeta(meta);
+        }
 
         return is;
     }
@@ -525,12 +526,12 @@ public class TokenModel {
                     return ChatColor.GRAY
                             + "Withdrawable "
                             + ChatColor.GREEN
-                            + "\u2714";
+                            + "\u2714"; // Heavy check mark
                 case LOCKED:
                     return ChatColor.GRAY
                             + "Withdrawable "
                             + ChatColor.RED
-                            + "\u274C";
+                            + "\u274C"; // Cross mark
                 default:
                     return null;
             }
