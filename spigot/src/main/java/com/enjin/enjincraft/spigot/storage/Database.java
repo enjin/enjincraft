@@ -471,20 +471,29 @@ public class Database {
                            int createRequestId) throws SQLException {
         synchronized (createTrade) {
             createTrade.clearParameters();
-            createTrade.setString(1, inviterUuid.toString());
-            createTrade.setInt(2, inviterIdentityId);
-            createTrade.setString(3, inviterEthAddr);
-            createTrade.setString(4, invitedUuid.toString());
-            createTrade.setInt(5, invitedIdentityId);
-            createTrade.setString(6, invitedEthAddr);
-            createTrade.setInt(7, createRequestId);
-            createTrade.setString(8, TradeState.PENDING_CREATE.name());
-            createTrade.setLong(9, OffsetDateTime.now(ZoneOffset.UTC).toEpochSecond());
-            int count = createTrade.executeUpdate();
 
-            if (count > 0) {
-                try (ResultSet rs = createTrade.getGeneratedKeys()) {
-                    return rs.getInt(1);
+            try {
+                createTrade.setString(1, inviterUuid.toString());
+                createTrade.setInt(2, inviterIdentityId);
+                createTrade.setString(3, inviterEthAddr);
+                createTrade.setString(4, invitedUuid.toString());
+                createTrade.setInt(5, invitedIdentityId);
+                createTrade.setString(6, invitedEthAddr);
+                createTrade.setInt(7, createRequestId);
+                createTrade.setString(8, TradeState.PENDING_CREATE.name());
+                createTrade.setLong(9, OffsetDateTime.now(ZoneOffset.UTC).toEpochSecond());
+
+                int count = createTrade.executeUpdate();
+                if (count > 0) {
+                    try (ResultSet rs = createTrade.getGeneratedKeys()) {
+                        return rs.getInt(1);
+                    }
+                }
+            } finally {
+                try {
+                    createTrade.clearParameters();
+                } catch (SQLException e) {
+                    bootstrap.log(e);
                 }
             }
         }
@@ -497,30 +506,60 @@ public class Database {
                              String tradeId) throws SQLException {
         synchronized (completeTrade) {
             completeTrade.clearParameters();
-            completeTrade.setInt(1, completeRequestId);
-            completeTrade.setString(2, tradeId);
-            completeTrade.setString(3, TradeState.PENDING_COMPLETE.name());
-            completeTrade.setInt(4, createRequestId);
-            return completeTrade.executeUpdate();
+
+            try {
+                completeTrade.setInt(1, completeRequestId);
+                completeTrade.setString(2, tradeId);
+                completeTrade.setString(3, TradeState.PENDING_COMPLETE.name());
+                completeTrade.setInt(4, createRequestId);
+
+                return completeTrade.executeUpdate();
+            } finally {
+                try {
+                    completeTrade.clearParameters();
+                } catch (SQLException e) {
+                    bootstrap.log(e);
+                }
+            }
         }
     }
 
     public int tradeExecuted(int completeRequestId) throws SQLException {
         synchronized (tradeExecuted) {
             tradeExecuted.clearParameters();
-            tradeExecuted.setString(1, TradeState.EXECUTED.name());
-            tradeExecuted.setInt(2, completeRequestId);
-            return tradeExecuted.executeUpdate();
+
+            try {
+                tradeExecuted.setString(1, TradeState.EXECUTED.name());
+                tradeExecuted.setInt(2, completeRequestId);
+
+                return tradeExecuted.executeUpdate();
+            } finally {
+                try {
+                    tradeExecuted.clearParameters();
+                } catch (SQLException e) {
+                    bootstrap.log(e);
+                }
+            }
         }
     }
 
     public int cancelTrade(int requestId) throws SQLException {
         synchronized (cancelTrade) {
             cancelTrade.clearParameters();
-            cancelTrade.setString(1, TradeState.CANCELED.name());
-            cancelTrade.setInt(2, requestId);
-            cancelTrade.setInt(3, requestId);
-            return cancelTrade.executeUpdate();
+
+            try {
+                cancelTrade.setString(1, TradeState.CANCELED.name());
+                cancelTrade.setInt(2, requestId);
+                cancelTrade.setInt(3, requestId);
+
+                return cancelTrade.executeUpdate();
+            } finally {
+                try {
+                    cancelTrade.clearParameters();
+                } catch (SQLException e) {
+                    bootstrap.log(e);
+                }
+            }
         }
     }
 
@@ -539,20 +578,27 @@ public class Database {
     }
 
     public TradeSession getSessionFromRequestId(int requestId) throws SQLException {
-        TradeSession session = null;
-
         synchronized (getSessionReqId) {
             getSessionReqId.clearParameters();
-            getSessionReqId.setInt(1, requestId);
-            getSessionReqId.setInt(2, requestId);
 
-            try (ResultSet rs = getSessionReqId.executeQuery()) {
-                if (rs.next())
-                    session = new TradeSession(rs);
+            try {
+                getSessionReqId.setInt(1, requestId);
+                getSessionReqId.setInt(2, requestId);
+
+                try (ResultSet rs = getSessionReqId.executeQuery()) {
+                    if (rs.next())
+                        return new TradeSession(rs);
+                    else
+                        return null;
+                }
+            } finally {
+                try {
+                    getSessionReqId.clearParameters();
+                } catch (SQLException e) {
+                    bootstrap.log(e);
+                }
             }
         }
-
-        return session;
     }
 
     private String loadSqlFile(String template) throws IOException {
