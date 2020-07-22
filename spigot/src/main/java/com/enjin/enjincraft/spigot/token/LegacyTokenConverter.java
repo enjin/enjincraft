@@ -95,16 +95,17 @@ public class LegacyTokenConverter {
             if (!element.isJsonObject())
                 return;
 
-            JsonObject object = element.getAsJsonObject();
+            TokenManager tokenManager = bootstrap.getTokenManager();
             Map<String, JsonObject> tokens = new HashMap<>();
 
             // Readies the data for conversion
+            JsonObject object = element.getAsJsonObject();
             for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
                 String tokenId = entry.getKey();
                 JsonElement tokenDef = entry.getValue();
 
                 // Ignores existing tokens and non-JSON objects
-                if (bootstrap.getTokenManager().hasToken(tokenId) || !tokenDef.isJsonObject())
+                if (tokenManager.hasToken(tokenId) || !tokenDef.isJsonObject())
                     continue;
 
                 tokens.put(tokenId, tokenDef.getAsJsonObject());
@@ -133,24 +134,24 @@ public class LegacyTokenConverter {
             Material material = getItemMaterial(json);
             ItemStack itemStack = new ItemStack(material);
             ItemMeta meta = itemStack.getItemMeta();
+            if (meta != null) {
+                if (json.has(ITEM_NAME_KEY))
+                    meta.setDisplayName(json.get(ITEM_NAME_KEY).getAsString());
+                if (meta instanceof BookMeta)
+                    setBookMeta(json, (BookMeta) meta);
+                if (json.has(ITEM_LORE_KEY))
+                    setItemLore(json, meta);
 
-            if (json.has(ITEM_NAME_KEY))
-                meta.setDisplayName(json.get(ITEM_NAME_KEY).getAsString());
+                itemStack.setItemMeta(meta);
+            }
 
-            if (meta instanceof BookMeta)
-                setBookMeta(json, (BookMeta) meta);
-
-            if (json.has(ITEM_LORE_KEY))
-                setItemLore(json, meta);
-
-            itemStack.setItemMeta(meta);
             NBTContainer nbt = NBTItem.convertItemtoNBT(itemStack);
-
             TokenModel tokenModel = TokenModel.builder()
                     .id(tokenId)
                     .alternateId(null)
                     .nbt(nbt.toString())
                     .build();
+
             tokenManager.saveToken(tokenModel);
         }
     }
@@ -158,12 +159,15 @@ public class LegacyTokenConverter {
     private Material getItemMaterial(JsonObject json) {
         String mat = json.get(ITEM_MATERIAL_KEY).getAsString();
         Material material = Material.getMaterial(mat);
+
         // If the material returned null try getting the material using legacy names
         if (material == null)
             material = Material.getMaterial(mat, true);
+
         // If the material returned null for both non-legacy and legacy names use an apple as material
         if (material == null)
             material = Material.APPLE;
+
         return material;
     }
 
