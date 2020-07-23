@@ -19,6 +19,9 @@ import com.google.gson.GsonBuilder;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
+import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -76,7 +79,7 @@ public class TokenManager {
             .create();
 
     private final SpigotBootstrap bootstrap;
-    @Getter(AccessLevel.PACKAGE)
+    @Getter(value = AccessLevel.PACKAGE, onMethod_ = {@NotNull})
     private final File dir;
     private final File exportDir;
     private final File importDir;
@@ -673,7 +676,7 @@ public class TokenManager {
         }
     }
 
-    public boolean hasToken(String id) {
+    public boolean hasToken(@NonNull String id) throws NullPointerException {
         if (hasAlternateId(id))
             return true;
         else if (TokenUtils.isValidId(id))
@@ -684,11 +687,29 @@ public class TokenManager {
         return tokenModels.containsKey(id);
     }
 
-    public boolean hasAlternateId(String id) {
+    public boolean hasAlternateId(@NonNull String id) throws NullPointerException {
         return alternateIds.containsKey(id);
     }
 
-    public TokenModel getToken(String id) {
+    @Nullable
+    public TokenModel getToken(@Nullable ItemStack is) {
+        try {
+            TokenModel tokenModel = tokenModels.get(TokenUtils.createFullId(TokenUtils.getTokenID(is),
+                                                                            TokenUtils.getTokenIndex(is)));
+            if (tokenModel != null && tokenModel.isNonfungible() != TokenUtils.isNonFungible(is))
+                throw new IllegalStateException("Token item has different fungibility state than its registered model");
+
+            return tokenModel;
+        } catch (IllegalArgumentException ignored) {
+        } catch (Exception e) {
+            bootstrap.log(e);
+        }
+
+        return null;
+    }
+
+    @Nullable
+    public TokenModel getToken(@NonNull String id) throws NullPointerException {
         if (hasAlternateId(id))
             id = alternateIds.get(id);
         else if (TokenUtils.isValidId(id))
@@ -699,10 +720,12 @@ public class TokenManager {
         return tokenModels.get(id);
     }
 
+    @NotNull
     public Set<String> getFullIds() {
         return new HashSet<>(tokenModels.keySet());
     }
 
+    @NotNull
     public Set<String> getTokenIds() {
         Set<String> tokenIds = new HashSet<>();
         tokenModels.keySet().forEach(fullId -> tokenIds.add(TokenUtils.getTokenID(fullId)));
@@ -710,18 +733,22 @@ public class TokenManager {
         return tokenIds;
     }
 
+    @NotNull
     public Set<String> getAlternateIds() {
         return new HashSet<>(alternateIds.keySet());
     }
 
+    @NotNull
     public Set<TokenModel> getTokens() {
         return new HashSet<>(tokenModels.values());
     }
 
+    @NotNull
     public Set<Map.Entry<String, TokenModel>> getEntries() {
         return new HashSet<>(tokenModels.entrySet());
     }
 
+    @NotNull
     public TokenPermissionGraph getTokenPermissions() {
         return new TokenPermissionGraph(permGraph);
     }
