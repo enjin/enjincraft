@@ -217,7 +217,7 @@ public abstract class EnjCommand {
         if (targetEnjPlayer == null) {
             Translation.ERRORS_PLAYERNOTREGISTERED.send(sender, targetPlayer.getName());
             return null;
-        } else if (targetEnjPlayer.isLinked()) {
+        } else if (!targetEnjPlayer.isLinked()) {
             Translation.WALLET_NOTLINKED_OTHER.send(sender, targetPlayer.getName());
             return null;
         }
