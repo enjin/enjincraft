@@ -314,6 +314,15 @@ public class TokenModel {
     }
 
     @Nullable
+    public ItemStack getItemStack(int amount) {
+        ItemStack is = getItemStack();
+        if (is != null)
+            is.setAmount(Math.min(amount, is.getMaxStackSize()));
+
+        return is;
+    }
+
+    @Nullable
     public ItemStack getItemStack(boolean raw) {
         if (!isLoaded())
             return null;
