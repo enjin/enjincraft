@@ -98,7 +98,7 @@ public class CmdTrade extends EnjCommand {
             if (targetEnjPlayer == null) {
                 Translation.ERRORS_PLAYERNOTREGISTERED.send(sender, targetPlayer.getName());
                 return null;
-            } else if (targetEnjPlayer.isLinked()) {
+            } else if (!targetEnjPlayer.isLinked()) {
                 Translation.WALLET_NOTLINKED_OTHER.send(sender, targetPlayer.getName());
                 Translation.COMMAND_TRADE_WANTSTOTRADE.send(targetPlayer, sender.getName());
                 Translation.HINT_LINK.send(targetPlayer);
@@ -175,9 +175,13 @@ public class CmdTrade extends EnjCommand {
             if (targetEnjPlayer == null)
                 return;
 
-            boolean result = bootstrap.getTradeManager().acceptInvite(targetEnjPlayer, senderEnjPlayer);
-            if (!result)
-                Translation.COMMAND_TRADE_NOOPENINVITE.send(context.sender, targetPlayer.getName());
+            try {
+                boolean result = bootstrap.getTradeManager().acceptInvite(targetEnjPlayer, senderEnjPlayer);
+                if (!result)
+                    Translation.COMMAND_TRADE_NOOPENINVITE.send(context.sender, targetPlayer.getName());
+            } catch (Exception e) {
+                bootstrap.log(e);
+            }
         }
 
         @Override
@@ -224,12 +228,16 @@ public class CmdTrade extends EnjCommand {
             if (targetEnjPlayer == null)
                 return;
 
-            boolean result = bootstrap.getTradeManager().declineInvite(targetEnjPlayer, senderEnjPlayer);
-            if (result) {
-                Translation.COMMAND_TRADE_DECLINED_SENDER.send(sender, targetPlayer.getName());
-                Translation.COMMAND_TRADE_DECLINED_TARGET.send(targetPlayer, sender.getName());
-            } else {
-                Translation.COMMAND_TRADE_NOOPENINVITE.send(sender, targetPlayer.getName());
+            try {
+                boolean result = bootstrap.getTradeManager().declineInvite(targetEnjPlayer, senderEnjPlayer);
+                if (result) {
+                    Translation.COMMAND_TRADE_DECLINED_SENDER.send(sender, targetPlayer.getName());
+                    Translation.COMMAND_TRADE_DECLINED_TARGET.send(targetPlayer, sender.getName());
+                } else {
+                    Translation.COMMAND_TRADE_NOOPENINVITE.send(sender, targetPlayer.getName());
+                }
+            } catch (Exception e) {
+                bootstrap.log(e);
             }
         }
 
