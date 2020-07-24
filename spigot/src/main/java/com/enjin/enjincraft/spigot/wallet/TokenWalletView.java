@@ -108,12 +108,13 @@ public class TokenWalletView extends ChestMenu implements EnjTokenView {
         nextComponentItem = createNextComponentItemStack(getPagedComponentName(getNextPagedComponent()));
         navigationComponent.setItem(nextItemPagesPosition, nextComponentItem);
         navigationComponent.addAction(nextItemPagesPosition, p -> {
-            SimplePagedComponent next = getNextPagedComponent();
+            currentPagedComponent = getNextPagedComponent();
 
-            currentPagedComponent = next;
             ItemMeta meta = nextComponentItem.getItemMeta();
-            meta.setDisplayName(ChatColor.GOLD + getPagedComponentName(getNextPagedComponent()));
-            nextComponentItem.setItemMeta(meta);
+            if (meta != null) {
+                meta.setDisplayName(ChatColor.GOLD + getPagedComponentName(getNextPagedComponent()));
+                nextComponentItem.setItemMeta(meta);
+            }
 
             setCurrentPage(getCurrentPage());
             drawInventory();
@@ -143,11 +144,12 @@ public class TokenWalletView extends ChestMenu implements EnjTokenView {
 
         int index = 0;
         for (MutableBalance balance : balances) {
-            String     fullId = TokenUtils.createFullId(balance.id(), balance.index());
-            TokenModel model  = bootstrap.getTokenManager().getToken(fullId);
-            if (model == null
-                    || model.getWalletViewState() == TokenWalletViewState.HIDDEN
-                    || model.isNonfungible() != isNonfungible
+            String     fullId     = TokenUtils.createFullId(balance.id(), balance.index());
+            TokenModel tokenModel = bootstrap.getTokenManager().getToken(fullId);
+            if (tokenModel == null
+                    || !tokenModel.isLoaded()
+                    || tokenModel.getWalletViewState() == TokenWalletViewState.HIDDEN
+                    || tokenModel.isNonfungible() != isNonfungible
                     || balance.amountAvailableForWithdrawal() == 0)
                 continue;
 
@@ -156,7 +158,10 @@ public class TokenWalletView extends ChestMenu implements EnjTokenView {
             int y = index % INVENTORY_DIMENSION.getArea() / INVENTORY_DIMENSION.getWidth();
             Position position = Position.of(x, y);
 
-            ItemStack is = model.getWalletViewItemStack();
+            ItemStack is = tokenModel.getWalletViewItemStack();
+            if (is == null)
+                continue;
+
             is.setAmount(balance.amountAvailableForWithdrawal());
             component.setItem(page, position, is);
 
@@ -173,27 +178,32 @@ public class TokenWalletView extends ChestMenu implements EnjTokenView {
     }
 
     protected void drawInventory() {
-        TokenManager tokenManager = bootstrap.getTokenManager();
-        int currentPage = getCurrentPage();
         inventoryViewComponent.removeAllActions();
 
+        TokenManager tokenManager = bootstrap.getTokenManager();
+
+        int currentPage = getCurrentPage();
         for (int y = 0; y < INVENTORY_DIMENSION.getHeight(); y++) {
             for (int x = 0; x < INVENTORY_DIMENSION.getWidth(); x++) {
                 inventoryViewComponent.removeItem(x, y);
 
-                ItemStack is    = currentPagedComponent.getItem(currentPage, x, y);
-                String    id    = TokenUtils.getTokenID(is);
-                String    index = TokenUtils.getTokenIndex(is);
-                if (StringUtils.isEmpty(id) || StringUtils.isEmpty(index))
+                ItemStack is = currentPagedComponent.getItem(currentPage, x, y);
+                if (!TokenUtils.isValidTokenItem(is))
                     continue;
 
-                inventoryViewComponent.setItem(x, y, is);
+                String     fullId     = TokenUtils.createFullId(TokenUtils.getTokenID(is),
+                                                                TokenUtils.getTokenIndex(is));
+                TokenModel tokenModel = tokenManager.getToken(fullId);
+                if (tokenModel == null)
+                    continue;
 
-                String         fullId     = TokenUtils.createFullId(id, index);
-                TokenModel     tokenModel = tokenManager.getToken(fullId);
-                MutableBalance balance    = owner.getTokenWallet().getBalance(fullId);
-                if (tokenModel.getWalletViewState() == TokenWalletViewState.WITHDRAWABLE)
-                    addWithdrawAction(Position.of(x, y), balance, tokenModel.getItemStack(is.getAmount()));
+                MutableBalance balance = owner.getTokenWallet().getBalance(fullId);
+                if (tokenModel.getWalletViewState() != TokenWalletViewState.HIDDEN) {
+                    inventoryViewComponent.setItem(x, y, is);
+
+                    if (tokenModel.getWalletViewState() == TokenWalletViewState.WITHDRAWABLE)
+                        addWithdrawAction(Position.of(x, y), balance, tokenModel.getItemStack(is.getAmount()));
+                }
             }
         }
 
@@ -202,9 +212,7 @@ public class TokenWalletView extends ChestMenu implements EnjTokenView {
 
     protected void addWithdrawAction(Position position, MutableBalance balance, ItemStack is) {
         // Withdraws one token
-        inventoryViewComponent.addAction(position, player -> {
-            withdraw(player, balance, is, 1);
-        }, ClickType.LEFT);
+        inventoryViewComponent.addAction(position, player -> withdraw(player, balance, is, 1), ClickType.LEFT);
 
         // Withdraws a split stack
         inventoryViewComponent.addAction(position, player -> {
@@ -248,28 +256,6 @@ public class TokenWalletView extends ChestMenu implements EnjTokenView {
             if (changed)
                 repopulate(player);
         }
-    }
-
-    private boolean slotAvailable(PlayerInventory inventory, String tokenId) {
-        boolean slotAvailable = false;
-        int capacity = inventory.getSize() - (inventory.getArmorContents().length + inventory.getExtraContents().length);
-
-        for (int i = 0; i < capacity && !slotAvailable; i++) {
-            ItemStack content   = inventory.getItem(i);
-            String    contentId = TokenUtils.getTokenID(content);
-
-            if (contentId == null) {
-                slotAvailable = true;
-                continue;
-            } else if (StringUtils.isEmpty(contentId)) {
-                continue;
-            }
-
-            if (contentId.equals(tokenId) && content.getAmount() < content.getMaxStackSize())
-                slotAvailable = true;
-        }
-
-        return slotAvailable;
     }
 
     public void repopulate(Player player) {
@@ -350,24 +336,33 @@ public class TokenWalletView extends ChestMenu implements EnjTokenView {
     protected ItemStack createPageBackItemStack() {
         ItemStack is   = new ItemStack(Material.HOPPER);
         ItemMeta  meta = is.getItemMeta();
-        meta.setDisplayName(ChatColor.GOLD + "<--");
-        is.setItemMeta(meta);
+        if (meta != null) {
+            meta.setDisplayName(ChatColor.GOLD + "<--");
+            is.setItemMeta(meta);
+        }
+
         return is;
     }
 
     protected ItemStack createPageNextItemStack() {
         ItemStack is   = new ItemStack(Material.HOPPER);
         ItemMeta  meta = is.getItemMeta();
-        meta.setDisplayName(ChatColor.GOLD + "-->");
-        is.setItemMeta(meta);
+        if (meta != null) {
+            meta.setDisplayName(ChatColor.GOLD + "-->");
+            is.setItemMeta(meta);
+        }
+
         return is;
     }
 
     protected ItemStack createNextComponentItemStack(String nextComponentName) {
         ItemStack is   = new ItemStack(Material.HOPPER);
         ItemMeta  meta = is.getItemMeta();
-        meta.setDisplayName(ChatColor.GOLD + nextComponentName);
-        is.setItemMeta(meta);
+        if (meta != null) {
+            meta.setDisplayName(ChatColor.GOLD + nextComponentName);
+            is.setItemMeta(meta);
+        }
+
         return is;
     }
 
