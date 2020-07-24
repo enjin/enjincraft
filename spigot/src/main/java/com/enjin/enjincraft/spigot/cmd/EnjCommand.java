@@ -193,14 +193,12 @@ public abstract class EnjCommand {
     }
 
     protected Player getValidTargetPlayer(@NonNull CommandContext context, @NonNull String targetName) {
-        CommandSender sender = context.sender;
-
         Player targetPlayer = Bukkit.getPlayer(targetName);
         if (targetPlayer == null || !targetPlayer.isOnline()) {
-            Translation.ERRORS_PLAYERNOTONLINE.send(sender, targetName);
+            Translation.ERRORS_PLAYERNOTONLINE.send(context.sender, targetName);
             return null;
         } else if (context.player != null && context.player == targetPlayer) {
-            Translation.ERRORS_CHOOSEOTHERPLAYER.send(sender);
+            Translation.ERRORS_CHOOSEOTHERPLAYER.send(context.sender);
             return null;
         }
 
@@ -209,16 +207,14 @@ public abstract class EnjCommand {
 
     protected EnjPlayer getValidTargetEnjPlayer(@NonNull CommandContext context,
                                                 @NonNull Player targetPlayer) throws NullPointerException {
-        CommandSender sender = context.sender;
-
         EnjPlayer targetEnjPlayer = bootstrap.getPlayerManager()
                 .getPlayer(targetPlayer)
                 .orElse(null);
         if (targetEnjPlayer == null) {
-            Translation.ERRORS_PLAYERNOTREGISTERED.send(sender, targetPlayer.getName());
+            Translation.ERRORS_PLAYERNOTREGISTERED.send(context.sender, targetPlayer.getName());
             return null;
         } else if (!targetEnjPlayer.isLinked()) {
-            Translation.WALLET_NOTLINKED_OTHER.send(sender, targetPlayer.getName());
+            Translation.WALLET_NOTLINKED_OTHER.send(context.sender, targetPlayer.getName());
             return null;
         }
 

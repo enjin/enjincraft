@@ -105,9 +105,10 @@ public class SpigotBootstrap implements Bootstrap, Module {
             Bukkit.getPluginManager().registerEvents(new QrItemListener(this), plugin);
 
             // Register Commands
-            PluginCommand pluginCommand = plugin.getCommand("enj");
+            PluginCommand pluginCommand = Objects.requireNonNull(plugin.getCommand("enj"),
+                    "Missing \"enj\" command definition in plugin.yml");
             CmdEnj cmdEnj = new CmdEnj(this);
-            Objects.requireNonNull(pluginCommand).setExecutor(cmdEnj);
+            pluginCommand.setExecutor(cmdEnj);
 
             if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
                 MessageUtils.sendComponent(Bukkit.getConsoleSender(),

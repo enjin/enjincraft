@@ -204,7 +204,11 @@ public enum Translation {
     private final int argCount;
 
     Translation(Object def) {
-        this.path = initPath();
+        String path = name().replace('_', '.');
+        if (path.startsWith("."))
+            path = "internal" + path;
+
+        this.path = path;
         this.def = def;
         this.argCount = getArgCount(String.valueOf(def));
     }
@@ -272,14 +276,6 @@ public enum Translation {
         return bootstrap.getConfig();
     }
 
-    private String initPath() {
-        String path = name().replace('_', '.');
-        if (path.startsWith("."))
-            path = "internal" + path;
-
-        return path;
-    }
-
     public static void setServerLocale(Locale locale) {
         serverLocale = locale;
     }
@@ -318,9 +314,8 @@ public enum Translation {
     protected static int getArgCount(String text) {
         int argCount = 0;
         Matcher matcher = Pattern.compile("%s").matcher(text);
-        while (matcher.find()) {
+        while (matcher.find())
             argCount++;
-        }
 
         return argCount;
     }
