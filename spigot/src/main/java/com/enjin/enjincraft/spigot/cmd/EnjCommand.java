@@ -51,7 +51,7 @@ public abstract class EnjCommand {
     public abstract Translation getUsageTranslation();
 
     public List<String> tab(CommandContext context) {
-        return new ArrayList<>(); // TODO: What is this suppose to do?
+        return new ArrayList<>();
     }
 
     private List<String> tab0(CommandContext context) {
