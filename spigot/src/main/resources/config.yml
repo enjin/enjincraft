@@ -3,7 +3,7 @@ platform:
   app:
     id: -1
     secret: ""
-    dev-identity-id: -1
+    dev-address: ""
 locale: "en_US"
 debug:
   sdk: false

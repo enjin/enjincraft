@@ -113,14 +113,14 @@ public class CmdDevSend extends EnjCommand {
             }
         }
 
-        send(context.sender, bootstrap.getConfig().getDevIdentityId(), data);
+        send(context.sender, bootstrap.getConfig().getDevAddress(), data);
     }
 
-    private void send(CommandSender sender, int senderId, SendTokenData data) {
+    private void send(CommandSender sender, String senderAddress, SendTokenData data) {
         TrustedPlatformClient client = bootstrap.getTrustedPlatformClient();
         client.getRequestService().createRequestAsync(new CreateRequest()
                         .appId(client.getAppId())
-                        .identityId(senderId)
+                        .ethAddr(senderAddress)
                         .sendToken(data),
                 networkResponse -> {
                     if (!networkResponse.isSuccess()) {

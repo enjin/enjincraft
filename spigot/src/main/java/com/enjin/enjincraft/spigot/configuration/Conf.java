@@ -25,8 +25,8 @@ public class Conf {
         return internalConf.getString(ConfPath.APP_SECRET.path());
     }
 
-    public int getDevIdentityId() {
-        return internalConf.getInt(ConfPath.DEV_IDENTITY_ID.path());
+    public String getDevAddress() {
+        return internalConf.getString(ConfPath.DEV_ADDRESS.path());
     }
 
     public String getLocaleAsString() {
