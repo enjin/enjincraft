@@ -250,7 +250,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
         boolean validUrl = !StringUtils.isEmpty(conf.getBaseUrl());
         boolean validAppId = conf.getAppId() >= 0;
         boolean validSecret = !StringUtils.isEmpty(conf.getAppSecret());
-        boolean validIdentityId = conf.getDevIdentityId() >= 0;
+        boolean validDevAddress = conf.getDevAddress() != null && !conf.getDevAddress().isEmpty();
 
         if (!validUrl)
             plugin.getLogger().warning("Invalid platform url specified in config.");
@@ -258,10 +258,10 @@ public class SpigotBootstrap implements Bootstrap, Module {
             plugin.getLogger().warning("Invalid app id specified in config.");
         if (!validSecret)
             plugin.getLogger().warning("Invalid app secret specified in config.");
-        if (!validIdentityId)
-            plugin.getLogger().warning("Invalid dev identity id specified in config.");
+        if (!validDevAddress)
+            plugin.getLogger().warning("Invalid dev address specified in config.");
 
-        return validUrl && validAppId && validSecret && validIdentityId;
+        return validUrl && validAppId && validSecret && validDevAddress;
     }
 
     public void loadLocales() {

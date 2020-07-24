@@ -5,7 +5,7 @@ public enum ConfPath {
     BASE_URL("platform.base-url"),
     APP_ID("platform.app.id"),
     APP_SECRET("platform.app.secret"),
-    DEV_IDENTITY_ID("platform.app.dev-identity-id"),
+    DEV_ADDRESS("platform.app.dev-address"),
     LOCALE("locale"),
     DEBUG_SDK("debug.sdk"),
     DEBUG_PLUGIN("debug.plugin"),
