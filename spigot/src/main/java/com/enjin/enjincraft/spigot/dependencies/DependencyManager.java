@@ -55,7 +55,7 @@ public class DependencyManager {
         for (Dependency dependency : config.getDependencies()) {
             try {
                 paths.add(downloadDependency(targetDirectory, config, dependency));
-            } catch (IOException | IllegalStateException ex) {
+            } catch (IllegalStateException ex) {
                 plugin.log(ex);
             }
         }
@@ -63,7 +63,7 @@ public class DependencyManager {
         return paths;
     }
 
-    private Path downloadDependency(Path targetDirectory, DependencyConfig config, Dependency dependency) throws IOException {
+    private Path downloadDependency(Path targetDirectory, DependencyConfig config, Dependency dependency) {
         Path path = targetDirectory.resolve(dependency.getArtifactName());
         File file = path.toFile();
         if (file.exists())
@@ -98,7 +98,9 @@ public class DependencyManager {
         if (!success) {
             plugin.getLogger().warning("Dependency not found: " + dependency.getArtifactName());
             return null;
-        } else if (!file.exists())
+        }
+
+        if (!file.exists())
             throw new IllegalStateException("Dependency not saved: " + dependency.getArtifactName());
 
         return path;

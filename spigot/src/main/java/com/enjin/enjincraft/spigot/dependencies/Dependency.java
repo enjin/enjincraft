@@ -40,13 +40,11 @@ public class Dependency {
     }
 
     public String getPath() {
-        return groupId.replace(".", "/")
-                + '/'
-                + artifactId
-                + '/'
-                + version
-                + '/'
-                + getArtifactName();
+        return String.format("%s/%s/%s/%s",
+                groupId.replace(".", "/"),
+                artifactId,
+                version,
+                getArtifactName());
     }
 
     public static List<Dependency> process(ConfigurationSection section) {
