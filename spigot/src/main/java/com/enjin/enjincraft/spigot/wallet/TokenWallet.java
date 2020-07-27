@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class TokenWallet {
 
-    private Map<String, MutableBalance> balances;
+    private final Map<String, MutableBalance> balances;
 
     public TokenWallet(List<Balance> balances) {
         this.balances = new ConcurrentHashMap<>();
@@ -19,11 +19,14 @@ public class TokenWallet {
     }
 
     public MutableBalance removeBalance(String id) {
-        id = TokenUtils.toFullId(id);
-        if (id == null)
+        try {
+            return balances.remove(TokenUtils.toFullId(id));
+        } catch (IllegalArgumentException e) {
             return null;
-
-        return balances.remove(id);
+        } catch (Exception e) {
+            log(e);
+            return null;
+        }
     }
 
     public MutableBalance removeBalance(String tokenId, String tokenIndex) {
@@ -38,11 +41,14 @@ public class TokenWallet {
     }
 
     public MutableBalance getBalance(String id) {
-        id = TokenUtils.toFullId(id);
-        if (id == null)
+        try {
+            return balances.get(TokenUtils.toFullId(id));
+        } catch (IllegalArgumentException e) {
             return null;
-
-        return balances.get(id);
+        } catch (Exception e) {
+            log(e);
+            return null;
+        }
     }
 
     public MutableBalance getBalance(String tokenId, String tokenIndex) {
@@ -81,15 +87,9 @@ public class TokenWallet {
     }
 
     private static void log(Exception e) {
-        Optional<? extends Bootstrap> optionalBootstrap = EnjinCraft.bootstrap();
-        if (!optionalBootstrap.isPresent())
-            return;
-
-        Bootstrap bootstrap = optionalBootstrap.get();
-        if (!(bootstrap instanceof SpigotBootstrap))
-            return;
-
-        ((SpigotBootstrap) bootstrap).log(e);
+        Bootstrap bootstrap = EnjinCraft.bootstrap().orElse(null);
+        if (bootstrap instanceof SpigotBootstrap)
+            ((SpigotBootstrap) bootstrap).log(e);
     }
 
 }

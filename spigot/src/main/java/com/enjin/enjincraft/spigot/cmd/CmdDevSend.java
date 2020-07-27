@@ -48,48 +48,31 @@ public class CmdDevSend extends EnjCommand {
 
     @Override
     public void execute(CommandContext context) {
-        if (context.args.size() != requiredArgs.size())
-            return;
-
-        CommandSender sender    = context.sender;
-        String        recipient = context.args.get(0);
-        String        id        = context.args.get(1);
-
-        TokenModel tokenModel = TokenDefinitionArgumentProcessor.INSTANCE
-                .parse(sender, id)
-                .orElse(null);
-        if (tokenModel == null) {
-            Translation.COMMAND_DEVSEND_INVALIDTOKEN.send(sender);
-            return;
-        }
+        String target = context.args.get(0);
+        String id = context.args.get(1);
 
         // Process target address
         String targetAddr;
-        if (recipient.startsWith(ETH_ADDRESS_PREFIX) && recipient.length() == ETH_ADDRESS_LENGTH) {
-            targetAddr = recipient;
-        } else if (PlayerUtils.isValidUserName(recipient)) {
-            Player targetPlayer = PlayerArgumentProcessor.INSTANCE
-                    .parse(sender, recipient)
-                    .orElse(null);
-            if (targetPlayer == null || !targetPlayer.isOnline()) {
-                Translation.ERRORS_PLAYERNOTONLINE.send(sender, recipient);
+        if (target.startsWith(ETH_ADDRESS_PREFIX) && target.length() == ETH_ADDRESS_LENGTH) {
+            targetAddr = target;
+        } else if (PlayerUtils.isValidUserName(target)) {
+            Player targetPlayer = getValidTargetPlayer(context, target);
+            if (targetPlayer == null)
                 return;
-            }
 
-            EnjPlayer targetEnjPlayer = bootstrap.getPlayerManager()
-                    .getPlayer(targetPlayer)
-                    .orElse(null);
-            if (targetEnjPlayer == null) {
-                Translation.ERRORS_PLAYERNOTREGISTERED.send(sender, recipient);
+            EnjPlayer targetEnjPlayer = getValidTargetEnjPlayer(context, targetPlayer);
+            if (targetEnjPlayer == null)
                 return;
-            } else if (!targetEnjPlayer.isLinked()) {
-                Translation.WALLET_NOTLINKED_OTHER.send(sender, targetPlayer.getName());
-                return;
-            }
 
             targetAddr = targetEnjPlayer.getEthereumAddress();
         } else {
-            Translation.ERRORS_INVALIDPLAYERNAME.send(sender, recipient);
+            Translation.ERRORS_INVALIDPLAYERNAME.send(context.sender, target);
+            return;
+        }
+
+        TokenModel tokenModel = bootstrap.getTokenManager().getToken(id);
+        if (tokenModel == null) {
+            Translation.COMMAND_DEVSEND_INVALIDTOKEN.send(context.sender);
             return;
         }
 
@@ -104,7 +87,7 @@ public class CmdDevSend extends EnjCommand {
                         .tokenIndex(index)
                         .build();
             } catch (IllegalArgumentException e) {
-                Translation.COMMAND_TOKEN_INVALIDFULLID.send(sender);
+                Translation.COMMAND_TOKEN_INVALIDFULLID.send(context.sender);
                 return;
             } catch (Exception e) {
                 bootstrap.log(e);
@@ -122,7 +105,7 @@ public class CmdDevSend extends EnjCommand {
                         .value(amount)
                         .build();
             } catch (IllegalArgumentException e) {
-                Translation.COMMAND_DEVSEND_INVALIDAMOUNT.send(sender);
+                Translation.COMMAND_DEVSEND_INVALIDAMOUNT.send(context.sender);
                 return;
             } catch (Exception e) {
                 bootstrap.log(e);
@@ -130,7 +113,7 @@ public class CmdDevSend extends EnjCommand {
             }
         }
 
-        send(sender, bootstrap.getConfig().getDevIdentityId(), data);
+        send(context.sender, bootstrap.getConfig().getDevIdentityId(), data);
     }
 
     private void send(CommandSender sender, int senderId, SendTokenData data) {

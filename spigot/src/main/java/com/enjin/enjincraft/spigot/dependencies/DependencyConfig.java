@@ -11,8 +11,8 @@ import java.util.Objects;
 
 public final class DependencyConfig {
 
-    private List<String> repositories;
-    private List<Dependency> dependencies;
+    private final List<String> repositories;
+    private final List<Dependency> dependencies;
 
     private DependencyConfig(Configuration configuration) {
         this.repositories = Collections.unmodifiableList(getRepositories(configuration));
@@ -41,7 +41,6 @@ public final class DependencyConfig {
             try {
                 urls.add(new URL(builder.toString()));
             } catch (MalformedURLException ignored) {
-                // Do Nothing
             }
         }
 

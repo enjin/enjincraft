@@ -21,7 +21,7 @@ public enum Locale {
     ro_RO(StandardCharsets.UTF_16BE),
     sr_SP(StandardCharsets.UTF_16BE);
 
-    private Charset charset;
+    private final Charset charset;
 
     Locale(Charset charset) {
         this.charset = charset;
@@ -46,7 +46,6 @@ public enum Locale {
 
     public YamlConfiguration loadLocaleResource(Plugin plugin) {
         InputStream is = plugin.getResource(String.format("lang/%s.yml", name()));
-
         if (is == null)
             return null;
 

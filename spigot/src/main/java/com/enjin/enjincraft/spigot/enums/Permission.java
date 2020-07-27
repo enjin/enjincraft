@@ -22,7 +22,7 @@ public enum Permission {
     CMD_UNLINK("unlink"),
     CMD_WALLET("wallet");
 
-    private String node;
+    private final String node;
 
     Permission(String node) {
         this.node = String.format("enjincraft.%s", node);

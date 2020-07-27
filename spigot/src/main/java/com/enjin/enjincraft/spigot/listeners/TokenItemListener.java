@@ -2,7 +2,6 @@ package com.enjin.enjincraft.spigot.listeners;
 
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
-import com.enjin.enjincraft.spigot.util.StringUtils;
 import com.enjin.enjincraft.spigot.util.TokenUtils;
 import com.enjin.enjincraft.spigot.wallet.MutableBalance;
 import com.enjin.enjincraft.spigot.wallet.TokenWallet;
@@ -17,12 +16,11 @@ import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.*;
 
-import java.util.List;
 import java.util.Map;
 
 public class TokenItemListener implements Listener {
 
-    private SpigotBootstrap bootstrap;
+    private final SpigotBootstrap bootstrap;
 
     public TokenItemListener(SpigotBootstrap bootstrap) {
         this.bootstrap = bootstrap;
@@ -41,17 +39,20 @@ public class TokenItemListener implements Listener {
                 return;
 
             TokenWallet wallet = enjPlayer.getTokenWallet();
-            List<ItemStack> drops = event.getDrops();
 
-            for (int i = drops.size() - 1; i >= 0; i--) {
-                ItemStack is    = drops.get(i);
-                String    id    = TokenUtils.getTokenID(is);
-                String    index = TokenUtils.getTokenIndex(is);
-                if (StringUtils.isEmpty(id) || StringUtils.isEmpty(index))
+            for (ItemStack is : event.getDrops()) {
+                if (!TokenUtils.hasTokenData(is)) {
                     continue;
+                } else if (!TokenUtils.isValidTokenItem(is)) {
+                    is.setAmount(0);
+                    bootstrap.debug(String.format("Removed corrupted token from %s when they died", event.getEntity().getDisplayName()));
+                    continue;
+                }
 
-                MutableBalance balance = wallet.getBalance(id, index);
+                MutableBalance balance = wallet.getBalance(TokenUtils.getTokenID(is),
+                                                           TokenUtils.getTokenIndex(is));
                 balance.deposit(is.getAmount());
+                is.setAmount(0);
             }
         } catch (Exception ex) {
             bootstrap.log(ex);
@@ -60,35 +61,56 @@ public class TokenItemListener implements Listener {
 
     @EventHandler
     public void onPlayerDropItem(PlayerDropItemEvent event) {
+        ItemStack is = event.getItemDrop().getItemStack();
+        if (!TokenUtils.hasTokenData(is)) {
+            return;
+        } else if (!TokenUtils.isValidTokenItem(is)) {
+            is.setAmount(0);
+            bootstrap.debug(String.format("Removed corrupted token when %s dropped it", event.getPlayer().getDisplayName()));
+            return;
+        }
+
         EnjPlayer enjPlayer = bootstrap.getPlayerManager()
                 .getPlayer(event.getPlayer())
                 .orElse(null);
-        ItemStack is    = event.getItemDrop().getItemStack();
-        String    id    = TokenUtils.getTokenID(is);
-        String    index = TokenUtils.getTokenIndex(is);
-        if (enjPlayer == null || StringUtils.isEmpty(id) || StringUtils.isEmpty(index))
+        if (enjPlayer == null) {
+            is.setAmount(0);
+            bootstrap.debug(String.format("Removed token from non-Enjin player when %s dropped it", event.getPlayer().getDisplayName()));
             return;
+        }
 
-        event.setCancelled(true); // Will cancel event due to token being detected
+        TokenWallet wallet = enjPlayer.getTokenWallet();
+        if (wallet == null) {
+            is.setAmount(0);
+            bootstrap.debug(String.format("Removed token from unlinked Enjin player when %s dropped it", event.getPlayer().getDisplayName()));
+            return;
+        }
+
+        event.setCancelled(true); // Will cancel event due to valid token being detected for valid player
 
         // Checks for available space
         PlayerInventory inventory = event.getPlayer().getInventory();
-        int size = inventory.getSize() - (inventory.getArmorContents().length + inventory.getExtraContents().length);
-        int slot = -1;
+        int             size      = inventory.getSize()
+                                    - (inventory.getArmorContents().length + inventory.getExtraContents().length);
+        ItemStack dropItem = null;
+        int       dropSlot = -1;
         for (int i = 0; i < size; i++) {
-            ItemStack item   = inventory.getItem(i);
-            String    itemId = TokenUtils.getTokenID(item);
-            if (itemId == null || TokenUtils.canCombineStacks(is, item))
+            ItemStack item  = inventory.getItem(i);
+            if (item == null
+                    || item.getType() == Material.AIR
+                    || TokenUtils.canCombineStacks(is, item)) {
                 return;
-            else if (StringUtils.isEmpty(itemId) && slot < 0) // Gets the first available non-tokenized item
-                slot = i;
+            } else if (dropItem == null && !TokenUtils.hasTokenData(item)) {
+                dropSlot = i;
+                dropItem = item;
+            }
         }
 
         // Returns token to wallet if inventory cannot be changed
-        if (slot < 0) {
+        if (dropItem == null) {
             try {
-                TokenWallet wallet = enjPlayer.getTokenWallet();
-                MutableBalance balance = wallet.getBalance(id);
+                MutableBalance balance = wallet.getBalance(TokenUtils.getTokenID(is),
+                                                           TokenUtils.getTokenIndex(is));
                 balance.deposit(is.getAmount());
                 return;
             } catch (Exception e) {
@@ -98,8 +120,8 @@ public class TokenItemListener implements Listener {
         }
 
         Player player = enjPlayer.getBukkitPlayer();
-        player.getWorld().dropItemNaturally(player.getLocation(), inventory.getItem(slot));
-        inventory.clear(slot);
+        player.getWorld().dropItemNaturally(player.getLocation(), dropItem);
+        inventory.clear(dropSlot);
     }
 
     @EventHandler
@@ -120,7 +142,6 @@ public class TokenItemListener implements Listener {
 
         ItemStack clk = event.getCurrentItem();
         ItemStack held = event.getCursor();
-
         if (held != null && held.getType() != Material.AIR)
             inventoryClickHolding(event, held);
         else if (clk != null && clk.getType() != Material.AIR)
@@ -128,12 +149,10 @@ public class TokenItemListener implements Listener {
     }
 
     private void inventoryClickClicked(InventoryClickEvent event, ItemStack is) {
-        String tokenId = TokenUtils.getTokenID(is);
-        if (StringUtils.isEmpty(tokenId))
+        if (!TokenUtils.hasTokenData(is))
             return;
 
         Inventory clkInv = event.getClickedInventory();
-
         if (!(clkInv instanceof PlayerInventory) || event.getAction() != InventoryAction.MOVE_TO_OTHER_INVENTORY) {
             return;
         } else if (event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
@@ -151,8 +170,7 @@ public class TokenItemListener implements Listener {
     }
 
     private void inventoryClickHolding(InventoryClickEvent event, ItemStack is) {
-        String tokenId = TokenUtils.getTokenID(is);
-        if (StringUtils.isEmpty(tokenId))
+        if (!TokenUtils.hasTokenData(is))
             return;
 
         Inventory clkInv = event.getClickedInventory();
@@ -172,8 +190,7 @@ public class TokenItemListener implements Listener {
         for (Map.Entry<Integer, ItemStack> entry : event.getNewItems().entrySet()) {
             Integer   slot = entry.getKey();
             ItemStack is   = entry.getValue();
-            String    id   = TokenUtils.getTokenID(is);
-            if (view.getInventory(slot) != player.getInventory() && !StringUtils.isEmpty(id)) {
+            if (view.getInventory(slot) != player.getInventory() && TokenUtils.hasTokenData(is)) {
                 event.setCancelled(true);
                 return;
             }
@@ -182,26 +199,19 @@ public class TokenItemListener implements Listener {
 
     @EventHandler
     public void onCraftItem(CraftItemEvent event) {
-        CraftingInventory inventory = event.getInventory();
-        for (int i = inventory.getSize() - 1; i >= 0; i--) {
-            ItemStack is = inventory.getItem(i);
-            String    id = TokenUtils.getTokenID(is);
-            if (StringUtils.isEmpty(id))
-                continue;
-
-            event.setCancelled(true);
-            break;
+        for (ItemStack is : event.getInventory()) {
+            if (TokenUtils.hasTokenData(is)) {
+                event.setCancelled(true);
+                break;
+            }
         }
     }
 
     @EventHandler
     public void onArmorStandInteract(PlayerArmorStandManipulateEvent event) {
-        ItemStack held    = event.getPlayerItem();
-        String    tokenId = TokenUtils.getTokenID(held);
-        if (StringUtils.isEmpty(tokenId))
-            return;
-
-        event.setCancelled(true);
+        ItemStack held = event.getPlayerItem();
+        if (TokenUtils.hasTokenData(held))
+            event.setCancelled(true);
     }
 
     @EventHandler
@@ -212,15 +222,11 @@ public class TokenItemListener implements Listener {
     }
 
     private void interactItemFrame(PlayerInteractEntityEvent event, ItemFrame itemFrame) {
-        ItemStack held = event.getPlayer().getInventory().getItemInMainHand();
-        if (itemFrame.getItem().getType() != Material.AIR)
-            return;
-
-        String tokenId = TokenUtils.getTokenID(held);
-        if (StringUtils.isEmpty(tokenId))
-            return;
-
-        event.setCancelled(true);
+        ItemStack held = event.getPlayer()
+                .getInventory()
+                .getItemInMainHand();
+        if (itemFrame.getItem().getType() == Material.AIR && TokenUtils.hasTokenData(held))
+            event.setCancelled(true);
     }
 
     @EventHandler
@@ -247,11 +253,8 @@ public class TokenItemListener implements Listener {
         else
             return;
 
-        String tokenId = TokenUtils.getTokenID(bucket);
-        if (StringUtils.isEmpty(tokenId))
-            return;
-
-        event.setCancelled(true);
+        if (TokenUtils.hasTokenData(bucket))
+            event.setCancelled(true);
     }
 
     private static boolean isBucket(ItemStack is) {

@@ -13,7 +13,6 @@ import org.bukkit.plugin.Plugin;
 
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -200,14 +199,16 @@ public enum Translation {
     private static final Map<Locale, String> LOCALE_NAMES = new EnumMap<>(Locale.class);
     private static Locale serverLocale = DEFAULT_LOCALE;
 
-    private String path;
-    private Object def;
-    private int argCount;
+    private final String path;
+    private final Object def;
+    private final int argCount;
 
     Translation(Object def) {
-        this.path = this.name().replace('_', '.');
-        if (this.path.startsWith("."))
-            this.path = "internal" + path;
+        String path = name().replace('_', '.');
+        if (path.startsWith("."))
+            path = "internal" + path;
+
+        this.path = path;
         this.def = def;
         this.argCount = getArgCount(String.valueOf(def));
     }
@@ -225,7 +226,8 @@ public enum Translation {
     }
 
     public String translation(CommandSender sender) {
-        if ((sender instanceof ConsoleCommandSender && conf().shouldTranslateConsoleMessages()) || sender instanceof Player)
+        if ((sender instanceof ConsoleCommandSender && conf().shouldTranslateConsoleMessages())
+                || sender instanceof Player)
             return translation();
 
         return defaultTranslation();
@@ -242,7 +244,6 @@ public enum Translation {
         YamlConfiguration lang = LOCALE_CONFIGS.getOrDefault(locale, LOCALE_CONFIGS.get(DEFAULT_LOCALE));
 
         String out = lang.getString(path(), defaultTranslation());
-
         if (out == null || (this != Translation.MISC_NEWLINE && out.isEmpty()))
             out = defaultTranslation();
 
@@ -258,17 +259,20 @@ public enum Translation {
     }
 
     public void send(CommandSender sender, Object... args) {
-        String formatted = String.format(translation(sender instanceof Player ? serverLocale : DEFAULT_LOCALE), args);
+        String formatted = String.format(translation(sender instanceof Player
+                ? serverLocale
+                : DEFAULT_LOCALE), args);
+
         String[] lines = formatted.split("<br>");
         for (String line : lines)
             MessageUtils.sendString(sender, line);
     }
 
     private Conf conf() {
-        Optional<? extends Bootstrap> optionalBootstrap = EnjinCraft.bootstrap();
-        if (!optionalBootstrap.isPresent())
+        Bootstrap bootstrap = EnjinCraft.bootstrap().orElse(null);
+        if (bootstrap == null)
             throw new IllegalStateException("Bootstrap not available");
-        Bootstrap bootstrap = optionalBootstrap.get();
+
         return bootstrap.getConfig();
     }
 
@@ -285,6 +289,7 @@ public enum Translation {
             YamlConfiguration lang = locale.loadLocaleResource(plugin);
             if (lang == null)
                 continue;
+
             setDefaults(lang);
             LOCALE_CONFIGS.put(locale, lang);
             LOCALE_NAMES.put(locale, lang.getString(Translation._language.path()));
@@ -292,7 +297,8 @@ public enum Translation {
     }
 
     protected static void setDefaults(YamlConfiguration lang) {
-        if (lang == null) return;
+        if (lang == null)
+            return;
 
         for (Translation translation : values()) {
             if (!lang.isSet(translation.path)) {
@@ -309,7 +315,8 @@ public enum Translation {
         int argCount = 0;
         Matcher matcher = Pattern.compile("%s").matcher(text);
         while (matcher.find())
-            argCount += 1;
+            argCount++;
+
         return argCount;
     }
 

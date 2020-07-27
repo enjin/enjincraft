@@ -7,6 +7,8 @@ import com.enjin.enjincraft.spigot.player.EnjPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.util.Objects;
+
 public class CmdUnlink extends EnjCommand {
 
     public CmdUnlink(SpigotBootstrap bootstrap, EnjCommand parent) {
@@ -20,28 +22,39 @@ public class CmdUnlink extends EnjCommand {
 
     @Override
     public void execute(CommandContext context) {
-        Player sender = context.player;
-        EnjPlayer enjPlayer = context.enjPlayer;
-
-        if (!enjPlayer.isLoaded()) {
-            Translation.IDENTITY_NOTLOADED.send(sender);
+        EnjPlayer senderEnjPlayer = getValidSenderEnjPlayer(context);
+        if (senderEnjPlayer == null)
             return;
-        }
-
-        if (!enjPlayer.isLinked()) {
-            Translation.WALLET_NOTLINKED_SELF.send(sender);
-            return;
-        }
 
         Bukkit.getScheduler().runTaskAsynchronously(bootstrap.plugin(), () -> {
             try {
-                enjPlayer.unlink();
+                senderEnjPlayer.unlink();
             } catch (Exception ex) {
                 bootstrap.log(ex);
-                Translation.ERRORS_EXCEPTION.send(sender, ex.getMessage());
+                Translation.ERRORS_EXCEPTION.send(context.sender, ex.getMessage());
             }
         });
     }
+
+    @Override
+    protected EnjPlayer getValidSenderEnjPlayer(CommandContext context) {
+        Player sender = Objects.requireNonNull(context.player, "Expected context to have non-null player as sender");
+
+        EnjPlayer senderEnjPlayer = context.enjPlayer;
+        if (senderEnjPlayer == null) {
+            Translation.ERRORS_PLAYERNOTREGISTERED.send(sender, sender.getName());
+            return null;
+        } else if (!senderEnjPlayer.isLoaded()) {
+            Translation.IDENTITY_NOTLOADED.send(sender);
+            return null;
+        } else if (!senderEnjPlayer.isLinked()) {
+            Translation.WALLET_NOTLINKED_SELF.send(sender);
+            return null;
+        }
+
+        return senderEnjPlayer;
+    }
+
     @Override
     public Translation getUsageTranslation() {
         return Translation.COMMAND_UNLINK_DESCRIPTION;

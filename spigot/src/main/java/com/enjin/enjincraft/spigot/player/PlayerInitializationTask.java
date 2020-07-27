@@ -26,8 +26,8 @@ public class PlayerInitializationTask extends BukkitRunnable {
 
     private static final Map<UUID, PlayerInitializationTask> PLAYER_TASKS = new ConcurrentHashMap<>();
 
-    private SpigotBootstrap bootstrap;
-    private EnjPlayer       player;
+    private final SpigotBootstrap bootstrap;
+    private final EnjPlayer       player;
 
     private boolean inProgress = false;
 
@@ -38,45 +38,51 @@ public class PlayerInitializationTask extends BukkitRunnable {
 
     @Override
     public void run() {
-        if (this.inProgress || isCancelled()) { return; }
+        if (inProgress || isCancelled())
+            return;
 
-        this.inProgress = true;
+        inProgress = true;
 
-        if (this.player.getBukkitPlayer() == null || !this.player.getBukkitPlayer().isOnline()) {
+        if (player == null
+                || player.getBukkitPlayer() == null
+                || !player.getBukkitPlayer().isOnline()) {
             cancel();
         } else {
             try {
-                if (!this.player.isUserLoaded()) { loadUser(); }
+                if (!player.isUserLoaded())
+                    loadUser();
 
-                if (this.player.isUserLoaded() && !this.player.isIdentityLoaded()) {
+                if (player.isUserLoaded() && !player.isIdentityLoaded())
                     loadIdentity();
-                } else if (this.player.isLoaded() && !isCancelled()) { cancel(); }
+                else if (player.isLoaded() && !isCancelled())
+                    cancel();
             } catch (Exception ex) {
                 bootstrap.log(ex);
             }
         }
 
-        this.inProgress = false;
+        inProgress = false;
     }
 
     private void loadUser() {
         User user = getUser(player.getBukkitPlayer().getUniqueId());
-        if (user != null) { this.player.loadUser(user); }
+        if (user != null)
+            player.loadUser(user);
     }
 
     private void loadIdentity() {
         Identity identity = getIdentity();
         if (identity != null) {
             // A new identity has been created
-            this.player.loadIdentity(identity);
+            player.loadIdentity(identity);
             cancel();
         }
     }
 
     private User getUser(UUID playerUuid) {
         User user = fetchExistingUser(playerUuid);
-
-        if (user == null) { user = createUser(playerUuid); }
+        if (user == null)
+            user = createUser(playerUuid);
 
         return user;
     }
@@ -91,14 +97,16 @@ public class PlayerInitializationTask extends BukkitRunnable {
                                                                                                    .withLinkingCode()
                                                                                                    .withLinkingCodeQr()
                                                                                                    .withWallet());
-        if (!networkResponse.isSuccess()) { throw new NetworkException(networkResponse.code()); }
+        if (!networkResponse.isSuccess())
+            throw new NetworkException(networkResponse.code());
 
         GraphQLResponse<List<User>> graphQLResponse = networkResponse.body();
-        if (!graphQLResponse.isSuccess()) { throw new GraphQLException(graphQLResponse.getErrors()); }
-
+        if (!graphQLResponse.isSuccess())
+            throw new GraphQLException(graphQLResponse.getErrors());
 
         User user = null;
-        if (!graphQLResponse.getData().isEmpty()) { user = graphQLResponse.getData().get(0); }
+        if (!graphQLResponse.getData().isEmpty())
+            user = graphQLResponse.getData().get(0);
 
         return user;
     }
@@ -112,10 +120,12 @@ public class PlayerInitializationTask extends BukkitRunnable {
                                                          .withUserIdentities()
                                                          .withLinkingCode()
                                                          .withLinkingCodeQr());
-        if (!networkResponse.isSuccess()) { throw new NetworkException(networkResponse.code()); }
+        if (!networkResponse.isSuccess())
+            throw new NetworkException(networkResponse.code());
 
         GraphQLResponse<User> graphQLResponse = networkResponse.body();
-        if (!graphQLResponse.isSuccess()) { throw new GraphQLException(graphQLResponse.getErrors()); }
+        if (!graphQLResponse.isSuccess())
+            throw new GraphQLException(graphQLResponse.getErrors());
 
         return graphQLResponse.getData();
     }
@@ -134,12 +144,15 @@ public class PlayerInitializationTask extends BukkitRunnable {
                                                                   .withLinkingCode()
                                                                   .withLinkingCodeQr()
                                                                   .withWallet());
-            if (!networkResponse.isSuccess()) { throw new NetworkException(networkResponse.code()); }
+            if (!networkResponse.isSuccess())
+                throw new NetworkException(networkResponse.code());
 
             GraphQLResponse<List<Identity>> graphQLResponse = networkResponse.body();
-            if (!graphQLResponse.isSuccess()) { throw new GraphQLException(graphQLResponse.getErrors()); }
+            if (!graphQLResponse.isSuccess())
+                throw new GraphQLException(graphQLResponse.getErrors());
 
-            if (!graphQLResponse.getData().isEmpty()) { identity = graphQLResponse.getData().get(0); }
+            if (!graphQLResponse.getData().isEmpty())
+                identity = graphQLResponse.getData().get(0);
         }
 
         return identity;
@@ -151,13 +164,15 @@ public class PlayerInitializationTask extends BukkitRunnable {
         HttpResponse<GraphQLResponse<Identity>> networkResponse = client.getIdentityService()
                                                                         .createIdentitySync(new CreateIdentity()
                                                                                                     .appId(client.getAppId())
-                                                                                                    .userId(this.player.getUserId())
+                                                                                                    .userId(player.getUserId())
                                                                                                     .withLinkingCode()
                                                                                                     .withLinkingCodeQr());
-        if (!networkResponse.isSuccess()) { throw new NetworkException(networkResponse.code()); }
+        if (!networkResponse.isSuccess())
+            throw new NetworkException(networkResponse.code());
 
         GraphQLResponse<Identity> graphQLResponse = networkResponse.body();
-        if (!graphQLResponse.isSuccess()) { throw new GraphQLException(graphQLResponse.getErrors()); }
+        if (!graphQLResponse.isSuccess())
+            throw new GraphQLException(graphQLResponse.getErrors());
 
         return graphQLResponse.getData();
     }
@@ -172,7 +187,8 @@ public class PlayerInitializationTask extends BukkitRunnable {
 
     public static void cleanUp(UUID playerUuid) {
         PlayerInitializationTask task = PLAYER_TASKS.remove(playerUuid);
-        if (task != null && !task.isCancelled()) { task.cancel(); }
+        if (task != null && !task.isCancelled())
+            task.cancel();
     }
 
 }

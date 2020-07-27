@@ -89,7 +89,7 @@ public class TokenModel {
     public TokenModel(@NonNull String id,
                       String alternateId,
                       String nbt,
-                      List<TokenPermission> assignablePermissions) {
+                      List<TokenPermission> assignablePermissions) throws NullPointerException {
         this(id,
                 null,
                 null,
@@ -126,7 +126,7 @@ public class TokenModel {
                       String nbt,
                       List<TokenPermission> assignablePermissions,
                       String metadataURI,
-                      TokenWalletViewState walletViewState) throws IllegalArgumentException, IllegalStateException {
+                      TokenWalletViewState walletViewState) throws IllegalArgumentException, IllegalStateException, NullPointerException {
         if (!TokenUtils.isValidId(id))
             throw new IllegalArgumentException(String.format("Invalid id: %s", id));
         if (index != null && !TokenUtils.isValidIndex(index)) {
@@ -346,12 +346,13 @@ public class TokenModel {
         }
 
         ItemMeta meta = is.getItemMeta();
+        if (is.hasItemMeta()) {
+            meta.setUnbreakable(true);
+            meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+            meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
 
-        meta.setUnbreakable(true);
-        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-        meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
-
-        is.setItemMeta(meta);
+            is.setItemMeta(meta);
+        }
 
         return is;
     }
@@ -525,12 +526,12 @@ public class TokenModel {
                     return ChatColor.GRAY
                             + "Withdrawable "
                             + ChatColor.GREEN
-                            + "\u2714";
+                            + "\u2714"; // Heavy check mark
                 case LOCKED:
                     return ChatColor.GRAY
                             + "Withdrawable "
                             + ChatColor.RED
-                            + "\u274C";
+                            + "\u274C"; // Cross mark
                 default:
                     return null;
             }

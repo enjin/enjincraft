@@ -17,8 +17,8 @@ import java.util.concurrent.TimeUnit;
 
 public class DependencyManager {
 
-    private EnjPlugin plugin;
-    private ReflectionClassLoader classLoader;
+    private final EnjPlugin plugin;
+    private final ReflectionClassLoader classLoader;
 
     public DependencyManager(EnjPlugin plugin) {
         this.plugin = plugin;
@@ -27,7 +27,6 @@ public class DependencyManager {
 
     public void loadDependencies(DependencyConfig config) {
         List<Path> paths = downloadDependencies(config);
-
         for (Path path : paths)
             classLoader.loadJar(path);
     }
@@ -37,7 +36,9 @@ public class DependencyManager {
     }
 
     private Path getSaveDirectory() {
-        Path saveDirectory = plugin.getDataFolder().toPath().resolve("lib");
+        Path saveDirectory = plugin.getDataFolder()
+                .toPath()
+                .resolve("lib");
 
         try {
             Files.createDirectories(saveDirectory);
@@ -54,7 +55,7 @@ public class DependencyManager {
         for (Dependency dependency : config.getDependencies()) {
             try {
                 paths.add(downloadDependency(targetDirectory, config, dependency));
-            } catch (IOException | IllegalStateException ex) {
+            } catch (IllegalStateException ex) {
                 plugin.log(ex);
             }
         }
@@ -62,10 +63,9 @@ public class DependencyManager {
         return paths;
     }
 
-    private Path downloadDependency(Path targetDirectory, DependencyConfig config, Dependency dependency) throws IOException {
+    private Path downloadDependency(Path targetDirectory, DependencyConfig config, Dependency dependency) {
         Path path = targetDirectory.resolve(dependency.getArtifactName());
         File file = path.toFile();
-
         if (file.exists())
             return path;
 
@@ -92,7 +92,6 @@ public class DependencyManager {
                     break;
                 }
             } catch (Exception ignore) {
-                // Do Nothing
             }
         }
 

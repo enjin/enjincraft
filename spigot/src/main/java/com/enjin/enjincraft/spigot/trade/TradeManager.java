@@ -27,7 +27,7 @@ import java.util.*;
 
 public class TradeManager implements Listener {
 
-    private SpigotBootstrap bootstrap;
+    private final SpigotBootstrap bootstrap;
 
     public TradeManager(SpigotBootstrap bootstrap) {
         this.bootstrap = bootstrap;
@@ -37,37 +37,45 @@ public class TradeManager implements Listener {
         return sender.getSentTradeInvites().contains(target);
     }
 
-    public boolean addInvite(EnjPlayer sender, EnjPlayer target) {
-        boolean result = !inviteExists(sender, target);
-
-        if (result) {
-            sender.getSentTradeInvites().add(target);
-            target.getReceivedTradeInvites().add(sender);
+    public boolean addInvite(EnjPlayer inviter, EnjPlayer invitee) {
+        if (!inviteExists(inviter, invitee)) {
+            inviter.getSentTradeInvites().add(invitee);
+            invitee.getReceivedTradeInvites().add(inviter);
+            return true;
         }
 
-        return result;
+        return false;
     }
 
-    public boolean acceptInvite(EnjPlayer inviter, EnjPlayer invited) {
-        boolean result = inviteExists(inviter, invited);
+    public boolean acceptInvite(EnjPlayer inviter, EnjPlayer invitee) throws UnregisterTradeInviteException {
+        if (inviteExists(inviter, invitee)) {
+            boolean removedFromInviter = inviter.getSentTradeInvites().remove(invitee);
+            boolean removedFromInvitee = invitee.getReceivedTradeInvites().remove(invitee);
+            if (removedFromInviter && removedFromInvitee) {
+                inviter.setActiveTradeView(new TradeView(bootstrap, inviter, invitee, Trader.INVITER));
+                invitee.setActiveTradeView(new TradeView(bootstrap, invitee, inviter, Trader.INVITED));
+                inviter.getActiveTradeView().open();
+                invitee.getActiveTradeView().open();
+                return true;
+            }
 
-        if (result) {
-            inviter.getSentTradeInvites().remove(invited);
-            invited.getReceivedTradeInvites().remove(invited);
-
-            inviter.setActiveTradeView(new TradeView(bootstrap, inviter, invited, Trader.INVITER));
-            invited.setActiveTradeView(new TradeView(bootstrap, invited, inviter, Trader.INVITED));
-
-            inviter.getActiveTradeView().open();
-            invited.getActiveTradeView().open();
+            throw new UnregisterTradeInviteException(inviter, invitee);
         }
 
-        return result;
+        return false;
     }
 
-    public boolean declineInvite(EnjPlayer sender, EnjPlayer target) {
-        sender.getSentTradeInvites().remove(target);
-        return target.getReceivedTradeInvites().remove(sender);
+    public boolean declineInvite(EnjPlayer inviter, EnjPlayer invitee) throws UnregisterTradeInviteException {
+        if (inviteExists(inviter, invitee)) {
+            boolean removedFromInviter = inviter.getSentTradeInvites().remove(invitee);
+            boolean removedFromInvitee = invitee.getReceivedTradeInvites().remove(inviter);
+            if (removedFromInviter && removedFromInvitee)
+                return true;
+
+            throw new UnregisterTradeInviteException(inviter, invitee);
+        }
+
+        return false;
     }
 
     public void completeTrade(Integer requestId) {
@@ -80,16 +88,16 @@ public class TradeManager implements Listener {
     }
 
     public void completeTrade(TradeSession session) {
+        if (session == null)
+            return;
+
+        Optional<Player> inviter = Optional.ofNullable(Bukkit.getPlayer(session.getInviterUuid()));
+        Optional<Player> invitee = Optional.ofNullable(Bukkit.getPlayer(session.getInvitedUuid()));
+
+        inviter.ifPresent(Translation.COMMAND_TRADE_COMPLETE::send);
+        invitee.ifPresent(Translation.COMMAND_TRADE_COMPLETE::send);
+
         try {
-            if (session == null)
-                return;
-
-            Optional<Player> inviter = Optional.ofNullable(Bukkit.getPlayer(session.getInviterUuid()));
-            Optional<Player> invited = Optional.ofNullable(Bukkit.getPlayer(session.getInvitedUuid()));
-
-            inviter.ifPresent(Translation.COMMAND_TRADE_COMPLETE::send);
-            invited.ifPresent(Translation.COMMAND_TRADE_COMPLETE::send);
-
             bootstrap.db().tradeExecuted(session.getCompleteRequestId());
         } catch (Exception ex) {
             bootstrap.log(ex);
@@ -106,57 +114,51 @@ public class TradeManager implements Listener {
     }
 
     public void sendCompleteRequest(TradeSession session, String tradeId) {
-        try {
-            if (session == null || StringUtils.isEmpty(tradeId))
-                return;
+        if (session == null || StringUtils.isEmpty(tradeId))
+            return;
 
-            Optional<Player> inviter = Optional.ofNullable(Bukkit.getPlayer(session.getInviterUuid()));
-            Optional<Player> invited = Optional.ofNullable(Bukkit.getPlayer(session.getInvitedUuid()));
+        Optional<Player> inviter = Optional.ofNullable(Bukkit.getPlayer(session.getInviterUuid()));
+        Optional<Player> invitee = Optional.ofNullable(Bukkit.getPlayer(session.getInvitedUuid()));
 
-            TrustedPlatformClient client = bootstrap.getTrustedPlatformClient();
-            client.getRequestService().createRequestAsync(new CreateRequest()
-                    .appId(client.getAppId())
-                    .identityId(session.getInvitedIdentityId())
-                    .completeTrade(CompleteTradeData.builder()
-                                                    .tradeId(tradeId)
-                                                    .build()),
-                    networkResponse -> {
-                        if (!networkResponse.isSuccess())
-                            throw new NetworkException(networkResponse.code());
+        TrustedPlatformClient client = bootstrap.getTrustedPlatformClient();
+        client.getRequestService().createRequestAsync(new CreateRequest()
+                        .appId(client.getAppId())
+                        .identityId(session.getInvitedIdentityId())
+                        .completeTrade(CompleteTradeData.builder()
+                                                        .tradeId(tradeId)
+                                                        .build()),
+                networkResponse -> {
+                    if (!networkResponse.isSuccess())
+                        throw new NetworkException(networkResponse.code());
 
-                        GraphQLResponse<Transaction> graphQLResponse = networkResponse.body();
-                        if (!graphQLResponse.isSuccess())
-                            throw new GraphQLException(graphQLResponse.getErrors());
+                    GraphQLResponse<Transaction> graphQLResponse = networkResponse.body();
+                    if (!graphQLResponse.isSuccess())
+                        throw new GraphQLException(graphQLResponse.getErrors());
 
-                        Transaction dataIn = graphQLResponse.getData();
-                        inviter.ifPresent(Translation.COMMAND_TRADE_CONFIRM_WAIT::send);
-                        invited.ifPresent(Translation.COMMAND_TRADE_CONFIRM_ACTION::send);
+                    Transaction dataIn = graphQLResponse.getData();
+                    inviter.ifPresent(Translation.COMMAND_TRADE_CONFIRM_WAIT::send);
+                    invitee.ifPresent(Translation.COMMAND_TRADE_CONFIRM_ACTION::send);
 
-                        try {
-                            bootstrap.db().completeTrade(session.getCreateRequestId(),
-                                    dataIn.getId(),
-                                    tradeId);
-                        } catch (SQLException ex) {
-                            bootstrap.log(ex);
-                        }
+                    try {
+                        bootstrap.db().completeTrade(session.getCreateRequestId(), dataIn.getId(), tradeId);
+                    } catch (SQLException ex) {
+                        bootstrap.log(ex);
                     }
-            );
-        } catch (Exception ex) {
-            bootstrap.log(ex);
-        }
+                }
+        );
     }
 
     public void createTrade(EnjPlayer inviter,
-                            EnjPlayer invited,
+                            EnjPlayer invitee,
                             List<ItemStack> inviterOffer,
-                            List<ItemStack> invitedOffer) {
-        if (inviter == null || invited == null)
-            throw new NullPointerException("Inviter or invited EnjPlayer is null.");
-        if (!inviter.isLinked() || !invited.isLinked())
-            throw new IllegalArgumentException("Inviter or invited EnjPlayer is not linked.");
+                            List<ItemStack> invitedOffer) throws IllegalArgumentException, NullPointerException {
+        if (inviter == null || invitee == null)
+            throw new NullPointerException("Inviter or invited EnjPlayer is null");
+        else if (!inviter.isLinked() || !invitee.isLinked())
+            throw new IllegalArgumentException("Inviter or invited EnjPlayer is not linked");
 
         Player bukkitPlayerOne = inviter.getBukkitPlayer();
-        Player bukkitPlayerTwo = invited.getBukkitPlayer();
+        Player bukkitPlayerTwo = invitee.getBukkitPlayer();
 
         List<TokenValueData> playerOneTokens = extractOffers(inviterOffer);
         List<TokenValueData> playerTwoTokens = extractOffers(invitedOffer);
@@ -168,7 +170,7 @@ public class TradeManager implements Listener {
                 .createTrade(CreateTradeData.builder()
                                             .offeringTokens(playerOneTokens)
                                             .askingTokens(playerTwoTokens)
-                                            .secondPartyIdentityId(invited.getIdentityId())
+                                            .secondPartyIdentityId(invitee.getIdentityId())
                                             .build()),
                 networkResponse -> {
                     try {
@@ -187,8 +189,8 @@ public class TradeManager implements Listener {
                                 inviter.getIdentityId(),
                                 inviter.getEthereumAddress(),
                                 bukkitPlayerTwo.getUniqueId(),
-                                invited.getIdentityId(),
-                                invited.getEthereumAddress(),
+                                invitee.getIdentityId(),
+                                invitee.getEthereumAddress(),
                                 dataIn.getId());
                     } catch (Exception ex) {
                         bootstrap.log(ex);
@@ -209,24 +211,24 @@ public class TradeManager implements Listener {
         List<TokenValueData> extractedOffers = new ArrayList<>();
 
         for (ItemStack is : offers) {
-            String tokenId = TokenUtils.getTokenID(is);
-            if (StringUtils.isEmpty(tokenId))
+            if (!TokenUtils.isValidTokenItem(is))
                 continue;
 
             int value = is.getAmount();
+            String id = TokenUtils.getTokenID(is);
 
             if (TokenUtils.isNonFungible(is)) {
                 String  index    = TokenUtils.getTokenIndex(is);
                 Integer intIndex = TokenUtils.convertIndexToLong(index).intValue();
 
                 extractedOffers.add(TokenValueData.builder()
-                        .id(tokenId)
+                        .id(id)
                         .index(intIndex)
                         .value(value)
                         .build());
             } else {
                 extractedOffers.add(TokenValueData.builder()
-                        .id(tokenId)
+                        .id(id)
                         .value(value)
                         .build());
             }

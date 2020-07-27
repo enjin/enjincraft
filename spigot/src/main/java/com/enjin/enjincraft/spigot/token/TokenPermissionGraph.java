@@ -1,17 +1,20 @@
 package com.enjin.enjincraft.spigot.token;
 
 import com.enjin.enjincraft.spigot.util.TokenUtils;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.util.*;
 
-@NoArgsConstructor
 @ToString
 public class TokenPermissionGraph {
 
-    private Map<String, Map<String, Set<String>>> permissionTokens = new HashMap<>(); // World -> (Permission -> Tokens)
-    private Map<String, Map<String, Set<String>>> tokenPermissions = new HashMap<>(); // Token -> (World -> Permissions)
+    private final Map<String, Map<String, Set<String>>> permissionTokens; // World -> (Permission -> Tokens)
+    private final Map<String, Map<String, Set<String>>> tokenPermissions; // Token -> (World -> Permissions)
+
+    public TokenPermissionGraph() {
+        this.permissionTokens = new HashMap<>();
+        this.tokenPermissions = new HashMap<>();
+    }
 
     public TokenPermissionGraph(TokenPermissionGraph graph) {
         this.permissionTokens = new HashMap<>(graph.permissionTokens);
@@ -82,9 +85,7 @@ public class TokenPermissionGraph {
     }
 
     protected void removeToken(Map<String, Set<String>> permsMap, String fullId) {
-        permsMap.forEach((world, perms) -> {
-            perms.forEach(perm -> removeTokenPerm(perm, fullId, world));
-        });
+        permsMap.forEach((world, perms) -> perms.forEach(perm -> removeTokenPerm(perm, fullId, world)));
     }
 
     protected void removeToken(TokenModel tokenModel) {

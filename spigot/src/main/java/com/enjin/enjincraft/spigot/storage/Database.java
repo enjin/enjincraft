@@ -53,9 +53,9 @@ public class Database {
     public static final String TEMPLATE_GET_PENDING_TRADES = "trade/GetPending";
     public static final String TEMPLATE_GET_SESSION_REQ_ID = "trade/GetSessionFromRequestId";
 
-    private SpigotBootstrap bootstrap;
-    private File dbFile;
-    private Connection conn;
+    private final SpigotBootstrap bootstrap;
+    private final File dbFile;
+    private final Connection conn;
 
     // Token
     private final PreparedStatement createToken;
@@ -125,7 +125,7 @@ public class Database {
         setupStatement.executeBatch();
     }
 
-    public int createToken(@NonNull TokenModel tokenModel) throws SQLException {
+    public int createToken(@NonNull TokenModel tokenModel) throws SQLException, NullPointerException {
         String  id              = tokenModel.getId();
         boolean nonfungible     = tokenModel.isNonfungible();
         String  alternateId     = tokenModel.getAlternateId();
@@ -150,7 +150,7 @@ public class Database {
         }
     }
 
-    public int createTokenInstance(@NonNull TokenModel tokenModel) throws SQLException {
+    public int createTokenInstance(@NonNull TokenModel tokenModel) throws SQLException, NullPointerException {
         String id          = tokenModel.getId();
         String index       = tokenModel.getIndex();
         String nbt         = tokenModel.getNbt();
@@ -175,7 +175,7 @@ public class Database {
         }
     }
 
-    public int deleteToken(@NonNull String tokenId) throws SQLException {
+    public int deleteToken(@NonNull String tokenId) throws SQLException, NullPointerException {
         synchronized (deleteToken) {
             deleteToken.clearParameters();
 
@@ -194,7 +194,7 @@ public class Database {
     }
 
     public int deleteTokenInstance(@NonNull String tokenId,
-                                   @NonNull String tokenIndex) throws SQLException {
+                                   @NonNull String tokenIndex) throws SQLException, NullPointerException {
         synchronized (deleteTokenInstance) {
             deleteTokenInstance.clearParameters();
 
@@ -214,7 +214,7 @@ public class Database {
     }
 
     public TokenModel getToken(@NonNull String tokenId,
-                               String tokenIndex) throws SQLException {
+                               String tokenIndex) throws SQLException, NullPointerException {
         synchronized (getToken) {
             getToken.clearParameters();
 
@@ -271,7 +271,7 @@ public class Database {
         return tokens;
     }
 
-    public int updateToken(@NonNull TokenModel tokenModel) throws SQLException {
+    public int updateToken(@NonNull TokenModel tokenModel) throws SQLException, NullPointerException {
         String id              = tokenModel.getId();
         String alternateId     = tokenModel.getAlternateId();
         String walletViewState = tokenModel.getWalletViewState().name();
@@ -294,7 +294,7 @@ public class Database {
         }
     }
 
-    public int updateTokenInstance(@NonNull TokenModel tokenModel) throws SQLException {
+    public int updateTokenInstance(@NonNull TokenModel tokenModel) throws SQLException, NullPointerException {
         String id          = tokenModel.getId();
         String index       = tokenModel.getIndex();
         String nbt         = tokenModel.getNbt();
@@ -321,14 +321,14 @@ public class Database {
 
     public int[] addPermission(@NonNull String tokenId,
                                @NonNull String tokenIndex,
-                               @NonNull TokenPermission permission) throws SQLException {
+                               @NonNull TokenPermission permission) throws SQLException, NullPointerException {
         return addPermission(tokenId, tokenIndex, permission.getPermission(), permission.getWorlds());
     }
 
     public int[] addPermission(@NonNull String tokenId,
                                @NonNull String tokenIndex,
                                @NonNull String permission,
-                               Collection<String> worlds) throws SQLException {
+                               Collection<String> worlds) throws SQLException, NullPointerException {
         List<Integer> resultsList = new ArrayList<>();
 
         synchronized (addPermission) {
@@ -361,14 +361,14 @@ public class Database {
 
     public int[] deletePermission(@NonNull String tokenId,
                                   @NonNull String tokenIndex,
-                                  @NonNull TokenPermission permission) throws SQLException {
+                                  @NonNull TokenPermission permission) throws SQLException, NullPointerException {
         return deletePermission(tokenId, tokenIndex, permission.getPermission(), permission.getWorlds());
     }
 
     public int[] deletePermission(@NonNull String tokenId,
                                   @NonNull String tokenIndex,
                                   @NonNull String permission,
-                                  Collection<String> worlds) throws SQLException {
+                                  Collection<String> worlds) throws SQLException, NullPointerException {
         List<Integer> resultsList = new ArrayList<>();
 
         synchronized (deletePermission) {
@@ -400,7 +400,7 @@ public class Database {
     }
 
     public List<TokenPermission> getPermissions(@NonNull String tokenId,
-                                                @NonNull String tokenIndex) throws SQLException {
+                                                @NonNull String tokenIndex) throws SQLException, NullPointerException {
         Map<String, Set<String>> permissionMap = new HashMap<>();
 
         synchronized (getPermissions) {
@@ -434,7 +434,7 @@ public class Database {
 
     public Collection<String> getPermissionWorlds(@NonNull String tokenId,
                                                   @NonNull String tokenIndex,
-                                                  @NonNull String permission) throws SQLException {
+                                                  @NonNull String permission) throws SQLException, NullPointerException {
         Set<String> worlds = new HashSet<>();
 
         synchronized (getPermissionWorlds) {
@@ -471,20 +471,29 @@ public class Database {
                            int createRequestId) throws SQLException {
         synchronized (createTrade) {
             createTrade.clearParameters();
-            createTrade.setString(1, inviterUuid.toString());
-            createTrade.setInt(2, inviterIdentityId);
-            createTrade.setString(3, inviterEthAddr);
-            createTrade.setString(4, invitedUuid.toString());
-            createTrade.setInt(5, invitedIdentityId);
-            createTrade.setString(6, invitedEthAddr);
-            createTrade.setInt(7, createRequestId);
-            createTrade.setString(8, TradeState.PENDING_CREATE.name());
-            createTrade.setLong(9, OffsetDateTime.now(ZoneOffset.UTC).toEpochSecond());
-            int count = createTrade.executeUpdate();
 
-            if (count > 0) {
-                try (ResultSet rs = createTrade.getGeneratedKeys()) {
-                    return rs.getInt(1);
+            try {
+                createTrade.setString(1, inviterUuid.toString());
+                createTrade.setInt(2, inviterIdentityId);
+                createTrade.setString(3, inviterEthAddr);
+                createTrade.setString(4, invitedUuid.toString());
+                createTrade.setInt(5, invitedIdentityId);
+                createTrade.setString(6, invitedEthAddr);
+                createTrade.setInt(7, createRequestId);
+                createTrade.setString(8, TradeState.PENDING_CREATE.name());
+                createTrade.setLong(9, OffsetDateTime.now(ZoneOffset.UTC).toEpochSecond());
+
+                int count = createTrade.executeUpdate();
+                if (count > 0) {
+                    try (ResultSet rs = createTrade.getGeneratedKeys()) {
+                        return rs.getInt(1);
+                    }
+                }
+            } finally {
+                try {
+                    createTrade.clearParameters();
+                } catch (SQLException e) {
+                    bootstrap.log(e);
                 }
             }
         }
@@ -497,30 +506,60 @@ public class Database {
                              String tradeId) throws SQLException {
         synchronized (completeTrade) {
             completeTrade.clearParameters();
-            completeTrade.setInt(1, completeRequestId);
-            completeTrade.setString(2, tradeId);
-            completeTrade.setString(3, TradeState.PENDING_COMPLETE.name());
-            completeTrade.setInt(4, createRequestId);
-            return completeTrade.executeUpdate();
+
+            try {
+                completeTrade.setInt(1, completeRequestId);
+                completeTrade.setString(2, tradeId);
+                completeTrade.setString(3, TradeState.PENDING_COMPLETE.name());
+                completeTrade.setInt(4, createRequestId);
+
+                return completeTrade.executeUpdate();
+            } finally {
+                try {
+                    completeTrade.clearParameters();
+                } catch (SQLException e) {
+                    bootstrap.log(e);
+                }
+            }
         }
     }
 
     public int tradeExecuted(int completeRequestId) throws SQLException {
         synchronized (tradeExecuted) {
             tradeExecuted.clearParameters();
-            tradeExecuted.setString(1, TradeState.EXECUTED.name());
-            tradeExecuted.setInt(2, completeRequestId);
-            return tradeExecuted.executeUpdate();
+
+            try {
+                tradeExecuted.setString(1, TradeState.EXECUTED.name());
+                tradeExecuted.setInt(2, completeRequestId);
+
+                return tradeExecuted.executeUpdate();
+            } finally {
+                try {
+                    tradeExecuted.clearParameters();
+                } catch (SQLException e) {
+                    bootstrap.log(e);
+                }
+            }
         }
     }
 
     public int cancelTrade(int requestId) throws SQLException {
         synchronized (cancelTrade) {
             cancelTrade.clearParameters();
-            cancelTrade.setString(1, TradeState.CANCELED.name());
-            cancelTrade.setInt(2, requestId);
-            cancelTrade.setInt(3, requestId);
-            return cancelTrade.executeUpdate();
+
+            try {
+                cancelTrade.setString(1, TradeState.CANCELED.name());
+                cancelTrade.setInt(2, requestId);
+                cancelTrade.setInt(3, requestId);
+
+                return cancelTrade.executeUpdate();
+            } finally {
+                try {
+                    cancelTrade.clearParameters();
+                } catch (SQLException e) {
+                    bootstrap.log(e);
+                }
+            }
         }
     }
 
@@ -539,20 +578,27 @@ public class Database {
     }
 
     public TradeSession getSessionFromRequestId(int requestId) throws SQLException {
-        TradeSession session = null;
-
         synchronized (getSessionReqId) {
             getSessionReqId.clearParameters();
-            getSessionReqId.setInt(1, requestId);
-            getSessionReqId.setInt(2, requestId);
 
-            try (ResultSet rs = getSessionReqId.executeQuery()) {
-                if (rs.next())
-                    session = new TradeSession(rs);
+            try {
+                getSessionReqId.setInt(1, requestId);
+                getSessionReqId.setInt(2, requestId);
+
+                try (ResultSet rs = getSessionReqId.executeQuery()) {
+                    if (rs.next())
+                        return new TradeSession(rs);
+                    else
+                        return null;
+                }
+            } finally {
+                try {
+                    getSessionReqId.clearParameters();
+                } catch (SQLException e) {
+                    bootstrap.log(e);
+                }
             }
         }
-
-        return session;
     }
 
     private String loadSqlFile(String template) throws IOException {

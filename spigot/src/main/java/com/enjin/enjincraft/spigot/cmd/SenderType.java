@@ -11,7 +11,7 @@ public enum SenderType {
     PLAYER(Player.class),
     ANY(CommandSender.class);
 
-    private Class<? extends CommandSender> instanceSuperClass;
+    private final Class<? extends CommandSender> instanceSuperClass;
 
     SenderType(Class<? extends CommandSender> instanceSuperClass) {
         this.instanceSuperClass = instanceSuperClass;

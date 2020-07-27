@@ -15,7 +15,7 @@ public enum ConfPath {
     PERMISSION_BLACKLIST("permission-blacklist"),
     LINK_PERMISSIONS("link-permissions");
 
-    private String path;
+    private final String path;
 
     ConfPath(String path) {
         this.path = path;

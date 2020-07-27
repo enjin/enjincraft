@@ -57,7 +57,6 @@ public class TokenUtils {
     public static String getTokenIndex(ItemStack is) {
         if (is != null && is.getType() != Material.AIR) {
             NBTItem nbtItem = new NBTItem(is);
-
             if (nbtItem.hasKey(TokenModel.NBT_INDEX))
                 return nbtItem.getString(TokenModel.NBT_INDEX);
 
@@ -65,6 +64,30 @@ public class TokenUtils {
         }
 
         return null;
+    }
+
+    public static boolean hasTokenData(ItemStack is) {
+        if (is == null || is.getType() == Material.AIR)
+            return false;
+
+        NBTItem nbtItem = new NBTItem(is);
+        return nbtItem.hasKey(TokenModel.NBT_ID)
+                || nbtItem.hasKey(TokenModel.NBT_INDEX)
+                || nbtItem.hasKey(TokenModel.NBT_NONFUNGIBLE);
+    }
+
+    public static boolean isValidTokenItem(ItemStack is) {
+        if (is == null || is.getType() == Material.AIR)
+            return false;
+
+        NBTItem nbtItem     = new NBTItem(is);
+        String  id          = nbtItem.getString(TokenModel.NBT_ID);
+        String  index       = nbtItem.getString(TokenModel.NBT_INDEX);
+        Boolean nonfungible = nbtItem.getBoolean(TokenModel.NBT_NONFUNGIBLE);
+        return isValidId(id)
+                && isValidIndex(index)
+                && nonfungible != null
+                && (nonfungible ^ index.equals(BASE_INDEX));
     }
 
     public static boolean isValidFullId(String fullId) {
@@ -109,15 +132,16 @@ public class TokenUtils {
                 || (ignoreCase && (ch >= 'A' && ch <= 'F'));
     }
 
-    public static String createFullId(@NonNull TokenModel tokenModel) {
+    public static String createFullId(@NonNull TokenModel tokenModel) throws NullPointerException {
         return createFullId(tokenModel.getId(), tokenModel.getIndex());
     }
 
-    public static String createFullId(@NonNull String id) throws IllegalArgumentException {
+    public static String createFullId(@NonNull String id) throws IllegalArgumentException, NullPointerException {
         return createFullId(id, TokenUtils.BASE_INDEX);
     }
 
-    public static String createFullId(@NonNull String id, String index) throws IllegalArgumentException {
+    public static String createFullId(@NonNull String id,
+                                      String index) throws IllegalArgumentException, NullPointerException {
         id    = formatId(id);
         index = index == null
                 ? BASE_INDEX
@@ -175,17 +199,15 @@ public class TokenUtils {
     }
 
     public static String toFullId(String id) {
-        if (isValidId(id))
-            return createFullId(id);
-        else if (isValidFullId(id))
+        if (isValidFullId(id))
             return id;
 
-        return null;
+        return createFullId(id);
     }
 
-    public static String normalizeFullId(String fullId) {
+    public static String normalizeFullId(String fullId) throws IllegalArgumentException {
         if (!isValidFullId(fullId))
-            return null;
+            throw new IllegalArgumentException("Provided string is not a valid full id");
 
         return createFullId(getTokenID(fullId));
     }
@@ -216,7 +238,7 @@ public class TokenUtils {
                 && first.getAmount() + second.getAmount() <= maxStackSize;
     }
 
-    public static String parseIndex(@NonNull String index) throws IllegalArgumentException {
+    public static String parseIndex(@NonNull String index) throws IllegalArgumentException, NullPointerException {
         boolean hexString = false;
         if (index.startsWith("x") || index.startsWith("X")) {
             hexString = true;

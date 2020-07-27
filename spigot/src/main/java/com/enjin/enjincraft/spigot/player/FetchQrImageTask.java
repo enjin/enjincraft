@@ -13,15 +13,17 @@ public class FetchQrImageTask extends BukkitRunnable {
     public static final Long TASK_DELAY  = 1L;
     public static final Long TASK_PERIOD = 2L;
 
-    private SpigotBootstrap bootstrap;
-    private EnjPlayer       player;
-    private String          url;
+    private final SpigotBootstrap bootstrap;
+    private final EnjPlayer       player;
+    private final String          url;
 
     private FetchQrImageTask() {
         throw new IllegalStateException();
     }
 
-    protected FetchQrImageTask(SpigotBootstrap bootstrap, @NonNull EnjPlayer player, @NonNull String url) {
+    protected FetchQrImageTask(SpigotBootstrap bootstrap,
+                               @NonNull EnjPlayer player,
+                               @NonNull String url) throws NullPointerException {
         this.bootstrap = bootstrap;
         this.player = player;
         this.url = url;
