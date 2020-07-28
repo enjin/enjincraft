@@ -5,7 +5,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class PlayerArgumentProcessor extends AbstractArgumentProcessor<Player> {
@@ -22,13 +21,13 @@ public class PlayerArgumentProcessor extends AbstractArgumentProcessor<Player> {
     }
 
     @Override
-    public Optional<Player> parse(CommandSender sender, String arg) {
+    public Player parse(CommandSender sender, String arg) {
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (player.getName().equalsIgnoreCase(arg) || player.getUniqueId().toString().equalsIgnoreCase(arg))
-                return Optional.of(player);
+                return player;
         }
 
-        return Optional.empty();
+        return null;
     }
 
 }

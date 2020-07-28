@@ -91,11 +91,13 @@ public class TradeManager implements Listener {
         if (session == null)
             return;
 
-        Optional<Player> inviter = Optional.ofNullable(Bukkit.getPlayer(session.getInviterUuid()));
-        Optional<Player> invitee = Optional.ofNullable(Bukkit.getPlayer(session.getInvitedUuid()));
+        Player inviter = Bukkit.getPlayer(session.getInviterUuid());
+        Player invitee = Bukkit.getPlayer(session.getInvitedUuid());
 
-        inviter.ifPresent(Translation.COMMAND_TRADE_COMPLETE::send);
-        invitee.ifPresent(Translation.COMMAND_TRADE_COMPLETE::send);
+        if (inviter != null)
+            Translation.COMMAND_TRADE_COMPLETE.send(inviter);
+        if (invitee != null)
+            Translation.COMMAND_TRADE_COMPLETE.send(invitee);
 
         try {
             bootstrap.db().tradeExecuted(session.getCompleteRequestId());
@@ -117,8 +119,8 @@ public class TradeManager implements Listener {
         if (session == null || StringUtils.isEmpty(tradeId))
             return;
 
-        Optional<Player> inviter = Optional.ofNullable(Bukkit.getPlayer(session.getInviterUuid()));
-        Optional<Player> invitee = Optional.ofNullable(Bukkit.getPlayer(session.getInvitedUuid()));
+        Player inviter = Bukkit.getPlayer(session.getInviterUuid());
+        Player invitee = Bukkit.getPlayer(session.getInvitedUuid());
 
         TrustedPlatformClient client = bootstrap.getTrustedPlatformClient();
         client.getRequestService().createRequestAsync(new CreateRequest()
@@ -136,8 +138,10 @@ public class TradeManager implements Listener {
                         throw new GraphQLException(graphQLResponse.getErrors());
 
                     Transaction dataIn = graphQLResponse.getData();
-                    inviter.ifPresent(Translation.COMMAND_TRADE_CONFIRM_WAIT::send);
-                    invitee.ifPresent(Translation.COMMAND_TRADE_CONFIRM_ACTION::send);
+                    if (inviter != null)
+                        Translation.COMMAND_TRADE_CONFIRM_WAIT.send(inviter);
+                    if (invitee != null)
+                        Translation.COMMAND_TRADE_CONFIRM_ACTION.send(invitee);
 
                     try {
                         bootstrap.db().completeTrade(session.getCreateRequestId(), dataIn.getId(), tradeId);

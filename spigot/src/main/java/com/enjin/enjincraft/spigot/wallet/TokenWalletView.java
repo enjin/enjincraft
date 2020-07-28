@@ -292,8 +292,7 @@ public class TokenWalletView extends ChestMenu implements EnjTokenView {
                 return;
 
             EnjPlayer enjPlayer = bootstrap.getPlayerManager()
-                    .getPlayer((Player) event.getWhoClicked())
-                    .orElse(null);
+                    .getPlayer((Player) event.getWhoClicked());
             if (enjPlayer == null)
                 return;
 

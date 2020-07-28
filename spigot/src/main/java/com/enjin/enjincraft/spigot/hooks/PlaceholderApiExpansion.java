@@ -56,8 +56,7 @@ public class PlaceholderApiExpansion extends PlaceholderExpansion {
     @Override
     public String onPlaceholderRequest(Player player, String identifier) {
         EnjPlayer enjPlayer = bootstrap.getPlayerManager()
-                .getPlayer(player)
-                .orElse(null);
+                .getPlayer(player);
 
         try {
             return process(enjPlayer, identifier);

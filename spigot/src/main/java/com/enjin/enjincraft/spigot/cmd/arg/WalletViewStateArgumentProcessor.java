@@ -1,6 +1,5 @@
 package com.enjin.enjincraft.spigot.cmd.arg;
 
-import com.enjin.enjincraft.spigot.Bootstrap;
 import com.enjin.enjincraft.spigot.EnjinCraft;
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
 import com.enjin.enjincraft.spigot.wallet.TokenWalletViewState;
@@ -8,7 +7,6 @@ import org.bukkit.command.CommandSender;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class WalletViewStateArgumentProcessor extends AbstractArgumentProcessor<TokenWalletViewState> {
 
@@ -29,18 +27,13 @@ public class WalletViewStateArgumentProcessor extends AbstractArgumentProcessor<
     }
 
     @Override
-    public Optional<TokenWalletViewState> parse(CommandSender sender, String arg) {
-        try {
-            return Optional.of(TokenWalletViewState.valueOf(arg.toUpperCase()));
-        } catch (IllegalArgumentException e) {
-            return Optional.empty();
-        } catch (Exception e) {
-            Bootstrap bootstrap = EnjinCraft.bootstrap().orElse(null);
-            if (bootstrap instanceof SpigotBootstrap)
-                ((SpigotBootstrap) bootstrap).log(e);
-
-            return Optional.empty();
+    public TokenWalletViewState parse(CommandSender sender, String arg) {
+        for (TokenWalletViewState state : TokenWalletViewState.values()) {
+            if (state.name().toLowerCase().equals(arg.toLowerCase()))
+                return state;
         }
+
+        return null;
     }
 
 }

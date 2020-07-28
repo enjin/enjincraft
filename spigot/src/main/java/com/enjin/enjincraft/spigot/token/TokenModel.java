@@ -199,7 +199,7 @@ public class TokenModel {
             if (metadataURI == null)
                 return;
 
-            Bootstrap bootstrap = EnjinCraft.bootstrap().orElse(null);
+            SpigotBootstrap bootstrap = EnjinCraft.bootstrap();
 
             /* The URI is expected to conform to the ERC-1155 Metadata JSON Schema as outlined in:
              * https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1155.md#erc-1155-metadata-uri-json-schema.
@@ -209,8 +209,8 @@ public class TokenModel {
             boolean isValidURI = !metadataURI.isEmpty()
                     && metadataURI.endsWith(TokenManager.JSON_EXT)
                     && !(!replaceIdArg && replaceIndexArg);
-            if (bootstrap instanceof SpigotBootstrap && !isValidURI)
-                ((SpigotBootstrap) bootstrap).debug(String.format("Invalid metadata URI found on token %s", getFullId()));
+            if (!isValidURI)
+                bootstrap.debug(String.format("Invalid metadata URI found on token %s", getFullId()));
 
             if (!isValidURI && isNonFungibleInstance()) { // Is non-fungible
                 loadDefaultName();
@@ -251,10 +251,7 @@ public class TokenModel {
     }
 
     private void loadDefaultName() {
-        Bootstrap bootstrap = EnjinCraft.bootstrap().orElse(null);
-        TokenManager tokenManager = bootstrap == null
-                ? null
-                : bootstrap.getTokenManager();
+        TokenManager tokenManager = EnjinCraft.bootstrap().getTokenManager();
         TokenModel baseModel = tokenManager == null
                 ? null
                 : tokenManager.getToken(id);
@@ -502,7 +499,7 @@ public class TokenModel {
     }
 
     private String getName() {
-        Bootstrap bootstrap = EnjinCraft.bootstrap().orElse(null);
+        Bootstrap bootstrap = EnjinCraft.bootstrap();
         if (bootstrap != null
                 && bootstrap.getConfig() != null
                 && bootstrap.getConfig().isIdLoreEnabled()) {
@@ -538,10 +535,8 @@ public class TokenModel {
         } catch (NullPointerException e) {
             return null;
         } catch (Exception e) {
-            Bootstrap bootstrap = EnjinCraft.bootstrap().orElse(null);
-            if (bootstrap instanceof SpigotBootstrap)
-                ((SpigotBootstrap) bootstrap).log(e);
-
+            SpigotBootstrap bootstrap = EnjinCraft.bootstrap();
+            bootstrap.log(e);
             return null;
         }
     }

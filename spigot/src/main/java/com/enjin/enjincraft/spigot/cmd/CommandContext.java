@@ -34,34 +34,33 @@ public class CommandContext {
         if (sender instanceof Player) {
             this.player = (Player) sender;
             this.enjPlayer = bootstrap.getPlayerManager()
-                    .getPlayer(this.player)
-                    .orElse(null);
+                    .getPlayer(this.player);
             if (this.enjPlayer == null)
                 throw new UnregisteredPlayerException(player);
         }
     }
 
-    public Optional<Player> argToPlayer(int index) {
+    public Player argToPlayer(int index) {
         if (args.isEmpty() || index >= args.size())
-            return Optional.empty();
+            return null;
 
         return PlayerArgumentProcessor.INSTANCE.parse(sender, args.get(index));
     }
 
-    public Optional<Integer> argToInt(int index) {
+    public Integer argToInt(int index) {
         return index < args.size()
-                ? Optional.of(Integer.parseInt(args.get(index)))
-                : Optional.empty();
+                ? Integer.parseInt(args.get(index))
+                : null;
     }
 
     public static List<EnjCommand> createCommandStackAsList(EnjCommand top) {
         List<EnjCommand> list = new ArrayList<>();
 
         list.add(top);
-        Optional<EnjCommand> parent = top.parent;
-        while (parent.isPresent()) {
-            list.add(0, parent.get());
-            parent = parent.get().parent;
+        EnjCommand parent = top.parent;
+        while (parent != null) {
+            list.add(0, parent);
+            parent = parent.parent;
         }
 
         return list;

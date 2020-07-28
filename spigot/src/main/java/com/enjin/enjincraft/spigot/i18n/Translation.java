@@ -269,7 +269,7 @@ public enum Translation {
     }
 
     private Conf conf() {
-        Bootstrap bootstrap = EnjinCraft.bootstrap().orElse(null);
+        Bootstrap bootstrap = EnjinCraft.bootstrap();
         if (bootstrap == null)
             throw new IllegalStateException("Bootstrap not available");
 

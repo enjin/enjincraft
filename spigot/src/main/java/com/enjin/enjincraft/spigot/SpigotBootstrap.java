@@ -8,7 +8,7 @@ import com.enjin.enjincraft.spigot.hooks.PlaceholderApiExpansion;
 import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.listeners.EnjEventListener;
 import com.enjin.enjincraft.spigot.listeners.TokenItemListener;
-import com.enjin.enjincraft.spigot.player.PlayerManager;
+import com.enjin.enjincraft.spigot.player.PlayerManagerImpl;
 import com.enjin.enjincraft.spigot.storage.Database;
 import com.enjin.enjincraft.spigot.trade.TradeManager;
 import com.enjin.enjincraft.spigot.trade.TradeUpdateTask;
@@ -54,7 +54,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
     private TrustedPlatformClient trustedPlatformClient;
     private PlatformDetails platformDetails;
     private NotificationsService notificationsService;
-    private PlayerManager playerManager;
+    private PlayerManagerImpl playerManager;
     private TradeManager tradeManager;
 
     public SpigotBootstrap(EnjPlugin plugin) {
@@ -93,7 +93,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
             startNotificationService();
 
             // Init Managers
-            playerManager = new PlayerManager(this);
+            playerManager = new PlayerManagerImpl(this);
             tokenManager = new TokenManager(this);
             tradeManager = new TradeManager(this);
             tokenManager.loadTokens();
@@ -224,7 +224,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
     }
 
     @Override
-    public PlayerManager getPlayerManager() {
+    public PlayerManagerImpl getPlayerManager() {
         return playerManager;
     }
 

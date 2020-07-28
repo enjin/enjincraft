@@ -95,7 +95,7 @@ public class CmdDevSend extends EnjCommand {
             }
         } else { // Fungible token
             try {
-                Integer amount = context.argToInt(2).orElse(null);
+                Integer amount = context.argToInt(2);
                 if (amount == null || amount <= 0)
                     throw new IllegalArgumentException("Invalid amount to send");
 

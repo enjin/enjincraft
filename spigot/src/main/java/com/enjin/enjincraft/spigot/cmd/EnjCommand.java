@@ -17,13 +17,12 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public abstract class EnjCommand {
 
     protected SpigotBootstrap bootstrap;
-    protected Optional<EnjCommand> parent;
+    protected EnjCommand parent;
     protected List<String> aliases;
     protected List<EnjCommand> subCommands;
     protected List<String> requiredArgs;
@@ -32,7 +31,7 @@ public abstract class EnjCommand {
 
     public EnjCommand(SpigotBootstrap bootstrap, EnjCommand parent) {
         this.bootstrap = bootstrap;
-        this.parent = Optional.ofNullable(parent);
+        this.parent = parent;
         this.aliases = new ArrayList<>();
         this.subCommands = new ArrayList<>();
         this.requiredArgs = new ArrayList<>();
@@ -208,8 +207,7 @@ public abstract class EnjCommand {
     protected EnjPlayer getValidTargetEnjPlayer(@NonNull CommandContext context,
                                                 @NonNull Player targetPlayer) throws NullPointerException {
         EnjPlayer targetEnjPlayer = bootstrap.getPlayerManager()
-                .getPlayer(targetPlayer)
-                .orElse(null);
+                .getPlayer(targetPlayer);
         if (targetEnjPlayer == null) {
             Translation.ERRORS_PLAYERNOTREGISTERED.send(context.sender, targetPlayer.getName());
             return null;

@@ -1,32 +1,27 @@
 package com.enjin.enjincraft.spigot;
 
-import java.util.Optional;
+import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.Nullable;
 
+@UtilityClass
 public class EnjinCraft {
 
-    private static Optional<SpigotBootstrap> instance = Optional.empty();
+    @Nullable
+    private SpigotBootstrap instance;
 
-    private EnjinCraft() {
-        throw new IllegalStateException("Utility class");
+    protected void register(SpigotBootstrap instance) {
+        EnjinCraft.instance = instance;
     }
 
-    protected static void register(SpigotBootstrap instance) {
-        EnjinCraft.instance = Optional.ofNullable(instance);
+    protected void unregister() {
+        instance = null;
     }
 
-    protected static void unregister() {
-        instance = Optional.empty();
+    public boolean isRegistered() {
+        return instance != null;
     }
 
-    public static boolean isRegistered() {
-        return instance.isPresent();
-    }
-
-    public static Optional<? extends Bootstrap> bootstrap() {
-        return instance;
-    }
-
-    protected static Optional<? extends Module> module() {
-        return instance;
+    public <T extends Bootstrap> T bootstrap() {
+        return (T) instance;
     }
 }
