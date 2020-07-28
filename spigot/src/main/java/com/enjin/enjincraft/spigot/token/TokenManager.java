@@ -4,7 +4,7 @@ import com.enjin.enjincraft.spigot.GraphQLException;
 import com.enjin.enjincraft.spigot.NetworkException;
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
-import com.enjin.enjincraft.spigot.player.PlayerManager;
+import com.enjin.enjincraft.spigot.player.PlayerManagerImpl;
 import com.enjin.enjincraft.spigot.storage.Database;
 import com.enjin.enjincraft.spigot.util.StringUtils;
 import com.enjin.enjincraft.spigot.util.TokenUtils;
@@ -193,7 +193,7 @@ public class TokenManager {
         if (status == TOKEN_CREATE_SUCCESS) {
             cacheAndSubscribe(tokenModel);
 
-            PlayerManager playerManager = bootstrap.getPlayerManager();
+            PlayerManagerImpl playerManager = bootstrap.getPlayerManager();
             if (playerManager != null) {
                 playerManager.getPlayers()
                         .values()
@@ -308,13 +308,14 @@ public class TokenManager {
     }
 
     private void updateTokenOnPlayers(String fullId) {
-        PlayerManager playerManager = bootstrap.getPlayerManager();
+        PlayerManagerImpl playerManager = bootstrap.getPlayerManager();
         if (playerManager == null)
             return;
 
         for (UUID uuid : playerManager.getPlayers().keySet()) {
-            Optional<EnjPlayer> player = playerManager.getPlayer(uuid);
-            player.ifPresent(enjPlayer -> enjPlayer.updateToken(fullId));
+            EnjPlayer player = playerManager.getPlayer(uuid);
+            if (player != null)
+                player.updateToken(fullId);
         }
     }
 
@@ -472,7 +473,7 @@ public class TokenManager {
             tokenModel.setMarkedForDeletion(true);
             uncacheAndUnsubscribe(tokenModel);
 
-            PlayerManager playerManager = bootstrap.getPlayerManager();
+            PlayerManagerImpl playerManager = bootstrap.getPlayerManager();
             if (playerManager != null) {
                 playerManager.getPlayers()
                         .values()
@@ -589,11 +590,12 @@ public class TokenManager {
     }
 
     private void addPermissionToPlayers(String perm, String id, String world) {
-        PlayerManager playerManager = bootstrap.getPlayerManager();
+        PlayerManagerImpl playerManager = bootstrap.getPlayerManager();
 
         for (UUID uuid : playerManager.getPlayers().keySet()) {
-            Optional<EnjPlayer> player = playerManager.getPlayer(uuid);
-            player.ifPresent(enjPlayer -> enjPlayer.addPermission(perm, id, world));
+            EnjPlayer player = playerManager.getPlayer(uuid);
+            if (player != null)
+                player.addPermission(perm, id, world);
         }
     }
 
@@ -668,11 +670,12 @@ public class TokenManager {
     }
 
     private void removePermissionFromPlayers(String perm, String world) {
-        PlayerManager playerManager = bootstrap.getPlayerManager();
+        PlayerManagerImpl playerManager = bootstrap.getPlayerManager();
 
         for (UUID uuid : playerManager.getPlayers().keySet()) {
-            Optional<EnjPlayer> player = playerManager.getPlayer(uuid);
-            player.ifPresent(enjPlayer -> enjPlayer.removePermission(perm, world));
+            EnjPlayer player = playerManager.getPlayer(uuid);
+            if (player != null)
+                player.removePermission(perm, world);
         }
     }
 

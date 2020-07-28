@@ -1,6 +1,5 @@
 package com.enjin.enjincraft.spigot.wallet;
 
-import com.enjin.enjincraft.spigot.Bootstrap;
 import com.enjin.enjincraft.spigot.EnjinCraft;
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
 import com.enjin.enjincraft.spigot.util.TokenUtils;
@@ -87,9 +86,8 @@ public class TokenWallet {
     }
 
     private static void log(Exception e) {
-        Bootstrap bootstrap = EnjinCraft.bootstrap().orElse(null);
-        if (bootstrap instanceof SpigotBootstrap)
-            ((SpigotBootstrap) bootstrap).log(e);
+        SpigotBootstrap bootstrap = EnjinCraft.bootstrap();
+        bootstrap.log(e);
     }
 
 }

@@ -10,8 +10,6 @@ import com.enjin.sdk.models.request.TransactionType;
 import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 
-import java.util.Optional;
-
 public class EnjEventListener implements com.enjin.sdk.services.notification.NotificationListener {
 
     private final SpigotBootstrap bootstrap;
@@ -65,16 +63,16 @@ public class EnjEventListener implements com.enjin.sdk.services.notification.Not
         if (type == null)
             return;
 
-        int transactionId;
+        int    transactionId;
         String tradeId;
 
         try {
             JsonObject transaction = event.getEventData()
-                    .get("transaction")
-                    .getAsJsonObject();
+                                          .get("transaction")
+                                          .getAsJsonObject();
             JsonObject trade = event.getEventData()
-                    .get("trade")
-                    .getAsJsonObject();
+                                    .get("trade")
+                                    .getAsJsonObject();
             transactionId = transaction.get("id").getAsInt();
             tradeId = trade.get("id").getAsString();
         } catch (Exception e) {
@@ -105,8 +103,8 @@ public class EnjEventListener implements com.enjin.sdk.services.notification.Not
         int transactionId;
         try {
             JsonObject transaction = event.getEventData()
-                    .get("transaction")
-                    .getAsJsonObject();
+                                          .get("transaction")
+                                          .getAsJsonObject();
             transactionId = transaction.get("id").getAsInt();
         } catch (Exception e) {
             bootstrap.log(e);
@@ -134,8 +132,7 @@ public class EnjEventListener implements com.enjin.sdk.services.notification.Not
         int id = identity.get("id").getAsInt();
 
         EnjPlayer enjPlayer = bootstrap.getPlayerManager()
-                .getPlayer(id)
-                .orElse(null);
+                                       .getPlayer(id);
         if (enjPlayer == null)
             return;
 
@@ -152,9 +149,10 @@ public class EnjEventListener implements com.enjin.sdk.services.notification.Not
 
         int id = identity.get("id").getAsInt();
 
-        Optional<EnjPlayer> playerOptional = bootstrap.getPlayerManager().getPlayer(id);
-        playerOptional.ifPresent(player -> Bukkit.getScheduler().runTaskAsynchronously(bootstrap.plugin(),
-                                                                                       player::unlinked));
+        EnjPlayer player = bootstrap.getPlayerManager()
+                 .getPlayer(id);
+        if (player != null)
+            Bukkit.getScheduler().runTaskAsynchronously(bootstrap.plugin(), player::unlinked);
     }
 
     private void onTokenUpdated(NotificationEvent event) {
@@ -184,13 +182,13 @@ public class EnjEventListener implements com.enjin.sdk.services.notification.Not
 
         try {
             tokenId = data.get("token")
-                    .getAsJsonObject()
-                    .get("id")
-                    .getAsString();
+                          .getAsJsonObject()
+                          .get("id")
+                          .getAsString();
             nonfungible = data.get("token")
-                    .getAsJsonObject()
-                    .get("nonFungible")
-                    .getAsBoolean();
+                              .getAsJsonObject()
+                              .get("nonFungible")
+                              .getAsBoolean();
         } catch (Exception e) {
             bootstrap.log(e);
             return;
@@ -239,7 +237,7 @@ public class EnjEventListener implements com.enjin.sdk.services.notification.Not
             String ethAddr;
 
             try {
-                JsonObject mint = data.get("mint").getAsJsonObject();
+                JsonObject mint        = data.get("mint").getAsJsonObject();
                 JsonObject transaction = data.get("transaction").getAsJsonObject();
                 ethAddr = mint.get("to").getAsString();
                 amount = nonfungible
@@ -270,10 +268,10 @@ public class EnjEventListener implements com.enjin.sdk.services.notification.Not
 
     private void updateBalance(String ethAddr, String tokenId, String tokenIndex, int balanceDelta) {
         EnjPlayer enjPlayer = bootstrap.getPlayerManager()
-                .getPlayer(ethAddr)
-                .orElse(null);
+                                       .getPlayer(ethAddr);
         if (enjPlayer == null || enjPlayer.getTokenWallet() == null)
             return;
+
 
         String         fullId     = TokenUtils.createFullId(tokenId, tokenIndex);
         TokenModel     tokenModel = bootstrap.getTokenManager().getToken(fullId);
@@ -298,8 +296,8 @@ public class EnjEventListener implements com.enjin.sdk.services.notification.Not
         String typeString;
         try {
             JsonObject transaction = event.getEventData()
-                    .get("transaction")
-                    .getAsJsonObject();
+                                          .get("transaction")
+                                          .getAsJsonObject();
             typeString = transaction.get("type").getAsString();
         } catch (Exception e) {
             bootstrap.log(e);

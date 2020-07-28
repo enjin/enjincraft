@@ -93,8 +93,7 @@ public class CmdTrade extends EnjCommand {
             CommandSender sender = context.sender;
 
             EnjPlayer targetEnjPlayer = bootstrap.getPlayerManager()
-                    .getPlayer(targetPlayer)
-                    .orElse(null);
+                    .getPlayer(targetPlayer);
             if (targetEnjPlayer == null) {
                 Translation.ERRORS_PLAYERNOTREGISTERED.send(sender, targetPlayer.getName());
                 return null;

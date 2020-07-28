@@ -7,7 +7,6 @@ import org.bukkit.entity.Player;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class LocaleArgumentProcessor extends AbstractArgumentProcessor<Locale> {
@@ -26,13 +25,13 @@ public class LocaleArgumentProcessor extends AbstractArgumentProcessor<Locale> {
     }
 
     @Override
-    public Optional<Locale> parse(CommandSender sender, String arg) {
+    public Locale parse(CommandSender sender, String arg) {
         for (Locale locale : Locale.values()) {
             if (locale.locale().equalsIgnoreCase(arg) || Translation.localeNames().get(locale).equalsIgnoreCase(arg))
-                return Optional.of(locale);
+                return locale;
         }
 
-        return Optional.empty();
+        return null;
     }
 
 }

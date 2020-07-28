@@ -274,8 +274,8 @@ public class TradeView extends ChestMenu implements EnjTokenView {
     }
 
     private void updateSlotWithHandler(int slot, ItemStack oldItem, ItemStack newItem) {
-        Optional<SlotUpdateHandler> slotUpdateHandler = viewerItemsComponent.getSlotUpdateHandler();
-        slotUpdateHandler.ifPresent(handler -> handler.handle(viewer.getBukkitPlayer(), slot, oldItem, newItem));
+        viewerItemsComponent.getSlotUpdateHandler()
+                            .ifPresent(handler -> handler.handle(viewer.getBukkitPlayer(), slot, oldItem, newItem));
     }
 
     private ItemStack getPlayerHead(Player player, TargetPlayer target) {

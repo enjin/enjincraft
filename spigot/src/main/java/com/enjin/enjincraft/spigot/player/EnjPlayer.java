@@ -42,7 +42,7 @@ public class EnjPlayer implements Listener {
 
     // Bukkit Fields
     private final SpigotBootstrap bootstrap;
-    private Player                bukkitPlayer;
+    private       Player          bukkitPlayer;
 
     // User Data
     private Integer userId;
@@ -55,16 +55,16 @@ public class EnjPlayer implements Listener {
     private TokenWallet tokenWallet;
 
     // State Fields
-    private boolean userLoaded;
-    private boolean identityLoaded;
-    private final EnjPermissionAttachment globalAttachment;
-    private final EnjPermissionAttachment worldAttachment;
+    private       boolean                  userLoaded;
+    private       boolean                  identityLoaded;
+    private final EnjPermissionAttachment  globalAttachment;
+    private final EnjPermissionAttachment  worldAttachment;
     private final Map<String, Set<String>> worldPermissionMap = new HashMap<>();
 
     // Trade Fields
     private final List<EnjPlayer> sentTradeInvites     = new ArrayList<>();
     private final List<EnjPlayer> receivedTradeInvites = new ArrayList<>();
-    private TradeView       activeTradeView;
+    private       TradeView       activeTradeView;
 
     // Wallet Fields
     private TokenWalletView activeWalletView;
@@ -82,8 +82,7 @@ public class EnjPlayer implements Listener {
 
     @EventHandler
     public void onPlayerWorldChanged(PlayerChangedWorldEvent event) {
-        if (event.getPlayer() != bukkitPlayer)
-            return;
+        if (event.getPlayer() != bukkitPlayer) { return; }
 
         setWorldAttachment(bukkitPlayer.getWorld().getName());
     }
@@ -100,27 +99,26 @@ public class EnjPlayer implements Listener {
             userId = user.getId();
             userLoaded = true;
 
-            Optional<Identity> optionalIdentity = user.getIdentities().stream()
-                                                      .filter(identity -> identity.getAppId() == bootstrap.getConfig()
-                                                                                                          .getAppId())
-                                                      .findFirst();
-            optionalIdentity.ifPresent(identity -> identityId = identity.getId());
+            user.getIdentities()
+                .stream()
+                .filter(identity -> identity.getAppId() == bootstrap.getConfig().getAppId())
+                .findFirst()
+                .ifPresent(identity -> identityId = identity.getId());
         }
     }
 
     public void loadIdentity(Identity identity) {
-        identityId     = null;  // Assume player has no identity
-        wallet         = null;  //
-        linkingCode    = null;  //
+        identityId = null;  // Assume player has no identity
+        wallet = null;  //
+        linkingCode = null;  //
         setLinkingCodeQr(null); //
         identityLoaded = false; //
-        tokenWallet    = null;  //
+        tokenWallet = null;  //
         globalAttachment.clear();   // Clears all permissions
         worldAttachment.clear();    //
         worldPermissionMap.clear(); //
 
-        if (identity == null)
-            return;
+        if (identity == null) { return; }
 
         identityId = identity.getId();
         wallet = identity.getWallet();
@@ -131,8 +129,7 @@ public class EnjPlayer implements Listener {
 
         NotificationsService service   = bootstrap.getNotificationsService();
         boolean              listening = service.isSubscribedToIdentity(identityId);
-        if (!listening)
-            service.subscribeToIdentity(identityId);
+        if (!listening) { service.subscribeToIdentity(identityId); }
 
         if (isLinked()) {
             Bukkit.getScheduler().runTask(bootstrap.plugin(), this::addLinkPermissions);
@@ -155,22 +152,19 @@ public class EnjPlayer implements Listener {
     }
 
     public void initWallet() {
-        if (wallet == null || StringUtils.isEmpty(wallet.getEthAddress()))
-            return;
+        if (wallet == null || StringUtils.isEmpty(wallet.getEthAddress())) { return; }
 
         try {
             HttpResponse<GraphQLResponse<List<Balance>>> networkResponse;
             networkResponse = bootstrap.getTrustedPlatformClient()
                                        .getBalanceService()
                                        .getBalancesSync(new GetBalances()
-                                               .valGt(0)
-                                               .ethAddress(wallet.getEthAddress()));
-            if (!networkResponse.isSuccess())
-                throw new NetworkException(networkResponse.code());
+                                                                .valGt(0)
+                                                                .ethAddress(wallet.getEthAddress()));
+            if (!networkResponse.isSuccess()) { throw new NetworkException(networkResponse.code()); }
 
             GraphQLResponse<List<Balance>> graphQLResponse = networkResponse.body();
-            if (!graphQLResponse.isSuccess())
-                throw new GraphQLException(graphQLResponse.getErrors());
+            if (!graphQLResponse.isSuccess()) { throw new GraphQLException(graphQLResponse.getErrors()); }
 
             tokenWallet = new TokenWallet(graphQLResponse.getData());
             validateInventory();
@@ -180,8 +174,7 @@ public class EnjPlayer implements Listener {
     }
 
     public void validateInventory() {
-        if (bukkitPlayer == null)
-            return;
+        if (bukkitPlayer == null) { return; }
 
         tokenWallet.getBalances().forEach(MutableBalance::reset);
 
@@ -189,10 +182,8 @@ public class EnjPlayer implements Listener {
         validatePlayerEquipment();
         validatePlayerCursor();
 
-        if (activeTradeView != null)
-            activeTradeView.validateInventory();
-        if (activeWalletView != null)
-            activeWalletView.validateInventory();
+        if (activeTradeView != null) { activeTradeView.validateInventory(); }
+        if (activeWalletView != null) { activeWalletView.validateInventory(); }
     }
 
     private void validatePlayerInventory() {
@@ -205,12 +196,13 @@ public class EnjPlayer implements Listener {
                 continue;
             } else if (!TokenUtils.isValidTokenItem(is)) {
                 inventory.clear(i);
-                bootstrap.debug(String.format("Removed corrupted token from %s's inventory", bukkitPlayer.getDisplayName()));
+                bootstrap.debug(String.format("Removed corrupted token from %s's inventory",
+                                              bukkitPlayer.getDisplayName()));
                 continue;
             }
 
-            String         fullId     = TokenUtils.createFullId(TokenUtils.getTokenID(is),
-                                                                TokenUtils.getTokenIndex(is));
+            String fullId = TokenUtils.createFullId(TokenUtils.getTokenID(is),
+                                                    TokenUtils.getTokenIndex(is));
             TokenModel     tokenModel = tokenManager.getToken(fullId);
             MutableBalance balance    = tokenWallet.getBalance(fullId);
             if (tokenModel == null
@@ -221,8 +213,9 @@ public class EnjPlayer implements Listener {
                 balance.deposit(is.getAmount());
                 inventory.clear(i);
             } else {
-                if (balance.amountAvailableForWithdrawal() < is.getAmount())
+                if (balance.amountAvailableForWithdrawal() < is.getAmount()) {
                     is.setAmount(balance.amountAvailableForWithdrawal());
+                }
 
                 balance.withdraw(is.getAmount());
 
@@ -266,12 +259,13 @@ public class EnjPlayer implements Listener {
                 continue;
             } else if (!TokenUtils.isValidTokenItem(is)) {
                 setEquipment(slot, null);
-                bootstrap.debug(String.format("Removed corrupted token from %s's equipment", bukkitPlayer.getDisplayName()));
+                bootstrap.debug(String.format("Removed corrupted token from %s's equipment",
+                                              bukkitPlayer.getDisplayName()));
                 continue;
             }
 
-            String         fullId     = TokenUtils.createFullId(TokenUtils.getTokenID(is),
-                                                                TokenUtils.getTokenIndex(is));
+            String fullId = TokenUtils.createFullId(TokenUtils.getTokenID(is),
+                                                    TokenUtils.getTokenIndex(is));
             TokenModel     tokenModel = tokenManager.getToken(fullId);
             MutableBalance balance    = tokenWallet.getBalance(fullId);
             if (tokenModel == null
@@ -282,8 +276,9 @@ public class EnjPlayer implements Listener {
                 balance.deposit(is.getAmount());
                 setEquipment(slot, null);
             } else {
-                if (balance.amountAvailableForWithdrawal() < is.getAmount())
+                if (balance.amountAvailableForWithdrawal() < is.getAmount()) {
                     is.setAmount(balance.amountAvailableForWithdrawal());
+                }
 
                 balance.withdraw(is.getAmount());
 
@@ -335,8 +330,8 @@ public class EnjPlayer implements Listener {
             return;
         }
 
-        String         fullId     = TokenUtils.createFullId(TokenUtils.getTokenID(is),
-                                                            TokenUtils.getTokenIndex(is));
+        String fullId = TokenUtils.createFullId(TokenUtils.getTokenID(is),
+                                                TokenUtils.getTokenIndex(is));
         TokenModel     tokenModel = tokenManager.getToken(fullId);
         MutableBalance balance    = tokenWallet.getBalance(fullId);
         if (tokenModel == null
@@ -432,25 +427,20 @@ public class EnjPlayer implements Listener {
     }
 
     public void updateToken(String id) {
-        if (bukkitPlayer == null || tokenWallet == null)
-            return;
+        if (bukkitPlayer == null || tokenWallet == null) { return; }
 
         TokenModel tokenModel = bootstrap.getTokenManager().getToken(id);
-        if (tokenModel == null)
-            return;
+        if (tokenModel == null) { return; }
 
         MutableBalance balance = tokenWallet.getBalance(tokenModel.getFullId());
-        if (balance == null || balance.withdrawn() == 0)
-            return;
+        if (balance == null || balance.withdrawn() == 0) { return; }
 
         updatePlayerInventory(tokenModel, balance);
         updatePlayerEquipment(tokenModel, balance);
         updatePlayerCursor(tokenModel, balance);
 
-        if (activeTradeView != null)
-            activeTradeView.updateInventory();
-        if (activeWalletView != null)
-            activeWalletView.updateInventory();
+        if (activeTradeView != null) { activeTradeView.updateInventory(); }
+        if (activeWalletView != null) { activeWalletView.updateInventory(); }
     }
 
     private void updatePlayerInventory(@NonNull TokenModel tokenModel,
@@ -462,14 +452,14 @@ public class EnjPlayer implements Listener {
                 continue;
             } else if (!TokenUtils.isValidTokenItem(is)) {
                 inventory.clear(i);
-                bootstrap.debug(String.format("Removed corrupted token from %s's inventory", bukkitPlayer.getDisplayName()));
+                bootstrap.debug(String.format("Removed corrupted token from %s's inventory",
+                                              bukkitPlayer.getDisplayName()));
                 continue;
             }
 
             String fullId = TokenUtils.createFullId(TokenUtils.getTokenID(is),
                                                     TokenUtils.getTokenIndex(is));
-            if (!fullId.equals(tokenModel.getFullId()))
-                continue;
+            if (!fullId.equals(tokenModel.getFullId())) { continue; }
 
             updateTokenInInventoryCheck(tokenModel, balance, is, inventory, i);
         }
@@ -483,14 +473,14 @@ public class EnjPlayer implements Listener {
                 continue;
             } else if (!TokenUtils.isValidTokenItem(is)) {
                 setEquipment(slot, null);
-                bootstrap.debug(String.format("Removed corrupted token from %s's equipment", bukkitPlayer.getDisplayName()));
+                bootstrap.debug(String.format("Removed corrupted token from %s's equipment",
+                                              bukkitPlayer.getDisplayName()));
                 continue;
             }
 
             String fullId = TokenUtils.createFullId(TokenUtils.getTokenID(is),
                                                     TokenUtils.getTokenIndex(is));
-            if (!fullId.equals(tokenModel.getFullId()))
-                continue;
+            if (!fullId.equals(tokenModel.getFullId())) { continue; }
 
             updateTokenInEquipmentCheck(tokenModel, balance, is, slot);
         }
@@ -510,27 +500,24 @@ public class EnjPlayer implements Listener {
 
         String fullId = TokenUtils.createFullId(TokenUtils.getTokenID(is),
                                                 TokenUtils.getTokenIndex(is));
-        if (!fullId.equals(tokenModel.getFullId()))
-            return;
+        if (!fullId.equals(tokenModel.getFullId())) { return; }
 
         updateTokenInCursorCheck(tokenModel, balance, is, view);
     }
 
     public void initPermissions() {
-        if (tokenWallet == null)
-            return;
+        if (tokenWallet == null) { return; }
 
         TokenManager tokenManager = bootstrap.getTokenManager();
-        Set<String> baseFullIds = new HashSet<>();
+        Set<String>  baseFullIds  = new HashSet<>();
 
         for (MutableBalance balance : tokenWallet.getBalances()) {
             String fullId = TokenUtils.createFullId(balance.id(), balance.index());
-            if (balance.balance() == 0 || !tokenManager.hasToken(fullId))
-                continue;
+            if (balance.balance() == 0 || !tokenManager.hasToken(fullId)) { continue; }
 
             String baseFullId = TokenUtils.normalizeFullId(fullId);
             if (!baseFullId.equals(fullId)) // Collects the ids for non-fungible base models
-                baseFullIds.add(baseFullId);
+            { baseFullIds.add(baseFullId); }
 
             initPermissions(fullId);
         }
@@ -543,17 +530,15 @@ public class EnjPlayer implements Listener {
     private void initPermissions(String fullId) {
         // Checks if the token has assigned permissions
         Map<String, Set<String>> worldPerms = bootstrap.getTokenManager()
-                .getTokenPermissions()
-                .getTokenPermissions(fullId);
-        if (worldPerms == null)
-            return;
+                                                       .getTokenPermissions()
+                                                       .getTokenPermissions(fullId);
+        if (worldPerms == null) { return; }
 
         // Assigns global and world permissions
         worldPerms.forEach((world, perms) -> {
-            if (world.equals(TokenManager.GLOBAL))
-                globalAttachment.addPermissions(perms);
-            else
+            if (world.equals(TokenManager.GLOBAL)) { globalAttachment.addPermissions(perms); } else {
                 worldPermissionMap.computeIfAbsent(world, k -> new HashSet<>()).addAll(perms);
+            }
         });
     }
 
@@ -561,23 +546,20 @@ public class EnjPlayer implements Listener {
         worldAttachment.clear();
 
         Set<String> perms = worldPermissionMap.get(world);
-        if (perms != null)
-            worldAttachment.addPermissions(perms);
+        if (perms != null) { worldAttachment.addPermissions(perms); }
     }
 
     public void addTokenPermissions(TokenModel tokenModel) {
         if (tokenWallet == null
                 || tokenModel == null
-                || tokenModel.isMarkedForDeletion())
-            return;
+                || tokenModel.isMarkedForDeletion()) { return; }
 
         TokenManager tokenManager = bootstrap.getTokenManager();
 
         MutableBalance balance = tokenWallet.getBalance(tokenModel.getFullId());
         if (balance == null
                 || balance.balance() == 0
-                || !tokenManager.hasToken(tokenModel.getFullId()))
-            return;
+                || !tokenManager.hasToken(tokenModel.getFullId())) { return; }
 
         tokenModel.getPermissionsMap()
                   .forEach((world, perms) -> perms.forEach(perm -> addTokenPermission(tokenModel, perm, world)));
@@ -595,8 +577,7 @@ public class EnjPlayer implements Listener {
     }
 
     public void addPermission(String perm, String id, String world) {
-        if (tokenWallet == null)
-            return;
+        if (tokenWallet == null) { return; }
 
         TokenModel tokenModel = bootstrap.getTokenManager().getToken(id);
         if (tokenModel != null
@@ -606,8 +587,7 @@ public class EnjPlayer implements Listener {
             addTokenPermission(tokenModel, perm, world);
         } else if (tokenModel != null) {
             MutableBalance balance = tokenWallet.getBalance(tokenModel.getFullId());
-            if (balance != null && balance.balance() > 0)
-                addTokenPermission(tokenModel, perm, world);
+            if (balance != null && balance.balance() > 0) { addTokenPermission(tokenModel, perm, world); }
         }
     }
 
@@ -625,30 +605,28 @@ public class EnjPlayer implements Listener {
 
     private void addGlobalPermission(String perm, String fullId) {
         Map<String, Set<String>> worldPerms = bootstrap.getTokenManager()
-                .getTokenPermissions()
-                .getPermissionTokens(TokenManager.GLOBAL);
-        if (worldPerms == null)
-            return;
+                                                       .getTokenPermissions()
+                                                       .getPermissionTokens(TokenManager.GLOBAL);
+        if (worldPerms == null) { return; }
 
         // Gets the tokens with the given permission from the permission graph
         Set<String> permTokens = worldPerms.get(perm);
-        if (permTokens == null)
-            return;
+        if (permTokens == null) { return; }
 
         // Checks if the player needs to be given the permission
-        if (!globalAttachment.hasPermission(perm) && permTokens.contains(fullId))
+        if (!globalAttachment.hasPermission(perm) && permTokens.contains(fullId)) {
             globalAttachment.setPermission(perm);
+        }
     }
 
     private void addWorldPermission(String perm, String fullId, String world) {
         Map<String, Set<String>> worldPerms = bootstrap.getTokenManager()
-                .getTokenPermissions()
-                .getPermissionTokens(world);
+                                                       .getTokenPermissions()
+                                                       .getPermissionTokens(world);
 
         // Gets the tokens with the given permission from the permission graph
         Set<String> permTokens = worldPerms.get(perm);
-        if (permTokens == null)
-            return;
+        if (permTokens == null) { return; }
 
         // Checks if the player needs to be given the permission
         Set<String> perms = worldPermissionMap.computeIfAbsent(world, k -> new HashSet<>());
@@ -656,8 +634,7 @@ public class EnjPlayer implements Listener {
             perms.add(perm);
 
             String currentWorld = bukkitPlayer.getWorld().getName();
-            if (currentWorld.equals(world))
-                worldAttachment.setPermission(perm);
+            if (currentWorld.equals(world)) { worldAttachment.setPermission(perm); }
         }
     }
 
@@ -666,8 +643,7 @@ public class EnjPlayer implements Listener {
             return;
         } else if (!tokenModel.isMarkedForDeletion()) {
             MutableBalance balance = tokenWallet.getBalance(tokenModel.getFullId());
-            if (balance != null && balance.balance() > 0)
-                return;
+            if (balance != null && balance.balance() > 0) { return; }
         }
 
         tokenModel.getPermissionsMap()
@@ -686,8 +662,7 @@ public class EnjPlayer implements Listener {
     }
 
     public void removePermission(String perm, String world) {
-        if (tokenWallet == null)
-            return;
+        if (tokenWallet == null) { return; }
 
         if (world.equals(TokenManager.GLOBAL)) {
             removeGlobalPermission(perm);
@@ -700,34 +675,29 @@ public class EnjPlayer implements Listener {
 
     private void removeGlobalPermission(String perm) {
         Map<String, Set<String>> worldPerms = bootstrap.getTokenManager()
-                .getTokenPermissions()
-                .getPermissionTokens(TokenManager.GLOBAL);
-        if (worldPerms == null)
-            return;
+                                                       .getTokenPermissions()
+                                                       .getPermissionTokens(TokenManager.GLOBAL);
+        if (worldPerms == null) { return; }
 
         // Gets the tokens with the given permission from the permission graph
         Set<String> permTokens = worldPerms.get(perm);
-        if (permTokens == null)
-            return;
+        if (permTokens == null) { return; }
 
         Set<String> intersect = retainPermissionTokens(permTokens);
 
         // Checks if the permission needs to be removed from the player
-        if (globalAttachment.hasPermission(perm) && intersect.size() <= 0)
-            globalAttachment.unsetPermission(perm);
+        if (globalAttachment.hasPermission(perm) && intersect.size() <= 0) { globalAttachment.unsetPermission(perm); }
     }
 
     private void removeWorldPermission(String perm, String world) {
         Map<String, Set<String>> worldPerms = bootstrap.getTokenManager()
-                .getTokenPermissions()
-                .getPermissionTokens(world);
-        if (worldPerms == null)
-            return;
+                                                       .getTokenPermissions()
+                                                       .getPermissionTokens(world);
+        if (worldPerms == null) { return; }
 
         // Gets the tokens with the given permission from the permission graph
         Set<String> permTokens = worldPerms.get(perm);
-        if (permTokens == null)
-            return;
+        if (permTokens == null) { return; }
 
         Set<String> intersect = retainPermissionTokens(permTokens);
 
@@ -737,8 +707,7 @@ public class EnjPlayer implements Listener {
             perms.remove(perm);
 
             String currentWorld = bukkitPlayer.getWorld().getName();
-            if (currentWorld.equals(world))
-                worldAttachment.unsetPermission(perm);
+            if (currentWorld.equals(world)) { worldAttachment.unsetPermission(perm); }
         }
     }
 
@@ -756,7 +725,7 @@ public class EnjPlayer implements Listener {
 
                 String baseFullId = TokenUtils.normalizeFullId(fullId);
                 if (!baseFullId.equals(fullId)) // Collects the ids for non-fungible base models
-                    intersect.add(baseFullId);
+                { intersect.add(baseFullId); }
             }
         }
 
@@ -775,16 +744,13 @@ public class EnjPlayer implements Listener {
                                                                              .withLinkingCode()
                                                                              .withLinkingCodeQr()
                                                                              .withWallet());
-            if (!networkResponse.isSuccess())
-                throw new NetworkException(networkResponse.code());
+            if (!networkResponse.isSuccess()) { throw new NetworkException(networkResponse.code()); }
 
             GraphQLResponse<List<Identity>> graphQLResponse = networkResponse.body();
-            if (!graphQLResponse.isSuccess())
-                throw new GraphQLException(graphQLResponse.getErrors());
+            if (!graphQLResponse.isSuccess()) { throw new GraphQLException(graphQLResponse.getErrors()); }
 
             Identity identity = null;
-            if (!graphQLResponse.getData().isEmpty())
-                identity = graphQLResponse.getData().get(0);
+            if (!graphQLResponse.getData().isEmpty()) { identity = graphQLResponse.getData().get(0); }
 
             loadIdentity(identity);
         } catch (Exception ex) {
@@ -793,8 +759,7 @@ public class EnjPlayer implements Listener {
     }
 
     public void unlink() {
-        if (!isLinked())
-            return;
+        if (!isLinked()) { return; }
 
         bootstrap.getTrustedPlatformClient()
                  .getIdentityService()
@@ -802,8 +767,7 @@ public class EnjPlayer implements Listener {
     }
 
     public void unlinked() {
-        if (!isLinked())
-            return;
+        if (!isLinked()) { return; }
 
         Translation.COMMAND_UNLINK_SUCCESS.send(bukkitPlayer);
         Translation.HINT_LINK.send(bukkitPlayer);
@@ -815,9 +779,8 @@ public class EnjPlayer implements Listener {
     public void removeTokenizedItems() {
         Inventory inventory = bukkitPlayer.getInventory();
         for (int i = 0; i < inventory.getSize(); i++) {
-            ItemStack is    = inventory.getItem(i);
-            if (TokenUtils.hasTokenData(is))
-                inventory.setItem(i, null);
+            ItemStack is = inventory.getItem(i);
+            if (TokenUtils.hasTokenData(is)) { inventory.setItem(i, null); }
         }
     }
 
@@ -832,14 +795,11 @@ public class EnjPlayer implements Listener {
                 - inventory.getExtraContents().length
                 - inventory.getArmorContents().length;
         for (int i = 0; i < size; i++) {
-            if (QrUtils.hasQrTag(view.getItem(i)))
-                view.setItem(i, null);
+            if (QrUtils.hasQrTag(view.getItem(i))) { view.setItem(i, null); }
         }
 
-        if (QrUtils.hasQrTag(view.getCursor()))
-            view.setCursor(null);
-        if (QrUtils.hasQrTag(inventory.getItemInOffHand()))
-            inventory.setItemInOffHand(null);
+        if (QrUtils.hasQrTag(view.getCursor())) { view.setCursor(null); }
+        if (QrUtils.hasQrTag(inventory.getItemInOffHand())) { inventory.setItemInOffHand(null); }
     }
 
     public void addLinkPermissions() {
@@ -877,12 +837,14 @@ public class EnjPlayer implements Listener {
     public boolean hasNonfungibleInstance(@NonNull String id,
                                           Collection<String> ignoredIndices) throws IllegalArgumentException, NullPointerException {
         TokenModel baseModel = bootstrap.getTokenManager().getToken(id);
-        if (baseModel == null)
-            throw new IllegalArgumentException(String.format("Token of id \"%s\" is not registered in token manager", id));
-        else if (!baseModel.isNonfungible() || !baseModel.isBaseModel())
-            throw new IllegalArgumentException(String.format("Token of id \"%s\" is not a base model of a non-fungible token", id));
-        else if (tokenWallet == null)
-            return false;
+        if (baseModel == null) {
+            throw new IllegalArgumentException(String.format("Token of id \"%s\" is not registered in token manager",
+                                                             id));
+        } else if (!baseModel.isNonfungible() || !baseModel.isBaseModel()) {
+            throw new IllegalArgumentException(String.format(
+                    "Token of id \"%s\" is not a base model of a non-fungible token",
+                    id));
+        } else if (tokenWallet == null) { return false; }
 
         Set<String> indices = ignoredIndices == null
                 ? new HashSet<>()
@@ -895,8 +857,7 @@ public class EnjPlayer implements Listener {
             if (balance.balance() > 0
                     && balance.id().equals(baseModel.getId())
                     && !indices.contains(balance.index())
-                    && tokenManager.hasToken(TokenUtils.createFullId(balance.id(), balance.index())))
-                return true;
+                    && tokenManager.hasToken(TokenUtils.createFullId(balance.id(), balance.index()))) { return true; }
         }
 
         return false;
@@ -909,8 +870,7 @@ public class EnjPlayer implements Listener {
 
         if (identityId != null) {
             boolean listening = service.isSubscribedToIdentity(identityId);
-            if (listening)
-                service.unsubscribeToIdentity(identityId);
+            if (listening) { service.unsubscribeToIdentity(identityId); }
         }
 
         PlayerChangedWorldEvent.getHandlerList().unregister(this);

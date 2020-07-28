@@ -33,8 +33,7 @@ public class TokenItemListener implements Listener {
 
         try {
             EnjPlayer enjPlayer = bootstrap.getPlayerManager()
-                    .getPlayer(event.getEntity())
-                    .orElse(null);
+                    .getPlayer(event.getEntity());
             if (enjPlayer == null)
                 return;
 
@@ -71,8 +70,7 @@ public class TokenItemListener implements Listener {
         }
 
         EnjPlayer enjPlayer = bootstrap.getPlayerManager()
-                .getPlayer(event.getPlayer())
-                .orElse(null);
+                .getPlayer(event.getPlayer());
         if (enjPlayer == null) {
             is.setAmount(0);
             bootstrap.debug(String.format("Removed token from non-Enjin player when %s dropped it", event.getPlayer().getDisplayName()));

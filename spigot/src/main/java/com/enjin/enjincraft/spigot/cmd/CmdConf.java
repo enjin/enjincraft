@@ -74,8 +74,7 @@ public class CmdConf extends EnjCommand {
             @Override
             public void execute(CommandContext context) {
                 Locale locale = LocaleArgumentProcessor.INSTANCE
-                        .parse(context.sender, context.args.get(0))
-                        .orElse(null);
+                        .parse(context.sender, context.args.get(0));
                 if (locale == null) {
                     // TODO: Add Translation.
                     return;
