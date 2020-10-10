@@ -12,7 +12,7 @@ buildscript {
             'pusher'          : '2.0.1',
             'okhttp'          : '4.3.1',
             'retrofit'        : '2.7.1',
-            'nbtapi'          : '2.4.1'
+            'nbtapi'          : '2.5.0'
     ]
 
     ext.deps = [
