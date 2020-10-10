@@ -35,6 +35,7 @@ shadowJar {
     dependencies {
         exclude(dependency("com.google.code.gson:gson"))
     }
+    relocate("de.tr7zw.changeme", "com.enjin.enjincraft.spigot.libs")
 }
 
 processResources {
