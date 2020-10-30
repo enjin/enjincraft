@@ -6,6 +6,8 @@ import lombok.NonNull;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
+import java.math.BigInteger;
+
 public class TokenUtils {
 
     public static final String BASE_INDEX   = "0000000000000000";
@@ -108,6 +110,22 @@ public class TokenUtils {
 
     public static boolean isValidIndex(String index) {
         return isValidIndex(index, false);
+    }
+
+    public static String bigIntToIndex(BigInteger value) {
+        if (value == null)
+            throw new IllegalStateException("value cannot be null");
+
+        StringBuilder hex = new StringBuilder(value.toString(16));
+
+        if (hex.length() > BASE_INDEX.length())
+            throw new IllegalStateException("value is too big");
+
+        while (hex.length() < BASE_INDEX.length()) {
+            hex.insert(0, "0");
+        }
+
+        return hex.toString();
     }
 
     public static boolean isValidIndex(String index, boolean ignoreCase) {

@@ -82,6 +82,7 @@ public enum Translation {
     COMMAND_TOKEN_CREATENFT_BASEFAILED("&cUnable to create the non-fungible base token."),
     COMMAND_TOKEN_CREATENFT_DUPLICATE("&cToken id and index already exists."),
     COMMAND_TOKEN_CREATENFT_REPLACENICKNAME("&cCannot replace token nickname on creation."),
+    COMMAND_TOKEN_CREATENFT_MISSINGBASE("&cBase NFT does not exist."),
     COMMAND_TOKEN_UPDATE_DESCRIPTION("Update a token's definition with the held item and the token's id."),
     COMMAND_TOKEN_UPDATE_SUCCESS("&aToken updated."),
     COMMAND_TOKEN_UPDATE_FAILED("&cToken was not updated."),

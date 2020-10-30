@@ -4,6 +4,11 @@ import com.enjin.enjincraft.spigot.GraphQLException;
 import com.enjin.enjincraft.spigot.NetworkException;
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
 import com.enjin.enjincraft.spigot.cmd.arg.WalletViewStateArgumentProcessor;
+import com.enjin.enjincraft.spigot.conversations.Conversations;
+import com.enjin.enjincraft.spigot.conversations.prompts.TokenIdPrompt;
+import com.enjin.enjincraft.spigot.conversations.prompts.TokenIndexPrompt;
+import com.enjin.enjincraft.spigot.conversations.prompts.TokenNicknamePrompt;
+import com.enjin.enjincraft.spigot.conversations.prompts.TokenTypePrompt;
 import com.enjin.enjincraft.spigot.enums.Permission;
 import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.token.TokenManager;
@@ -21,9 +26,15 @@ import de.tr7zw.changeme.nbtapi.NBTItem;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
+import org.bukkit.conversations.Conversation;
+import org.bukkit.conversations.ConversationAbandonedEvent;
+import org.bukkit.conversations.ConversationContext;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 
+import java.math.BigInteger;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -38,7 +49,6 @@ public class CmdToken extends EnjCommand {
                 .withAllowedSenderTypes(SenderType.PLAYER, SenderType.CONSOLE)
                 .build();
         this.subCommands.add(new CmdCreate(bootstrap, this));
-        this.subCommands.add(new CmdCreateNFT(bootstrap, this));
         this.subCommands.add(new CmdUpdate(bootstrap, this));
         this.subCommands.add(new CmdDelete(bootstrap, this));
         this.subCommands.add(new CmdToInv(bootstrap, this));
@@ -69,50 +79,96 @@ public class CmdToken extends EnjCommand {
         public CmdCreate(SpigotBootstrap bootstrap, EnjCommand parent) {
             super(bootstrap, parent);
             this.aliases.add("create");
-            this.requiredArgs.add("token-id");
-            this.optionalArgs.add("nickname");
             this.requirements = CommandRequirements.builder()
                     .withPermission(Permission.CMD_TOKEN_CREATE)
                     .withAllowedSenderTypes(SenderType.PLAYER)
                     .build();
         }
 
-        @Override
-        public void execute(CommandContext context) {
-            String tokenId = context.args.get(0);
-            String alternateId = context.args.size() == 2
-                    ? context.args.get(1)
-                    : null;
-            Player sender = Objects.requireNonNull(context.player);
+        public void execute(ConversationAbandonedEvent event) {
+            // Check if the conversation completed gracefully.
+            if (!event.gracefulExit())
+                return;
 
+            // Load managers and data store
+            Map<Object, Object> data = event.getContext().getAllSessionData();
             TokenManager tokenManager = bootstrap.getTokenManager();
-            ItemStack held = sender.getInventory().getItemInMainHand();
+            // Load data from conversation context
+            Player sender = (Player) data.get("sender");
+            boolean nft = (boolean) data.get(TokenTypePrompt.KEY);
+            String id = (String) data.get(TokenIdPrompt.KEY);
+            BigInteger index = (BigInteger) data.getOrDefault(TokenIndexPrompt.KEY, null);
+            // Convert index from decimal to hexadecimal representation
+            String indexHex = index == null ? null : TokenUtils.bigIntToIndex(index);
 
-            if (tokenManager.hasToken(tokenId)) {
-                Translation.COMMAND_TOKEN_CREATE_DUPLICATE.send(sender);
-                return;
-            } else if (!TokenUtils.isValidId(tokenId)) {
-                Translation.COMMAND_TOKEN_INVALIDID.send(sender);
-                return;
-            } else if (alternateId != null && !TokenManager.isValidAlternateId(alternateId)) {
-                Translation.COMMAND_TOKEN_NICKNAME_INVALID.send(sender);
-                return;
-            } else if (held.getType() == Material.AIR || !held.getType().isItem()) {
-                Translation.COMMAND_TOKEN_NOHELDITEM.send(sender);
+            // Check whether the token can be created if another already exists.
+            // This will only ever pass if the token is an nft, the index is non-zero
+            // and doesn't exist in the database.
+            if (tokenManager.hasToken(id)) {
+                TokenModel base = tokenManager.getToken(id);
+
+                if (base.isNonfungible() && !nft) {
+                    Translation.COMMAND_TOKEN_ISFUNGIBLE.send(sender);
+                    return;
+                } else if (!base.isNonfungible()) {
+                    Translation.COMMAND_TOKEN_CREATE_DUPLICATE.send(sender);
+                    return;
+                } else if (tokenManager.hasToken(TokenUtils.createFullId(id, indexHex))) {
+                    Translation.COMMAND_TOKEN_CREATENFT_DUPLICATE.send(sender);
+                    return;
+                }
+            } else if (nft && !index.equals(BigInteger.ZERO)) {
+                Translation.COMMAND_TOKEN_CREATENFT_MISSINGBASE.send(sender);
                 return;
             }
 
-            NBTContainer nbt = NBTItem.convertItemtoNBT(held);
-            TokenModel model = TokenModel.builder()
-                    .id(tokenId)
-                    .alternateId(alternateId)
-                    .nbt(nbt.toString())
-                    .build();
+            // Start token model creation process
+            NBTContainer nbt = (NBTContainer) data.get("nbt-item");
+            TokenModel.TokenModelBuilder modelBuilder = TokenModel.builder()
+                    .id(id)
+                    .nonfungible(nft)
+                    .nbt(nbt.toString());
 
+            // Add index if creating an nft
+            if (nft) {
+                modelBuilder.index(indexHex);
+            }
+
+            // Validate and add nickname if present
+            if (data.containsKey(TokenNicknamePrompt.KEY)) {
+                String nickname = (String) data.get(TokenNicknamePrompt.KEY);
+
+                if (!TokenManager.isValidAlternateId(nickname)) {
+                    Translation.COMMAND_TOKEN_NICKNAME_INVALID.send(sender);
+                    return;
+                }
+
+                modelBuilder.alternateId(nickname);
+            }
+
+            // Create token model and save to database
+            TokenModel model = modelBuilder.build();
             int result = tokenManager.saveToken(model);
+
+            // Inform sender of result or log to console if unknown
             switch (result) {
                 case TokenManager.TOKEN_CREATE_SUCCESS:
                     Translation.COMMAND_TOKEN_CREATE_SUCCESS.send(sender);
+                    break;
+                case TokenManager.TOKEN_CREATE_FAILED:
+                    Translation.COMMAND_TOKEN_CREATE_FAILED.send(sender);
+                    break;
+                case TokenManager.TOKEN_ALREADYEXISTS:
+                    Translation translation = nft
+                            ? Translation.COMMAND_TOKEN_CREATENFT_DUPLICATE
+                            : Translation.COMMAND_TOKEN_CREATE_DUPLICATE;
+                    translation.send(sender);
+                    break;
+                case TokenManager.TOKEN_INVALIDDATA:
+                    Translation.COMMAND_TOKEN_INVALIDDATA.send(sender);
+                    break;
+                case TokenManager.TOKEN_CREATE_FAILEDNFTBASE:
+                    Translation.COMMAND_TOKEN_CREATENFT_BASEFAILED.send(sender);
                     break;
                 case TokenManager.TOKEN_DUPLICATENICKNAME:
                     Translation.COMMAND_TOKEN_NICKNAME_DUPLICATE.send(sender);
@@ -120,130 +176,35 @@ public class CmdToken extends EnjCommand {
                 case TokenManager.TOKEN_INVALIDNICKNAME:
                     Translation.COMMAND_TOKEN_NICKNAME_INVALID.send(sender);
                     break;
-                case TokenManager.TOKEN_INVALIDDATA:
-                    Translation.COMMAND_TOKEN_INVALIDDATA.send(sender);
-                    break;
-                case TokenManager.TOKEN_CREATE_FAILED:
-                    Translation.COMMAND_TOKEN_CREATE_FAILED.send(sender);
-                    break;
                 default:
-                    bootstrap.debug(String.format("Unhandled result when creating fungible token (status: %d)", result));
+                    bootstrap.debug(String.format("Unhandled result when creating token (status: %d)", result));
                     break;
             }
+        }
+
+        @Override
+        public void execute(CommandContext context) {
+            Player sender = context.player;
+            ItemStack held = sender.getInventory().getItemInMainHand();
+
+            // Ensure player is holding a valid item
+            if (held.getType() == Material.AIR || !held.getType().isItem()) {
+                Translation.COMMAND_TOKEN_NOHELDITEM.send(sender);
+                return;
+            }
+
+            // Setup Conversation
+            Conversations conversations = new Conversations(bootstrap.plugin());
+            Conversation conversation = conversations.startTokenCreationConversation(sender);
+            conversation.addConversationAbandonedListener(this::execute);
+            conversation.getContext().setSessionData("sender", sender);
+            conversation.getContext().setSessionData("nbt-item", NBTItem.convertItemtoNBT(sender.getInventory().getItemInMainHand()));
+            conversation.begin();
         }
 
         @Override
         public Translation getUsageTranslation() {
             return Translation.COMMAND_TOKEN_CREATE_DESCRIPTION;
-        }
-
-    }
-
-    public class CmdCreateNFT extends EnjCommand {
-
-        public CmdCreateNFT(SpigotBootstrap bootstrap, EnjCommand parent) {
-            super(bootstrap, parent);
-            this.aliases.add("createnft");
-            this.requiredArgs.add("id");
-            this.requiredArgs.add("index");
-            this.optionalArgs.add("nickname");
-            this.requirements = CommandRequirements.builder()
-                    .withPermission(Permission.CMD_TOKEN_CREATENFT)
-                    .withAllowedSenderTypes(SenderType.PLAYER)
-                    .build();
-        }
-
-        @Override
-        public void execute(CommandContext context) {
-            String id = context.args.get(0);
-            String index = context.args.get(1);
-            String alternateId = context.args.size() == 3
-                    ? context.args.get(2)
-                    : null;
-            Player sender = Objects.requireNonNull(context.player);
-
-            TokenManager tokenManager = bootstrap.getTokenManager();
-            ItemStack held = sender.getInventory().getItemInMainHand();
-
-            TokenModel baseModel = tokenManager.getToken(id);
-            if (baseModel != null && !baseModel.isNonfungible()) { // Must not refer to a fungible token
-                Translation.COMMAND_TOKEN_ISFUNGIBLE.send(sender);
-                return;
-            } else if (alternateId != null
-                    && baseModel != null
-                    && baseModel.getAlternateId() != null
-                    && !alternateId.equals(baseModel.getAlternateId())) { // Must not replace nickname on later creates
-                Translation.COMMAND_TOKEN_CREATENFT_REPLACENICKNAME.send(sender);
-                return;
-            } else if (alternateId != null && !TokenManager.isValidAlternateId(alternateId)) {
-                Translation.COMMAND_TOKEN_NICKNAME_INVALID.send(sender);
-                return;
-            } else if (held.getType() == Material.AIR || !held.getType().isItem()) {
-                Translation.COMMAND_TOKEN_NOHELDITEM.send(sender);
-                return;
-            } else if (baseModel != null) {
-                id = baseModel.getId();
-            }
-
-            String fullId;
-            try {
-                index  = TokenUtils.parseIndex(index);
-                fullId = TokenUtils.createFullId(id, index);
-            } catch (IllegalArgumentException e) {
-                Translation.COMMAND_TOKEN_INVALIDFULLID.send(sender);
-                return;
-            } catch (Exception e) {
-                Translation.ERRORS_EXCEPTION.send(sender, e);
-                bootstrap.log(e);
-                return;
-            }
-
-            if (tokenManager.hasToken(fullId)) {
-                Translation.COMMAND_TOKEN_CREATENFT_DUPLICATE.send(sender);
-                return;
-            }
-
-            NBTContainer nbt = NBTItem.convertItemtoNBT(held);
-            TokenModel tokenModel = TokenModel.builder()
-                    .id(id)
-                    .index(index)
-                    .nonfungible(true)
-                    .alternateId(alternateId)
-                    .nbt(nbt.toString())
-                    .walletViewState(baseModel == null
-                            ? TokenWalletViewState.WITHDRAWABLE
-                            : baseModel.getWalletViewState())
-                    .build();
-
-            int result = tokenManager.saveToken(tokenModel);
-            switch (result) {
-                case TokenManager.TOKEN_CREATE_SUCCESS:
-                    Translation.COMMAND_TOKEN_CREATE_SUCCESS.send(sender);
-                    break;
-                case TokenManager.TOKEN_ALREADYEXISTS:
-                    Translation.COMMAND_TOKEN_CREATENFT_DUPLICATE.send(sender);
-                    break;
-                case TokenManager.TOKEN_DUPLICATENICKNAME:
-                    Translation.COMMAND_TOKEN_NICKNAME_DUPLICATE.send(sender);
-                    break;
-                case TokenManager.TOKEN_INVALIDDATA:
-                    Translation.COMMAND_TOKEN_INVALIDDATA.send(sender);
-                    break;
-                case TokenManager.TOKEN_CREATE_FAILED:
-                    Translation.COMMAND_TOKEN_CREATE_FAILED.send(sender);
-                    break;
-                case TokenManager.TOKEN_CREATE_FAILEDNFTBASE:
-                    Translation.COMMAND_TOKEN_CREATENFT_BASEFAILED.send(sender);
-                    break;
-                default:
-                    bootstrap.debug(String.format("Unhandled result when creating non-fungible token (status: %d)", result));
-                    break;
-            }
-        }
-
-        @Override
-        public Translation getUsageTranslation() {
-            return Translation.COMMAND_TOKEN_CREATENFT_DESCRIPTION;
         }
 
     }
@@ -566,7 +527,7 @@ public class CmdToken extends EnjCommand {
                     : null;
 
             boolean isGlobal = worlds == null || worlds.contains(TokenManager.GLOBAL);
-            int     result   = isGlobal
+            int result = isGlobal
                     ? bootstrap.getTokenManager().addPermissionToToken(perm, id, TokenManager.GLOBAL)
                     : bootstrap.getTokenManager().addPermissionToToken(perm, id, worlds);
             switch (result) {
@@ -595,7 +556,7 @@ public class CmdToken extends EnjCommand {
         }
 
         @Override
-        public  Translation getUsageTranslation() {
+        public Translation getUsageTranslation() {
             return Translation.COMMAND_TOKEN_ADDPERM_DESCRIPTION;
         }
 
@@ -637,7 +598,7 @@ public class CmdToken extends EnjCommand {
 
             String fullId;
             try {
-                index  = TokenUtils.parseIndex(index);
+                index = TokenUtils.parseIndex(index);
                 fullId = TokenUtils.createFullId(id, index);
             } catch (IllegalArgumentException e) {
                 Translation.COMMAND_TOKEN_INVALIDFULLID.send(context.sender);
@@ -648,7 +609,7 @@ public class CmdToken extends EnjCommand {
             }
 
             boolean isGlobal = worlds == null || worlds.contains(TokenManager.GLOBAL);
-            int     result   = isGlobal
+            int result = isGlobal
                     ? tokenManager.addPermissionToToken(perm, fullId, TokenManager.GLOBAL)
                     : tokenManager.addPermissionToToken(perm, fullId, worlds);
             switch (result) {
@@ -706,7 +667,7 @@ public class CmdToken extends EnjCommand {
                     : null;
 
             boolean isGlobal = worlds == null || worlds.contains(TokenManager.GLOBAL);
-            int     result   = isGlobal
+            int result = isGlobal
                     ? bootstrap.getTokenManager().removePermissionFromToken(perm, id, TokenManager.GLOBAL)
                     : bootstrap.getTokenManager().removePermissionFromToken(perm, id, worlds);
             switch (result) {
@@ -732,7 +693,7 @@ public class CmdToken extends EnjCommand {
         }
 
         @Override
-        public  Translation getUsageTranslation() {
+        public Translation getUsageTranslation() {
             return Translation.COMMAND_TOKEN_REVOKEPERM_DESCRIPTION;
         }
 
@@ -763,7 +724,7 @@ public class CmdToken extends EnjCommand {
                     : null;
 
             TokenManager tokenManager = bootstrap.getTokenManager();
-            TokenModel   baseModel    = tokenManager.getToken(id);
+            TokenModel baseModel = tokenManager.getToken(id);
             if (baseModel != null && !baseModel.isNonfungible()) {
                 Translation.COMMAND_TOKEN_ISFUNGIBLE.send(context.sender);
                 return;
@@ -773,7 +734,7 @@ public class CmdToken extends EnjCommand {
 
             String fullId;
             try {
-                index  = TokenUtils.parseIndex(index);
+                index = TokenUtils.parseIndex(index);
                 fullId = TokenUtils.createFullId(id, index);
             } catch (IllegalArgumentException e) {
                 Translation.COMMAND_TOKEN_INVALIDFULLID.send(context.sender);
@@ -784,7 +745,7 @@ public class CmdToken extends EnjCommand {
             }
 
             boolean isGlobal = worlds == null || worlds.contains(TokenManager.GLOBAL);
-            int     result   = isGlobal
+            int result = isGlobal
                     ? tokenManager.removePermissionFromToken(perm, fullId, TokenManager.GLOBAL)
                     : tokenManager.removePermissionFromToken(perm, fullId, worlds);
             switch (result) {
@@ -885,7 +846,7 @@ public class CmdToken extends EnjCommand {
                                 bootstrap.debug(String.format("Unhandled result when getting the URI (status: %d)", result));
                                 break;
                         }
-            });
+                    });
         }
 
         @Override
@@ -912,7 +873,7 @@ public class CmdToken extends EnjCommand {
             String id = context.args.get(0);
 
             TokenManager tokenManager = bootstrap.getTokenManager();
-            TokenModel   tokenModel   = tokenManager.getToken(id);
+            TokenModel tokenModel = tokenManager.getToken(id);
             if (tokenModel == null) {
                 Translation.COMMAND_TOKEN_NOSUCHTOKEN.send(context.sender);
                 return;
@@ -1047,18 +1008,18 @@ public class CmdToken extends EnjCommand {
             }
 
             MessageUtils.sendString(sender,
-                           ChatColor.GREEN + Translation.COMMAND_TOKEN_LIST_HEADER_TOKENS.translation());
+                    ChatColor.GREEN + Translation.COMMAND_TOKEN_LIST_HEADER_TOKENS.translation());
             int count = 0;
             for (String id : ids) {
                 MessageUtils.sendString(sender, String.format("&a%d: &6%s",
-                                                              count++,
-                                                              id));
+                        count++,
+                        id));
             }
         }
 
         private void listNonfungibleInstances(CommandSender sender, String id) {
             TokenManager tokenManager = bootstrap.getTokenManager();
-            TokenModel   baseModel    = tokenManager.getToken(id);
+            TokenModel baseModel = tokenManager.getToken(id);
             if (baseModel == null) {
                 Translation.COMMAND_TOKEN_NOSUCHTOKEN.send(sender);
                 return;
@@ -1078,14 +1039,14 @@ public class CmdToken extends EnjCommand {
             }
 
             MessageUtils.sendString(sender,
-                           ChatColor.GREEN + Translation.COMMAND_TOKEN_LIST_HEADER_NONFUNGIBLE.translation());
+                    ChatColor.GREEN + Translation.COMMAND_TOKEN_LIST_HEADER_NONFUNGIBLE.translation());
             int count = 0;
             for (String fullId : instances) {
                 TokenModel instance = tokenManager.getToken(fullId);
                 MessageUtils.sendString(sender, String.format("&a%d: &6%s #%d",
-                                                              count++,
-                                                              instance.getId(),
-                                                              TokenUtils.convertIndexToLong(instance.getIndex())));
+                        count++,
+                        instance.getId(),
+                        TokenUtils.convertIndexToLong(instance.getIndex())));
             }
         }
 
