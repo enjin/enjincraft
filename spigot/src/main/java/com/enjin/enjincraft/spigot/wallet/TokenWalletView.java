@@ -16,6 +16,8 @@ import com.enjin.minecraft_commons.spigot.ui.Position;
 import com.enjin.minecraft_commons.spigot.ui.menu.ChestMenu;
 import com.enjin.minecraft_commons.spigot.ui.menu.component.SimpleMenuComponent;
 import com.enjin.minecraft_commons.spigot.ui.menu.component.pagination.SimplePagedComponent;
+import de.tr7zw.changeme.nbtapi.NBTContainer;
+import de.tr7zw.changeme.nbtapi.NBTItem;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -48,7 +50,7 @@ public class TokenWalletView extends ChestMenu implements EnjTokenView {
     private ItemStack nextComponentItem;
 
     // State Fields
-    private int currentFungiblePage    = 0;
+    private int currentFungiblePage = 0;
     private int currentNonFungiblePage = 0;
     protected SimplePagedComponent currentPagedComponent;
 
@@ -144,14 +146,22 @@ public class TokenWalletView extends ChestMenu implements EnjTokenView {
 
         int index = 0;
         for (MutableBalance balance : balances) {
-            String     fullId     = TokenUtils.createFullId(balance.id(), balance.index());
+            String fullId = TokenUtils.createFullId(balance.id(), balance.index());
             TokenModel tokenModel = bootstrap.getTokenManager().getToken(fullId);
+            boolean inDB = tokenModel != null;
+
+            if (isNonfungible && tokenModel == null) {
+                tokenModel = bootstrap.getTokenManager().getToken(balance.id());
+                inDB = false;
+            }
+
             if (tokenModel == null
                     || !tokenModel.isLoaded()
                     || tokenModel.getWalletViewState() == TokenWalletViewState.HIDDEN
                     || tokenModel.isNonfungible() != isNonfungible
-                    || balance.amountAvailableForWithdrawal() == 0)
+                    || balance.amountAvailableForWithdrawal() == 0) {
                 continue;
+            }
 
             int page = index / INVENTORY_DIMENSION.getArea();
             int x = index % INVENTORY_DIMENSION.getWidth();
@@ -161,6 +171,12 @@ public class TokenWalletView extends ChestMenu implements EnjTokenView {
             ItemStack is = tokenModel.getWalletViewItemStack();
             if (is == null)
                 continue;
+
+            if (!inDB) {
+                NBTItem nbt = new NBTItem(is);
+                nbt.setString(TokenModel.NBT_INDEX, balance.index());
+                nbt.applyNBT(is);
+            }
 
             is.setAmount(balance.amountAvailableForWithdrawal());
             component.setItem(page, position, is);
@@ -191,18 +207,30 @@ public class TokenWalletView extends ChestMenu implements EnjTokenView {
                 if (!TokenUtils.isValidTokenItem(is))
                     continue;
 
-                String     fullId     = TokenUtils.createFullId(TokenUtils.getTokenID(is),
-                                                                TokenUtils.getTokenIndex(is));
+                String fullId = TokenUtils.createFullId(TokenUtils.getTokenID(is),
+                        TokenUtils.getTokenIndex(is));
                 TokenModel tokenModel = tokenManager.getToken(fullId);
-                if (tokenModel == null)
+
+                if (tokenModel == null && TokenUtils.isNonFungible(is)) {
+                    tokenModel = tokenManager.getToken(TokenUtils.getTokenID(is));
+                }
+
+                if (tokenModel == null) {
                     continue;
+                }
 
                 MutableBalance balance = owner.getTokenWallet().getBalance(fullId);
                 if (tokenModel.getWalletViewState() != TokenWalletViewState.HIDDEN) {
                     inventoryViewComponent.setItem(x, y, is);
 
+                    is = tokenModel.getItemStack(is.getAmount());
+                    NBTItem nbt = new NBTItem(is);
+                    if (tokenModel.isNonfungible())
+                        nbt.setString(TokenModel.NBT_INDEX, balance.index());
+                    nbt.applyNBT(is);
+
                     if (tokenModel.getWalletViewState() == TokenWalletViewState.WITHDRAWABLE)
-                        addWithdrawAction(Position.of(x, y), balance, tokenModel.getItemStack(is.getAmount()));
+                        addWithdrawAction(Position.of(x, y), balance, is);
                 }
             }
         }
@@ -285,9 +313,9 @@ public class TokenWalletView extends ChestMenu implements EnjTokenView {
             return;
 
         if (event.getClickedInventory() instanceof PlayerInventory) {
-            ItemStack is    = event.getCurrentItem();
-            String    id    = TokenUtils.getTokenID(is);
-            String    index = TokenUtils.getTokenIndex(is);
+            ItemStack is = event.getCurrentItem();
+            String id = TokenUtils.getTokenID(is);
+            String index = TokenUtils.getTokenIndex(is);
             if (StringUtils.isEmpty(id) || StringUtils.isEmpty(index))
                 return;
 
@@ -334,8 +362,8 @@ public class TokenWalletView extends ChestMenu implements EnjTokenView {
     }
 
     protected ItemStack createPageBackItemStack() {
-        ItemStack is   = new ItemStack(Material.HOPPER);
-        ItemMeta  meta = is.getItemMeta();
+        ItemStack is = new ItemStack(Material.HOPPER);
+        ItemMeta meta = is.getItemMeta();
         if (meta != null) {
             meta.setDisplayName(ChatColor.GOLD + "<--");
             is.setItemMeta(meta);
@@ -345,8 +373,8 @@ public class TokenWalletView extends ChestMenu implements EnjTokenView {
     }
 
     protected ItemStack createPageNextItemStack() {
-        ItemStack is   = new ItemStack(Material.HOPPER);
-        ItemMeta  meta = is.getItemMeta();
+        ItemStack is = new ItemStack(Material.HOPPER);
+        ItemMeta meta = is.getItemMeta();
         if (meta != null) {
             meta.setDisplayName(ChatColor.GOLD + "-->");
             is.setItemMeta(meta);
@@ -356,8 +384,8 @@ public class TokenWalletView extends ChestMenu implements EnjTokenView {
     }
 
     protected ItemStack createNextComponentItemStack(String nextComponentName) {
-        ItemStack is   = new ItemStack(Material.HOPPER);
-        ItemMeta  meta = is.getItemMeta();
+        ItemStack is = new ItemStack(Material.HOPPER);
+        ItemMeta meta = is.getItemMeta();
         if (meta != null) {
             meta.setDisplayName(ChatColor.GOLD + nextComponentName);
             is.setItemMeta(meta);

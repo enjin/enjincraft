@@ -177,7 +177,7 @@ public class TokenModel {
     protected void load() {
         loadNameFromURI();
 
-        if (StringUtils.isEmpty(nbt) || nonfungible && isBaseModel())
+        if (StringUtils.isEmpty(nbt))
             return;
 
         nbtContainer = new NBTContainer(nbt);

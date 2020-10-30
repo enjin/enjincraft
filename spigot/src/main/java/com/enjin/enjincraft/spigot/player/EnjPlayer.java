@@ -213,6 +213,11 @@ public class EnjPlayer implements Listener {
                                                                 TokenUtils.getTokenIndex(is));
             TokenModel     tokenModel = tokenManager.getToken(fullId);
             MutableBalance balance    = tokenWallet.getBalance(fullId);
+
+            if (TokenUtils.isNonFungible(is) && tokenModel == null) {
+                tokenModel = tokenManager.getToken(TokenUtils.getTokenID(is));
+            }
+
             if (tokenModel == null
                     || balance == null
                     || balance.amountAvailableForWithdrawal() == 0) {
