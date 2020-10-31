@@ -67,4 +67,16 @@ public class CommandContext {
         return list;
     }
 
+    public Player player() {
+        return player;
+    }
+
+    public CommandSender sender() {
+        return sender;
+    }
+
+    public List<String> args() {
+        return args;
+    }
+
 }

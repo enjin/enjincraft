@@ -1,6 +1,7 @@
 package com.enjin.enjincraft.spigot.cmd;
 
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
+import com.enjin.enjincraft.spigot.cmd.token.CmdToken;
 import com.enjin.enjincraft.spigot.enums.CommandProcess;
 import com.enjin.enjincraft.spigot.enums.Usage;
 import com.enjin.enjincraft.spigot.i18n.Translation;
