@@ -27,8 +27,6 @@ public class CmdToken extends EnjCommand {
         this.subCommands.add(new CmdAddPermNFT(bootstrap, this));
         this.subCommands.add(new CmdRevokePerm(bootstrap, this));
         this.subCommands.add(new CmdRevokePermNFT(bootstrap, this));
-        this.subCommands.add(new CmdGetURI(bootstrap, this));
-        this.subCommands.add(new CmdRemoveURI(bootstrap, this));
         this.subCommands.add(new CmdSetWalletView(bootstrap, this));
         this.subCommands.add(new CmdList(bootstrap, this));
         this.subCommands.add(new CmdExport(bootstrap, this));
