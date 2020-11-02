@@ -1,4 +1,4 @@
-package com.enjin.enjincraft.spigot.cmd.token;
+package com.enjin.enjincraft.spigot.cmd.perm;
 
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
 import com.enjin.enjincraft.spigot.cmd.CommandContext;
@@ -13,17 +13,17 @@ import com.enjin.enjincraft.spigot.util.TokenUtils;
 
 import java.util.List;
 
-public class CmdRevokePermNFT extends EnjCommand {
+public class CmdAddPermNFT extends EnjCommand {
 
-    public CmdRevokePermNFT(SpigotBootstrap bootstrap, EnjCommand parent) {
-        super(bootstrap, parent);
-        this.aliases.add("revokepermnft");
+    public CmdAddPermNFT(EnjCommand parent) {
+        super(parent);
+        this.aliases.add("addpermnft");
         this.requiredArgs.add("id");
         this.requiredArgs.add("index");
         this.requiredArgs.add("perm");
         this.optionalArgs.add("worlds...");
         this.requirements = CommandRequirements.builder()
-                .withPermission(Permission.CMD_TOKEN_REVOKEPERM)
+                .withPermission(Permission.CMD_TOKEN_ADDPERM)
                 .withAllowedSenderTypes(SenderType.PLAYER)
                 .build();
     }
@@ -38,6 +38,7 @@ public class CmdRevokePermNFT extends EnjCommand {
                 : null;
 
         TokenManager tokenManager = bootstrap.getTokenManager();
+
         TokenModel baseModel = tokenManager.getToken(id);
         if (baseModel != null && !baseModel.isNonfungible()) {
             Translation.COMMAND_TOKEN_ISFUNGIBLE.send(context.sender());
@@ -60,17 +61,20 @@ public class CmdRevokePermNFT extends EnjCommand {
 
         boolean isGlobal = worlds == null || worlds.contains(TokenManager.GLOBAL);
         int result = isGlobal
-                ? tokenManager.removePermissionFromToken(perm, fullId, TokenManager.GLOBAL)
-                : tokenManager.removePermissionFromToken(perm, fullId, worlds);
+                ? tokenManager.addPermissionToToken(perm, fullId, TokenManager.GLOBAL)
+                : tokenManager.addPermissionToToken(perm, fullId, worlds);
         switch (result) {
-            case TokenManager.PERM_REMOVED_SUCCESS:
-                Translation.COMMAND_TOKEN_REVOKEPERM_PERMREVOKED.send(context.sender());
+            case TokenManager.PERM_ADDED_SUCCESS:
+                Translation.COMMAND_TOKEN_ADDPERM_PERMADDED.send(context.sender());
                 break;
             case TokenManager.TOKEN_NOSUCHTOKEN:
                 Translation.COMMAND_TOKEN_NOSUCHTOKEN.send(context.sender());
                 break;
-            case TokenManager.PERM_REMOVED_NOPERMONTOKEN:
-                Translation.COMMAND_TOKEN_REVOKEPERM_PERMNOTONTOKEN.send(context.sender());
+            case TokenManager.PERM_ADDED_DUPLICATEPERM:
+                Translation.COMMAND_TOKEN_ADDPERM_DUPLICATEPERM.send(context.sender());
+                break;
+            case TokenManager.PERM_ADDED_BLACKLISTED:
+                Translation.COMMAND_TOKEN_ADDPERM_PERMREJECTED.send(context.sender());
                 break;
             case TokenManager.PERM_ISGLOBAL:
                 Translation.COMMAND_TOKEN_PERM_ISGLOBAL.send(context.sender());
@@ -79,14 +83,14 @@ public class CmdRevokePermNFT extends EnjCommand {
                 Translation.COMMAND_TOKEN_UPDATE_FAILED.send(context.sender());
                 break;
             default:
-                bootstrap.debug(String.format("Unhandled result when removing non-fungible permission (status: %d)", result));
+                bootstrap.debug(String.format("Unhandled result when adding non-fungible permission (status: %d)", result));
                 break;
         }
     }
 
     @Override
     public Translation getUsageTranslation() {
-        return Translation.COMMAND_TOKEN_REVOKEPERMNFT_DESCRIPTION;
+        return Translation.COMMAND_TOKEN_ADDPERMNFT_DESCRIPTION;
     }
 
 }

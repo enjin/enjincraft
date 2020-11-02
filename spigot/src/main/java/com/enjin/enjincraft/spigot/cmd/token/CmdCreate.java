@@ -28,8 +28,8 @@ import java.util.Map;
 
 public class CmdCreate extends EnjCommand {
 
-    public CmdCreate(SpigotBootstrap bootstrap, EnjCommand parent) {
-        super(bootstrap, parent);
+    public CmdCreate(EnjCommand parent) {
+        super(parent);
         this.aliases.add("create");
         this.requirements = CommandRequirements.builder()
                 .withPermission(Permission.CMD_TOKEN_CREATE)

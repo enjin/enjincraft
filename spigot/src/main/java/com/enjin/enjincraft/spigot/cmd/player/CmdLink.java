@@ -1,6 +1,9 @@
-package com.enjin.enjincraft.spigot.cmd;
+package com.enjin.enjincraft.spigot.cmd.player;
 
-import com.enjin.enjincraft.spigot.SpigotBootstrap;
+import com.enjin.enjincraft.spigot.cmd.CommandContext;
+import com.enjin.enjincraft.spigot.cmd.CommandRequirements;
+import com.enjin.enjincraft.spigot.cmd.EnjCommand;
+import com.enjin.enjincraft.spigot.cmd.SenderType;
 import com.enjin.enjincraft.spigot.enums.Permission;
 import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
@@ -13,8 +16,8 @@ import java.util.Objects;
 
 public class CmdLink extends EnjCommand {
 
-    public CmdLink(SpigotBootstrap bootstrap, EnjCommand parent) {
-        super(bootstrap, parent);
+    public CmdLink(EnjCommand parent) {
+        super(parent);
         this.aliases.add("link");
         this.requirements = CommandRequirements.builder()
                 .withAllowedSenderTypes(SenderType.PLAYER)
@@ -26,16 +29,16 @@ public class CmdLink extends EnjCommand {
     public void execute(CommandContext context) {
         EnjPlayer senderEnjPlayer = getValidSenderEnjPlayer(context);
         if (senderEnjPlayer != null && senderEnjPlayer.isLinked())
-            existingLink(context.sender, senderEnjPlayer.getEthereumAddress());
+            existingLink(context.sender(), senderEnjPlayer.getEthereumAddress());
         else if (senderEnjPlayer != null)
-            linkInstructions(context.sender, senderEnjPlayer.getLinkingCode());
+            linkInstructions(context.sender(), senderEnjPlayer.getLinkingCode());
     }
 
     @Override
     protected EnjPlayer getValidSenderEnjPlayer(@NonNull CommandContext context) throws NullPointerException {
-        Player sender = Objects.requireNonNull(context.player, "Expected context to have non-null player as sender");
+        Player sender = Objects.requireNonNull(context.player(), "Expected context to have non-null player as sender");
 
-        EnjPlayer senderEnjPlayer = context.enjPlayer;
+        EnjPlayer senderEnjPlayer = context.enjinPlayer();
         if (senderEnjPlayer == null) {
             Translation.ERRORS_PLAYERNOTREGISTERED.send(sender, sender.getName());
             return null;

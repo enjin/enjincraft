@@ -1,6 +1,10 @@
-package com.enjin.enjincraft.spigot.cmd;
+package com.enjin.enjincraft.spigot.cmd.wallet;
 
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
+import com.enjin.enjincraft.spigot.cmd.CommandContext;
+import com.enjin.enjincraft.spigot.cmd.CommandRequirements;
+import com.enjin.enjincraft.spigot.cmd.EnjCommand;
+import com.enjin.enjincraft.spigot.cmd.SenderType;
 import com.enjin.enjincraft.spigot.enums.Permission;
 import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
@@ -11,8 +15,8 @@ import java.util.Objects;
 
 public class CmdWallet extends EnjCommand {
 
-    public CmdWallet(SpigotBootstrap bootstrap, EnjCommand parent) {
-        super(bootstrap, parent);
+    public CmdWallet(EnjCommand parent) {
+        super(parent);
         this.aliases.add("wallet");
         this.aliases.add("wal");
         this.requirements = CommandRequirements.builder()
@@ -23,7 +27,7 @@ public class CmdWallet extends EnjCommand {
 
     @Override
     public void execute(CommandContext context) {
-        Player sender = Objects.requireNonNull(context.player);
+        Player sender = Objects.requireNonNull(context.player());
 
         EnjPlayer senderEnjPlayer = getValidSenderEnjPlayer(context);
         if (senderEnjPlayer == null)

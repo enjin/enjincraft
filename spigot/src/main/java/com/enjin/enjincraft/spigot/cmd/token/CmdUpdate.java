@@ -20,8 +20,8 @@ import java.util.Objects;
 
 public class CmdUpdate extends EnjCommand {
 
-    public CmdUpdate(SpigotBootstrap bootstrap, EnjCommand parent) {
-        super(bootstrap, parent);
+    public CmdUpdate(EnjCommand parent) {
+        super(parent);
         this.aliases.add("update");
         this.requiredArgs.add("id");
         this.optionalArgs.add("index");

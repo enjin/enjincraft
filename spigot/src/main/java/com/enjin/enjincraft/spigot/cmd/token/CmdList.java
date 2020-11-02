@@ -19,8 +19,8 @@ import java.util.stream.Collectors;
 
 public class CmdList extends EnjCommand {
 
-    public CmdList(SpigotBootstrap bootstrap, EnjCommand parent) {
-        super(bootstrap, parent);
+    public CmdList(EnjCommand parent) {
+        super(parent);
         this.aliases.add("list");
         this.optionalArgs.add("id");
         this.requirements = CommandRequirements.builder()

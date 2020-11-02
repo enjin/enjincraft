@@ -1,4 +1,4 @@
-package com.enjin.enjincraft.spigot.cmd.token;
+package com.enjin.enjincraft.spigot.cmd.perm;
 
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
 import com.enjin.enjincraft.spigot.cmd.CommandContext;
@@ -11,16 +11,16 @@ import com.enjin.enjincraft.spigot.token.TokenManager;
 
 import java.util.List;
 
-public class CmdAddPerm extends EnjCommand {
+public class CmdRevokePerm extends EnjCommand {
 
-    public CmdAddPerm(SpigotBootstrap bootstrap, EnjCommand parent) {
-        super(bootstrap, parent);
-        this.aliases.add("addperm");
+    public CmdRevokePerm(EnjCommand parent) {
+        super(parent);
+        this.aliases.add("revokeperm");
         this.requiredArgs.add("id");
         this.requiredArgs.add("perm");
         this.optionalArgs.add("worlds...");
         this.requirements = CommandRequirements.builder()
-                .withPermission(Permission.CMD_TOKEN_ADDPERM)
+                .withPermission(Permission.CMD_TOKEN_REVOKEPERM)
                 .withAllowedSenderTypes(SenderType.PLAYER)
                 .build();
     }
@@ -35,20 +35,17 @@ public class CmdAddPerm extends EnjCommand {
 
         boolean isGlobal = worlds == null || worlds.contains(TokenManager.GLOBAL);
         int result = isGlobal
-                ? bootstrap.getTokenManager().addPermissionToToken(perm, id, TokenManager.GLOBAL)
-                : bootstrap.getTokenManager().addPermissionToToken(perm, id, worlds);
+                ? bootstrap.getTokenManager().removePermissionFromToken(perm, id, TokenManager.GLOBAL)
+                : bootstrap.getTokenManager().removePermissionFromToken(perm, id, worlds);
         switch (result) {
-            case TokenManager.PERM_ADDED_SUCCESS:
-                Translation.COMMAND_TOKEN_ADDPERM_PERMADDED.send(context.sender());
+            case TokenManager.PERM_REMOVED_SUCCESS:
+                Translation.COMMAND_TOKEN_REVOKEPERM_PERMREVOKED.send(context.sender());
                 break;
             case TokenManager.TOKEN_NOSUCHTOKEN:
                 Translation.COMMAND_TOKEN_NOSUCHTOKEN.send(context.sender());
                 break;
-            case TokenManager.PERM_ADDED_DUPLICATEPERM:
-                Translation.COMMAND_TOKEN_ADDPERM_DUPLICATEPERM.send(context.sender());
-                break;
-            case TokenManager.PERM_ADDED_BLACKLISTED:
-                Translation.COMMAND_TOKEN_ADDPERM_PERMREJECTED.send(context.sender());
+            case TokenManager.PERM_REMOVED_NOPERMONTOKEN:
+                Translation.COMMAND_TOKEN_REVOKEPERM_PERMNOTONTOKEN.send(context.sender());
                 break;
             case TokenManager.PERM_ISGLOBAL:
                 Translation.COMMAND_TOKEN_PERM_ISGLOBAL.send(context.sender());
@@ -57,14 +54,14 @@ public class CmdAddPerm extends EnjCommand {
                 Translation.COMMAND_TOKEN_UPDATE_FAILED.send(context.sender());
                 break;
             default:
-                bootstrap.debug(String.format("Unhandled result when adding base permission (status: %d)", result));
+                bootstrap.debug(String.format("Unhandled result when removing base permission (status: %d)", result));
                 break;
         }
     }
 
     @Override
     public Translation getUsageTranslation() {
-        return Translation.COMMAND_TOKEN_ADDPERM_DESCRIPTION;
+        return Translation.COMMAND_TOKEN_REVOKEPERM_DESCRIPTION;
     }
 
 }

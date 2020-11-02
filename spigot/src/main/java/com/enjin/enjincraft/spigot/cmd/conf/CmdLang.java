@@ -1,6 +1,5 @@
 package com.enjin.enjincraft.spigot.cmd.conf;
 
-import com.enjin.enjincraft.spigot.SpigotBootstrap;
 import com.enjin.enjincraft.spigot.cmd.CommandContext;
 import com.enjin.enjincraft.spigot.cmd.CommandRequirements;
 import com.enjin.enjincraft.spigot.cmd.EnjCommand;
@@ -15,8 +14,8 @@ import java.util.List;
 
 public class CmdLang extends EnjCommand {
 
-    public CmdLang(SpigotBootstrap bootstrap, EnjCommand parent) {
-        super(bootstrap, parent);
+    public CmdLang(EnjCommand parent) {
+        super(parent);
         this.aliases.add("lang");
         this.requiredArgs.add("language");
         this.requirements = CommandRequirements.builder()

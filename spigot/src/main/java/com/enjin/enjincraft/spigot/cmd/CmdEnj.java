@@ -2,7 +2,15 @@ package com.enjin.enjincraft.spigot.cmd;
 
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
 import com.enjin.enjincraft.spigot.cmd.conf.CmdConf;
+import com.enjin.enjincraft.spigot.cmd.player.CmdLink;
+import com.enjin.enjincraft.spigot.cmd.player.CmdQr;
+import com.enjin.enjincraft.spigot.cmd.player.CmdUnlink;
 import com.enjin.enjincraft.spigot.cmd.token.CmdToken;
+import com.enjin.enjincraft.spigot.cmd.wallet.CmdBalance;
+import com.enjin.enjincraft.spigot.cmd.wallet.CmdWallet;
+import com.enjin.enjincraft.spigot.cmd.wallet.send.CmdDevSend;
+import com.enjin.enjincraft.spigot.cmd.wallet.send.CmdSend;
+import com.enjin.enjincraft.spigot.cmd.wallet.trade.CmdTrade;
 import com.enjin.enjincraft.spigot.enums.CommandProcess;
 import com.enjin.enjincraft.spigot.enums.Usage;
 import com.enjin.enjincraft.spigot.i18n.Translation;
@@ -25,18 +33,17 @@ public class CmdEnj extends EnjCommand implements CommandExecutor, TabCompleter 
     public CmdEnj(SpigotBootstrap bootstrap) {
         super(bootstrap);
         this.aliases.add("enj");
-        this.cmdHelp = new CmdHelp(bootstrap, this);
-        this.addSubCommand(new CmdBalance(bootstrap, this));
-        this.addSubCommand(new CmdConf(bootstrap, this));
-        this.addSubCommand(new CmdDevSend(bootstrap, this));
-        this.addSubCommand(cmdHelp);
-        this.addSubCommand(new CmdLink(bootstrap, this));
-        this.addSubCommand(new CmdQr(bootstrap, this));
-        this.addSubCommand(new CmdSend(bootstrap, this));
-        this.addSubCommand(new CmdToken(bootstrap, this));
-        this.addSubCommand(new CmdTrade(bootstrap, this));
-        this.addSubCommand(new CmdUnlink(bootstrap, this));
-        this.addSubCommand(new CmdWallet(bootstrap, this));
+        this.addSubCommand(new CmdBalance(this));
+        this.addSubCommand(new CmdConf(this));
+        this.addSubCommand(new CmdDevSend(this));
+        this.addSubCommand(this.cmdHelp = new CmdHelp(this));
+        this.addSubCommand(new CmdLink(this));
+        this.addSubCommand(new CmdQr(this));
+        this.addSubCommand(new CmdSend(this));
+        this.addSubCommand(new CmdToken(this));
+        this.addSubCommand(new CmdTrade(this));
+        this.addSubCommand(new CmdUnlink(this));
+        this.addSubCommand(new CmdWallet(this));
     }
 
     @Override

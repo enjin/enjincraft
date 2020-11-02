@@ -1,6 +1,5 @@
 package com.enjin.enjincraft.spigot.cmd.conf;
 
-import com.enjin.enjincraft.spigot.SpigotBootstrap;
 import com.enjin.enjincraft.spigot.cmd.CommandContext;
 import com.enjin.enjincraft.spigot.cmd.CommandRequirements;
 import com.enjin.enjincraft.spigot.cmd.EnjCommand;
@@ -9,14 +8,14 @@ import com.enjin.enjincraft.spigot.i18n.Translation;
 
 public class CmdConf extends EnjCommand {
 
-    public CmdConf(SpigotBootstrap bootstrap, EnjCommand parent) {
-        super(bootstrap, parent);
+    public CmdConf(EnjCommand parent) {
+        super(parent);
         this.aliases.add("conf");
         this.requiredArgs.add("operation");
         this.requirements = CommandRequirements.builder()
                 .withPermission(Permission.CMD_CONF)
                 .build();
-        this.subCommands.add(new CmdSet(bootstrap, this));
+        this.subCommands.add(new CmdSet(this));
     }
 
     @Override

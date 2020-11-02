@@ -30,7 +30,7 @@ public abstract class EnjCommand {
     protected List<String> optionalArgs;
     protected CommandRequirements requirements;
 
-    public EnjCommand(SpigotBootstrap bootstrap, EnjCommand parent) {
+    protected EnjCommand(SpigotBootstrap bootstrap, EnjCommand parent) {
         this.bootstrap = bootstrap;
         this.parent = Optional.ofNullable(parent);
         this.aliases = new ArrayList<>();
@@ -44,6 +44,10 @@ public abstract class EnjCommand {
 
     public EnjCommand(SpigotBootstrap bootstrap) {
         this(bootstrap, null);
+    }
+
+    public EnjCommand(EnjCommand parent) {
+        this(parent.bootstrap, parent);
     }
 
     public abstract void execute(CommandContext context);
@@ -219,6 +223,10 @@ public abstract class EnjCommand {
         }
 
         return targetEnjPlayer;
+    }
+
+    public SpigotBootstrap bootstrap() {
+        return bootstrap;
     }
 
 }

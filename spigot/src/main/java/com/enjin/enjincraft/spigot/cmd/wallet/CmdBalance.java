@@ -1,6 +1,7 @@
-package com.enjin.enjincraft.spigot.cmd;
+package com.enjin.enjincraft.spigot.cmd.wallet;
 
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
+import com.enjin.enjincraft.spigot.cmd.*;
 import com.enjin.enjincraft.spigot.token.TokenManager;
 import com.enjin.enjincraft.spigot.token.TokenModel;
 import com.enjin.enjincraft.spigot.enums.Permission;
@@ -14,8 +15,8 @@ import java.math.BigDecimal;
 
 public class CmdBalance extends EnjCommand {
 
-    public CmdBalance(SpigotBootstrap bootstrap, CmdEnj parent) {
-        super(bootstrap, parent);
+    public CmdBalance(CmdEnj parent) {
+        super(parent);
         this.aliases.add("balance");
         this.aliases.add("bal");
         this.requirements = CommandRequirements.builder()
@@ -26,7 +27,7 @@ public class CmdBalance extends EnjCommand {
 
     @Override
     public void execute(CommandContext context) {
-        CommandSender sender = context.sender;
+        CommandSender sender = context.sender();
 
         EnjPlayer enjPlayer = getValidSenderEnjPlayer(context);
         if (enjPlayer == null)

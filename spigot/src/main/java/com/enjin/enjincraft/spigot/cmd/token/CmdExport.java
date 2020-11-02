@@ -13,8 +13,8 @@ import org.bukkit.command.CommandSender;
 
 public class CmdExport extends EnjCommand {
 
-    public CmdExport(SpigotBootstrap bootstrap, EnjCommand parent) {
-        super(bootstrap, parent);
+    public CmdExport(EnjCommand parent) {
+        super(parent);
         this.aliases.add("export");
         this.optionalArgs.add("id");
         this.optionalArgs.add("index");

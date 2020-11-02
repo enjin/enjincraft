@@ -1,4 +1,4 @@
-package com.enjin.enjincraft.spigot.cmd.token;
+package com.enjin.enjincraft.spigot.cmd.perm;
 
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
 import com.enjin.enjincraft.spigot.cmd.CommandContext;
@@ -8,15 +8,18 @@ import com.enjin.enjincraft.spigot.cmd.SenderType;
 import com.enjin.enjincraft.spigot.enums.Permission;
 import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.token.TokenManager;
+import com.enjin.enjincraft.spigot.token.TokenModel;
+import com.enjin.enjincraft.spigot.util.TokenUtils;
 
 import java.util.List;
 
-public class CmdRevokePerm extends EnjCommand {
+public class CmdRevokePermNFT extends EnjCommand {
 
-    public CmdRevokePerm(SpigotBootstrap bootstrap, EnjCommand parent) {
-        super(bootstrap, parent);
-        this.aliases.add("revokeperm");
+    public CmdRevokePermNFT(EnjCommand parent) {
+        super(parent);
+        this.aliases.add("revokepermnft");
         this.requiredArgs.add("id");
+        this.requiredArgs.add("index");
         this.requiredArgs.add("perm");
         this.optionalArgs.add("worlds...");
         this.requirements = CommandRequirements.builder()
@@ -28,15 +31,37 @@ public class CmdRevokePerm extends EnjCommand {
     @Override
     public void execute(CommandContext context) {
         String id = context.args().get(0);
-        String perm = context.args().get(1);
+        String index = context.args().get(1);
+        String perm = context.args().get(2);
         List<String> worlds = context.args().size() > requiredArgs.size()
                 ? context.args().subList(requiredArgs.size(), context.args().size())
                 : null;
 
+        TokenManager tokenManager = bootstrap.getTokenManager();
+        TokenModel baseModel = tokenManager.getToken(id);
+        if (baseModel != null && !baseModel.isNonfungible()) {
+            Translation.COMMAND_TOKEN_ISFUNGIBLE.send(context.sender());
+            return;
+        } else if (baseModel != null) {
+            id = baseModel.getId();
+        }
+
+        String fullId;
+        try {
+            index = TokenUtils.parseIndex(index);
+            fullId = TokenUtils.createFullId(id, index);
+        } catch (IllegalArgumentException e) {
+            Translation.COMMAND_TOKEN_INVALIDFULLID.send(context.sender());
+            return;
+        } catch (Exception e) {
+            bootstrap.log(e);
+            return;
+        }
+
         boolean isGlobal = worlds == null || worlds.contains(TokenManager.GLOBAL);
         int result = isGlobal
-                ? bootstrap.getTokenManager().removePermissionFromToken(perm, id, TokenManager.GLOBAL)
-                : bootstrap.getTokenManager().removePermissionFromToken(perm, id, worlds);
+                ? tokenManager.removePermissionFromToken(perm, fullId, TokenManager.GLOBAL)
+                : tokenManager.removePermissionFromToken(perm, fullId, worlds);
         switch (result) {
             case TokenManager.PERM_REMOVED_SUCCESS:
                 Translation.COMMAND_TOKEN_REVOKEPERM_PERMREVOKED.send(context.sender());
@@ -54,14 +79,14 @@ public class CmdRevokePerm extends EnjCommand {
                 Translation.COMMAND_TOKEN_UPDATE_FAILED.send(context.sender());
                 break;
             default:
-                bootstrap.debug(String.format("Unhandled result when removing base permission (status: %d)", result));
+                bootstrap.debug(String.format("Unhandled result when removing non-fungible permission (status: %d)", result));
                 break;
         }
     }
 
     @Override
     public Translation getUsageTranslation() {
-        return Translation.COMMAND_TOKEN_REVOKEPERM_DESCRIPTION;
+        return Translation.COMMAND_TOKEN_REVOKEPERMNFT_DESCRIPTION;
     }
 
 }

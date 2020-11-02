@@ -16,8 +16,8 @@ import java.util.List;
 
 public class CmdSetWalletView extends EnjCommand {
 
-    public CmdSetWalletView(SpigotBootstrap bootstrap, EnjCommand parent) {
-        super(bootstrap, parent);
+    public CmdSetWalletView(EnjCommand parent) {
+        super(parent);
         this.aliases.add("setwalview");
         this.aliases.add("setwalletview");
         this.requiredArgs.add("id");

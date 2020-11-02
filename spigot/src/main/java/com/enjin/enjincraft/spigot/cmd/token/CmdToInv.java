@@ -18,8 +18,8 @@ import java.util.Objects;
 
 public class CmdToInv extends EnjCommand {
 
-    public CmdToInv(SpigotBootstrap bootstrap, EnjCommand parent) {
-        super(bootstrap, parent);
+    public CmdToInv(EnjCommand parent) {
+        super(parent);
         this.aliases.add("toinv");
         this.aliases.add("give");
         this.requiredArgs.add("id");

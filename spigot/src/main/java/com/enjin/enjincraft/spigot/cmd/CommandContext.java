@@ -67,6 +67,10 @@ public class CommandContext {
         return list;
     }
 
+    public EnjPlayer enjinPlayer() {
+        return enjPlayer;
+    }
+
     public Player player() {
         return player;
     }

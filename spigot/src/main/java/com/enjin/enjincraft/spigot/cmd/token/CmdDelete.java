@@ -16,8 +16,8 @@ import java.util.Objects;
 
 public class CmdDelete extends EnjCommand {
 
-    public CmdDelete(SpigotBootstrap bootstrap, EnjCommand parent) {
-        super(bootstrap, parent);
+    public CmdDelete(EnjCommand parent) {
+        super(parent);
         this.aliases.add("delete");
         this.requiredArgs.add("id");
         this.optionalArgs.add("index");

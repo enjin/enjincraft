@@ -13,8 +13,8 @@ import com.enjin.enjincraft.spigot.util.TokenUtils;
 
 public class CmdNickname extends EnjCommand {
 
-    public CmdNickname(SpigotBootstrap bootstrap, EnjCommand parent) {
-        super(bootstrap, parent);
+    public CmdNickname(EnjCommand parent) {
+        super(parent);
         this.aliases.add("nickname");
         this.requiredArgs.add("token-id|alt-id");
         this.requiredArgs.add("new-alt-id");

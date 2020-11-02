@@ -1,6 +1,10 @@
-package com.enjin.enjincraft.spigot.cmd;
+package com.enjin.enjincraft.spigot.cmd.player;
 
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
+import com.enjin.enjincraft.spigot.cmd.CommandContext;
+import com.enjin.enjincraft.spigot.cmd.CommandRequirements;
+import com.enjin.enjincraft.spigot.cmd.EnjCommand;
+import com.enjin.enjincraft.spigot.cmd.SenderType;
 import com.enjin.enjincraft.spigot.enums.Permission;
 import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
@@ -11,8 +15,8 @@ import java.util.Objects;
 
 public class CmdUnlink extends EnjCommand {
 
-    public CmdUnlink(SpigotBootstrap bootstrap, EnjCommand parent) {
-        super(bootstrap, parent);
+    public CmdUnlink(EnjCommand parent) {
+        super(parent);
         this.aliases.add("unlink");
         this.requirements = CommandRequirements.builder()
                 .withAllowedSenderTypes(SenderType.PLAYER)
@@ -31,16 +35,16 @@ public class CmdUnlink extends EnjCommand {
                 senderEnjPlayer.unlink();
             } catch (Exception ex) {
                 bootstrap.log(ex);
-                Translation.ERRORS_EXCEPTION.send(context.sender, ex.getMessage());
+                Translation.ERRORS_EXCEPTION.send(context.sender(), ex.getMessage());
             }
         });
     }
 
     @Override
     protected EnjPlayer getValidSenderEnjPlayer(CommandContext context) {
-        Player sender = Objects.requireNonNull(context.player, "Expected context to have non-null player as sender");
+        Player sender = Objects.requireNonNull(context.player(), "Expected context to have non-null player as sender");
 
-        EnjPlayer senderEnjPlayer = context.enjPlayer;
+        EnjPlayer senderEnjPlayer = context.enjinPlayer();
         if (senderEnjPlayer == null) {
             Translation.ERRORS_PLAYERNOTREGISTERED.send(sender, sender.getName());
             return null;

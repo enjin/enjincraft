@@ -11,8 +11,8 @@ import org.bukkit.command.CommandSender;
 
 public class CmdImport extends EnjCommand {
 
-    public CmdImport(SpigotBootstrap bootstrap, EnjCommand parent) {
-        super(bootstrap, parent);
+    public CmdImport(EnjCommand parent) {
+        super(parent);
         this.aliases.add("import");
         this.requirements = CommandRequirements.builder()
                 .withAllowedSenderTypes(SenderType.CONSOLE)
