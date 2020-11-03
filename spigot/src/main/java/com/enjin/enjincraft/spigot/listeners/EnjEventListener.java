@@ -1,11 +1,12 @@
 package com.enjin.enjincraft.spigot.listeners;
 
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
-import com.enjin.enjincraft.spigot.token.TokenModel;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
+import com.enjin.enjincraft.spigot.token.TokenModel;
 import com.enjin.enjincraft.spigot.util.TokenUtils;
 import com.enjin.enjincraft.spigot.wallet.MutableBalance;
-import com.enjin.sdk.models.notification.*;
+import com.enjin.sdk.models.notification.EventType;
+import com.enjin.sdk.models.notification.NotificationEvent;
 import com.enjin.sdk.models.request.TransactionType;
 import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;

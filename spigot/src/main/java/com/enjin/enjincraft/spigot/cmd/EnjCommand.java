@@ -1,10 +1,10 @@
 package com.enjin.enjincraft.spigot.cmd;
 
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
-import com.enjin.enjincraft.spigot.enums.Usage;
-import com.enjin.enjincraft.spigot.enums.VeryifyRequirements;
 import com.enjin.enjincraft.spigot.enums.CommandProcess;
 import com.enjin.enjincraft.spigot.enums.MessageAction;
+import com.enjin.enjincraft.spigot.enums.Usage;
+import com.enjin.enjincraft.spigot.enums.VeryifyRequirements;
 import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
 import com.enjin.enjincraft.spigot.util.MessageUtils;

@@ -1,37 +1,25 @@
 buildscript {
     ext.versions = [
             'minecraftCommons': '1.0.0',
-            'enjinSdk'        : '1.0.3r1',
-            'kyoriText'       : '3.0.2',
-            'kyoriTextAdapter': '3.0.3',
-            'gson'            : '2.8.0',
+            'enjinSdk'        : '1.0.4',
+            'kyoriText'       : '4.1.1',
+            'kyoriTextAdapter': '4.0.0-SNAPSHOT',
             'spigot'          : '1.13.2-R0.1-SNAPSHOT',
             'placeholderApi'  : '2.10.3',
             'sqlite'          : '3.28.0',
             'sentry'          : '1.7.27',
-            'pusher'          : '2.0.1',
-            'okhttp'          : '4.3.1',
-            'retrofit'        : '2.7.1',
             'nbtapi'          : '2.5.0'
     ]
 
     ext.deps = [
             'minecraftCommons'        : "com.enjin:spigot-commons:${versions.minecraftCommons}",
             'enjinSdk'                : "com.enjin:blockchain-sdk:${versions.enjinSdk}",
-            'kyoriText'               : "net.kyori:text-api:${versions.kyoriText}",
-            'kyoriTextLegacy'         : "net.kyori:text-serializer-legacy:${versions.kyoriText}",
-            'kyoriTextAdapterBukkit'  : "net.kyori:text-adapter-bukkit:${versions.kyoriTextAdapter}",
-            'gson'                    : "com.google.code.gson:gson:${versions.gson}",
+            'kyoriText'               : "net.kyori:adventure-api:${versions.kyoriText}",
+            'kyoriTextAdapterBukkit'  : "net.kyori:adventure-platform-bukkit:${versions.kyoriTextAdapter}",
             'spigot'                  : "org.spigotmc:spigot-api:${versions.spigot}",
             'placeholderApi'          : "me.clip:placeholderapi:${versions.placeholderApi}",
             'sqlite'                  : "org.xerial:sqlite-jdbc:${versions.sqlite}",
             'sentry'                  : "io.sentry:sentry:${versions.sentry}",
-            'pusher'                  : "com.pusher:pusher-java-client:${versions.pusher}",
-            'okhttp'                  : "com.squareup.okhttp3:okhttp:${versions.okhttp}",
-            'okhttpLoggingInterceptor': "com.squareup.okhttp3:logging-interceptor:${versions.okhttp}",
-            'okhttpUrlConnection'     : "com.squareup.okhttp3:okhttp-urlconnection:${versions.okhttp}",
-            'retrofit'                : "com.squareup.retrofit2:retrofit:${versions.retrofit}",
-            'retrofitGson'            : "com.squareup.retrofit2:converter-gson:${versions.retrofit}",
             'nbtapi'                  : "de.tr7zw:item-nbt-api:${versions.nbtapi}"
     ]
 
@@ -77,7 +65,7 @@ subprojects {
     targetCompatibility = JavaVersion.VERSION_1_8
 
     dependencies {
-        compileOnly deps.sentry;
+        implementation deps.sentry;
     }
 
     javadoc {

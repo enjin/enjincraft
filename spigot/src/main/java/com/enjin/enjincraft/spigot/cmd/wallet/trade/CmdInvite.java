@@ -10,9 +10,10 @@ import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
 import com.enjin.enjincraft.spigot.util.MessageUtils;
 import lombok.NonNull;
-import net.kyori.text.TextComponent;
-import net.kyori.text.event.ClickEvent;
-import net.kyori.text.format.TextColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -93,18 +94,16 @@ public class CmdInvite extends EnjCommand {
 
         Translation.COMMAND_TRADE_INVITESENT.send(sender.getBukkitPlayer(), target.getBukkitPlayer().getName());
         Translation.COMMAND_TRADE_INVITEDTOTRADE.send(target.getBukkitPlayer(), sender.getBukkitPlayer().getName());
-        TextComponent.Builder inviteMessageBuilder = TextComponent.builder("")
-                .append(TextComponent.builder("Accept")
-                        .color(TextColor.GREEN)
-                        .clickEvent(ClickEvent.of(ClickEvent.Action.RUN_COMMAND,
-                                String.format("/enj trade accept %s", sender.getBukkitPlayer().getName())))
-                        .build())
-                .append(TextComponent.of(" | ").color(TextColor.GRAY))
-                .append(TextComponent.builder("Decline")
-                        .color(TextColor.RED)
-                        .clickEvent(ClickEvent.of(ClickEvent.Action.RUN_COMMAND,
-                                String.format("/enj trade decline %s", sender.getBukkitPlayer().getName())))
-                        .build());
+        TextComponent.Builder inviteMessageBuilder = Component.text()
+                .append(Component.text("Accept")
+                        .color(NamedTextColor.GREEN)
+                        .clickEvent(ClickEvent.runCommand(String.format("/enj trade accept %s",
+                                sender.getBukkitPlayer().getName()))))
+                .append(Component.text(" | ").color(NamedTextColor.GRAY))
+                .append(Component.text("Decline")
+                        .color(NamedTextColor.RED)
+                        .clickEvent(ClickEvent.runCommand(String.format("/enj trade decline %s",
+                                sender.getBukkitPlayer().getName()))));
         MessageUtils.sendComponent(target.getBukkitPlayer(), inviteMessageBuilder.build());
     }
 

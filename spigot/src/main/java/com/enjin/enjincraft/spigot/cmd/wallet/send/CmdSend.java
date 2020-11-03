@@ -2,7 +2,6 @@ package com.enjin.enjincraft.spigot.cmd.wallet.send;
 
 import com.enjin.enjincraft.spigot.GraphQLException;
 import com.enjin.enjincraft.spigot.NetworkException;
-import com.enjin.enjincraft.spigot.SpigotBootstrap;
 import com.enjin.enjincraft.spigot.cmd.CommandContext;
 import com.enjin.enjincraft.spigot.cmd.CommandRequirements;
 import com.enjin.enjincraft.spigot.cmd.EnjCommand;

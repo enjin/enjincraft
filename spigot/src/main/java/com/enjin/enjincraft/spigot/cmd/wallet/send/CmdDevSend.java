@@ -2,16 +2,15 @@ package com.enjin.enjincraft.spigot.cmd.wallet.send;
 
 import com.enjin.enjincraft.spigot.GraphQLException;
 import com.enjin.enjincraft.spigot.NetworkException;
-import com.enjin.enjincraft.spigot.SpigotBootstrap;
 import com.enjin.enjincraft.spigot.cmd.CommandContext;
 import com.enjin.enjincraft.spigot.cmd.CommandRequirements;
 import com.enjin.enjincraft.spigot.cmd.EnjCommand;
 import com.enjin.enjincraft.spigot.cmd.SenderType;
 import com.enjin.enjincraft.spigot.cmd.arg.PlayerArgumentProcessor;
 import com.enjin.enjincraft.spigot.cmd.arg.TokenDefinitionArgumentProcessor;
-import com.enjin.enjincraft.spigot.token.TokenModel;
 import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
+import com.enjin.enjincraft.spigot.token.TokenModel;
 import com.enjin.enjincraft.spigot.util.PlayerUtils;
 import com.enjin.enjincraft.spigot.util.TokenUtils;
 import com.enjin.sdk.TrustedPlatformClient;
@@ -21,6 +20,7 @@ import com.enjin.sdk.models.request.Transaction;
 import com.enjin.sdk.models.request.data.SendTokenData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
 import java.util.ArrayList;
 import java.util.List;
 

@@ -2,14 +2,14 @@ package com.enjin.enjincraft.spigot;
 
 import com.enjin.enjincraft.spigot.cmd.CmdEnj;
 import com.enjin.enjincraft.spigot.configuration.Conf;
-import com.enjin.enjincraft.spigot.listeners.QrItemListener;
-import com.enjin.enjincraft.spigot.token.TokenManager;
 import com.enjin.enjincraft.spigot.hooks.PlaceholderApiExpansion;
 import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.listeners.EnjEventListener;
+import com.enjin.enjincraft.spigot.listeners.QrItemListener;
 import com.enjin.enjincraft.spigot.listeners.TokenItemListener;
 import com.enjin.enjincraft.spigot.player.PlayerManager;
 import com.enjin.enjincraft.spigot.storage.Database;
+import com.enjin.enjincraft.spigot.token.TokenManager;
 import com.enjin.enjincraft.spigot.trade.TradeManager;
 import com.enjin.enjincraft.spigot.trade.TradeUpdateTask;
 import com.enjin.enjincraft.spigot.util.MessageUtils;
@@ -26,8 +26,8 @@ import com.enjin.sdk.services.notification.PusherNotificationService;
 import com.enjin.sdk.utils.LoggerProvider;
 import io.sentry.Sentry;
 import io.sentry.jul.SentryHandler;
-import net.kyori.text.TextComponent;
-import net.kyori.text.format.TextColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.Plugin;
@@ -111,19 +111,16 @@ public class SpigotBootstrap implements Bootstrap, Module {
             pluginCommand.setExecutor(cmdEnj);
 
             if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-                MessageUtils.sendComponent(Bukkit.getConsoleSender(),
-                                           TextComponent.of("[EnjinCraft] Registering PlaceholderAPI Expansion")
-                            .color(TextColor.GOLD));
+                MessageUtils.logComponent(Component.text("[EnjinCraft] Registering PlaceholderAPI Expansion")
+                        .color(NamedTextColor.GOLD));
 
                 boolean registered = new PlaceholderApiExpansion(this).register();
                 if (registered) {
-                    MessageUtils.sendComponent(Bukkit.getConsoleSender(),
-                                               TextComponent.of("[EnjinCraft] Registered PlaceholderAPI Expansion")
-                                .color(TextColor.GREEN));
+                    MessageUtils.logComponent(Component.text("[EnjinCraft] Registered PlaceholderAPI Expansion")
+                            .color(NamedTextColor.GREEN));
                 } else {
-                    MessageUtils.sendComponent(Bukkit.getConsoleSender(),
-                                               TextComponent.of("[EnjinCraft] Could not register PlaceholderAPI Expansion")
-                                .color(TextColor.RED));
+                    MessageUtils.logComponent(Component.text("[EnjinCraft] Could not register PlaceholderAPI Expansion")
+                            .color(NamedTextColor.RED));
                 }
             }
 
@@ -188,8 +185,8 @@ public class SpigotBootstrap implements Bootstrap, Module {
         try {
             // Start the notification service and register a listener
             notificationsService = new PusherNotificationService(new LoggerProvider(getLogger(),
-                                                                                    conf.isSdkDebugEnabled(),
-                                                                                    Level.INFO), platformDetails);
+                    conf.isSdkDebugEnabled(),
+                    Level.INFO), platformDetails);
             notificationsService.start();
             notificationsService.registerListener(new EnjEventListener(this));
             notificationsService.subscribeToApp(conf.getAppId());

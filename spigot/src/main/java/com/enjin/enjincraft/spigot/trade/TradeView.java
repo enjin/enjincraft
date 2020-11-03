@@ -13,13 +13,17 @@ import com.enjin.enjincraft.spigot.util.UiUtils;
 import com.enjin.enjincraft.spigot.wallet.MutableBalance;
 import com.enjin.enjincraft.spigot.wallet.TokenWallet;
 import com.enjin.enjincraft.spigot.wallet.TokenWalletViewState;
-import com.enjin.minecraft_commons.spigot.ui.*;
+import com.enjin.minecraft_commons.spigot.ui.AbstractMenu;
+import com.enjin.minecraft_commons.spigot.ui.Dimension;
+import com.enjin.minecraft_commons.spigot.ui.Position;
+import com.enjin.minecraft_commons.spigot.ui.SlotUpdateHandler;
 import com.enjin.minecraft_commons.spigot.ui.menu.ChestMenu;
 import com.enjin.minecraft_commons.spigot.ui.menu.component.SimpleMenuComponent;
 import de.tr7zw.changeme.nbtapi.NBTItem;
 import lombok.Getter;
-import net.kyori.text.TextComponent;
-import net.kyori.text.format.TextColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -151,20 +155,16 @@ public class TradeView extends ChestMenu implements EnjTokenView {
         otherStatusComponent.setItem(Position.of(0, 0), getPlayerHead(other.getBukkitPlayer(), TargetPlayer.OTHER));
         otherStatusComponent.setItem(Position.of(3, 0), unreadyPane);
 
-        // Creates the horizontal separator
-        Component horizontalBarrier = UiUtils.createSeparator(new Dimension(9, 1));
-        // Creates the upper vertical separator
-        Component verticalBarrierTop = UiUtils.createSeparator(new Dimension(1, 4));
-        // Creates the lower vertical separator
-        Component verticalBarrierBottom = UiUtils.createSeparator(new Dimension(1, 1));
-
         addComponent(Position.of(0, 0), viewerItemsComponent);
         addComponent(Position.of(0, 5), viewerStatusComponent);
         addComponent(Position.of(5, 0), otherItemsComponent);
         addComponent(Position.of(5, 5), otherStatusComponent);
-        addComponent(Position.of(4, 0), verticalBarrierTop);
-        addComponent(Position.of(4, 5), verticalBarrierBottom);
-        addComponent(Position.of(0, 4), horizontalBarrier);
+        // Creates the upper vertical separator
+        addComponent(Position.of(4, 0), UiUtils.createSeparator(new Dimension(1, 4)));
+        // Creates the lower vertical separator
+        addComponent(Position.of(4, 5), UiUtils.createSeparator(new Dimension(1, 1)));
+        // Creates the horizontal separator
+        addComponent(Position.of(0, 4), UiUtils.createSeparator(new Dimension(9, 1)));
     }
 
     protected void unreadyAction() {
@@ -494,13 +494,10 @@ public class TradeView extends ChestMenu implements EnjTokenView {
     }
 
     private void informViewerOfCancellation() {
-        MessageUtils.sendComponent(viewer.getBukkitPlayer(), TextComponent.builder("")
-                .color(TextColor.GRAY)
-                .append(TextComponent.builder(other.getBukkitPlayer().getName())
-                        .color(TextColor.GOLD)
-                        .build())
-                .append(TextComponent.builder(" has cancelled the trade.")
-                        .build())
-                .build());
+        TextComponent component = Component.text().color(NamedTextColor.GRAY)
+                .append(Component.text(other.getBukkitPlayer().getName()).color(NamedTextColor.GOLD))
+                .append(Component.text(" has cancelled the trade."))
+                .build();
+        MessageUtils.sendComponent(viewer.getBukkitPlayer(), component);
     }
 }

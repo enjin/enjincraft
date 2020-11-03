@@ -3,9 +3,9 @@ package com.enjin.enjincraft.spigot.player;
 import com.enjin.enjincraft.spigot.GraphQLException;
 import com.enjin.enjincraft.spigot.NetworkException;
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
+import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.token.TokenManager;
 import com.enjin.enjincraft.spigot.token.TokenModel;
-import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.trade.TradeView;
 import com.enjin.enjincraft.spigot.util.QrUtils;
 import com.enjin.enjincraft.spigot.util.StringUtils;
@@ -35,8 +35,8 @@ import org.bukkit.inventory.*;
 
 import java.awt.*;
 import java.math.BigDecimal;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 public class EnjPlayer implements Listener {
 
