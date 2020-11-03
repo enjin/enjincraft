@@ -24,6 +24,7 @@ dependencies {
 
     api (deps.enjinSdk) {
         exclude module: "gson"
+        exclude module: "slf4j-api"
     }
 }
 
@@ -42,7 +43,6 @@ shadowJar {
     relocate("org.intellij", "${LIBS}.intellij")
     relocate("org.java_websocket", "${LIBS}.java_websocket")
     relocate("org.jetbrains", "${LIBS}.jetbrains")
-    relocate("org.slf4j", "${LIBS}.slf4j")
     relocate("retrofit2", "${LIBS}.retrofit2")
 }
 
