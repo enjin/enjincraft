@@ -485,10 +485,10 @@ public class TokenManager {
         try {
             if (tokenModel.isBaseModel()) {
                 if (tokenModel.isNonfungible()) {
-                    bootstrap.db().deleteTokenBase(tokenModel.getId());
-                } else {
-                    bootstrap.db().deleteToken(tokenModel.getId());
+                    bootstrap.db().deleteTokenInstances(tokenModel.getId());
                 }
+
+                bootstrap.db().deleteToken(tokenModel.getId());
             } else {
                 bootstrap.db().deleteTokenInstance(tokenModel.getId(), tokenModel.getIndex());
             }
