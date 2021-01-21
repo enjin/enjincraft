@@ -52,7 +52,8 @@ public class TradeManager implements Listener {
     public boolean acceptInvite(EnjPlayer inviter, EnjPlayer invitee) throws UnregisterTradeInviteException {
         if (inviteExists(inviter, invitee)) {
             boolean removedFromInviter = inviter.getSentTradeInvites().remove(invitee);
-            boolean removedFromInvitee = invitee.getReceivedTradeInvites().remove(invitee);
+            boolean removedFromInvitee = invitee.getReceivedTradeInvites().remove(inviter);
+
             if (removedFromInviter && removedFromInvitee) {
                 inviter.setActiveTradeView(new TradeView(bootstrap, inviter, invitee, Trader.INVITER));
                 invitee.setActiveTradeView(new TradeView(bootstrap, invitee, inviter, Trader.INVITED));
