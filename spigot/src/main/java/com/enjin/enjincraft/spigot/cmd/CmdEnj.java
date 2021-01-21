@@ -64,7 +64,7 @@ public class CmdEnj extends EnjCommand implements CommandExecutor, TabCompleter 
         Translation.COMMAND_ROOT_DETAILS.send(context.sender,
                 description.getName(),
                 description.getVersion(),
-                cmdHelp.getUsage(context.senderType, Usage.COMMAND_ONLY));
+                "/enj help");
     }
 
     @Override
