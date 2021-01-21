@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 public class TokenNicknamePrompt extends RegexPrompt {
 
     public static final String KEY = "token-nickname";
-    private static final String TEXT = "Enter a unique nickname for the token:";
+    private static final String TEXT = "Enter a unique nickname for the token (must be alphanumeric with a minimum length of 4):";
 
     private final Prompt next;
 
