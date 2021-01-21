@@ -40,8 +40,6 @@ public class TokenModel {
     private transient boolean loaded;
     private transient NBTContainer nbtContainer;
     private transient NBTItem nbtItem;
-    @Getter(onMethod_ = {@Nullable})
-    private transient String displayName;
     @Getter(onMethod_ = {@Nullable, @Synchronized("uriLock")})
     @Setter(value = AccessLevel.PROTECTED, onMethod_ = {@Synchronized("uriLock")})
     private transient String nameFromURI;
@@ -185,11 +183,6 @@ public class TokenModel {
         nbtItem.setString(NBT_ID, id);
         nbtItem.setString(NBT_INDEX, index);
         nbtItem.setBoolean(NBT_NONFUNGIBLE, nonfungible);
-
-        ItemMeta meta = nbtItem.getItem().getItemMeta();
-        if (meta != null)
-            displayName = meta.getDisplayName();
-
         loaded = true;
     }
 
@@ -501,7 +494,7 @@ public class TokenModel {
         return new TokenPermission(assignablePermissions.get(idx));
     }
 
-    private String getName() {
+    public String getName() {
         Bootstrap bootstrap = EnjinCraft.bootstrap().orElse(null);
         if (bootstrap != null
                 && bootstrap.getConfig() != null
@@ -517,6 +510,15 @@ public class TokenModel {
         }
 
         return null;
+    }
+
+    public String getDisplayName() {
+        ItemStack is = getItemStack();
+
+        if (is.getItemMeta().hasDisplayName())
+            return is.getItemMeta().getDisplayName();
+
+        return id;
     }
 
     private String getWalletViewString() {

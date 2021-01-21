@@ -8,6 +8,7 @@ import com.enjin.enjincraft.spigot.token.TokenManager;
 import com.enjin.enjincraft.spigot.token.TokenModel;
 import com.enjin.enjincraft.spigot.util.TokenUtils;
 import com.enjin.enjincraft.spigot.wallet.MutableBalance;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
 import java.math.BigDecimal;
@@ -63,8 +64,13 @@ public class CmdBalance extends EnjCommand {
             }
 
             TokenModel tokenModel = tokenManager.getToken(fullId);
-            if (tokenModel == null)
-                continue;
+            if (tokenModel == null) {
+                // Try fetching base token in case this balance is an NFT with no mapping for the given index.
+                tokenModel = tokenManager.getToken(TokenUtils.createFullId(balance.id()));
+                if (tokenModel == null) {
+                    continue;
+                }
+            }
 
             Translation.COMMAND_BALANCE_TOKENDISPLAY.send(sender, ++itemCount, tokenModel.getDisplayName(), balance.balance());
         }
