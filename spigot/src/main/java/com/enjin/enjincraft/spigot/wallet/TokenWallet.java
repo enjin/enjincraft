@@ -16,8 +16,11 @@ public class TokenWallet {
 
     private final Map<String, MutableBalance> balances;
 
-    public TokenWallet(List<Balance> balances) {
+    public TokenWallet() {
         this.balances = new ConcurrentHashMap<>();
+    }
+
+    public void addBalances(List<Balance> balances) {
         balances.forEach(balance -> setBalance(new MutableBalance(balance)));
     }
 
@@ -87,6 +90,10 @@ public class TokenWallet {
 
     public boolean isEmpty() {
         return balances.isEmpty();
+    }
+
+    public void clear() {
+        this.balances.clear();
     }
 
     private static void log(Exception e) {

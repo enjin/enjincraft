@@ -75,6 +75,7 @@ public class EnjPlayer implements Listener {
     public EnjPlayer(SpigotBootstrap bootstrap, Player player) {
         this.bootstrap = bootstrap;
         this.bukkitPlayer = player;
+        this.tokenWallet = new TokenWallet();
         this.globalAttachment = new EnjPermissionAttachment(player, bootstrap.plugin());
         this.worldAttachment = new EnjPermissionAttachment(player, bootstrap.plugin());
         bootstrap.plugin().getServer().getPluginManager().registerEvents(this, bootstrap.plugin());
@@ -114,7 +115,7 @@ public class EnjPlayer implements Listener {
         linkingCode    = null;  //
         setLinkingCodeQr(null); //
         identityLoaded = false; //
-        tokenWallet    = null;  //
+        tokenWallet.clear();
         globalAttachment.clear();   // Clears all permissions
         worldAttachment.clear();    //
         worldPermissionMap.clear(); //
@@ -172,7 +173,7 @@ public class EnjPlayer implements Listener {
             if (!graphQLResponse.isSuccess())
                 throw new GraphQLException(graphQLResponse.getErrors());
 
-            tokenWallet = new TokenWallet(graphQLResponse.getData());
+            tokenWallet.addBalances(graphQLResponse.getData());
             validateInventory();
         } catch (Exception ex) {
             bootstrap.log(ex);
