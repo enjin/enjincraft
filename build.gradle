@@ -65,9 +65,7 @@ subprojects {
     targetCompatibility = JavaVersion.VERSION_1_8
 
     dependencies {
-        implementation (deps.sentry) {
-            exclude module: "slf4j-api"
-        }
+        implementation deps.sentry
     }
 
     javadoc {
