@@ -9,6 +9,7 @@ import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.token.TokenManager;
 import com.enjin.enjincraft.spigot.token.TokenModel;
 import com.enjin.enjincraft.spigot.util.TokenUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
 import java.util.Objects;
@@ -44,7 +45,7 @@ public class CmdDelete extends EnjCommand {
 
         String fullId;
         try {
-            fullId = baseModel.isNonfungible()
+            fullId = baseModel.isNonfungible() && index != null
                     ? TokenUtils.createFullId(baseModel.getId(), TokenUtils.parseIndex(Objects.requireNonNull(index)))
                     : TokenUtils.createFullId(baseModel.getId());
         } catch (NullPointerException e) {

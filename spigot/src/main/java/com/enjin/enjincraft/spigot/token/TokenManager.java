@@ -160,7 +160,7 @@ public class TokenManager {
 
     public int saveToken(@NonNull TokenModel tokenModel) throws NullPointerException {
         String     alternateId = tokenModel.getAlternateId();
-        TokenModel other       = getToken(alternateId);
+        TokenModel other       = alternateId == null ? null : getToken(alternateId);
         if (other != null && !other.getId().equals(tokenModel.getId())) { // Alternate id already exists
             return TOKEN_DUPLICATENICKNAME;
         } else if (alternateId != null && !isValidAlternateId(alternateId)) { // Alternate id is invalid
@@ -460,11 +460,6 @@ public class TokenManager {
         TokenModel tokenModel = getToken(id);
         if (tokenModel == null) {
             return TOKEN_NOSUCHTOKEN;
-        } else if (tokenModel.isNonfungible() && tokenModel.isBaseModel()) {
-            for (TokenModel other : tokenModels.values()) {
-                if (other.getId().equals(tokenModel.getId()) && other != tokenModel)
-                    return TOKEN_DELETE_FAILEDNFTBASE;
-            }
         }
 
         int status = deleteFromDB(tokenModel);
@@ -488,10 +483,15 @@ public class TokenManager {
 
     private int deleteFromDB(TokenModel tokenModel) {
         try {
-            if (tokenModel.isBaseModel())
-                bootstrap.db().deleteToken(tokenModel.getId());
-            else
+            if (tokenModel.isBaseModel()) {
+                if (tokenModel.isNonfungible()) {
+                    bootstrap.db().deleteTokenBase(tokenModel.getId());
+                } else {
+                    bootstrap.db().deleteToken(tokenModel.getId());
+                }
+            } else {
                 bootstrap.db().deleteTokenInstance(tokenModel.getId(), tokenModel.getIndex());
+            }
         } catch (Exception e) {
             bootstrap.log(e);
             return TOKEN_DELETE_FAILED;

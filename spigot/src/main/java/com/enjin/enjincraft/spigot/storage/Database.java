@@ -33,6 +33,7 @@ public class Database {
     public static final String TEMPLATE_CREATE_TOKEN = "token/CreateToken";
     public static final String TEMPLATE_CREATE_TOKEN_INSTANCE = "token/CreateTokenInstance";
     public static final String TEMPLATE_DELETE_TOKEN = "token/DeleteToken";
+    public static final String TEMPLATE_DELETE_TOKEN_BASE = "token/DeleteTokenBase";
     public static final String TEMPLATE_DELETE_TOKEN_INSTANCE = "token/DeleteTokenInstance";
     public static final String TEMPLATE_GET_TOKEN = "token/GetToken";
     public static final String TEMPLATE_GET_ALL_TOKENS = "token/GetAllTokens";
@@ -61,6 +62,7 @@ public class Database {
     private final PreparedStatement createToken;
     private final PreparedStatement createTokenInstance;
     private final PreparedStatement deleteToken;
+    private final PreparedStatement deleteTokenBase;
     private final PreparedStatement deleteTokenInstance;
     private final PreparedStatement getToken;
     private final PreparedStatement getAllTokens;
@@ -92,6 +94,7 @@ public class Database {
         this.createToken = createPreparedStatement(TEMPLATE_CREATE_TOKEN);
         this.createTokenInstance = createPreparedStatement(TEMPLATE_CREATE_TOKEN_INSTANCE);
         this.deleteToken = createPreparedStatement(TEMPLATE_DELETE_TOKEN);
+        this.deleteTokenBase = createPreparedStatement(TEMPLATE_DELETE_TOKEN_BASE);
         this.deleteTokenInstance = createPreparedStatement(TEMPLATE_DELETE_TOKEN_INSTANCE);
         this.getToken = createPreparedStatement(TEMPLATE_GET_TOKEN);
         this.getAllTokens = createPreparedStatement(TEMPLATE_GET_ALL_TOKENS);
@@ -186,6 +189,25 @@ public class Database {
             } finally {
                 try {
                     deleteToken.clearParameters();
+                } catch (SQLException e) {
+                    bootstrap.log(e);
+                }
+            }
+        }
+    }
+
+    public boolean deleteTokenBase(@NonNull String tokenId) throws SQLException, NullPointerException {
+        synchronized (deleteTokenBase) {
+            deleteTokenBase.clearParameters();
+
+            try {
+                deleteTokenBase.setString(1, tokenId);
+                deleteTokenBase.setString(2, tokenId);
+
+                return deleteTokenBase.execute();
+            } finally {
+                try {
+                    deleteTokenBase.clearParameters();
                 } catch (SQLException e) {
                     bootstrap.log(e);
                 }
