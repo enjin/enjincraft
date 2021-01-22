@@ -32,7 +32,7 @@ public class CmdDevSend extends EnjCommand {
     public CmdDevSend(EnjCommand parent) {
         super(parent);
         this.aliases.add("devsend");
-        this.requiredArgs.add("player");
+        this.requiredArgs.add("player|address");
         this.requiredArgs.add("id");
         this.requiredArgs.add("index|amount");
         this.requirements = CommandRequirements.builder()
