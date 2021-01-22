@@ -2,11 +2,13 @@ package com.enjin.enjincraft.spigot.listeners;
 
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
+import com.enjin.enjincraft.spigot.util.MaterialUtils;
 import com.enjin.enjincraft.spigot.util.TokenUtils;
 import com.enjin.enjincraft.spigot.wallet.MutableBalance;
 import com.enjin.enjincraft.spigot.wallet.TokenWallet;
 import com.enjin.minecraft_commons.spigot.ui.AbstractMenu;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
@@ -70,6 +72,23 @@ public class TokenItemListener implements Listener {
         ItemStack is = event.getItemInHand();
 
         if (!(TokenUtils.hasTokenData(is) && TokenUtils.isValidTokenItem(is)))
+            return;
+
+        event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onMinecartPlace(PlayerInteractEvent event) {
+        ItemStack held = event.getItem();
+        Block clicked = event.getClickedBlock();
+
+        if (held == null || !MaterialUtils.isMinecart(held.getType()))
+            return;
+
+        if (clicked == null || !MaterialUtils.isRail(clicked))
+            return;
+
+        if (!(TokenUtils.hasTokenData(held) && TokenUtils.isValidTokenItem(held)))
             return;
 
         event.setCancelled(true);
