@@ -12,6 +12,7 @@ import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
@@ -62,6 +63,16 @@ public class TokenItemListener implements Listener {
         } catch (Exception ex) {
             bootstrap.log(ex);
         }
+    }
+
+    @EventHandler
+    public void onBlockPlace(BlockPlaceEvent event) {
+        ItemStack is = event.getItemInHand();
+
+        if (!(TokenUtils.hasTokenData(is) && TokenUtils.isValidTokenItem(is)))
+            return;
+
+        event.setCancelled(true);
     }
 
     @EventHandler
