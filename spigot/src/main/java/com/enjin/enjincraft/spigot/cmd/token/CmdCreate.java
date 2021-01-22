@@ -74,7 +74,7 @@ public class CmdCreate extends EnjCommand {
         Player sender = (Player) data.get("sender");
         boolean nft = (boolean) data.get(TokenTypePrompt.KEY);
         String id = (String) data.get(TokenIdPrompt.KEY);
-        BigInteger index = (BigInteger) data.getOrDefault(TokenIndexPrompt.KEY, null);
+        BigInteger index = (BigInteger) data.getOrDefault(TokenIndexPrompt.KEY, BigInteger.ZERO);
         // Convert index from decimal to hexadecimal representation
         String indexHex = index == null ? null : TokenUtils.bigIntToIndex(index);
 

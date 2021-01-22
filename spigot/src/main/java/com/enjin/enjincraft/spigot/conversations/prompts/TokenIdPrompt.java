@@ -1,5 +1,7 @@
 package com.enjin.enjincraft.spigot.conversations.prompts;
 
+import com.enjin.enjincraft.spigot.EnjinCraft;
+import com.enjin.enjincraft.spigot.token.TokenManager;
 import com.enjin.enjincraft.spigot.util.ValidationUtils;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
@@ -26,14 +28,20 @@ public class TokenIdPrompt extends RegexPrompt {
     @Nullable
     @Override
     protected Prompt acceptValidatedInput(@NotNull ConversationContext context, @NotNull String input) {
-        context.setSessionData(KEY, ValidationUtils.getValidTokenId(input));
+        String id = ValidationUtils.getValidTokenId(input);
+        context.setSessionData(KEY, id);
 
         Prompt next = this.next;
 
         if (next == null) {
-            next = ((boolean) context.getAllSessionData().getOrDefault(TokenTypePrompt.KEY, false))
-                    ? new TokenIndexPrompt()
-                    : new TokenNicknamePrompt();
+            boolean nft = (boolean) context.getAllSessionData().getOrDefault(TokenTypePrompt.KEY, false);
+
+            if (nft) {
+                boolean baseExists = EnjinCraft.bootstrap().get().getTokenManager().hasToken(id);
+                next = baseExists ? new TokenIndexPrompt() : new TokenNicknamePrompt();
+            } else {
+                next = new TokenNicknamePrompt();
+            }
         }
 
         return next;

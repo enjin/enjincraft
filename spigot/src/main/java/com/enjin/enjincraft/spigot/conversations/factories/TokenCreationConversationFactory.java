@@ -18,7 +18,7 @@ public class TokenCreationConversationFactory extends ConversationFactory {
         withPrefix(new NullConversationPrefix());
         withFirstPrompt(new TokenTypePrompt());
         withLocalEcho(false);
-        withEscapeSequence("/quit");
+        withEscapeSequence("quit");
     }
 
 }
