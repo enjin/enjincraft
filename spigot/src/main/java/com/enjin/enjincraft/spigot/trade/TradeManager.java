@@ -13,10 +13,9 @@ import com.enjin.sdk.TrustedPlatformClient;
 import com.enjin.sdk.graphql.GraphQLResponse;
 import com.enjin.sdk.models.request.CreateRequest;
 import com.enjin.sdk.models.request.Transaction;
-import com.enjin.sdk.models.request.data.CompleteTradeData;
-import com.enjin.sdk.models.request.data.CreateTradeData;
-import com.enjin.sdk.models.request.data.TokenValueData;
+import com.enjin.sdk.models.request.data.*;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -128,8 +127,8 @@ public class TradeManager implements Listener {
                         .appId(client.getAppId())
                         .identityId(session.getInvitedIdentityId())
                         .completeTrade(CompleteTradeData.builder()
-                                                        .tradeId(tradeId)
-                                                        .build()),
+                                .tradeId(tradeId)
+                                .build()),
                 networkResponse -> {
                     if (!networkResponse.isSuccess())
                         throw new NetworkException(networkResponse.code());
@@ -160,21 +159,77 @@ public class TradeManager implements Listener {
         else if (!inviter.isLinked() || !invitee.isLinked())
             throw new IllegalArgumentException("Inviter or invited EnjPlayer is not linked");
 
-        Player bukkitPlayerOne = inviter.getBukkitPlayer();
-        Player bukkitPlayerTwo = invitee.getBukkitPlayer();
+        if (inviterOffer.isEmpty() && invitedOffer.isEmpty())
+            return;
+        else if (inviterOffer.isEmpty())
+            send(invitee, inviter, invitedOffer);
+        else if (invitedOffer.isEmpty())
+            send(inviter, invitee, inviterOffer);
+        else
+            createTradeRequest(inviter, invitee, extractOffers(inviterOffer), extractOffers(invitedOffer));
+    }
 
-        List<TokenValueData> playerOneTokens = extractOffers(inviterOffer);
-        List<TokenValueData> playerTwoTokens = extractOffers(invitedOffer);
+    private void send(EnjPlayer inviter, EnjPlayer invitee, List<ItemStack> tokens) {
+        TrustedPlatformClient client = bootstrap.getTrustedPlatformClient();
+        CreateRequest input = new CreateRequest()
+                .appId(client.getAppId())
+                .identityId(inviter.getIdentityId());
 
+        if (tokens.size() == 1) {
+            ItemStack is = tokens.get(0);
+            SendTokenData.SendTokenDataBuilder builder = SendTokenData.builder();
+            builder.recipientIdentityId(invitee.getIdentityId())
+                    .tokenId(TokenUtils.getTokenID(is))
+                    .value(is.getAmount());
+
+            if (TokenUtils.isNonFungible(is))
+                builder.tokenIndex(TokenUtils.getTokenIndex(is));
+
+            input.sendToken(builder.build());
+        } else {
+            List<TransferData> transfers = new ArrayList<>();
+
+            for (ItemStack is : tokens) {
+                TransferData.TransferDataBuilder builder = TransferData.builder()
+                        .fromId(inviter.getIdentityId())
+                        .toId(invitee.getIdentityId())
+                        .tokenId(TokenUtils.getTokenID(is))
+                        .value(String.valueOf(is.getAmount()));
+
+                if (TokenUtils.isNonFungible(is))
+                    builder.tokenIndex(TokenUtils.getTokenIndex(is));
+
+                transfers.add(builder.build());
+            }
+
+            input.advancedSendToken(AdvancedSendTokenData.builder()
+                    .transfers(transfers)
+                    .build());
+        }
+
+        client.getRequestService().createRequestAsync(input, networkResponse -> {
+            if (!networkResponse.isSuccess())
+                throw new NetworkException(networkResponse.code());
+
+            GraphQLResponse<Transaction> graphQLResponse = networkResponse.body();
+            if (!graphQLResponse.isSuccess())
+                throw new GraphQLException(graphQLResponse.getErrors());
+
+            Translation.COMMAND_TRADE_CONFIRM_WAIT.send(invitee.getBukkitPlayer());
+            Translation.COMMAND_TRADE_CONFIRM_ACTION.send(inviter.getBukkitPlayer());
+        });
+    }
+
+    private void createTradeRequest(EnjPlayer inviter, EnjPlayer invitee, List<TokenValueData> playerOneTokens, List<TokenValueData> playerTwoTokens) {
         TrustedPlatformClient client = bootstrap.getTrustedPlatformClient();
         client.getRequestService().createRequestAsync(new CreateRequest()
-                .appId(client.getAppId())
-                .identityId(inviter.getIdentityId())
-                .createTrade(CreateTradeData.builder()
-                                            .offeringTokens(playerOneTokens)
-                                            .askingTokens(playerTwoTokens)
-                                            .secondPartyIdentityId(invitee.getIdentityId())
-                                            .build()),
+                        .appId(client.getAppId())
+                        .identityId(inviter.getIdentityId())
+                        .createTrade(CreateTradeData.builder()
+                                .offeringTokens(playerOneTokens)
+                                .askingTokens(playerTwoTokens)
+                                .secondPartyIdentityId(invitee.getIdentityId())
+                                .build()),
                 networkResponse -> {
                     try {
                         if (!networkResponse.isSuccess())
@@ -185,13 +240,13 @@ public class TradeManager implements Listener {
                             throw new GraphQLException(graphQLResponse.getErrors());
 
                         Transaction dataIn = graphQLResponse.getData();
-                        Translation.COMMAND_TRADE_CONFIRM_WAIT.send(bukkitPlayerTwo);
-                        Translation.COMMAND_TRADE_CONFIRM_ACTION.send(bukkitPlayerOne);
+                        Translation.COMMAND_TRADE_CONFIRM_WAIT.send(invitee.getBukkitPlayer());
+                        Translation.COMMAND_TRADE_CONFIRM_ACTION.send(inviter.getBukkitPlayer());
 
-                        bootstrap.db().createTrade(bukkitPlayerOne.getUniqueId(),
+                        bootstrap.db().createTrade(inviter.getBukkitPlayer().getUniqueId(),
                                 inviter.getIdentityId(),
                                 inviter.getEthereumAddress(),
-                                bukkitPlayerTwo.getUniqueId(),
+                                invitee.getBukkitPlayer().getUniqueId(),
                                 invitee.getIdentityId(),
                                 invitee.getEthereumAddress(),
                                 dataIn.getId());
@@ -221,7 +276,7 @@ public class TradeManager implements Listener {
             String id = TokenUtils.getTokenID(is);
 
             if (TokenUtils.isNonFungible(is)) {
-                String  index    = TokenUtils.getTokenIndex(is);
+                String index = TokenUtils.getTokenIndex(is);
                 Integer intIndex = TokenUtils.convertIndexToLong(index).intValue();
 
                 extractedOffers.add(TokenValueData.builder()
