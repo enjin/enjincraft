@@ -1,6 +1,7 @@
 package com.enjin.enjincraft.spigot.listeners;
 
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
+import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.player.EnjPlayer;
 import com.enjin.enjincraft.spigot.token.TokenModel;
 import com.enjin.enjincraft.spigot.util.TokenUtils;
@@ -140,6 +141,9 @@ public class EnjEventListener implements com.enjin.sdk.services.notification.Not
         if (enjPlayer == null)
             return;
 
+        JsonObject wallet = event.getEventData().getAsJsonObject("wallet");
+
+        Translation.COMMAND_LINK_SUCCESS.send(enjPlayer.getBukkitPlayer(), wallet.get("ethAddress").getAsString());
         Bukkit.getScheduler().runTaskAsynchronously(bootstrap.plugin(), enjPlayer::reloadIdentity);
     }
 

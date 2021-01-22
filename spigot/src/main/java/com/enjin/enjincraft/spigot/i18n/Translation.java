@@ -56,6 +56,7 @@ public enum Translation {
     COMMAND_LINK_INSTRUCTIONS_5("&7Select the wallet you wish to link"),
     COMMAND_LINK_INSTRUCTIONS_6("&7Enter the identity linking code shown below"),
     COMMAND_LINK_INSTRUCTIONS_7("&aLink Code: &6%s"),
+    COMMAND_LINK_SUCCESS("&aYour account has been linked to wallet address &6%s"),
 
     COMMAND_DEVSEND_DESCRIPTION("Send a token from the developer wallet to a player."),
     COMMAND_DEVSEND_INVALIDAMOUNT("&cA valid amount to send must be specified."),
