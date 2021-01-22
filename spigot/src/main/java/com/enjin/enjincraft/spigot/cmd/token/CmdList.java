@@ -40,8 +40,8 @@ public class CmdList extends EnjCommand {
     }
 
     private void listBaseTokens(CommandSender sender) {
-        Set<String> ids = bootstrap.getTokenManager().getTokenIds();
-        if (ids.isEmpty()) {
+        Set<TokenModel> tokens = bootstrap.getTokenManager().getTokens();
+        if (tokens.isEmpty()) {
             Translation.COMMAND_TOKEN_LIST_EMPTY.send(sender);
             return;
         }
@@ -49,10 +49,9 @@ public class CmdList extends EnjCommand {
         MessageUtils.sendString(sender,
                 ChatColor.GREEN + Translation.COMMAND_TOKEN_LIST_HEADER_TOKENS.translation());
         int count = 0;
-        for (String id : ids) {
-            MessageUtils.sendString(sender, String.format("&a%d: &6%s",
-                    count++,
-                    id));
+        for (TokenModel token : tokens) {
+            MessageUtils.sendString(sender, String.format("&a%d: &6%s &7(&6%s&7)",
+                    count++, token.getId(), token.getAlternateId()));
         }
     }
 
