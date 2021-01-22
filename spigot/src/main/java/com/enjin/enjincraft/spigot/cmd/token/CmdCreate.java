@@ -14,10 +14,14 @@ import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.token.TokenManager;
 import com.enjin.enjincraft.spigot.token.TokenModel;
 import com.enjin.enjincraft.spigot.util.TokenUtils;
+import com.enjin.sdk.graphql.GraphQLResponse;
+import com.enjin.sdk.models.token.GetToken;
+import com.enjin.sdk.models.token.Token;
 import de.tr7zw.changeme.nbtapi.NBTContainer;
 import de.tr7zw.changeme.nbtapi.NBTItem;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.conversations.Conversable;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationAbandonedEvent;
 import org.bukkit.entity.Player;
@@ -31,6 +35,7 @@ public class CmdCreate extends EnjCommand {
     public CmdCreate(EnjCommand parent) {
         super(parent);
         this.aliases.add("create");
+        this.requiredArgs.add("token-id");
         this.requirements = CommandRequirements.builder()
                 .withPermission(Permission.CMD_TOKEN_CREATE)
                 .withAllowedSenderTypes(SenderType.PLAYER)
@@ -48,18 +53,42 @@ public class CmdCreate extends EnjCommand {
             return;
         }
 
-        // Setup Conversation
-        Conversations conversations = new Conversations(bootstrap.plugin());
-        Conversation conversation = conversations.startTokenCreationConversation(sender);
-        conversation.addConversationAbandonedListener(this::execute);
-        conversation.getContext().setSessionData("sender", sender);
-        conversation.getContext().setSessionData("nbt-item", NBTItem.convertItemtoNBT(sender.getInventory().getItemInMainHand()));
-        conversation.begin();
+        String id = context.args().get(0);
+        TokenManager tm = bootstrap.getTokenManager();
+        TokenModel model = tm.getToken(id);
+
+        if (model == null) {
+            bootstrap().getTrustedPlatformClient().getTokenService().getTokenAsync(new GetToken().tokenId(id), res -> {
+                if (res.isEmpty())
+                    return;
+
+                GraphQLResponse<Token> resGql = res.body();
+                if (!resGql.isSuccess())
+                    return;
+
+                Token token = resGql.getData();
+                Bukkit.getScheduler().runTask(bootstrap.plugin(), () -> startConversation(sender, held, id, token.getNonFungible(), false));
+            });
+        } else {
+            startConversation(sender, held, model.getId(), model.isNonfungible(), true);
+        }
     }
 
     @Override
     public Translation getUsageTranslation() {
         return Translation.COMMAND_TOKEN_CREATE_DESCRIPTION;
+    }
+
+    public void startConversation(Conversable sender, ItemStack ref, String id, boolean nft, boolean baseExists) {
+        // Setup Conversation
+        Conversations conversations = new Conversations(bootstrap.plugin(), nft, baseExists);
+        Conversation conversation = conversations.startTokenCreationConversation(sender);
+        conversation.addConversationAbandonedListener(this::execute);
+        conversation.getContext().setSessionData("sender", sender);
+        conversation.getContext().setSessionData("nbt-item", NBTItem.convertItemtoNBT(ref));
+        conversation.getContext().setSessionData(TokenTypePrompt.KEY, nft);
+        conversation.getContext().setSessionData(TokenIdPrompt.KEY, id);
+        conversation.begin();
     }
 
     public void execute(ConversationAbandonedEvent event) {
