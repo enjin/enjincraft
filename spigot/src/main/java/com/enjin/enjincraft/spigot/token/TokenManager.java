@@ -509,6 +509,15 @@ public class TokenManager {
 
             if (tokenModel.getAlternateId() != null)
                 alternateIds.remove(tokenModel.getAlternateId());
+
+            if (tokenModel.isNonfungible()) {
+                for (TokenModel other : new ArrayList<>(tokenModels.values())) {
+                    if (other.getId().equals(tokenModel.getId()) && tokenModel.isNonFungibleInstance()) {
+                        other.setMarkedForDeletion(true);
+                        uncacheAndUnsubscribe(other);
+                    }
+                }
+            }
         }
     }
 

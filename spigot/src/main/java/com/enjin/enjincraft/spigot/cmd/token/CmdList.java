@@ -50,6 +50,8 @@ public class CmdList extends EnjCommand {
                 ChatColor.GREEN + Translation.COMMAND_TOKEN_LIST_HEADER_TOKENS.translation());
         int count = 0;
         for (TokenModel token : tokens) {
+            if (token.isNonFungibleInstance())
+                continue;
             MessageUtils.sendString(sender, String.format("&a%d: &6%s &7(&6%s&7)",
                     count++, token.getId(), token.getAlternateId()));
         }
