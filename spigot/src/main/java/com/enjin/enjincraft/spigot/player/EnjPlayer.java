@@ -35,6 +35,7 @@ import org.bukkit.inventory.*;
 
 import java.awt.*;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.*;
 
@@ -993,6 +994,18 @@ public class EnjPlayer implements Listener {
         return wallet == null
                 ? BigDecimal.ZERO
                 : wallet.getEnjAllowance();
+    }
+
+    public boolean hasAllowance() {
+        return wallet != null && wallet.getEnjAllowance().compareTo(BigDecimal.ZERO) > 0;
+    }
+
+    public boolean hasEth() {
+        return wallet != null && wallet.getEthBalance().compareTo(BigDecimal.ZERO) > 0;
+    }
+
+    public boolean canSend() {
+        return hasAllowance() && hasEth();
     }
 
     public TokenWallet getTokenWallet() {

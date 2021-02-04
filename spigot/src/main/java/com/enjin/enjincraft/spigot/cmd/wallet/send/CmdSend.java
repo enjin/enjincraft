@@ -14,10 +14,12 @@ import com.enjin.enjincraft.spigot.util.TokenUtils;
 import com.enjin.enjincraft.spigot.wallet.MutableBalance;
 import com.enjin.sdk.TrustedPlatformClient;
 import com.enjin.sdk.graphql.GraphQLResponse;
+import com.enjin.sdk.http.HttpResponse;
 import com.enjin.sdk.models.request.CreateRequest;
 import com.enjin.sdk.models.request.Transaction;
 import com.enjin.sdk.models.request.data.SendTokenData;
 import org.bukkit.Material;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -72,7 +74,7 @@ public class CmdSend extends EnjCommand {
             return;
         }
 
-        String tokenId    = TokenUtils.getTokenID(is);
+        String tokenId = TokenUtils.getTokenID(is);
         String tokenIndex = TokenUtils.getTokenIndex(is);
 
         MutableBalance balance = senderEnjPlayer.getTokenWallet().getBalance(tokenId, tokenIndex);
@@ -84,7 +86,12 @@ public class CmdSend extends EnjCommand {
         balance.deposit(is.getAmount());
         sender.getInventory().clear(sender.getInventory().getHeldItemSlot());
 
-        if (BigInteger.ZERO.equals(senderEnjPlayer.getEnjAllowance())) {
+        if (!senderEnjPlayer.hasEth()) {
+            Translation.WALLET_NOTENOUGHETH.send(sender);
+            return;
+        }
+
+        if (!senderEnjPlayer.hasAllowance()) {
             Translation.WALLET_ALLOWANCENOTSET.send(sender);
             return;
         }
@@ -95,38 +102,41 @@ public class CmdSend extends EnjCommand {
     private void send(Player sender, int senderId, int targetId, String tokenId, String tokenIndex, int amount) {
         SendTokenData sendTokenData = tokenIndex == null
                 ? SendTokenData.builder()
-                               .recipientIdentityId(targetId)
-                               .tokenId(tokenId)
-                               .value(amount)
-                               .build()
+                .recipientIdentityId(targetId)
+                .tokenId(tokenId)
+                .value(amount)
+                .build()
                 : SendTokenData.builder()
-                               .recipientIdentityId(targetId)
-                               .tokenId(tokenId)
-                               .tokenIndex(tokenIndex)
-                               .value(amount)
-                               .build();
+                .recipientIdentityId(targetId)
+                .tokenId(tokenId)
+                .tokenIndex(tokenIndex)
+                .value(amount)
+                .build();
 
         TrustedPlatformClient client = bootstrap.getTrustedPlatformClient();
         client.getRequestService().createRequestAsync(new CreateRequest()
                         .appId(client.getAppId())
                         .identityId(senderId)
                         .sendToken(sendTokenData),
-                networkResponse -> {
-                    if (!networkResponse.isSuccess()) {
-                        NetworkException exception = new NetworkException(networkResponse.code());
-                        Translation.ERRORS_EXCEPTION.send(sender, exception.getMessage());
-                        throw exception;
-                    }
+                res -> handleNetworkRequest(sender, res));
+    }
 
-                    GraphQLResponse<Transaction> graphQLResponse = networkResponse.body();
-                    if (!graphQLResponse.isSuccess()) {
-                        GraphQLException exception = new GraphQLException(graphQLResponse.getErrors());
-                        Translation.ERRORS_EXCEPTION.send(sender, exception.getMessage());
-                        throw exception;
-                    }
+    private void handleNetworkRequest(CommandSender sender, HttpResponse<GraphQLResponse<Transaction>> res) {
+        if (!res.isEmpty()) {
+            GraphQLResponse<Transaction> gql = res.body();
 
-                    Translation.COMMAND_SEND_SUBMITTED.send(sender);
-                });
+            if (gql.hasErrors()) {
+                GraphQLException exception = new GraphQLException(gql.getErrors());
+                Translation.ERRORS_EXCEPTION.send(sender, exception.getMessage());
+                return;
+            }
+
+            Translation.COMMAND_SEND_SUBMITTED.send(sender);
+        } else if (!res.isSuccess()) {
+            NetworkException exception = new NetworkException(res.code());
+            Translation.ERRORS_EXCEPTION.send(sender, exception.getMessage());
+            throw exception;
+        }
     }
 
     @Override

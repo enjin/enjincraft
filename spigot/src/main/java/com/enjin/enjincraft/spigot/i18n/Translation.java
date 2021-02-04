@@ -192,7 +192,9 @@ public enum Translation {
     WALLET_UI_NONFUNGIBLE("Go To Non-Fungible"),
     WALLET_NOTLINKED_SELF("&cYou have not linked a wallet to your identity."),
     WALLET_NOTLINKED_OTHER("&6%s &chas not linked a wallet."),
-    WALLET_ALLOWANCENOTSET("&cYou must confirm the approve request in your wallet before you can send or trade tokens.");
+    WALLET_ALLOWANCENOTSET("&cYou must confirm the approve request in your wallet before you can send or trade tokens."),
+    WALLET_NOTENOUGHETH("&cYou do not have enough eth to send tokens."),
+    WALLET_OTHERNOTENOUGHETH("&c%s does not have enough eth to send tokens.");
 
     private static final Logger LOGGER = Logger.getLogger("EnjinCraft");
     public static final Locale DEFAULT_LOCALE = Locale.en_US;
