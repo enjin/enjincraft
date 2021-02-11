@@ -5,7 +5,9 @@ import com.enjin.enjincraft.spigot.NetworkException;
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
 import com.enjin.sdk.graphql.GraphQLResponse;
 import com.enjin.sdk.http.HttpResponse;
-import com.enjin.sdk.models.request.*;
+import com.enjin.sdk.models.request.GetRequests;
+import com.enjin.sdk.models.request.Transaction;
+import com.enjin.sdk.models.request.TransactionState;
 import com.enjin.sdk.models.token.event.TokenEvent;
 import com.enjin.sdk.models.token.event.TokenEventType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -15,8 +17,8 @@ import java.util.List;
 
 public class TradeUpdateTask extends BukkitRunnable {
 
-    private SpigotBootstrap bootstrap;
-    private List<TradeSession> tradeSessions;
+    private final SpigotBootstrap bootstrap;
+    private final List<TradeSession> tradeSessions;
 
     public TradeUpdateTask(SpigotBootstrap bootstrap) throws SQLException {
         this.bootstrap = bootstrap;
@@ -33,14 +35,12 @@ public class TradeUpdateTask extends BukkitRunnable {
             }
 
             TradeSession session = tradeSessions.remove(0);
-
             if (session.isExpired()) {
                 bootstrap.getTradeManager().cancelTrade(session.getMostRecentRequestId());
                 return;
             }
 
             List<Transaction> data = getMostRecentTransaction(session);
-
             if (data.isEmpty())
                 return;
 
@@ -56,12 +56,10 @@ public class TradeUpdateTask extends BukkitRunnable {
                         .requestId(session.getMostRecentRequestId())
                         .withEvents()
                         .withState());
-
         if (!networkResponse.isSuccess())
             throw new NetworkException(networkResponse.code());
 
         GraphQLResponse<List<Transaction>> graphQLResponse = networkResponse.body();
-
         if (!graphQLResponse.isSuccess())
             throw new GraphQLException(graphQLResponse.getErrors());
 
@@ -73,19 +71,18 @@ public class TradeUpdateTask extends BukkitRunnable {
             return null;
 
         List<TokenEvent> events = transaction.getEvents();
-
         if (events == null)
             return null;
 
         return events.stream()
                 .filter(e -> e.getEvent() == TokenEventType.CREATE_TRADE
                         || e.getEvent() == TokenEventType.COMPLETE_TRADE)
-                .findFirst().orElse(null);
+                .findFirst()
+                .orElse(null);
     }
 
     private void processTransaction(TradeSession session, Transaction transaction) {
         TransactionState state = transaction.getState();
-
         if (state == TransactionState.CANCELED_USER || state == TransactionState.CANCELED_PLATFORM) {
             bootstrap.getTradeManager().cancelTrade(transaction.getId());
             return;
@@ -93,12 +90,19 @@ public class TradeUpdateTask extends BukkitRunnable {
             return;
         }
 
-        TokenEvent event =  getTokenEvent(transaction);
-        TokenEventType type = event == null ? null : event.getEvent();
-
-        if (type == TokenEventType.CREATE_TRADE)
-            bootstrap.getTradeManager().sendCompleteRequest(session, event.getParam1());
-        else if (type == TokenEventType.COMPLETE_TRADE)
-            bootstrap.getTradeManager().completeTrade(session);
+        TokenEvent     event =  getTokenEvent(transaction);
+        TokenEventType type  = event == null
+                ? TokenEventType.UNKNOWN_EVENT
+                : event.getEvent();
+        switch (type) {
+            case CREATE_TRADE:
+                bootstrap.getTradeManager().sendCompleteRequest(session, event.getParam1());
+                break;
+            case COMPLETE_TRADE:
+                bootstrap.getTradeManager().completeTrade(session);
+                break;
+            default:
+                break;
+        }
     }
 }

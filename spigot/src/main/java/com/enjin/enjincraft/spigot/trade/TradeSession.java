@@ -17,18 +17,18 @@ public class TradeSession {
 
     private static final long LIFETIME = TimeUnit.DAYS.toSeconds(5);
 
-    private int id;
-    private int createRequestId;
-    private int completeRequestId;
-    private String tradeId;
-    private UUID inviterUuid;
-    private int inviterIdentityId;
-    private String inviterEthAddr;
-    private UUID invitedUuid;
-    private int invitedIdentityId;
-    private String invitedEthAddr;
-    private OffsetDateTime createdAt;
-    private TradeState state;
+    private final int id;
+    private final int createRequestId;
+    private final int completeRequestId;
+    private final String tradeId;
+    private final UUID inviterUuid;
+    private final int inviterIdentityId;
+    private final String inviterEthAddr;
+    private final UUID invitedUuid;
+    private final int invitedIdentityId;
+    private final String invitedEthAddr;
+    private final OffsetDateTime createdAt;
+    private final TradeState state;
 
     public TradeSession(ResultSet rs) throws SQLException {
         id = rs.getInt("id");

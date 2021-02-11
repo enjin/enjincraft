@@ -7,7 +7,7 @@ import java.util.List;
 
 public class Conf {
 
-    private Configuration internalConf;
+    private final Configuration internalConf;
 
     public Conf(Configuration internalConf) {
         this.internalConf = internalConf;
@@ -25,8 +25,8 @@ public class Conf {
         return internalConf.getString(ConfPath.APP_SECRET.path());
     }
 
-    public int getDevIdentityId() {
-        return internalConf.getInt(ConfPath.DEV_IDENTITY_ID.path());
+    public String getDevAddress() {
+        return internalConf.getString(ConfPath.DEV_ADDRESS.path());
     }
 
     public String getLocaleAsString() {
@@ -41,6 +41,10 @@ public class Conf {
         return internalConf.getStringList(ConfPath.PERMISSION_BLACKLIST.path());
     }
 
+    public List<String> getLinkPermissions() {
+        return internalConf.getStringList(ConfPath.LINK_PERMISSIONS.path());
+    }
+
     public void setLocale(Locale locale) {
         internalConf.set(ConfPath.LOCALE.path(), locale.locale());
     }
@@ -51,6 +55,10 @@ public class Conf {
 
     public boolean isPluginDebugEnabled() {
         return internalConf.getBoolean(ConfPath.DEBUG_PLUGIN.path());
+    }
+
+    public boolean isIdLoreEnabled() {
+        return internalConf.getBoolean(ConfPath.SHOW_ID_LORE.path(), false);
     }
 
     public String getSentryUrl() {

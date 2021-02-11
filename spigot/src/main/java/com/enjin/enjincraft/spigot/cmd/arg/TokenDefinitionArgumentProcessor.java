@@ -6,7 +6,6 @@ import com.enjin.enjincraft.spigot.token.TokenModel;
 import org.bukkit.command.CommandSender;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -16,7 +15,7 @@ public class TokenDefinitionArgumentProcessor extends AbstractArgumentProcessor<
 
     @Override
     public List<String> tab(CommandSender sender, String arg) {
-        String    lowerCaseArg = arg.toLowerCase();
+        String       lowerCaseArg = arg.toLowerCase();
         TokenManager tokenManager = EnjinCraft.bootstrap().get().getTokenManager();
         return tokenManager.getTokenIds().stream()
                 .filter(id -> id.toLowerCase().startsWith(lowerCaseArg))

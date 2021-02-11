@@ -1,10 +1,11 @@
 package com.enjin.enjincraft.spigot.util;
 
-import net.kyori.text.TextComponent;
-import net.kyori.text.adapter.bukkit.TextAdapter;
-import net.kyori.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  * <p>Message related operations.</p>
@@ -18,7 +19,8 @@ import org.bukkit.command.CommandSender;
 public class MessageUtils {
 
     @SuppressWarnings("deprecation")
-    public static final LegacyComponentSerializer LEGACY_COMPONENT_SERIALIZER = LegacyComponentSerializer.INSTANCE;
+    public static final BukkitAudiences AUDIENCES = BukkitAudiences.create(JavaPlugin.getProvidingPlugin(MessageUtils.class));
+    public static final LegacyComponentSerializer LEGACY_COMPONENT_SERIALIZER = LegacyComponentSerializer.legacy('&');
     public static final char TEXT_FORMAT_TOKEN = '&';
     public static final String PLUGIN_PREFIX = "&7[&EnjinCraft&7]";
 
@@ -41,7 +43,7 @@ public class MessageUtils {
     }
 
     public static void logComponent(TextComponent component) {
-        TextAdapter.sendComponent(Bukkit.getConsoleSender(), component);
+        AUDIENCES.console().sendMessage(component);
     }
 
     public static void logComponents(TextComponent... components) {
@@ -59,7 +61,7 @@ public class MessageUtils {
     public static void sendString(CommandSender sender, String message) {
         if (sender == null || message == null)
             return;
-        TextComponent component = LEGACY_COMPONENT_SERIALIZER.deserialize(message, TEXT_FORMAT_TOKEN);
+        TextComponent component = LEGACY_COMPONENT_SERIALIZER.deserialize(message);
         sendComponent(sender, component);
     }
 
@@ -76,7 +78,7 @@ public class MessageUtils {
     public static void sendComponent(CommandSender sender, TextComponent component) {
         if (sender == null || component == null)
             return;
-        TextAdapter.sendComponent(sender, component);
+        AUDIENCES.sender(sender).sendMessage(component);
     }
 
     public static void sendComponents(CommandSender sender, TextComponent... components) {

@@ -23,16 +23,12 @@ public class PlayerArgumentProcessor extends AbstractArgumentProcessor<Player> {
 
     @Override
     public Optional<Player> parse(CommandSender sender, String arg) {
-        Optional<Player> result = Optional.empty();
-
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (player.getName().equalsIgnoreCase(arg) || player.getUniqueId().toString().equalsIgnoreCase(arg)) {
-                result = Optional.of(player);
-                break;
-            }
+            if (player.getName().equalsIgnoreCase(arg) || player.getUniqueId().toString().equalsIgnoreCase(arg))
+                return Optional.of(player);
         }
 
-        return result;
+        return Optional.empty();
     }
 
 }

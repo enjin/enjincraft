@@ -12,6 +12,7 @@ public enum Permission {
     CMD_CONF_SET("conf.set"),
     CMD_TOKEN("token"),
     CMD_TOKEN_CREATE("token.create"),
+    CMD_TOKEN_CREATENFT("token.createnft"),
     CMD_TOKEN_ADDPERM("token.addperm"),
     CMD_TOKEN_REVOKEPERM("token.revokeperm"),
     CMD_TRADE("trade"),
@@ -21,7 +22,7 @@ public enum Permission {
     CMD_UNLINK("unlink"),
     CMD_WALLET("wallet");
 
-    private String node;
+    private final String node;
 
     Permission(String node) {
         this.node = String.format("enjincraft.%s", node);

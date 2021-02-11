@@ -1,29 +1,16 @@
 package com.enjin.enjincraft.spigot.player;
 
-import com.enjin.enjincraft.spigot.util.ReflectionUtils;
-import lombok.SneakyThrows;
 import org.bukkit.permissions.Permissible;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.plugin.Plugin;
 
-import java.lang.reflect.Field;
 import java.util.Collection;
-import java.util.Map;
 
 public class EnjPermissionAttachment {
 
-    private static final Field permissionsField;
-
-    static {
-        Class<?> clazz = PermissionAttachment.class;
-        permissionsField = ReflectionUtils.getDeclaredField(clazz,"permissions");
-        permissionsField.setAccessible(true);
-    }
-
-    private Permissible permissible;
-    private Plugin plugin;
+    private final Permissible permissible;
+    private final Plugin plugin;
     private PermissionAttachment attachment;
-    private Map<String, Boolean> permissions;
 
     public EnjPermissionAttachment(Permissible permissible, Plugin plugin) {
         this.permissible = permissible;
@@ -32,7 +19,7 @@ public class EnjPermissionAttachment {
     }
 
     public boolean hasPermission(String permission) {
-        return permissions.containsKey(permission);
+        return attachment.getPermissions().containsKey(permission);
     }
 
     public void addPermissions(Collection<String> permissions) {
@@ -50,13 +37,11 @@ public class EnjPermissionAttachment {
         attachment.unsetPermission(permission);
     }
 
-    @SneakyThrows
     public void clear() {
         if (attachment != null)
             attachment.remove();
 
         attachment = permissible.addAttachment(plugin);
-        permissions = (Map<String, Boolean>) permissionsField.get(attachment);
     }
 
 }

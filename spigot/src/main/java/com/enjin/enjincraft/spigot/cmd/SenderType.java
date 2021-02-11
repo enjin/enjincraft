@@ -1,6 +1,9 @@
 package com.enjin.enjincraft.spigot.cmd;
 
-import org.bukkit.command.*;
+import org.bukkit.command.BlockCommandSender;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.command.RemoteConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 public enum SenderType {
@@ -11,7 +14,7 @@ public enum SenderType {
     PLAYER(Player.class),
     ANY(CommandSender.class);
 
-    private Class<? extends CommandSender> instanceSuperClass;
+    private final Class<? extends CommandSender> instanceSuperClass;
 
     SenderType(Class<? extends CommandSender> instanceSuperClass) {
         this.instanceSuperClass = instanceSuperClass;

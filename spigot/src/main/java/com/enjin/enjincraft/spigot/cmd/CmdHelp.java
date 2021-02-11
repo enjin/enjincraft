@@ -1,14 +1,13 @@
 package com.enjin.enjincraft.spigot.cmd;
 
-import com.enjin.enjincraft.spigot.SpigotBootstrap;
 import com.enjin.enjincraft.spigot.enums.Permission;
 import com.enjin.enjincraft.spigot.i18n.Translation;
 import org.bukkit.command.CommandSender;
 
 public class CmdHelp extends EnjCommand {
 
-    public CmdHelp(SpigotBootstrap bootstrap, EnjCommand parent) {
-        super(bootstrap, parent);
+    public CmdHelp(EnjCommand parent) {
+        super(parent);
         this.aliases.add("help");
         this.aliases.add("h");
         this.requirements = CommandRequirements.builder()

@@ -1,17 +1,22 @@
 package com.enjin.enjincraft.spigot.cmd;
 
 import com.enjin.enjincraft.spigot.SpigotBootstrap;
-import com.enjin.enjincraft.spigot.enums.Usage;
-import com.enjin.enjincraft.spigot.enums.VeryifyRequirements;
 import com.enjin.enjincraft.spigot.enums.CommandProcess;
 import com.enjin.enjincraft.spigot.enums.MessageAction;
+import com.enjin.enjincraft.spigot.enums.Usage;
+import com.enjin.enjincraft.spigot.enums.VeryifyRequirements;
 import com.enjin.enjincraft.spigot.i18n.Translation;
+import com.enjin.enjincraft.spigot.player.EnjPlayer;
 import com.enjin.enjincraft.spigot.util.MessageUtils;
 import com.enjin.enjincraft.spigot.util.TextUtil;
+import lombok.NonNull;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -25,7 +30,7 @@ public abstract class EnjCommand {
     protected List<String> optionalArgs;
     protected CommandRequirements requirements;
 
-    public EnjCommand(SpigotBootstrap bootstrap, EnjCommand parent) {
+    protected EnjCommand(SpigotBootstrap bootstrap, EnjCommand parent) {
         this.bootstrap = bootstrap;
         this.parent = Optional.ofNullable(parent);
         this.aliases = new ArrayList<>();
@@ -39,6 +44,10 @@ public abstract class EnjCommand {
 
     public EnjCommand(SpigotBootstrap bootstrap) {
         this(bootstrap, null);
+    }
+
+    public EnjCommand(EnjCommand parent) {
+        this(parent.bootstrap, parent);
     }
 
     public abstract void execute(CommandContext context);
@@ -77,6 +86,7 @@ public abstract class EnjCommand {
     public void showHelp(CommandSender sender, VeryifyRequirements verifyRequirements, Usage usage) {
         if (verifyRequirements == VeryifyRequirements.YES && !requirements.areMet(sender, MessageAction.OMIT))
             return;
+
         MessageUtils.sendString(sender, getUsage(SenderType.type(sender), usage));
     }
 
@@ -84,6 +94,7 @@ public abstract class EnjCommand {
         String output = buildUsage(type, usage);
         if (type != SenderType.PLAYER)
             output = output.replaceFirst("/", "");
+
         return output;
     }
 
@@ -95,8 +106,10 @@ public abstract class EnjCommand {
         List<EnjCommand> commandStack = CommandContext.createCommandStackAsList(this);
         for (int i = 0; i < commandStack.size(); i++) {
             EnjCommand command = commandStack.get(i);
+
             if (i > 0)
                 builder.append(' ');
+
             builder.append(TextUtil.concat(command.aliases, ","));
         }
 
@@ -131,6 +144,7 @@ public abstract class EnjCommand {
                 for (EnjCommand subCommand : subCommands) {
                     if (!subCommand.aliases.contains(context.args.get(0).toLowerCase()))
                         continue;
+
                     context.args.remove(0);
                     context.commandStack.push(this);
                     subCommand.process(context, process);
@@ -138,16 +152,14 @@ public abstract class EnjCommand {
                 }
             }
 
-            if (process == CommandProcess.EXECUTE) {
+            if (process == CommandProcess.EXECUTE)
                 execute(context);
-            } else {
+            else
                 context.tabCompletionResult = tab0(context);
-            }
         } catch (Exception ex) {
             bootstrap.log(ex);
             Translation.ERRORS_EXCEPTION.send(context.sender, ex.getMessage());
         }
-
     }
 
     protected void addSubCommand(EnjCommand subCommand) {
@@ -167,6 +179,54 @@ public abstract class EnjCommand {
         }
 
         return result;
+    }
+
+    protected EnjPlayer getValidSenderEnjPlayer(@NonNull CommandContext context) throws NullPointerException {
+        Player sender = Objects.requireNonNull(context.player, "Expected context to have non-null player as sender");
+
+        EnjPlayer senderEnjPlayer = context.enjPlayer;
+        if (senderEnjPlayer == null) {
+            Translation.ERRORS_PLAYERNOTREGISTERED.send(sender, sender.getName());
+            return null;
+        } else if (!senderEnjPlayer.isLinked()) {
+            Translation.WALLET_NOTLINKED_SELF.send(sender);
+            return null;
+        }
+
+        return senderEnjPlayer;
+    }
+
+    protected Player getValidTargetPlayer(@NonNull CommandContext context, @NonNull String targetName) {
+        Player targetPlayer = Bukkit.getPlayer(targetName);
+        if (targetPlayer == null || !targetPlayer.isOnline()) {
+            Translation.ERRORS_PLAYERNOTONLINE.send(context.sender, targetName);
+            return null;
+        } else if (context.player != null && context.player == targetPlayer) {
+            Translation.ERRORS_CHOOSEOTHERPLAYER.send(context.sender);
+            return null;
+        }
+
+        return targetPlayer;
+    }
+
+    protected EnjPlayer getValidTargetEnjPlayer(@NonNull CommandContext context,
+                                                @NonNull Player targetPlayer) throws NullPointerException {
+        EnjPlayer targetEnjPlayer = bootstrap.getPlayerManager()
+                .getPlayer(targetPlayer)
+                .orElse(null);
+        if (targetEnjPlayer == null) {
+            Translation.ERRORS_PLAYERNOTREGISTERED.send(context.sender, targetPlayer.getName());
+            return null;
+        } else if (!targetEnjPlayer.isLinked()) {
+            Translation.WALLET_NOTLINKED_OTHER.send(context.sender, targetPlayer.getName());
+            return null;
+        }
+
+        return targetEnjPlayer;
+    }
+
+    public SpigotBootstrap bootstrap() {
+        return bootstrap;
     }
 
 }

@@ -12,7 +12,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 public final class UiUtils {
 
     private UiUtils() {
-        throw new IllegalStateException();
+        throw new IllegalStateException("Utility class");
     }
 
     public static Component createSeparator(Dimension dimension) {
@@ -27,11 +27,14 @@ public final class UiUtils {
     }
 
     public static ItemStack createSeparatorItemStack() {
-        ItemStack stack = new ItemStack(Material.IRON_BARS);
-        ItemMeta meta = stack.getItemMeta();
-        meta.setDisplayName(ChatColor.DARK_PURPLE + "|");
-        stack.setItemMeta(meta);
-        return stack;
+        ItemStack is   = new ItemStack(Material.IRON_BARS);
+        ItemMeta  meta = is.getItemMeta();
+        if (meta != null) {
+            meta.setDisplayName(ChatColor.DARK_PURPLE + "|");
+            is.setItemMeta(meta);
+        }
+
+        return is;
     }
 
 }

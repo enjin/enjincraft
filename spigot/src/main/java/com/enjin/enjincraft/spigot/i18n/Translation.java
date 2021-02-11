@@ -13,7 +13,6 @@ import org.bukkit.plugin.Plugin;
 
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -57,6 +56,7 @@ public enum Translation {
     COMMAND_LINK_INSTRUCTIONS_5("&7Select the wallet you wish to link"),
     COMMAND_LINK_INSTRUCTIONS_6("&7Enter the identity linking code shown below"),
     COMMAND_LINK_INSTRUCTIONS_7("&aLink Code: &6%s"),
+    COMMAND_LINK_SUCCESS("&aYour account has been linked to wallet address &6%s"),
 
     COMMAND_DEVSEND_DESCRIPTION("Send a token from the developer wallet to a player."),
     COMMAND_DEVSEND_INVALIDAMOUNT("&cA valid amount to send must be specified."),
@@ -75,13 +75,23 @@ public enum Translation {
     COMMAND_CONF_SET_LANG_SUCCESS("&aYou have set the server language to &6%s!"),
 
     COMMAND_TOKEN_DESCRIPTION("Perform operations on token definitions."),
-    COMMAND_TOKEN_CREATE_DESCRIPTION("Add a token definition for the held item and provided id to the config."),
+    COMMAND_TOKEN_CREATE_DESCRIPTION("Add a fungible token definition for the held item and provided id to the config."),
     COMMAND_TOKEN_CREATE_SUCCESS("&aToken created."),
     COMMAND_TOKEN_CREATE_FAILED("&cToken was not created."),
     COMMAND_TOKEN_CREATE_DUPLICATE("&cToken id already exists."),
+    COMMAND_TOKEN_CREATENFT_DESCRIPTION("Add a non-fungible token definition for the held item provided id and index to the config."),
+    COMMAND_TOKEN_CREATENFT_BASEFAILED("&cUnable to create the non-fungible base token."),
+    COMMAND_TOKEN_CREATENFT_DUPLICATE("&cToken id and index already exists."),
+    COMMAND_TOKEN_CREATENFT_REPLACENICKNAME("&cCannot replace token nickname on creation."),
+    COMMAND_TOKEN_CREATENFT_MISSINGBASE("&cBase NFT does not exist."),
     COMMAND_TOKEN_UPDATE_DESCRIPTION("Update a token's definition with the held item and the token's id."),
     COMMAND_TOKEN_UPDATE_SUCCESS("&aToken updated."),
     COMMAND_TOKEN_UPDATE_FAILED("&cToken was not updated."),
+    COMMAND_TOKEN_DELETE_DESCRIPTION("Deletes a token's definition &cforever&f."),
+    COMMAND_TOKEN_DELETE_SUCCESS("&aToken deleted."),
+    COMMAND_TOKEN_DELETE_FAILED("&cToken was not deleted."),
+    COMMAND_TOKEN_DELETE_BASENFT_1("&cNon-fungible base cannot be deleted while instances of it still exist."),
+    COMMAND_TOKEN_DELETE_BASENFT_2("&cUse &6'/enj token list <id>' &cto see its instances."),
     COMMAND_TOKEN_TOINV_DESCRIPTION("Add a non-tokenized copy of the token to your inventory."),
     COMMAND_TOKEN_TOINV_SUCCESS("&aThe item was added to your inventory."),
     COMMAND_TOKEN_TOINV_FAILED("&cNo space in inventory to add the item to."),
@@ -89,15 +99,54 @@ public enum Translation {
     COMMAND_TOKEN_NICKNAME_SUCCESS("&aToken nickname added."),
     COMMAND_TOKEN_NICKNAME_DUPLICATE("&cToken nickname already exists."),
     COMMAND_TOKEN_NICKNAME_HAS("&cThe token already has the nickname."),
+    COMMAND_TOKEN_NICKNAME_INVALID("&cInvalid nickname."),
     COMMAND_TOKEN_ADDPERM_DESCRIPTION("Add a permission to a token by referencing the token's id."),
     COMMAND_TOKEN_ADDPERM_PERMADDED("&aPermission added to token."),
     COMMAND_TOKEN_ADDPERM_PERMREJECTED("&cPermission is blacklisted for tokens."),
     COMMAND_TOKEN_ADDPERM_DUPLICATEPERM("&cPermission already on token."),
+    COMMAND_TOKEN_ADDPERMNFT_DESCRIPTION("Add a permission to a non-fungible token by referencing its id and index."),
     COMMAND_TOKEN_REVOKEPERM_DESCRIPTION("Remove a permission from a token by referencing the token's id."),
     COMMAND_TOKEN_REVOKEPERM_PERMREVOKED("&aPermission removed from token."),
     COMMAND_TOKEN_REVOKEPERM_PERMNOTONTOKEN("&cPermission not found on token."),
+    COMMAND_TOKEN_REVOKEPERMNFT_DESCRIPTION("Remove a permission from a non-fungible token by referencing its id and index."),
+    COMMAND_TOKEN_PERM_ISGLOBAL("&cPermission is global."),
+    COMMAND_TOKEN_GETURI_DESCRIPTION("Retrieves the token's metadata URI from the platform and sets it for the token."),
+    COMMAND_TOKEN_GETURI_SUCCESS("&aMetadata URI set for token."),
+    COMMAND_TOKEN_GETURI_FAILED("&cMetadata URI was not set for the token."),
+    COMMAND_TOKEN_GETURI_EMPTY_1("&cToken has no metadata URI set on the platform."),
+    COMMAND_TOKEN_GETURI_EMPTY_2("&cUse &6'/enj token removeuri' &cto remove any metadata URI."),
+    COMMAND_TOKEN_REMOVEURI_DESCRIPTION("Removes the token's metadata URI."),
+    COMMAND_TOKEN_REMOVEURI_SUCCESS("&aMetadata URI removed from token."),
+    COMMAND_TOKEN_REMOVEURI_FAILED("&cMetadata URI was not removed from the token."),
+    COMMAND_TOKEN_REMOVEURI_EMPTY("&cToken has no metadata URI set."),
+    COMMAND_TOKEN_SETWALLETVIEW_DESCRIPTION("Sets a token's view and retrieval state within the wallet."),
+    COMMAND_TOKEN_SETWALLETVIEW_INVALIDVIEW("&cNot a valid view state."),
+    COMMAND_TOKEN_SETWALLETVIEW_HAS("&cToken is already set to the view state."),
+    COMMAND_TOKEN_LIST_DESCRIPTION("Lists the tokens specified."),
+    COMMAND_TOKEN_LIST_EMPTY("&aFound no tokens."),
+    COMMAND_TOKEN_LIST_HEADER_TOKENS("Token(s)"),
+    COMMAND_TOKEN_LIST_HEADER_NONFUNGIBLE("Non-Fungible Token(s)"),
+    COMMAND_TOKEN_EXPORT_DESCRIPTION("Exports token configurations to file."),
+    COMMAND_TOKEN_EXPORT_COMPLETE("&aExport complete."),
+    COMMAND_TOKEN_EXPORT_SUCCESS("&aExported all tokens."),
+    COMMAND_TOKEN_EXPORT_EMPTY("&cThere are no tokens to export."),
+    COMMAND_TOKEN_EXPORT_FAILED("&cCould not export token(s)."),
+    COMMAND_TOKEN_EXPORT_PARTIAL("&cFailed to export one or more tokens."),
+    COMMAND_TOKEN_IMPORT_DESCRIPTION("Imports token configurations from file."),
+    COMMAND_TOKEN_IMPORT_COMPLETE("&aImport complete."),
+    COMMAND_TOKEN_IMPORT_SUCCESS("&aImported all tokens."),
+    COMMAND_TOKEN_IMPORT_EMPTY("&cThere are no tokens files to import."),
+    COMMAND_TOKEN_IMPORT_FAILED("&cCould not import token(s)."),
+    COMMAND_TOKEN_IMPORT_PARTIAL("&cFailed to import one or more tokens."),
     COMMAND_TOKEN_NOSUCHTOKEN("&cToken not found."),
     COMMAND_TOKEN_NOHELDITEM("&cMust hold an item to use as a token."),
+    COMMAND_TOKEN_INVALIDFULLID("&cInvalid id and/or index for token."),
+    COMMAND_TOKEN_INVALIDID("&cInvalid id for token."),
+    COMMAND_TOKEN_INVALIDDATA("&cThe token's data is not valid."),
+    COMMAND_TOKEN_ISFUNGIBLE("&cCommand cannot be used on fungible tokens."),
+    COMMAND_TOKEN_ISNONFUNGIBLE("&cCommand cannot be used on non-fungible tokens."),
+    COMMAND_TOKEN_ISNONFUNGIBLEINSTANCE("&cCommand cannot be used for individual non-fungible tokens."),
+    COMMAND_TOKEN_MUSTPASSINDEX("&cMust provide an index for non-fungible tokens."),
 
     COMMAND_TRADE_DESCRIPTION("Show help for trade sub-commands."),
     COMMAND_TRADE_INVITE_DESCRIPTION("Invite a player to trade tokens."),
@@ -114,6 +163,12 @@ public enum Translation {
     COMMAND_TRADE_CONFIRM_WAIT("&6Please wait while the other player confirms the trade."),
     COMMAND_TRADE_COMPLETE("&6Your trade is complete!"),
 
+    COMMAND_QR_DESCRIPTION("Receive a map with a QR code on it for you to link your wallet with."),
+    COMMAND_QR_ALREADYLINKED("&cYou are already linked."),
+    COMMAND_QR_INVENTORYFULL("&cYour inventory is full."),
+    COMMAND_QR_CODENOTLOADED("&cThe QR code is not loaded yet."),
+    COMMAND_QR_ERROR("&cAn error occurred while creating the map."),
+
     COMMAND_UNLINK_DESCRIPTION("Removes link between wallet and player account."),
     COMMAND_UNLINK_SUCCESS("&aThe wallet has been unlinked from your account!"),
 
@@ -125,13 +180,21 @@ public enum Translation {
 
     ERRORS_EXCEPTION("&cERROR: &7%s"),
     ERRORS_CHOOSEOTHERPLAYER("&cYou must specify a player other than yourself."),
+    ERRORS_INVALIDPLAYERNAME("&6%s &cis not a valid player name."),
     ERRORS_PLAYERNOTONLINE("&6%s &cis not online."),
+    ERRORS_PLAYERNOTREGISTERED("&6%s &chas not been registered by the plugin yet."),
 
     MISC_NEWLINE(""),
 
+    QR_DISPLAYNAME("Enjin QR Code"),
+
+    WALLET_UI_FUNGIBLE("Go To Fungible"),
+    WALLET_UI_NONFUNGIBLE("Go To Non-Fungible"),
     WALLET_NOTLINKED_SELF("&cYou have not linked a wallet to your identity."),
     WALLET_NOTLINKED_OTHER("&6%s &chas not linked a wallet."),
-    WALLET_ALLOWANCENOTSET("&cYou must confirm the approve request in your wallet before you can send or trade tokens.");
+    WALLET_ALLOWANCENOTSET("&cYou must confirm the approve request in your wallet before you can send or trade tokens."),
+    WALLET_NOTENOUGHETH("&cYou do not have enough eth to send tokens."),
+    WALLET_OTHERNOTENOUGHETH("&c%s does not have enough eth to send tokens.");
 
     private static final Logger LOGGER = Logger.getLogger("EnjinCraft");
     public static final Locale DEFAULT_LOCALE = Locale.en_US;
@@ -140,14 +203,16 @@ public enum Translation {
     private static final Map<Locale, String> LOCALE_NAMES = new EnumMap<>(Locale.class);
     private static Locale serverLocale = DEFAULT_LOCALE;
 
-    private String path;
-    private Object def;
-    private int argCount;
+    private final String path;
+    private final Object def;
+    private final int argCount;
 
     Translation(Object def) {
-        this.path = this.name().replace('_', '.');
-        if (this.path.startsWith("."))
-            this.path = "internal" + path;
+        String path = name().replace('_', '.');
+        if (path.startsWith("."))
+            path = "internal" + path;
+
+        this.path = path;
         this.def = def;
         this.argCount = getArgCount(String.valueOf(def));
     }
@@ -165,7 +230,8 @@ public enum Translation {
     }
 
     public String translation(CommandSender sender) {
-        if ((sender instanceof ConsoleCommandSender && conf().shouldTranslateConsoleMessages()) || sender instanceof Player)
+        if ((sender instanceof ConsoleCommandSender && conf().shouldTranslateConsoleMessages())
+                || sender instanceof Player)
             return translation();
 
         return defaultTranslation();
@@ -182,7 +248,6 @@ public enum Translation {
         YamlConfiguration lang = LOCALE_CONFIGS.getOrDefault(locale, LOCALE_CONFIGS.get(DEFAULT_LOCALE));
 
         String out = lang.getString(path(), defaultTranslation());
-
         if (out == null || (this != Translation.MISC_NEWLINE && out.isEmpty()))
             out = defaultTranslation();
 
@@ -198,17 +263,20 @@ public enum Translation {
     }
 
     public void send(CommandSender sender, Object... args) {
-        String formatted = String.format(translation(sender instanceof Player ? serverLocale : DEFAULT_LOCALE), args);
+        String formatted = String.format(translation(sender instanceof Player
+                ? serverLocale
+                : DEFAULT_LOCALE), args);
+
         String[] lines = formatted.split("<br>");
         for (String line : lines)
             MessageUtils.sendString(sender, line);
     }
 
     private Conf conf() {
-        Optional<? extends Bootstrap> optionalBootstrap = EnjinCraft.bootstrap();
-        if (!optionalBootstrap.isPresent())
+        Bootstrap bootstrap = EnjinCraft.bootstrap().orElse(null);
+        if (bootstrap == null)
             throw new IllegalStateException("Bootstrap not available");
-        Bootstrap bootstrap = optionalBootstrap.get();
+
         return bootstrap.getConfig();
     }
 
@@ -225,6 +293,7 @@ public enum Translation {
             YamlConfiguration lang = locale.loadLocaleResource(plugin);
             if (lang == null)
                 continue;
+
             setDefaults(lang);
             LOCALE_CONFIGS.put(locale, lang);
             LOCALE_NAMES.put(locale, lang.getString(Translation._language.path()));
@@ -232,7 +301,8 @@ public enum Translation {
     }
 
     protected static void setDefaults(YamlConfiguration lang) {
-        if (lang == null) return;
+        if (lang == null)
+            return;
 
         for (Translation translation : values()) {
             if (!lang.isSet(translation.path)) {
@@ -249,7 +319,8 @@ public enum Translation {
         int argCount = 0;
         Matcher matcher = Pattern.compile("%s").matcher(text);
         while (matcher.find())
-            argCount += 1;
+            argCount++;
+
         return argCount;
     }
 

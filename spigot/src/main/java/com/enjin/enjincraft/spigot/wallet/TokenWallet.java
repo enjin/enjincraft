@@ -1,5 +1,9 @@
 package com.enjin.enjincraft.spigot.wallet;
 
+import com.enjin.enjincraft.spigot.Bootstrap;
+import com.enjin.enjincraft.spigot.EnjinCraft;
+import com.enjin.enjincraft.spigot.SpigotBootstrap;
+import com.enjin.enjincraft.spigot.util.TokenUtils;
 import com.enjin.sdk.models.balance.Balance;
 
 import java.util.ArrayList;
@@ -10,19 +14,58 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class TokenWallet {
 
-    private Map<String, MutableBalance> balances;
+    private final Map<String, MutableBalance> balances;
 
-    public TokenWallet(List<Balance> balances) {
+    public TokenWallet() {
         this.balances = new ConcurrentHashMap<>();
-        balances.forEach(balance -> this.balances.put(balance.getId(), new MutableBalance(balance)));
+    }
+
+    public void addBalances(List<Balance> balances) {
+        balances.forEach(balance -> setBalance(new MutableBalance(balance)));
     }
 
     public MutableBalance removeBalance(String id) {
-        return balances.remove(id);
+        try {
+            return balances.remove(TokenUtils.toFullId(id));
+        } catch (IllegalArgumentException e) {
+            return null;
+        } catch (Exception e) {
+            log(e);
+            return null;
+        }
+    }
+
+    public MutableBalance removeBalance(String tokenId, String tokenIndex) {
+        try {
+            return removeBalance(TokenUtils.createFullId(tokenId, tokenIndex));
+        } catch (IllegalArgumentException e) {
+            return null;
+        } catch (Exception e) {
+            log(e);
+            return null;
+        }
     }
 
     public MutableBalance getBalance(String id) {
-        return balances.get(id);
+        try {
+            return balances.get(TokenUtils.toFullId(id));
+        } catch (IllegalArgumentException e) {
+            return null;
+        } catch (Exception e) {
+            log(e);
+            return null;
+        }
+    }
+
+    public MutableBalance getBalance(String tokenId, String tokenIndex) {
+        try {
+            return getBalance(TokenUtils.createFullId(tokenId, tokenIndex));
+        } catch (IllegalArgumentException e) {
+            return null;
+        } catch (Exception e) {
+            log(e);
+            return null;
+        }
     }
 
     public List<MutableBalance> getBalances() {
@@ -32,7 +75,13 @@ public class TokenWallet {
     public void setBalance(MutableBalance balance) {
         if (balance == null)
             return;
-        balances.put(balance.id(), balance);
+
+        try {
+            balances.put(TokenUtils.createFullId(balance.id(), balance.index()), balance);
+        } catch (IllegalArgumentException ignored) {
+        } catch (Exception e) {
+            log(e);
+        }
     }
 
     public Map<String, MutableBalance> getBalancesMap() {
@@ -42,4 +91,15 @@ public class TokenWallet {
     public boolean isEmpty() {
         return balances.isEmpty();
     }
+
+    public void clear() {
+        this.balances.clear();
+    }
+
+    private static void log(Exception e) {
+        Bootstrap bootstrap = EnjinCraft.bootstrap().orElse(null);
+        if (bootstrap instanceof SpigotBootstrap)
+            ((SpigotBootstrap) bootstrap).log(e);
+    }
+
 }

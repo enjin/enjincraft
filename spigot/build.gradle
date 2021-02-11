@@ -1,5 +1,7 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
+final String LIBS = "com.enjin.enjincraft.spigot.libs"
+
 jar.archiveBaseName = 'EnjinCraft-Spigot'
 
 repositories {
@@ -9,33 +11,39 @@ repositories {
 }
 
 dependencies {
+    // Server provided dependencies
     shadow deps.spigot
-    shadow deps.placeholderApi
     shadow deps.sqlite
-    shadow deps.kyoriText
-    shadow deps.kyoriTextLegacy
-    shadow deps.kyoriTextAdapterBukkit
-    shadow deps.pusher
-    shadow deps.okhttp
-    shadow deps.okhttpUrlConnection
-    shadow deps.retrofit
-    shadow deps.retrofitGson
-
+    // Plugin provided dependencies
+    shadow deps.placeholderApi
+    // EnjinCraft provided dependencies
     implementation deps.minecraftCommons
     implementation deps.nbtapi
+    implementation deps.kyoriText
+    implementation deps.kyoriTextAdapterBukkit
 
-    api deps.enjinSdk
-
-    // Set to compileOnly to resolve issue with another project including a different version of GSON.
-    compileOnly deps.gson
+    api (deps.enjinSdk) {
+        exclude module: "gson"
+    }
 }
 
 // Exclude GSON as this is fetched at runtime.
 shadowJar {
-    dependencies {
-        exclude(dependency("com.google.code.gson:gson"))
-    }
-    relocate("de.tr7zw.changeme", "com.enjin.enjincraft.spigot.libs")
+    relocate("com.fasterxml.jackson", "${LIBS}.jackson")
+    relocate("com.pusher", "${LIBS}.pusher")
+    relocate("de.tr7zw.annotations", "${LIBS}.tr7zw.annotations")
+    relocate("de.tr7zw.changeme", "${LIBS}.tr7zw")
+    relocate("io.sentry", "${LIBS}.sentry")
+    relocate("kotlin", "${LIBS}.kotlin")
+    relocate("net.kyori", "${LIBS}.kyori")
+    relocate("okhttp3", "${LIBS}.okhttp3")
+    relocate("okio", "${LIBS}.okio")
+    relocate("org.checkerframework", "${LIBS}.checkerframework")
+    relocate("org.intellij", "${LIBS}.intellij")
+    relocate("org.java_websocket", "${LIBS}.java_websocket")
+    relocate("org.jetbrains", "${LIBS}.jetbrains")
+    relocate("org.slf4j", "${LIBS}.slf4j")
+    relocate("retrofit2", "${LIBS}.retrofit2")
 }
 
 processResources {

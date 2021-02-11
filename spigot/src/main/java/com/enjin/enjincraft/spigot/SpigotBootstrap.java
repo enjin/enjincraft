@@ -2,13 +2,14 @@ package com.enjin.enjincraft.spigot;
 
 import com.enjin.enjincraft.spigot.cmd.CmdEnj;
 import com.enjin.enjincraft.spigot.configuration.Conf;
-import com.enjin.enjincraft.spigot.token.TokenManager;
 import com.enjin.enjincraft.spigot.hooks.PlaceholderApiExpansion;
 import com.enjin.enjincraft.spigot.i18n.Translation;
 import com.enjin.enjincraft.spigot.listeners.EnjEventListener;
+import com.enjin.enjincraft.spigot.listeners.QrItemListener;
 import com.enjin.enjincraft.spigot.listeners.TokenItemListener;
 import com.enjin.enjincraft.spigot.player.PlayerManager;
 import com.enjin.enjincraft.spigot.storage.Database;
+import com.enjin.enjincraft.spigot.token.TokenManager;
 import com.enjin.enjincraft.spigot.trade.TradeManager;
 import com.enjin.enjincraft.spigot.trade.TradeUpdateTask;
 import com.enjin.enjincraft.spigot.util.MessageUtils;
@@ -25,12 +26,13 @@ import com.enjin.sdk.services.notification.PusherNotificationService;
 import com.enjin.sdk.utils.LoggerProvider;
 import io.sentry.Sentry;
 import io.sentry.jul.SentryHandler;
-import net.kyori.text.TextComponent;
-import net.kyori.text.format.TextColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.Plugin;
 
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -65,9 +67,6 @@ public class SpigotBootstrap implements Bootstrap, Module {
             if (!initConfig())
                 return;
 
-            tokenManager = new TokenManager(this, plugin.getDataFolder());
-            tokenManager.loadTokens();
-
             if (!StringUtils.isEmpty(conf.getSentryUrl())) {
                 sentryHandler = new SentryHandler();
                 Sentry.init(String.format("%s?release=%s&stacktrace.app.packages=com.enjin",
@@ -95,28 +94,33 @@ public class SpigotBootstrap implements Bootstrap, Module {
 
             // Init Managers
             playerManager = new PlayerManager(this);
+            tokenManager = new TokenManager(this);
             tradeManager = new TradeManager(this);
+            tokenManager.loadTokens();
 
             // Register Listeners
             Bukkit.getPluginManager().registerEvents(playerManager, plugin);
             Bukkit.getPluginManager().registerEvents(tradeManager, plugin);
             Bukkit.getPluginManager().registerEvents(new TokenItemListener(this), plugin);
+            Bukkit.getPluginManager().registerEvents(new QrItemListener(this), plugin);
 
             // Register Commands
-            PluginCommand pluginCommand = plugin.getCommand("enj");
+            PluginCommand pluginCommand = Objects.requireNonNull(plugin.getCommand("enj"),
+                    "Missing \"enj\" command definition in plugin.yml");
             CmdEnj cmdEnj = new CmdEnj(this);
             pluginCommand.setExecutor(cmdEnj);
 
             if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-                MessageUtils.sendComponent(Bukkit.getConsoleSender(), TextComponent.of("[EnjinCraft] Registering PlaceholderAPI Expansion")
-                        .color(TextColor.GOLD));
+                MessageUtils.logComponent(Component.text("[EnjinCraft] Registering PlaceholderAPI Expansion")
+                        .color(NamedTextColor.GOLD));
+
                 boolean registered = new PlaceholderApiExpansion(this).register();
                 if (registered) {
-                    MessageUtils.sendComponent(Bukkit.getConsoleSender(), TextComponent.of("[EnjinCraft] Registered PlaceholderAPI Expansion")
-                            .color(TextColor.GREEN));
+                    MessageUtils.logComponent(Component.text("[EnjinCraft] Registered PlaceholderAPI Expansion")
+                            .color(NamedTextColor.GREEN));
                 } else {
-                    MessageUtils.sendComponent(Bukkit.getConsoleSender(), TextComponent.of("[EnjinCraft] Could not register PlaceholderAPI Expansion")
-                            .color(TextColor.RED));
+                    MessageUtils.logComponent(Component.text("[EnjinCraft] Could not register PlaceholderAPI Expansion")
+                            .color(NamedTextColor.RED));
                 }
             }
 
@@ -146,10 +150,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
 
         try {
             // Attempt to authenticate the client using an app secret
-            networkResponse = trustedPlatformClient.authAppSync(
-                    conf.getAppId(),
-                    conf.getAppSecret()
-            );
+            networkResponse = trustedPlatformClient.authAppSync(conf.getAppId(), conf.getAppSecret());
         } catch (Exception ex) {
             throw new AuthenticationException(ex);
         }
@@ -167,12 +168,10 @@ public class SpigotBootstrap implements Bootstrap, Module {
             // Fetch the platform details
             HttpResponse<GraphQLResponse<PlatformDetails>> networkResponse = trustedPlatformClient.getPlatformService()
                     .getPlatformSync(new GetPlatform().withNotificationDrivers());
-
             if (!networkResponse.isSuccess())
                 throw new NetworkException(networkResponse.code());
 
             GraphQLResponse<PlatformDetails> graphQLResponse = networkResponse.body();
-
             if (!graphQLResponse.isSuccess())
                 throw new GraphQLException(graphQLResponse.getErrors());
 
@@ -186,12 +185,11 @@ public class SpigotBootstrap implements Bootstrap, Module {
         try {
             // Start the notification service and register a listener
             notificationsService = new PusherNotificationService(new LoggerProvider(getLogger(),
-                                                                                    conf.isSdkDebugEnabled(),
-                                                                                    Level.INFO), platformDetails);
+                    conf.isSdkDebugEnabled(),
+                    Level.INFO), platformDetails);
             notificationsService.start();
             notificationsService.registerListener(new EnjEventListener(this));
             notificationsService.subscribeToApp(conf.getAppId());
-            tokenManager.subscribeToTokens();
         } catch (Exception ex) {
             throw new NotificationServiceException(ex);
         }
@@ -249,7 +247,7 @@ public class SpigotBootstrap implements Bootstrap, Module {
         boolean validUrl = !StringUtils.isEmpty(conf.getBaseUrl());
         boolean validAppId = conf.getAppId() >= 0;
         boolean validSecret = !StringUtils.isEmpty(conf.getAppSecret());
-        boolean validIdentityId = conf.getDevIdentityId() >= 0;
+        boolean validDevAddress = conf.getDevAddress() != null && !conf.getDevAddress().isEmpty();
 
         if (!validUrl)
             plugin.getLogger().warning("Invalid platform url specified in config.");
@@ -257,10 +255,10 @@ public class SpigotBootstrap implements Bootstrap, Module {
             plugin.getLogger().warning("Invalid app id specified in config.");
         if (!validSecret)
             plugin.getLogger().warning("Invalid app secret specified in config.");
-        if (!validIdentityId)
-            plugin.getLogger().warning("Invalid dev identity id specified in config.");
+        if (!validDevAddress)
+            plugin.getLogger().warning("Invalid dev address specified in config.");
 
-        return validUrl && validAppId && validSecret && validIdentityId;
+        return validUrl && validAppId && validSecret && validDevAddress;
     }
 
     public void loadLocales() {
