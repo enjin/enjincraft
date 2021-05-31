@@ -5,7 +5,7 @@ buildscript {
             'kyoriText'       : '4.1.1',
             'kyoriTextAdapter': '4.0.0-SNAPSHOT',
             'spigot'          : '1.13.2-R0.1-SNAPSHOT',
-            'placeholderApi'  : '2.10.3',
+            'placeholderApi'  : '2.10.9',
             'sqlite'          : '3.28.0',
             'sentry'          : '1.7.27',
             'nbtapi'          : '2.6.0'
