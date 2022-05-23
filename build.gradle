@@ -1,7 +1,7 @@
 buildscript {
     ext.versions = [
             'minecraftCommons': '1.0.0',
-            'enjinSdk'        : '1.0.7',
+            'enjinSdk'        : '1.0.9',
             'kyoriText'       : '4.1.1',
             'kyoriTextAdapter': '4.0.1',
             'spigot'          : '1.13.2-R0.1-SNAPSHOT',
