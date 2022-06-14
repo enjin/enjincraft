@@ -8,7 +8,7 @@ buildscript {
             'placeholderApi'  : '2.10.9',
             'sqlite'          : '3.28.0',
             'sentry'          : '1.7.27',
-            'nbtapi'          : '2.9.2'
+            'nbtapi'          : '2.10.0'
     ]
 
     ext.deps = [
